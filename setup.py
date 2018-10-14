@@ -46,6 +46,7 @@ for reqs in extras_require.values():
 setup_requires = [
     'Babel>=2.4.0',
     'pytest-runner>=3.0.0,<5',
+    'orisun >= 1.0.0',
 ]
 
 install_requires = [
