@@ -46,7 +46,6 @@ for reqs in extras_require.values():
 setup_requires = [
     'Babel>=2.4.0',
     'pytest-runner>=3.0.0,<5',
-    'orisun >= 1.0.0',
 ]
 
 install_requires = [
@@ -54,6 +53,7 @@ install_requires = [
     'Flask-Debugtoolbar>=0.10.1',
     'invenio[{db},{es},base,auth,metadata]~={version}'.format(
         db=DATABASE, es=ELASTICSEARCH, version=INVENIO_VERSION),
+    'orisun >= 1.0.0',
 ]
 
 packages = find_packages()
