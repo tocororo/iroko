@@ -65,3 +65,8 @@ target/
 
 # Vim swapfiles
 .*.sw?
+
+iroko_env.tar.gz
+data/images
+
+*DS_Store

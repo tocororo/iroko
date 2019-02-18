@@ -1,0 +1,96 @@
+{
+  "mappings": {
+    "space-v1.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "text",
+          "index": false
+        },
+        "orid": {
+          "type": "double"
+        },
+        "title": {
+          "type": "text",
+          "copy_to": "suggest_title"
+        },
+        "suggest_title": {
+          "type": "completion"
+        },
+        "description": {
+          "type": "text"
+        },
+        "url": {
+          "type": "keyword"
+        },
+        "issn":{
+          "type": "object",
+          "properties":{
+            "printed":{
+              "type": "keyword"
+            },
+            "electronic":{
+              "type": "keyword"
+            },
+            "link":{
+              "type": "keyword"
+            }
+          }
+        },
+        "rnps": {
+          "type": "keyword"
+        },
+        "email":{
+          "type": "keyword"
+        },
+        "logo":{
+          "type": "keyword"
+        },
+        "seriadas_cubanas":{
+          "type": "keyword"
+        },
+        "source_category": {
+          "type": "keyword"
+        },
+        "institution": {
+          "type": "text"
+        },
+        "subjects": {
+            "type": "text"
+        },
+        "licence": {
+          "type": "keyword"
+        },
+        "year_start": {
+          "type": "date",
+          "format":"yyyy"
+        },
+        "year_end": {
+          "type": "date",
+          "format":"yyyy"
+        },
+        "keywords": {
+          "type": "keyword"
+        },
+        "referecences": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "keyword"
+            },
+            "url": {
+              "type": "keyword"
+            }
+          }
+        },
+        "_created": {
+          "type": "date"
+        },
+        "_updated": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}

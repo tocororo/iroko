@@ -15,17 +15,19 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
-from datetime import timedelta
+import os
 
+from datetime import timedelta
+from invenio_records_rest.utils import allow_all
 
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
 
-IP_ELASTIC = '10.80.3.9'
-IP_POSGRE = '10.80.3.10'
-IP_RABBIT = '10.80.3.11'
-IP_REDIS = '10.80.3.12'
+IP_ELASTIC = '10.2.25.26'
+IP_POSGRE = '10.80.4.151'
+IP_RABBIT = '10.80.4.250'
+IP_REDIS = '10.80.4.109'
 
 
 ACCOUNTS_SESSION_REDIS_URL='redis://'+IP_REDIS+':6379/1'
@@ -36,14 +38,14 @@ CELERY_BROKER_URL='amqp://iroko:iroko@'+IP_RABBIT+':5672/'
 CELERY_RESULT_BACKEND='redis://'+IP_REDIS+':6379/2'
 
 SECRET_KEY='iroko_secret_key'
-SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://postgres@'+IP_POSGRE+'/iroko'
+SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://iroko:iroko@'+IP_POSGRE+'/iroko'
 WSGI_PROXIES=2
 RATELIMIT_STORAGE_URL='redis://'+IP_REDIS+':6379/3'
 
 
 # SEARCH_ELASTIC_HOSTS='["http://"]'
 params = dict(
-    http_auth=('admin', 'malayibiri'),
+#    http_auth=('admin', 'malayibiri'),
 )
 SEARCH_ELASTIC_HOSTS = [
     dict(host=IP_ELASTIC, **params)
@@ -160,7 +162,7 @@ SESSION_COOKIE_SECURE = True
 #: provided, the allowed hosts variable is set to localhost. In production it
 #: should be set to the correct host and it is strongly recommended to only
 #: route correct hosts to the application.
-APP_ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+APP_ALLOWED_HOSTS = ['localhost', '127.0.0.1','10.80.4.34']
 
 # OAI-PMH
 # =======
@@ -174,3 +176,74 @@ OAISERVER_ID_PREFIX = 'oai:iroko.upr.edu.cu:'
 
 #: Switches off incept of redirects by Flask-DebugToolbar.
 DEBUG_TB_INTERCEPT_REDIRECTS = False
+
+FLASK_ADMIN_SWATCH = 'default'
+
+
+###############################################################################
+# JSON Schemas
+###############################################################################
+
+JSONSCHEMAS_ENDPOINT = '/schemas'
+JSONSCHEMAS_HOST = os.environ.get('JSONSCHEMAS_HOST', 'localhost:5000')
+JSONSCHEMAS_URL_SCHEME = 'https'
+
+
+
+
+
+#: Records REST API endpoints.
+# RECORDS_API = '/api/records/{pid_value}'
+# RECORDS_REST_ENDPOINTS = dict(
+#     recid=dict(
+#         pid_type='recid',
+#         pid_minter='iroko_record_minter',
+#         pid_fetcher='iroko_record_fetcher',
+#         list_route='/records/',
+#         item_route='/records/<{0}:pid_value>'.format(
+#             'pid(recid,record_class="iroko.modules.records.api:IrokoRecord")'
+#         ),
+#         search_index='records',
+#         record_class='iroko.modules.records.api:IrokoRecord',
+#         search_type=['record-v1.0.0'],
+#         search_factory_imp='iroko.modules.records.query.search_factory',
+#         record_serializers={
+#             'application/json': (
+#                 'iroko.modules.records.serializers.legacyjson_v1_response'),
+#             'application/vnd.iroko.v1+json': (
+#                 'iroko.modules.records.serializers.json_v1_response'),
+#             'application/ld+json': (
+#                 'iroko.modules.records.serializers.schemaorg_jsonld_v1_response'),
+#             'application/marcxml+xml': (
+#                 'iroko.modules.records.serializers.marcxml_v1_response'),
+#             'application/x-bibtex': (
+#                 'iroko.modules.records.serializers.bibtex_v1_response'),
+#             'application/x-datacite+xml': (
+#                 'iroko.modules.records.serializers.datacite_v31_response'),
+#             'application/x-datacite-v41+xml': (
+#                 'iroko.modules.records.serializers.datacite_v41_response'),
+#             'application/x-dc+xml': (
+#                 'iroko.modules.records.serializers.dc_v1_response'),
+#             'application/vnd.citationstyles.csl+json': (
+#                 'iroko.modules.records.serializers.csl_v1_response'),
+#             'text/x-bibliography': (
+#                 'iroko.modules.records.serializers.citeproc_v1_response'),
+#         },
+#         search_serializers={
+#             'application/json': (
+#                 'iroko.modules.records.serializers:legacyjson_v1_search'),
+#             'application/vnd.iroko.v1+json': (
+#                 'iroko.modules.records.serializers:json_v1_search'),
+#             'application/marcxml+xml': (
+#                 'iroko.modules.records.serializers.marcxml_v1_search'),
+#             'application/x-bibtex': (
+#                 'iroko.modules.records.serializers:bibtex_v1_search'),
+#             'application/x-datacite+xml': (
+#                 'iroko.modules.records.serializers.datacite_v31_search'),
+#             'application/x-dc+xml': (
+#                 'iroko.modules.records.serializers.dc_v1_search'),
+#         },
+#         default_media_type='application/vnd.iroko.v1+json',
+#         read_permission_factory_imp=allow_all,
+#     ),
+# )

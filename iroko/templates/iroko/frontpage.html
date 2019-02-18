@@ -6,6 +6,19 @@
 #}
 {%- extends "invenio_theme/frontpage.html" %}
 
+
+{%- block css %}
+
+  {%- assets "invenio_theme_css" %}
+  <link href="{{ ASSET_URL }}" rel="stylesheet">
+  {%- endassets %}
+
+    {%- assets "iroko_theme_css" %}
+    <link href="{{ ASSET_URL }}" rel="stylesheet">
+    {%- endassets %}
+
+{%- endblock css %}
+
 {%- block page_body %}
 <div class="container marketing">
   <div class="row">

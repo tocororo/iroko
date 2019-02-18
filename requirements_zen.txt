@@ -1,0 +1,10 @@
+
+invenio-records-files==1.0.0a11
+invenio-pidrelations==1.0.0a4
+invenio-previewer==1.0.0a11
+invenio-marc21==1.0.0a8
+
+Sickle==0.6.2
+IDUtils==1.0.0
+
+pycountry==18.2.23
