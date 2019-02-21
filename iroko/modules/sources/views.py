@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2016 CERN.
+# Copyright (C) 2016, 2018 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -22,30 +22,36 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Invenio module for OAI-PMH metadata harvesting between repositories."""
+"""Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
 
-from . import config
-from .cli import irokoapp as iroko_cmd
+from flask import Blueprint, jsonify, request, json
+
+from iroko.modules.sources.models import Sources, Term_sources
+
+api_blueprint = Blueprint(
+    'iroko_api_sources',
+    __name__,
+)
 
 
-class IrokoApp(object):
-    """Iroko extension."""
+@api_blueprint.route('/sources')
+def get_sources():
+    """."""
+    # path = request.args.get('pathname', None)
 
-    def __init__(self, app=None):
-        """Extension initialization."""
-        if app:
-            self.init_app(app)
+    result = []
+    for src in Sources.query.all():
+        result.append({'name': src.name})
 
-    def init_app(self, app):
-        """Flask application initialization."""
-        self.init_config(app)
-        app.cli.add_command(iroko_cmd)
-        app.extensions['iroko'] = self
+    return jsonify(result)
 
-    def init_config(self, app):
-        """Initialize configuration."""
-        for k in dir(config):
-            if k.startswith('IROKO_'):
-                app.config.setdefault(k, getattr(config, k))
+@api_blueprint.route('/sources/<id>')
+def get_source_by_id(id):
+    result = []
+    src = Sources.query.filter_by(name=id).first()
+    if vocab is not None:
+        for term in vocab.terms:
+            result.append(term.to_dict())
+    return jsonify(result)

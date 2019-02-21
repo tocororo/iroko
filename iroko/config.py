@@ -24,10 +24,10 @@ def _(x):
     """Identity function used to trigger string extraction."""
     return x
 
-IP_ELASTIC = '10.2.25.26'
-IP_POSGRE = '10.80.4.151'
-IP_RABBIT = '10.80.4.250'
-IP_REDIS = '10.80.4.109'
+IP_ELASTIC = '10.2.83.93'
+IP_POSGRE = '10.138.10.132'
+IP_RABBIT = '10.138.10.34'
+IP_REDIS = '10.138.10.91'
 
 
 ACCOUNTS_SESSION_REDIS_URL='redis://'+IP_REDIS+':6379/1'
