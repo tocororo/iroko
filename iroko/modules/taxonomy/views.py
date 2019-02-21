@@ -28,7 +28,8 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, jsonify, request, json
 
-from iroko.modules.taxonomy.models import Vocabulary
+from iroko.modules.taxonomy.models import Vocabulary, Term
+from iroko.modules.taxonomy.marshmallow import vocabularies_schema, vocabulary_schema, terms_schema
 
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
@@ -41,9 +42,9 @@ def get_vocabularies():
     """."""
     # path = request.args.get('pathname', None)
 
-    result = []
-    for voc in Vocabulary.query.all():
-        result.append({'name': voc.name})
+    result = Vocabulary.query.all()
+    # for voc in Vocabulary.query.all():
+    #     result.append({'name': voc.name})
     # if pat
     #     first = Taxonomy.get_for(path)
     #     if first:
@@ -52,13 +53,17 @@ def get_vocabularies():
     #             'style': first.style
     #         }
 
-    return jsonify(result)
+    # return jsonify(result.)
+    return jsonify(vocabularies_schema.dump(result))
 
 @api_blueprint.route('/taxonomy/terms/<vocabulary>')
 def get_terms(vocabulary):
     result = []
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
-    if vocab is not None:
-        for term in vocab.terms:
-            result.append(term.to_dict())
-    return jsonify(result)
+    terms = terms_schema.dump(vocab.terms)
+    # if vocab is not None:
+    #      result = dict(vocab.terms)
+        # for term in vocab.terms:
+        #     result.append(term.to_dict())
+    # return jsonify(result)
+    return jsonify({'vocab': vocabulary_schema.dump(vocab), 'terms': terms})

@@ -48,13 +48,13 @@ class TermModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'vocabulary')
+    list_all = ('id', 'name', 'vocabulary','uuid')
 
     column_list = list_all
 
     column_default_sort = ('name', True)
 
-    column_filters = list_all
+    column_filters =  ('id', 'name', 'vocabulary')
 
     # form_columns = ('name', 'description')
     form_columns = ('vocabulary', 'name', 'description', 'parent_id')

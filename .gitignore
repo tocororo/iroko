@@ -70,3 +70,6 @@ iroko_env.tar.gz
 data/images
 
 *DS_Store
+
+iroko/config.py
+iroko/config.py
