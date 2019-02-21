@@ -5,13 +5,22 @@
   "title": "documents v1.0.0",
   "type": "object",
   "properties": {
-    "title": {
-      "description": "Document title.",
-      "type": "string"
-    },
     "docid": {
       "description": "Invenio document identifier (integer).",
       "type": "number"
+    },
+    "source":{
+      "description": "UUID Source from which the document was harvest",
+      "type": "string"
+    },
+    "source_url":{
+      "description": "original url of the document",
+      "type": "string",
+      "format": "uri"
+    },
+    "title": {
+      "description": "Document title.",
+      "type": "string"
     },
     "keywords": {
       "description": "Free text keywords.",
@@ -20,8 +29,13 @@
       },
       "type": "array"
     },
-    "orig_url": {
-      "description": "The original url of the document"
+    "description": {
+      "description": "Description/abstract for document.",
+      "type": "string"
+    },
+    "language": {
+      "description": "ISO 639-3 language code.",
+      "type": "string"
     },
     "publication_date": {
       "description": "When the document is published",
@@ -75,8 +89,27 @@
             "type": "string",
             "enum": [
               "ContactPerson",
+              "DataCollector",
+              "DataCurator",
+              "DataManager",
+              "Distributor",
+              "Editor",
+              "Funder",
+              "HostingInstitution",
+              "Other",
+              "Producer",
+              "ProjectLeader",
+              "ProjectManager",
+              "ProjectMember",
+              "RegistrationAgency",
+              "RegistrationAuthority",
+              "RelatedPerson",
+              "ResearchGroup",
+              "RightsHolder",
               "Researcher",
-              "Other"
+              "Sponsor",
+              "Supervisor",
+              "WorkPackageLeader"
             ]
           }
         },
@@ -85,6 +118,97 @@
         ]
 
       }
+    },
+    "references": {
+      "description": "Raw textual references",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "raw_reference": {
+            "type": "string"
+          }
+        },
+        "title": "Reference",
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "related_identifiers": {
+      "description": "Related research outputs.",
+      "items": {
+        "properties": {
+          "identifier": {
+            "description": "Identifier of research output.",
+            "type": "string"
+          },
+          "relation": {
+            "description": "Relation type.",
+            "enum": [
+              "isCitedBy",
+              "cites",
+              "isSupplementTo",
+              "isSupplementedBy",
+              "isContinuedBy",
+              "continues",
+              "hasMetadata",
+              "isMetadataFor",
+              "isNewVersionOf",
+              "isPreviousVersionOf",
+              "isPartOf",
+              "hasPart",
+              "isReferencedBy",
+              "references",
+              "isDocumentedBy",
+              "documents",
+              "isCompiledBy",
+              "compiles",
+              "isVariantFormOf",
+              "isOrignialFormOf",
+              "isIdenticalTo",
+              "isReviewedBy",
+              "reviews",
+              "isDerivedFrom",
+              "isSourceOf"
+            ],
+            "type": "string"
+          },
+          "scheme": {
+            "description": "Persistent identifier scheme.",
+            "enum": [
+              "ark",
+              "arxiv",
+              "doi",
+              "bibcode",
+              "ean8",
+              "ean13",
+              "eissn",
+              "handle",
+              "isbn",
+              "issn",
+              "istc",
+              "lissn",
+              "lsid",
+              "pmid",
+              "pmcid",
+              "purl",
+              "upc",
+              "url",
+              "urn",
+              "orcid",
+              "gnd",
+              "ads"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifier",
+          "relation",
+          "scheme"
+        ],
+        "type": "object"
+      },
+      "type": "array"
     }
   },
   "required": [

@@ -28,6 +28,8 @@ from datetime import datetime
 
 from sqlalchemy import and_, or_
 from sqlalchemy_utils.models import Timestamp
+from sqlalchemy_utils.types import UUIDType
+import uuid
 
 from invenio_db import db
 
@@ -51,6 +53,7 @@ class Term(db.Model):
     __tablename__ = 'taxonomy_term'
 
     id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(UUIDType, default=uuid.uuid4)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
 
@@ -69,4 +72,5 @@ class Term(db.Model):
     def to_dict(self):
         return {'name': self.name, 
                 'description': self.description,
+                'uuid': self.uuid,
                 'parent': self.parent_id}
