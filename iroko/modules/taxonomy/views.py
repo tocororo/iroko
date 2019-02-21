@@ -43,27 +43,13 @@ def get_vocabularies():
     # path = request.args.get('pathname', None)
 
     result = Vocabulary.query.all()
-    # for voc in Vocabulary.query.all():
-    #     result.append({'name': voc.name})
-    # if pat
-    #     first = Taxonomy.get_for(path)
-    #     if first:
-    #         result = {
-    #             'message': first.message,
-    #             'style': first.style
-    #         }
-
-    # return jsonify(result.)
     return jsonify(vocabularies_schema.dump(result))
 
 @api_blueprint.route('/taxonomy/terms/<vocabulary>')
 def get_terms(vocabulary):
     result = []
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
-    terms = terms_schema.dump(vocab.terms)
-    # if vocab is not None:
-    #      result = dict(vocab.terms)
-        # for term in vocab.terms:
-        #     result.append(term.to_dict())
-    # return jsonify(result)
-    return jsonify({'vocab': vocabulary_schema.dump(vocab), 'terms': terms})
+    if vocab:
+        terms = terms_schema.dump(vocab.terms)
+        return jsonify({'vocab': vocabulary_schema.dump(vocab), 'terms': terms})
+    return jsonify({'vocab': 'no vocab'})
