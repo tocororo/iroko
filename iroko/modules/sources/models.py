@@ -28,40 +28,50 @@ from datetime import datetime
 
 from sqlalchemy import and_, or_
 from sqlalchemy_utils.models import Timestamp
-
+from sqlalchemy_utils.types import UUIDType, JSONType
+import uuid
+import enum
 from invenio_db import db
+
+from iroko.modules.taxonomy.models import Term
+
+class SourcesType(enum.Enum):
+    JOURNAL = "Journal"
+    REPOSITORY = "Repository"
+    WEBSITE = "Website"
+
+class HarvestType(enum.Enum):
+    OAI = "OAI-PMH"
+    SWORD = "SWORD"
+    CUSTOM = "CUSTOM"
 
 class Sources(db.Model):
     """Define a Source"""
 
-    __tablename__ = 'sources'
+    __tablename__ = 'iroko_sources'
 
     id = db.Column( db.Integer, primary_key=True)
-    uuid = db.Column( db.String, unique=True)
+    uuid = db.Column(UUIDType, default=uuid.uuid4)
     name = db.Column( db.String, nullable=False, unique=True)
-    description = db.Column( db.String )
-    source_type = db.Column( db.String )
-    data = db.Column( db.String )
+    source_type = db.Column( db.Enum(SourcesType))
+    data = db.Column( JSONType )
     
-    term_sources = relationship("Term_sources", back_populates="sources")
+    harvest_type = db.Column(db.Enum(HarvestType))
+    harvest_endpoint = db.Column(db.String)
+    
+    #term_sources = db.relationship("Term_sources", back_populates="sources")
 
     def __str__(self):
         """Representation."""
         return self.name
-    
-    def to_dict(self):
-        return {'name': self.name, 
-                'description': self.description,
-                'parent': self.term_sources}
 
 
-class Term_sources(db.Model):
-    __tablename__ = 'term_sources'
+class TermSources(db.Model):
+    __tablename__ = 'iroko_terms_sources'
 
-    term_id = Column( Integer, ForeignKey('taxonomy_term.id'), primary_key=True)
-    sources_id = Column( Integer, ForeignKey('sources.id'), primary_key=True)
-    data = de.Column( db.String )
+    term_id = db.Column( db.Integer, db.ForeignKey('iroko_terms.id'), primary_key=True)
+    sources_id = db.Column( db.Integer, db.ForeignKey('iroko_sources.id'), primary_key=True)
+    data = db.Column( JSONType )
 
-    source = relationship("Sources", back_populates="taxonomy_term") 
-    term = relationship("Term", back_populates="sources")
-
+    source = db.relationship("Sources", backref=db.backref("terms")) 
+    term = db.relationship(Term, backref=db.backref("sources"))

@@ -24,10 +24,10 @@ def _(x):
     """Identity function used to trigger string extraction."""
     return x
 
-IP_ELASTIC = '10.2.83.93'
-IP_POSGRE = '10.138.10.132'
-IP_RABBIT = '10.138.10.34'
-IP_REDIS = '10.138.10.91'
+IP_ELASTIC = '10.2.83.239'
+IP_POSGRE = '10.80.3.147'
+IP_RABBIT = '10.80.3.250'
+IP_REDIS = '10.80.3.217'
 
 
 ACCOUNTS_SESSION_REDIS_URL='redis://'+IP_REDIS+':6379/1'
@@ -247,3 +247,9 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 #         read_permission_factory_imp=allow_all,
 #     ),
 # )
+
+INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
+INIT_JOURNALS_JSON_PATH = 'data/journals.json'
+
+
+REST_ENABLE_CORS = True

@@ -153,6 +153,13 @@ def get_records(identifiers, metadata_prefix=None, url=None, name=None,
     return request, records
 
 
+def get_sets(metadata_prefix=None, url=None, name=None,
+                encoding=None):
+    print(url)
+    request = Sickle(url)
+    return request.ListSets()
+
+
 def get_info_by_oai_name(name):
     """Get basic OAI request data from the OAIHarvestConfig model.
 
@@ -163,3 +170,39 @@ def get_info_by_oai_name(name):
     obj = get_oaiharvest_object(name)
     lastrun = obj.lastrun.strftime("%Y-%m-%d")
     return obj.baseurl, obj.metadataprefix, lastrun, obj.setspecs
+
+
+def get_records_dates(metadata_prefix=None, from_date=None, until_date=None,
+                 url=None, encoding=None):
+    request = Sickle(url, encoding=encoding)
+
+    # By convention, when we have a url we have no lastrun, and when we use
+    # the name we can either have from_date (if provided) or lastrun.
+    dates = {
+        'from': from_date,
+        'until': until_date
+    }
+
+    # Sanity check
+    if (dates['until'] is not None) and (dates['from'] > dates['until']):
+        raise WrongDateCombination("'Until' date larger than 'from' date.")
+
+
+    # Use a dict to only return the same record once
+    # (e.g. if it is part of several sets)
+    records = {}
+    params = {
+            'metadataPrefix': metadata_prefix or "oai_dc"
+    }
+    params.update(dates)
+    try:
+        print(params)
+        c=0
+        for record in request.ListRecords(**params):
+            records[record.header.identifier] = record
+            c+=1
+    except NoRecordsMatch:
+        request, records
+    print(c)
+    return request, records.values()
+

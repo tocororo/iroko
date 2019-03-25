@@ -1,10 +1,16 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost/schemas/records/document-v1.0.0.json",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "title": "documents v1.0.0",
   "type": "object",
   "properties": {
+    "pid": {
+      "type": "string"
+    },
+    "original_identifier": {
+      "type": "string"
+    },
     "docid": {
       "description": "Invenio document identifier (integer).",
       "type": "number"
@@ -119,6 +125,55 @@
 
       }
     },
+    "creators": {
+      "description": "Creators in order of importance.",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "description": "List of IDs related with the person.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "name": {
+            "description": "Full name of person or organisation. Personal name format: family, given.",
+            "type": "string"
+          },
+          "affiliations": {
+            "description": "Affiliation(s) for the purpose of this specific document.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact email for the purpose of this specific document.",
+            "format": "email"
+          }
+        },
+        "required": [
+          "name"
+        ]
+
+      }
+    },
     "references": {
       "description": "Raw textual references",
       "items": {
@@ -132,88 +187,10 @@
         "type": "object"
       },
       "type": "array"
-    },
-    "related_identifiers": {
-      "description": "Related research outputs.",
-      "items": {
-        "properties": {
-          "identifier": {
-            "description": "Identifier of research output.",
-            "type": "string"
-          },
-          "relation": {
-            "description": "Relation type.",
-            "enum": [
-              "isCitedBy",
-              "cites",
-              "isSupplementTo",
-              "isSupplementedBy",
-              "isContinuedBy",
-              "continues",
-              "hasMetadata",
-              "isMetadataFor",
-              "isNewVersionOf",
-              "isPreviousVersionOf",
-              "isPartOf",
-              "hasPart",
-              "isReferencedBy",
-              "references",
-              "isDocumentedBy",
-              "documents",
-              "isCompiledBy",
-              "compiles",
-              "isVariantFormOf",
-              "isOrignialFormOf",
-              "isIdenticalTo",
-              "isReviewedBy",
-              "reviews",
-              "isDerivedFrom",
-              "isSourceOf"
-            ],
-            "type": "string"
-          },
-          "scheme": {
-            "description": "Persistent identifier scheme.",
-            "enum": [
-              "ark",
-              "arxiv",
-              "doi",
-              "bibcode",
-              "ean8",
-              "ean13",
-              "eissn",
-              "handle",
-              "isbn",
-              "issn",
-              "istc",
-              "lissn",
-              "lsid",
-              "pmid",
-              "pmcid",
-              "purl",
-              "upc",
-              "url",
-              "urn",
-              "orcid",
-              "gnd",
-              "ads"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "identifier",
-          "relation",
-          "scheme"
-        ],
-        "type": "object"
-      },
-      "type": "array"
     }
   },
   "required": [
-    "docid",
-    "contributors",
-    "title"
+    "title",
+    "source"
   ]
 }

@@ -26,16 +26,25 @@ class PersonIdsSchemaV1(StrictKeysMixin):
     source = fields.Str()
     value = fields.Str()
 
+class ReferenceSchemaV1(StrictKeysMixin):
+    raw_reference = fields.Str()
+
+class CreatorSchemaV1(StrictKeysMixin):
+    """Contributor schema."""
+
+    ids = fields.Nested(PersonIdsSchemaV1, many=True)
+    name = fields.Str(required=True)
+    affiliations = fields.List(fields.Str())
+    email = fields.Str()
 
 class ContributorSchemaV1(StrictKeysMixin):
     """Contributor schema."""
 
     ids = fields.Nested(PersonIdsSchemaV1, many=True)
     name = fields.Str(required=True)
-    role = fields.Str()
     affiliations = fields.List(fields.Str())
     email = fields.Str()
-
+    role = fields.Str()
 
 class MetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
@@ -48,11 +57,17 @@ class MetadataSchemaV1(StrictKeysMixin):
     docid = fields.Function(
         serialize=get_docid,
         deserialize=get_docid)
+    original_identifier = fields.Str()
+    source = fields.Str()
+    source_url = fields.Str()
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
     keywords = fields.Nested(fields.Str(), many=True)
-    orig_url = email = fields.Str()
+    description = SanitizedUnicode(required=True, validate=validate.Length(min=3))
+    language = fields.Str()
     publication_date = DateString()
-    contributors = fields.Nested(ContributorSchemaV1, many=True, required=True)
+    contributors = fields.Nested(ContributorSchemaV1, many=True)
+    creators = fields.Nested(ContributorSchemaV1, many=True)
+    creators = fields.Nested(ReferenceSchemaV1, many=True)
 
 
 class RecordSchemaV1(StrictKeysMixin):

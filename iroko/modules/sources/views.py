@@ -1,34 +1,13 @@
-# -*- coding: utf-8 -*-
-#
-# This file is part of Invenio.
-# Copyright (C) 2016, 2018 CERN.
-#
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, jsonify, request, json
-
-from iroko.modules.sources.models import Sources, Term_sources
+from sqlalchemy import and_, or_, not_
+from iroko.modules.sources.models import Sources, TermSources
+from iroko.modules.taxonomy.models import Term
+from iroko.modules.sources.marshmallow import sources_schema
 
 api_blueprint = Blueprint(
     'iroko_api_sources',
@@ -39,19 +18,64 @@ api_blueprint = Blueprint(
 @api_blueprint.route('/sources')
 def get_sources():
     """."""
-    # path = request.args.get('pathname', None)
 
-    result = []
-    for src in Sources.query.all():
-        result.append({'name': src.name})
+    limit = request.args.get('limit')
+    offset = request.args.get('offset')
+    title = request.args.get('title')
 
-    return jsonify(result)
+    # tids = request.args.get('terms')
+    # termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(TermSources.sources_id).limit(limit).offset(offset)
+    if not limit: 
+        limit = 5
+    if not offset:
+        offset = 0
+    
+    query = []
+    if title:
+        query.append(Sources.name.ilike('%'+title+'%'))
+    
+    result = Sources.query.filter(and_(*query)).limit(limit).offset(offset).all()
+    return jsonify(sources_schema.dump(result))
 
-@api_blueprint.route('/sources/<id>')
-def get_source_by_id(id):
-    result = []
-    src = Sources.query.filter_by(name=id).first()
-    if vocab is not None:
-        for term in vocab.terms:
-            result.append(term.to_dict())
-    return jsonify(result)
+
+@api_blueprint.route('/sources/count')
+def get_sources_count():
+    """retorna la cantidad de sources"""
+    result = Sources.query.count()
+    return jsonify({'count':result})
+
+@api_blueprint.route('/sources/<uuid>')
+def get_source_by_id(uuid):
+    src = Sources.query.filter_by(uuid=uuid).first()
+    if src:
+        # terms = terms_schema.dump(vocab.terms)
+        return jsonify({'source': sources_schema.dump(src)})
+    return jsonify({'source': 'source not found'})
+
+@api_blueprint.route('/sources/term/<uuid>')
+def get_sources_by_term_uuid(uuid):
+    '''Los sources que estan asociados a un termino'''
+    Term
+    term = Term.query.filter_by(uuid=uuid).first()
+    if term:
+         # terms = terms_schema.dump(vocab.terms)
+        return jsonify(sources_schema.dump(term.sources))
+        # return jsonify(sources_schema.dump(src.sources))
+    return jsonify({'term': 'source not found'})
+
+
+
+@api_blueprint.route('/sources')
+def get_sources_by_term_id(id):
+    '''Los sources que estan asociados a un termino'''
+    
+    terms = request.args.get('terms')
+
+    TermSources.query.filter_by(id=id)
+
+    term = Term.query.filter_by(uuid=uuid).first()
+    if term:
+         # terms = terms_schema.dump(vocab.terms)
+        return jsonify(sources_schema.dump(term.sources))
+        # return jsonify(sources_schema.dump(src.sources))
+    return jsonify({'term': 'source not found'})

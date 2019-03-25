@@ -44,7 +44,7 @@ class MetadataSchemaV1(StrictKeysMixin):
         serialize=get_orid,
         deserialize=get_orid)
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
-    issn = fields.Nested(ISSNSchemaV1, , many=False)
+    issn = fields.Nested(ISSNSchemaV1, many=False)
     rnps = fields.Str()
     email = fields.Str()
     logo = fields.Str()

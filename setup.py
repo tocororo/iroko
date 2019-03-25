@@ -89,17 +89,25 @@ setup(
             'vocabulary_admin = '
             'iroko.modules.taxonomy.admin:vocabularies_adminview',
             'term_admin = '
-            'iroko.modules.taxonomy.admin:terms_adminview'
+            'iroko.modules.taxonomy.admin:terms_adminview',
+            'source_admin = '
+            'iroko.modules.sources.admin:sources_adminview',
+            'term_source_admin = '
+            'iroko.modules.sources.admin:term_sources_adminview',
+            
         ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.modules.taxonomy.models',
+            'iroko_sources = iroko.modules.sources.models',
         ],
         'invenio_base.apps': [
             # 'iroko_communities = '
             # 'iroko.modules.communities.ext:IrokoCommunities',
-            'iroko_oaiharvester = iroko.modules.oaiharvester.ext:InvenioOAIHarvester',
+            # 'iroko_oaiharvester = iroko.modules.oaiharvester.ext:InvenioOAIHarvester',
             # 'iroko_records = iroko.modules.records.ext:IrokoRecords',
-            'iroko_app = iroko.ext:IrokoApp'
+            'iroko_app = iroko.ext:IrokoApp',
+            'iroko_fixtures = iroko.modules.fixtures.ext:IrokoFixtures',
+            'iroko_harvester = iroko.modules.harvester.ext:IrokoHarvester'
         ],
         'invenio_base.api_apps': [
             # 'iroko_communities = '
@@ -107,7 +115,8 @@ setup(
             # 'iroko_records = iroko.modules.records.ext:IrokoRecords',
         ],
         'invenio_base.api_blueprints' : [
-            'iroko_taxonomy = iroko.modules.taxonomy.views:api_blueprint'
+            'iroko_taxonomy = iroko.modules.taxonomy.views:api_blueprint',
+            'iroko_sources = iroko.modules.sources.views:api_blueprint'
         ],
         'invenio_celery.tasks': [
             # 'iroko_records = iroko.modules.records.tasks',
@@ -119,20 +128,20 @@ setup(
         ],
         'invenio_jsonschemas.schemas': [
             # 'iroko_records = iroko.modules.records.jsonschemas',
-            'iroko_spaces = iroko.modules.orisun.jsonschemas',
+            # 'iroko_spaces = iroko.modules.orisun.jsonschemas',
             'iroko_documents = iroko.modules.documents.jsonschemas',
         ],
         'invenio_search.mappings': [
-            'spaces = iroko.modules.orisun.mappings',
+            # 'spaces = iroko.modules.orisun.mappings',
             'documents = iroko.modules.documents.mappings',
         ],
         'invenio_pidstore.fetchers': [
-            'iroko_orisun_fetcher '
-            '= iroko.modules.orisun.fetchers:orisun_pid_fetcher',
+            'iroko_documents_fetcher '
+            '= iroko.modules.documents.fetchers:document_pid_fetcher',
         ],
         'invenio_pidstore.minters': [
-             'iroko_orisun_minter '
-            '= iroko.modules.orisun.minters:orisun_pid_minter',
+             'iroko_documents_minter '
+            '= iroko.modules.documents.minters:document_pid_minter',
         ],
         'invenio_assets.bundles': [
             'iroko_theme_css = iroko.modules.theme.bundles:css',

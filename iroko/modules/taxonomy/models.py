@@ -36,7 +36,7 @@ from invenio_db import db
 class Vocabulary(db.Model):
     """Define a Vocabulary"""
 
-    __tablename__ = 'taxonomy_vocab'
+    __tablename__ = 'iroko_vocab'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
@@ -50,7 +50,7 @@ class Vocabulary(db.Model):
 
 
 class Term(db.Model):
-    __tablename__ = 'taxonomy_term'
+    __tablename__ = 'iroko_terms'
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(UUIDType, default=uuid.uuid4)
@@ -58,19 +58,14 @@ class Term(db.Model):
     description = db.Column(db.String)
 
     vocabulary_id = db.Column(db.Integer(),
-                        db.ForeignKey('taxonomy_vocab.id', ondelete='CASCADE'),
+                        db.ForeignKey('iroko_vocab.id', ondelete='CASCADE'),
                         nullable=False, index=True)
-    vocabulary = db.relationship("Vocabulary",
-                           backref=db.backref("terms",
-                                              cascade="all, delete-orphan"))
+    vocabulary = db.relationship("Vocabulary", 
+                            backref=db.backref("terms",cascade="all, delete-orphan", lazy='dynamic'))
 
-    parent_id = db.Column(db.Integer, db.ForeignKey('taxonomy_term.id'))
-    children = db.relationship("Term")
+    parent_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'))
+    children = db.relationship("Term", lazy="joined",join_depth=2)
 
-    term_sources = relationship("Term_sources", back_populates="taxonomy_term")
-
-    def to_dict(self):
-        return {'name': self.name, 
-                'description': self.description,
-                'uuid': self.uuid,
-                'parent': self.parent_id}
+    def __str__(self):
+        """Representation."""
+        return self.name

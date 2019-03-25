@@ -26,52 +26,52 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import Vocabulary, Term
+from .models import Sources, TermSources
 
-class VocabularyModelView(ModelView):
+class SourcesModelView(ModelView):
     """View for managing vocabularies."""
 
     # can_view_details = True
 
-    list_all = ('name', 'description')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'harvest_type')
 
     column_list = list_all
 
     column_default_sort = ('name', True)
 
-    column_filters = list_all
+    column_filters = ('id', 'name', 'source_type', 'harvest_type')
 
-    form_columns = ('name', 'description')
+    form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint')
 
-class TermModelView(ModelView):
+class TermSourcesModelView(ModelView):
     """View for managing terms."""
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'vocabulary')
+    list_all = ('source', 'term')
 
     column_list = list_all
 
-    column_default_sort = ('name', True)
+    # column_default_sort = ('source', True)
 
     column_filters = list_all
 
     # form_columns = ('name', 'description')
-    form_columns = ('vocabulary', 'name', 'description', 'parent_id')
+    form_columns = ('source', 'term')
 
 
-vocabularies_adminview = dict(
-    modelview=VocabularyModelView,
-    model=Vocabulary,
-    name='Vocabulary',
-    category='Iroko Taxonomy'
+sources_adminview = dict(
+    modelview=SourcesModelView,
+    model=Sources,
+    name='Sources',
+    category='Iroko'
 )
 
-terms_adminview = dict(
-    modelview=TermModelView,
-    model=Term,
-    name='Term',
-    category='Iroko Taxonomy'
+term_sources_adminview = dict(
+    modelview=TermSourcesModelView,
+    model=TermSources,
+    name='TermSources',
+    category='Iroko'
 )
 
-__all__ = ('vocabularies_adminview', 'terms_adminview')
+__all__ = ('sources_adminview', 'term_sources_adminview')

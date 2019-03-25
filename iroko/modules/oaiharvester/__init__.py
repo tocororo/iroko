@@ -88,4 +88,6 @@ from .version import __version__
 __all__ = ('__version__',
            'InvenioOAIHarvester',
            'get_records',
-           'list_records')
+           'list_records', 
+           'get_sets',
+           'get_records_dates')

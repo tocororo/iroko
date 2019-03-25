@@ -63,15 +63,15 @@ class TermModelView(ModelView):
 vocabularies_adminview = dict(
     modelview=VocabularyModelView,
     model=Vocabulary,
-    name='Vocabulary',
-    category='Iroko Taxonomy'
+    name='Vocabularies',
+    category='Iroko'
 )
 
 terms_adminview = dict(
     modelview=TermModelView,
     model=Term,
-    name='Term',
-    category='Iroko Taxonomy'
+    name='Terms',
+    category='Iroko'
 )
 
 __all__ = ('vocabularies_adminview', 'terms_adminview')

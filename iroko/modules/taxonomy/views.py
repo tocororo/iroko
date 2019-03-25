@@ -29,7 +29,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, jsonify, request, json
 
 from iroko.modules.taxonomy.models import Vocabulary, Term
-from iroko.modules.taxonomy.marshmallow import vocabularies_schema, vocabulary_schema, terms_schema
+from iroko.modules.taxonomy.marshmallow import vocabularies_schema, vocabulary_schema, terms_schema, term_schema
 
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
@@ -37,7 +37,7 @@ api_blueprint = Blueprint(
 )
 
 
-@api_blueprint.route('/taxonomy/vocabularies')
+@api_blueprint.route('/vocabularies')
 def get_vocabularies():
     """."""
     # path = request.args.get('pathname', None)
@@ -45,11 +45,34 @@ def get_vocabularies():
     result = Vocabulary.query.all()
     return jsonify(vocabularies_schema.dump(result))
 
-@api_blueprint.route('/taxonomy/terms/<vocabulary>')
+
+@api_blueprint.route('/terms/<vocabulary>')
 def get_terms(vocabulary):
-    result = []
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
     if vocab:
-        terms = terms_schema.dump(vocab.terms)
-        return jsonify({'vocab': vocabulary_schema.dump(vocab), 'terms': terms})
+        deep = request.args.get('deep')
+        terms = vocab.terms.filter_by(parent_id=None).all()
+        if deep:
+            terms_full = []
+            for term in terms:
+                terms_full.append(load_term(term))
+            return jsonify({'vocab': vocabulary_schema.dump(vocab), 
+                        'terms': terms_full})
+        else:
+            return jsonify({'vocab': vocabulary_schema.dump(vocab), 
+                        'terms': terms_schema.dump(terms)})
     return jsonify({'vocab': 'no vocab'})
+
+
+@api_blueprint.route('/term/<uuid>')
+def get_term(uuid):
+    term = Term.query.filter_by(uuid=uuid).first()
+    if term:
+        return jsonify(load_term(term))
+
+
+def load_term(term):
+    children = []
+    for child in term.children:
+        children.append(load_term(child))
+    return {'term': term_schema.dump(term), 'children':children}
