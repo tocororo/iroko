@@ -1,44 +1,30 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018 UPR.
+# Copyright (C) 2019 UPR.
 #
-# iroko is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# iroko is free software; you can redistribute it and/or modify it under the
+# terms of the MIT License; see LICENSE file for more details.
+#
+# Dockerfile that builds a fully functional image of your app.
+#
+# Note: It is important to keep the commands in this file in sync with your
+# boostrap script located in ./scripts/bootstrap.
+#
+# In order to increase the build speed, we are extending this image from a base
+# image (built with Dockerfile.base) which only includes your Python
+# dependencies.
 
-FROM python:3.5
+ARG DEPENDENCIES_VERSION=latest
+FROM iroko-base:${DEPENDENCIES_VERSION}
 
-RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y git curl vim
-RUN pip install --upgrade setuptools wheel pip uwsgi uwsgitop uwsgi-tools
-
-# Install Node
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-RUN apt-get install -y nodejs
-RUN npm update
-
-RUN python -m site
-RUN python -m site --user-site
-
-# Install Invenio
-ENV WORKING_DIR=/opt/iroko
-ENV INVENIO_INSTANCE_PATH=${WORKING_DIR}/var/instance
-
-# copy everything inside /src
-RUN mkdir -p ${WORKING_DIR}/src
-COPY ./ ${WORKING_DIR}/src
-WORKDIR ${WORKING_DIR}/src
-
-# Install/create static files
-RUN mkdir -p ${INVENIO_INSTANCE_PATH}
-RUN ./scripts/bootstrap
-
-# copy uwsgi config files
+COPY ./ .
 COPY ./docker/uwsgi/ ${INVENIO_INSTANCE_PATH}
 
-# Set folder permissions
-RUN chgrp -R 0 ${WORKING_DIR} && \
-    chmod -R g=u ${WORKING_DIR}
+RUN pip install . && \
+    invenio collect -v  && \
+    invenio webpack create && \
+    # --unsafe needed because we are running as root
+    invenio webpack install --unsafe && \
+    invenio webpack build
 
-RUN useradd invenio --uid 1000 --gid 0 && \
-    chown -R invenio:root ${WORKING_DIR}
-USER 1000
+ENTRYPOINT [ "bash", "-c"]

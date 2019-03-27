@@ -1,8 +1,8 @@
 ..
-    Copyright (C) 2018 UPR.
+    Copyright (C) 2019 UPR.
 
-    iroko is free software; you can redistribute it and/or modify it
-    under the terms of the MIT License; see LICENSE file for more details.
+    iroko is free software; you can redistribute it and/or modify it under
+    the terms of the MIT License; see LICENSE file for more details.
 
 Contributing
 ============
@@ -16,7 +16,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/iroko/iroko/issues.
+Report bugs at https://github.com/tocororo/iroko/issues.
 
 If you are reporting a bug, please include:
 
@@ -47,7 +47,7 @@ Submit Feedback
 ~~~~~~~~~~~~~~~
 
 The best way to send feedback is to file an issue at
-https://github.com/iroko/iroko/issues.
+https://github.com/tocororo/iroko/issues.
 
 If you are proposing a feature:
 
@@ -61,22 +61,21 @@ Get Started!
 
 Ready to contribute? Here's how to set up `iroko` for local development.
 
-1. Fork the `iroko/iroko` repo on GitHub.
+1. Fork the `tocororo/iroko` repo on GitHub.
 2. Clone your fork locally:
 
    .. code-block:: console
 
       $ git clone git@github.com:your_name_here/iroko.git
 
-3. Install your local copy into a virtualenv. Assuming you have
-   virtualenvwrapper installed, this is how you set up your fork for local
-   development:
+3. Install your local copy. Assuming you have
+   `pipenv <https://docs.pipenv.org/install/#installing-pipenv>`_, installed, this is how you
+   set up your fork for local development:
 
    .. code-block:: console
 
-      $ mkvirtualenv iroko
       $ cd iroko/
-      $ pip install -e .[all]
+      $ pipenv run install -e .[all]
 
 4. Create a branch for local development:
 
@@ -120,5 +119,5 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring.
 3. The pull request should work for Python 2.7, 3.3, 3.4 and 3.5. Check
-   https://travis-ci.org/iroko/iroko/pull_requests
+   https://travis-ci.org/tocororo/iroko/pull_requests
    and make sure that the tests pass for all supported Python versions.

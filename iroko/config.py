@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018 UPR.
+# Copyright (C) 2019 UPR.
 #
-# iroko is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# iroko is free software; you can redistribute it and/or modify it under the
+# terms of the MIT License; see LICENSE file for more details.
 
 """Default configuration for iroko.
 
@@ -14,33 +14,24 @@ You overwrite and set instance-specific configuration by either:
 """
 
 from __future__ import absolute_import, print_function
-
 import os
-
 from datetime import timedelta
-from invenio_records_rest.utils import allow_all
+
 
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
+
 
 IP_ELASTIC = '10.2.83.239'
 IP_POSGRE = '10.80.3.147'
 IP_RABBIT = '10.80.3.250'
 IP_REDIS = '10.80.3.217'
 
-
-ACCOUNTS_SESSION_REDIS_URL='redis://'+IP_REDIS+':6379/1'
-BROKER_URL='amqp://iroko:iroko@'+IP_RABBIT+':5672/'
 CACHE_REDIS_URL='redis://'+IP_REDIS+':6379/0'
 CACHE_TYPE='redis'
-CELERY_BROKER_URL='amqp://iroko:iroko@'+IP_RABBIT+':5672/'
-CELERY_RESULT_BACKEND='redis://'+IP_REDIS+':6379/2'
 
-SECRET_KEY='iroko_secret_key'
-SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://iroko:iroko@'+IP_POSGRE+'/iroko'
-WSGI_PROXIES=2
-RATELIMIT_STORAGE_URL='redis://'+IP_REDIS+':6379/3'
+
 
 
 # SEARCH_ELASTIC_HOSTS='["http://"]'
@@ -72,7 +63,7 @@ I18N_LANGUAGES = [
 # Base templates
 # ==============
 #: Global base template.
-BASE_TEMPLATE = 'invenio_theme/page.html'
+BASE_TEMPLATE = 'iroko/page.html'
 #: Cover page base template (used for e.g. login/sign-up).
 COVER_TEMPLATE = 'invenio_theme/page_cover.html'
 #: Footer base template.
@@ -96,7 +87,7 @@ THEME_FRONTPAGE_TEMPLATE = 'iroko/frontpage.html'
 # Email configuration
 # ===================
 #: Email address for support.
-SUPPORT_EMAIL = "info@inveniosoftware.org"
+SUPPORT_EMAIL = "info@iroko.tocororo.cu"
 #: Disable email sending by default.
 MAIL_SUPPRESS_SEND = True
 
@@ -114,6 +105,11 @@ SECURITY_EMAIL_SUBJECT_REGISTER = _(
     "Welcome to iroko!")
 #: Redis session storage URL.
 ACCOUNTS_SESSION_REDIS_URL = 'redis://'+IP_REDIS+':6379/1'
+#: Enable session/user id request tracing. This feature will add X-Session-ID
+#: and X-User-ID headers to HTTP response. You MUST ensure that NGINX (or other
+#: proxies) removes these headers again before sending the response to the
+#: client. Set to False, in case of doubt.
+ACCOUNTS_USERINFO_HEADERS = True
 
 # Celery configuration
 # ====================
@@ -138,13 +134,12 @@ CELERY_BEAT_SCHEDULE = {
 # Database
 # ========
 #: Database URI including user and password
-#SQLALCHEMY_DATABASE_URI = \
-#    'postgresql+psycopg2://iroko:iroko@'+IP_POSGRE+'/iroko'
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://iroko:iroko@'+IP_POSGRE+'/iroko'
 
 # JSONSchemas
 # ===========
 #: Hostname used in URLs for local JSONSchemas.
-JSONSCHEMAS_HOST = 'iroko.upr.edu.cu'
+JSONSCHEMAS_HOST = 'iroko.tocororo.cu'
 
 # Flask configuration
 # ===================
@@ -153,7 +148,7 @@ JSONSCHEMAS_HOST = 'iroko.upr.edu.cu'
 
 #: Secret key - each installation (dev, production, ...) needs a separate key.
 #: It should be changed before deploying.
-SECRET_KEY = 'CHANGE_ME'
+SECRET_KEY = 'iroko_secret_key'
 #: Max upload size for form data via application/mulitpart-formdata.
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100 MiB
 #: Sets cookie with the secure flag by default
@@ -162,11 +157,14 @@ SESSION_COOKIE_SECURE = True
 #: provided, the allowed hosts variable is set to localhost. In production it
 #: should be set to the correct host and it is strongly recommended to only
 #: route correct hosts to the application.
-APP_ALLOWED_HOSTS = ['localhost', '127.0.0.1','10.80.4.34']
+APP_ALLOWED_HOSTS = ['iroko.tocororo.cu', 'localhost', '127.0.0.1','10.80.4.34']
+
+WSGI_PROXIES=2
+
 
 # OAI-PMH
 # =======
-OAISERVER_ID_PREFIX = 'oai:iroko.upr.edu.cu:'
+OAISERVER_ID_PREFIX = 'oai:iroko.tocororo.cu:'
 
 # Debug
 # =====
@@ -189,64 +187,6 @@ JSONSCHEMAS_HOST = os.environ.get('JSONSCHEMAS_HOST', 'localhost:5000')
 JSONSCHEMAS_URL_SCHEME = 'https'
 
 
-
-
-
-#: Records REST API endpoints.
-# RECORDS_API = '/api/records/{pid_value}'
-# RECORDS_REST_ENDPOINTS = dict(
-#     recid=dict(
-#         pid_type='recid',
-#         pid_minter='iroko_record_minter',
-#         pid_fetcher='iroko_record_fetcher',
-#         list_route='/records/',
-#         item_route='/records/<{0}:pid_value>'.format(
-#             'pid(recid,record_class="iroko.modules.records.api:IrokoRecord")'
-#         ),
-#         search_index='records',
-#         record_class='iroko.modules.records.api:IrokoRecord',
-#         search_type=['record-v1.0.0'],
-#         search_factory_imp='iroko.modules.records.query.search_factory',
-#         record_serializers={
-#             'application/json': (
-#                 'iroko.modules.records.serializers.legacyjson_v1_response'),
-#             'application/vnd.iroko.v1+json': (
-#                 'iroko.modules.records.serializers.json_v1_response'),
-#             'application/ld+json': (
-#                 'iroko.modules.records.serializers.schemaorg_jsonld_v1_response'),
-#             'application/marcxml+xml': (
-#                 'iroko.modules.records.serializers.marcxml_v1_response'),
-#             'application/x-bibtex': (
-#                 'iroko.modules.records.serializers.bibtex_v1_response'),
-#             'application/x-datacite+xml': (
-#                 'iroko.modules.records.serializers.datacite_v31_response'),
-#             'application/x-datacite-v41+xml': (
-#                 'iroko.modules.records.serializers.datacite_v41_response'),
-#             'application/x-dc+xml': (
-#                 'iroko.modules.records.serializers.dc_v1_response'),
-#             'application/vnd.citationstyles.csl+json': (
-#                 'iroko.modules.records.serializers.csl_v1_response'),
-#             'text/x-bibliography': (
-#                 'iroko.modules.records.serializers.citeproc_v1_response'),
-#         },
-#         search_serializers={
-#             'application/json': (
-#                 'iroko.modules.records.serializers:legacyjson_v1_search'),
-#             'application/vnd.iroko.v1+json': (
-#                 'iroko.modules.records.serializers:json_v1_search'),
-#             'application/marcxml+xml': (
-#                 'iroko.modules.records.serializers.marcxml_v1_search'),
-#             'application/x-bibtex': (
-#                 'iroko.modules.records.serializers:bibtex_v1_search'),
-#             'application/x-datacite+xml': (
-#                 'iroko.modules.records.serializers.datacite_v31_search'),
-#             'application/x-dc+xml': (
-#                 'iroko.modules.records.serializers.dc_v1_search'),
-#         },
-#         default_media_type='application/vnd.iroko.v1+json',
-#         read_permission_factory_imp=allow_all,
-#     ),
-# )
 
 INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
 INIT_JOURNALS_JSON_PATH = 'data/journals.json'

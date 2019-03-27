@@ -1,19 +1,16 @@
 ..
-    Copyright (C) 2018 UPR.
+    Copyright (C) 2019 UPR.
 
-    iroko is free software; you can redistribute it and/or modify it
-    under the terms of the MIT License; see LICENSE file for more details.
+    iroko is free software; you can redistribute it and/or modify it under
+    the terms of the MIT License; see LICENSE file for more details.
 
 Installation
 ============
 
-First, create a `virtualenv <https://virtualenv.pypa.io/en/stable/installation/>`_
-using `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/en/latest/install.html>`_
-in order to sandbox our Python environment for development:
-
-.. code-block:: console
-
-    $ mkvirtualenv my-site
+First you need to install
+`pipenv <https://docs.pipenv.org/install/#installing-pipenv>`_, it will handle
+the virtual environment creation for the project in order to sandbox our Python
+environment, as well as manage the dependency installation, among other things.
 
 Start all dependent services using docker-compose (this will start PostgreSQL,
 Elasticsearch 6, RabbitMQ and Redis):
@@ -54,17 +51,11 @@ Next, create database tables, search indexes and message queues:
 
 Running
 -------
-Start the webserver:
+Start the webserver and the celery worker:
 
 .. code-block:: console
 
     $ ./scripts/server
-
-Start the a background worker:
-
-.. code-block:: console
-
-    $ celery worker -A invenio_app.celery -l INFO
 
 Start a Python shell:
 
@@ -104,7 +95,7 @@ You can build the documentation with:
 
 .. code-block:: console
 
-    $ python setup.py build_sphinx
+    $ pipenv run build_sphinx
 
 Production environment
 ----------------------
@@ -113,12 +104,23 @@ You can use simulate a full production environment using the
 
 .. code-block:: console
 
+    $ ./docker/build-images.sh
     $ docker-compose -f docker-compose.full.yml up -d
+    $ ./docker/wait-for-services.sh --full
+
+Remember to create database tables, search indexes and message queues if not
+already done:
+
+.. code-block:: console
+
+    $ docker-compose -f docker-compose.full.yml run --rm web-ui ./scripts/setup
 
 In addition to the normal ``docker-compose.yml``, this one will start:
 
-- HAProxy (load balancer)
+- HAProxy (load balancer) -- https://127.0.0.1 and http://127.0.0.1:8080
 - Nginx (web frontend)
 - UWSGI (application container)
 - Celery (background task worker)
-- Flower (Celery monitoring)
+- Flower (Celery monitoring) -- http://127.0.0.1:5555
+- Kibana (Elasticsearch inspection) -- http://127.0.0.1:5601
+- RabbitMQ (message queue) -- http://guest:guest@127.0.0.1:15672

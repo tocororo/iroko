@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018 UPR.
+# Copyright (C) 2019 UPR.
 #
-# iroko is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# iroko is free software; you can redistribute it and/or modify it under the
+# terms of the MIT License; see LICENSE file for more details.
 
 """Sphinx configuration."""
 
@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'iroko'
-copyright = u'2018, UPR'
+copyright = u'2019, UPR'
 author = u'UPR'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -117,14 +117,14 @@ todo_include_todos = False
 html_theme = 'alabaster'
 
 html_theme_options = {
-    'description': 'Invenio digital library framework.',
+    'description': 'sceiba project, iroko software, invenio repository softwar',
     'github_user': 'inveniosoftware',
     'github_repo': 'iroko',
     'github_button': False,
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'iroko@GitHub': 'https://github.com/iroko/iroko',
+        'iroko@GitHub': 'https://github.com/tocororo/iroko',
         'iroko@PyPI': 'https://pypi.python.org/pypi/iroko/',
     }
 }
@@ -297,7 +297,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'iroko', u'iroko Documentation',
-     author, 'iroko', 'Invenio digital library framework.',
+     author, 'iroko', 'sceiba project, iroko software, invenio repository softwar',
      'Miscellaneous'),
 ]
 

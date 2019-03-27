@@ -5,10 +5,6 @@ __pycache__/
 # Idea software family
 .idea/
 
-.vscode/
-
-iroko/config.py
-
 # C extensions
 *.so
 
@@ -67,12 +63,3 @@ target/
 
 # Vim swapfiles
 .*.sw?
-
-iroko_env.tar.gz
-data/images
-
-*DS_Store
-
-
-scripts
-node_modules
