@@ -38,7 +38,7 @@ from iroko.modules.oaiharvester.api import get_records, get_sets, get_records_da
 from sickle import Sickle
 from sickle.oaiexceptions import BadArgument
 
-from .formats.dc import marshmallow
+# from .formats.dc import marshmallow
 
 @click.group()
 def harvester():
@@ -62,7 +62,7 @@ def harvestall():
     for record in records:
         # print(record.metadata['date'][0])
         source = '2c924b47-5cc4-402a-807e-0b86b1eb04e5'
-        marshmallow.parse(record)
+        # marshmallow.parse(record)
         # print(record.metadata['description']['es-ES'])
         # data = create_dict(record, source)
         # # print(data)

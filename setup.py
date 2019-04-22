@@ -47,6 +47,7 @@ setup(
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
+            'iroko_harvester = iroko.harvester.views:blueprint',
         ],
         'invenio_assets.webpack': [
             'iroko_theme = iroko.theme.webpack:theme',
@@ -71,14 +72,20 @@ setup(
             'term_admin = iroko.taxonomy.admin:terms_adminview',
             'source_admin = iroko.sources.admin:sources_adminview',
             'term_source_admin = iroko.sources.admin:term_sources_adminview',
+            'harvester_items_admin = '
+            'iroko.harvester.admin:harvest_item_adminview',
         ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.taxonomy.models',
             'iroko_sources = iroko.sources.models',
+            'iroko_harvester = iroko.harvester.models',
         ],
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
             'iroko_sources = iroko.sources.views:api_blueprint'
+        ],
+        'invenio_celery.tasks': [
+            'iroko_harveser = iroko.harvester.tasks'
         ],
     },
     classifiers=[
