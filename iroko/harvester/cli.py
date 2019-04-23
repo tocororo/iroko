@@ -30,15 +30,15 @@ from datetime import date
 
 from flask.cli import with_appcontext
 
-from iroko.modules.documents.api import Document
-from iroko.modules.sources.models import Sources
-from iroko.modules.documents.dojson.dc import create_dict
-from iroko.modules.oaiharvester.api import get_records, get_sets, get_records_dates
+# from iroko.documents.api import Document
+from iroko.sources.models import Sources
+# from iroko.documents.dojson.dc import create_dict
+# from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
 from sickle import Sickle
 from sickle.oaiexceptions import BadArgument
 
-from .formats.dc import marshmallow
+# from .formats.dc import marshmallow
 
 @click.group()
 def harvester():
@@ -49,55 +49,55 @@ def harvester():
 @with_appcontext
 def harvestall():
     """harvest all sources with oai"""
+    print("def harvestall():")
+#     # ids1 = ['oai:cfores.upr.edu.cu:article/82', \
+#     #     'oai:cfores.upr.edu.cu:article/329']
 
-    # ids1 = ['oai:cfores.upr.edu.cu:article/82', \
-    #     'oai:cfores.upr.edu.cu:article/329']
+#     ids = ['oai:ojs.pkp.sfu.ca:article/20']
 
-    ids = ['oai:ojs.pkp.sfu.ca:article/20']
+#     request, records = get_records(metadata_prefix='oai_dc',identifiers=ids, url="http://10.80.3.42/index.php/coodes/oai")
 
-    request, records = get_records(metadata_prefix='oai_dc',identifiers=ids, url="http://10.80.3.42/index.php/coodes/oai")
+#     # request, records = get_records(metadata_prefix='oai_dc',identifiers=ids, url="http://10.80.4.42/index.php/cfores/oai")
 
-    # request, records = get_records(metadata_prefix='oai_dc',identifiers=ids, url="http://10.80.4.42/index.php/cfores/oai")
+#     for record in records:
+#         # print(record.metadata['date'][0])
+#         source = '2c924b47-5cc4-402a-807e-0b86b1eb04e5'
+#         # marshmallow.parse(record)
+#         # print(record.metadata['description']['es-ES'])
+#         # data = create_dict(record, source)
+#         # # print(data)
+#         # record, status = Document.create_or_update(
+#         #     data, vendor=source, dbcommit=True, reindex=True
+#         # )
+#         # click.echo('record uuid: ' + str(record.id) + ' | ' + status)
 
-    for record in records:
-        # print(record.metadata['date'][0])
-        source = '2c924b47-5cc4-402a-807e-0b86b1eb04e5'
-        marshmallow.parse(record)
-        # print(record.metadata['description']['es-ES'])
-        # data = create_dict(record, source)
-        # # print(data)
-        # record, status = Document.create_or_update(
-        #     data, vendor=source, dbcommit=True, reindex=True
-        # )
-        # click.echo('record uuid: ' + str(record.id) + ' | ' + status)
-
-def some():    
-    count = 0
-    sources = Sources.query.all()
-    for source in sources:
-        if source.havest_endpoint:
-            print(source.havest_endpoint)
-            uuid = source.uuid
-            url = source.havest_endpoint
-            for year in range(2001, 2019):
-                request, records = get_records_dates(   \
-                    url=url, \
-                    from_date=date(year, 1, 1), \
-                    until_date=date(year, 12, 31))
-                ids = []
-                for rec in records:
-                    count+= 1
-                    ids.append(rec.header.identifier)
-                try:
-                    print(ids)
-                    req, recs = get_records(identifiers=ids, url=url)
-                    for recfull in recs:
-                        data = create_dict(recfull, uuid)
-                        record, status = Document.create_or_update( \
-                                data, vendor=uuid, dbcommit=True, reindex=True)
-                        click.echo('record uuid: ' + str(record.id) + ' | ' + status)
-                except BadArgument:
-                    continue
+# def some():    
+#     count = 0
+#     sources = Sources.query.all()
+    # for source in sources:
+    #     if source.havest_endpoint:
+    #         print(source.havest_endpoint)
+    #         uuid = source.uuid
+    #         url = source.havest_endpoint
+    #         for year in range(2001, 2019):
+    #             request, records = get_records_dates(   \
+    #                 url=url, \
+    #                 from_date=date(year, 1, 1), \
+    #                 until_date=date(year, 12, 31))
+    #             ids = []
+    #             for rec in records:
+    #                 count+= 1
+    #                 ids.append(rec.header.identifier)
+    #             try:
+    #                 print(ids)
+    #                 req, recs = get_records(identifiers=ids, url=url)
+    #                 for recfull in recs:
+    #                     data = create_dict(recfull, uuid)
+    #                     record, status = Document.create_or_update( \
+    #                             data, vendor=uuid, dbcommit=True, reindex=True)
+    #                     click.echo('record uuid: ' + str(record.id) + ' | ' + status)
+    #             except BadArgument:
+    #                 continue
 
     # sets = get_sets(url)
     # sickle = Sickle(url)
@@ -106,7 +106,7 @@ def some():
     # for record_set in iterator:
     #     count += 1
     #     print(iterator.resumption_token)
-    print(count)
+#     print(count)
 
     # for s in request.ListSets():
     #     print(s)

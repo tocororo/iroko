@@ -1,0 +1,26 @@
+
+
+
+
+{%- extends "iroko/page.html" %}
+
+{%- block page_body %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="text-center">count: {{count}}</h1>
+        </div>
+    </div>
+    <div class="row">
+        {% for item in items %}
+            <b>{{item.name}}</b><br />
+            <ul>
+            {% for file in item.files %}
+                <li>{{file}}</li>
+            {% endfor %}
+            </ul>
+            <hr />
+        {% endfor %}
+    </div>
+</div>
+{%- endblock %}
