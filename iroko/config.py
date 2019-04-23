@@ -17,16 +17,12 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
+from dev_ips import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS
 
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
 
-
-IP_ELASTIC = '10.2.83.239'
-IP_POSGRE = '10.141.38.75'
-IP_RABBIT = '10.141.38.7'
-IP_REDIS = '10.141.38.65'
 
 CACHE_REDIS_URL='redis://'+IP_REDIS+':6379/0'
 CACHE_TYPE='redis'
