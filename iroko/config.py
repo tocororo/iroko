@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from dev_ips import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS
+from .dev_ips import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS
 
 def _(x):
     """Identity function used to trigger string extraction."""

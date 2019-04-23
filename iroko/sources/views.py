@@ -57,7 +57,7 @@ def get_sources():
         orcheck = iftitle or ifissn
         if andcheck:
             print(t.source.name)
-        if str(op) == 'and' and andcheck or orcheck:
+        if (str(op) == 'and' and andcheck) or orcheck:
             sources.append(t.source)    
     
     if sources:    
