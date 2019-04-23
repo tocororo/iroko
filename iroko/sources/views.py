@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, jsonify, request, json
+from flask import Blueprint, jsonify, request, json, render_template
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Sources, TermSources
 from iroko.taxonomy.models import Term
@@ -11,11 +11,21 @@ from iroko.sources.marshmallow import sources_schema
 from invenio_db import db
 
 
+blueprint = Blueprint(
+    'iroko_harvester',
+    __name__,
+    template_folder='templates'
+)
+
+
 api_blueprint = Blueprint(
     'iroko_api_sources',
     __name__,
 )
 
+@blueprint.route('/catalog')
+def catalog_app():
+    return render_template('catalog.html')
 
 @api_blueprint.route('/sources')
 def get_sources():
