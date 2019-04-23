@@ -1,7 +1,7 @@
 
 
-from iroko.modules.harvester.base import SourceIterator, Formater
-from iroko.modules.harvester.processors.oai import nsmap
+from iroko.harvester.base import SourceIterator, Formater
+from iroko.harvester.processors.oai import nsmap
 
 
 class DubliCoreElements(Formater):

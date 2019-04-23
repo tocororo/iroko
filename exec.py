@@ -1,8 +1,8 @@
 # url="http://10.80.3.42/index.php/coodes/oai"
 
-from iroko.modules.harvester.processors.oai import OaiIterator
-from iroko.modules.harvester.processors.formaters.dublincore import DubliCoreElements
-from iroko.modules.harvester.base import Item
+from iroko.harvester.processors.oai import OaiIterator
+from iroko.harvester.processors.formaters.dublincore import DubliCoreElements
+from iroko.harvester.base import Item
 from lxml import etree
 
 nsmap = {'oai': 'http://www.openarchives.org/OAI/2.0/', 'dc': 'http://purl.org/dc/elements/1.1/', 'xsi': 'http://www.w3.org/2001/XMLSchema-instance','xml':'http://www.w3.org/XML/1998/namespace'}

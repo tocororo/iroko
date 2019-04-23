@@ -1,8 +1,8 @@
 
 import requests
 
-from iroko.modules.harvester.processors.oai import OaiIterator
-from iroko.modules.harvester.processors.formaters.dublincore import DubliCoreElements
+from iroko.harvester.processors.oai import OaiIterator
+from iroko.harvester.processors.formaters.dublincore import DubliCoreElements
 
 
 from flask import current_app

@@ -8,9 +8,9 @@ from sickle import Sickle
 
 from flask import current_app
 
-from iroko.modules.harvester.base import SourceIterator, Formater
+from iroko.harvester.base import SourceIterator, Formater
 
-from iroko.modules.sources.models import Sources
+from iroko.sources.models import Sources
 
 nsmap = {'oai': 'http://www.openarchives.org/OAI/2.0/', 'dc': 'http://purl.org/dc/elements/1.1/', 'xsi': 'http://www.w3.org/2001/XMLSchema-instance','xml':'http://www.w3.org/XML/1998/namespace'}
 

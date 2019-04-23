@@ -7,8 +7,8 @@ from flask import Blueprint, request, render_template
 
 from flask_login import login_required
 
-from iroko.modules.sources.models import Sources
-from iroko.modules.sources.marshmallow import sources_schema, sources_schema_full
+from iroko.sources.models import Sources
+from iroko.sources.marshmallow import sources_schema, sources_schema_full
 
 from .tasks import test_task
 
