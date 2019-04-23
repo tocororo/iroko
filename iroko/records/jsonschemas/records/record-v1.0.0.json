@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost/schemas/records/record-v1.0.0.json",
+  "additionalProperties": false,
+  "title": "iroko v1.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "original_identifier": {
+      "type": "string"
+    },
+    "docid": {
+      "description": "Invenio document identifier (integer).",
+      "type": "number"
+    },
+    "source":{
+      "description": "UUID Source from which the document was harvest",
+      "type": "string"
+    },
+    "source_url":{
+      "description": "original url of the document",
+      "type": "string",
+      "format": "uri"
+    },
+    "title": {
+      "description": "Document title.",
+      "type": "string"
+    },
+    "keywords": {
+      "description": "Free text keywords.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "description": {
+      "description": "Description/abstract for document.",
+      "type": "string"
+    },
+    "language": {
+      "description": "ISO 639-3 language code.",
+      "type": "string"
+    },
+    "publication_date": {
+      "description": "When the document is published",
+      "type": "string",
+      "format": "date-time"
+    },
+    "contributors": {
+      "description": "Contributors in order of importance.",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "description": "List of IDs related with the person.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "name": {
+            "description": "Full name of person or organisation. Personal name format: family, given.",
+            "type": "string"
+          },
+          "affiliations": {
+            "description": "Affiliation(s) for the purpose of this specific document.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact email for the purpose of this specific document.",
+            "format": "email"
+          },
+          "role": {
+            "description": "",
+            "type": "string",
+            "enum": [
+              "ContactPerson",
+              "DataCollector",
+              "DataCurator",
+              "DataManager",
+              "Distributor",
+              "Editor",
+              "Funder",
+              "HostingInstitution",
+              "Other",
+              "Producer",
+              "ProjectLeader",
+              "ProjectManager",
+              "ProjectMember",
+              "RegistrationAgency",
+              "RegistrationAuthority",
+              "RelatedPerson",
+              "ResearchGroup",
+              "RightsHolder",
+              "Researcher",
+              "Sponsor",
+              "Supervisor",
+              "WorkPackageLeader"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+
+      }
+    },
+    "creators": {
+      "description": "Creators in order of importance.",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "description": "List of IDs related with the person.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "name": {
+            "description": "Full name of person or organisation. Personal name format: family, given.",
+            "type": "string"
+          },
+          "affiliations": {
+            "description": "Affiliation(s) for the purpose of this specific document.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact email for the purpose of this specific document.",
+            "format": "email"
+          }
+        },
+        "required": [
+          "name"
+        ]
+
+      }
+    },
+    "references": {
+      "description": "Raw textual references",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "raw_reference": {
+            "type": "string"
+          }
+        },
+        "title": "Reference",
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "source",
+    "title"
+  ]
+}
