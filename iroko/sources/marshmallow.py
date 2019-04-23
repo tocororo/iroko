@@ -52,4 +52,6 @@ class SourcesSchema(Schema):
 
 sources_schema = SourcesSchema(many=True, only=('id', 'uuid', 'name', 'source_type'))
 
+sources_schema_full = SourcesSchema(many=True)
+
 term_source_schema = TermSourcesSchema()

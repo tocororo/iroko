@@ -24,29 +24,3 @@ class IrokoHarvester(object):
             # logger, start process element with format....
             record = element_processor.process(element, logger)
 
-
-
-class Formater(object):
-
-    def __init__(self, logger):
-        self.logger = logger
-
-    """given an item return a Record"""
-    def ProcessItem(self, item):
-        raise NotImplementedError
-
-
-
-class SourceIterator(object):
-
-    def __init__(self, logger, source):
-        self.logger= logger
-        # eventually, check type?
-        self.source = source
-
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        raise NotImplementedError
