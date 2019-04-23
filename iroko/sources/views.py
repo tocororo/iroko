@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request, json, render_template
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Sources, TermSources
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import sources_schema
+from iroko.sources.marshmallow import sources_schema, sources_schema_full, journal_schema
 from invenio_db import db
 
 
@@ -31,17 +31,69 @@ def catalog_app():
 def get_sources():
     """."""
 
+    op = request.args.get('op')
     limit = request.args.get('limit')
     offset = request.args.get('offset')
     title = request.args.get('title')
+    issn = request.args.get('issn')
 
-    # tids = request.args.get('terms')
-    # termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(TermSources.sources_id).limit(limit).offset(offset)
+    tids = request.args.get('terms').split(',')
+    term_op = tids[0]    
+    if tids[0].lower() is 'and' or tids[0].lower() is 'or':
+        del tids[0]    
+    terms = tids
+
     if not limit: 
         limit = 5
     if not offset:
-        offset = 0
+        offset = 0   
     
+    their_children = []
+    for par_term in terms:
+        aux = Term.query.filter_by(id=par_term).first()        
+        tchildren = load_term_children_id(aux)
+        if tchildren:
+            their_children += tchildren
+    all_terms = set(their_children + terms)    
+    print(all_terms)
+
+    sources=[]        
+    tm = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
+    for t in tm:
+        iftitle = check_title(t.source, title) 
+        ifissn = check_issn(t.source, issn)     
+
+        andcheck = iftitle and ifissn
+        orcheck = iftitle or ifissn
+        if andcheck:
+            print(t.source.name)
+        if (str(op) == 'and' and andcheck) or orcheck:
+            sources.append(t.source)    
+    
+    if sources:    
+        return jsonify(sources_schema_full.dump(sources))        
+    return jsonify({'term': 'source not found'})
+
+
+def check_title(source, title):
+    if not title or title in source.name:
+        return True
+    return False
+
+
+def check_rnps(source, rnps):
+    if not rnps or rnps in source.rnps:
+        return True
+    return False
+
+
+def check_issn(source, issn):
+    if not issn or issn in source.data['issn'].values():
+        return True
+    return False
+
+
+def get_all_sources(title):
     query = []
     if title:
         query.append(Sources.name.ilike('%'+title+'%'))
@@ -100,7 +152,7 @@ def get_sources_by_term_id():
     tm = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
     for t in tm:
         one_source = t.source
-        
+
         sources.append(one_source)    
     
     if sources:    
