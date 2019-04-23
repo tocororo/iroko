@@ -69,3 +69,5 @@ data/images
 *DS_Store
 
 node_modules
+
+.vscode/
