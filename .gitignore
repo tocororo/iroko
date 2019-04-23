@@ -4,6 +4,8 @@ __pycache__/
 
 # Idea software family
 .idea/
+.vscode/
+
 
 # C extensions
 *.so
@@ -70,4 +72,3 @@ data/images
 
 node_modules
 
-.vscode/
