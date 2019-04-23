@@ -29,6 +29,7 @@ pytest-mock = ">=1.6.0"
 pytest-pep8 = ">=1.0.6"
 pytest-random-order = ">=0.5.4"
 pytest-runner = ">=3.0.0,<5"
+pylint = "*"
 
 [requires]
 python_version = "3.6"
