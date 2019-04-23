@@ -54,4 +54,6 @@ sources_schema = SourcesSchema(many=True, only=('id', 'uuid', 'name', 'source_ty
 
 sources_schema_full = SourcesSchema(many=True)
 
+journal_schema = JournalSchema()
+
 term_source_schema = TermSourcesSchema()
