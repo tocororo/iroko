@@ -30,10 +30,17 @@ from datetime import date
 
 from flask.cli import with_appcontext
 
+<<<<<<< HEAD
+from iroko.documents.api import Document
+from iroko.sources.models import Sources
+from iroko.documents.dojson.dc import create_dict
+from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
+=======
 # from iroko.documents.api import Document
 from iroko.sources.models import Sources
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
+>>>>>>> b741c16a296046b70d90d62b60af6ace465c2358
 
 from sickle import Sickle
 from sickle.oaiexceptions import BadArgument

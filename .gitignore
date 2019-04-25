@@ -72,4 +72,10 @@ data/images
 
 node_modules
 
+<<<<<<< HEAD
+data/harvester
+
+dev_ip.py
+=======
 dev_ips.py
+>>>>>>> b741c16a296046b70d90d62b60af6ace465c2358

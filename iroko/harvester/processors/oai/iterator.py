@@ -12,13 +12,11 @@ from iroko.harvester.base import SourceIterator, Formater
 
 from iroko.sources.models import Sources
 
-nsmap = {'oai': 'http://www.openarchives.org/OAI/2.0/', 'dc': 'http://purl.org/dc/elements/1.1/', 'xsi': 'http://www.w3.org/2001/XMLSchema-instance','xml':'http://www.w3.org/XML/1998/namespace'}
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
 
-
-from .formaters.dublincore import DubliCoreElements
+from .formaters import DubliCoreElements
 
 class OaiIterator(SourceIterator):
 
