@@ -57,7 +57,7 @@ class Sources(db.Model):
     data = db.Column( JSONType )
     
     harvest_type = db.Column(db.Enum(HarvestType))
-    harvest_endpoint = db.Column(db.String)
+    harvest_endpoint = db.Column(db.String)    
     
     #term_sources = db.relationship("Term_sources", back_populates="sources")
 
@@ -69,9 +69,9 @@ class Sources(db.Model):
 class TermSources(db.Model):
     __tablename__ = 'iroko_terms_sources'
 
-    term_id = db.Column( db.Integer, db.ForeignKey('iroko_terms.id'), primary_key=True)
-    sources_id = db.Column( db.Integer, db.ForeignKey('iroko_sources.id'), primary_key=True)
-    data = db.Column( JSONType )
+    term_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'), primary_key=True)
+    sources_id = db.Column(db.Integer, db.ForeignKey('iroko_sources.id'), primary_key=True)
+    data = db.Column(JSONType)
 
     source = db.relationship("Sources", backref=db.backref("terms")) 
-    term = db.relationship(Term, backref=db.backref("sources"))
+    term = db.relationship("Term", backref=db.backref("sources"))

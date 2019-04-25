@@ -1,9 +1,13 @@
 import uuid
 import enum
-
-from invenio_db import db
 from sqlalchemy_utils.types import UUIDType, JSONType
 
+from invenio_db import db
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> b741c16a296046b70d90d62b60af6ace465c2358
 # from  iroko.sources.models import Sources
 
 class HarvestedSource(db.Model):

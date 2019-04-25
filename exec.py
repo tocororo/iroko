@@ -1,7 +1,12 @@
 # url="http://10.80.3.42/index.php/coodes/oai"
 
+<<<<<<< HEAD
 from iroko.harvester.processors.oai.iterator import OaiIterator
 from iroko.harvester.processors.oai.formaters import DubliCoreElements
+=======
+from iroko.harvester.processors.oai import OaiIterator
+from iroko.harvester.processors.formaters.dublincore import DubliCoreElements
+>>>>>>> b741c16a296046b70d90d62b60af6ace465c2358
 from iroko.harvester.base import Item
 from lxml import etree
 

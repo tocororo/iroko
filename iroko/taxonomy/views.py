@@ -41,26 +41,37 @@ api_blueprint = Blueprint(
 def get_vocabularies():
     """."""
     # path = request.args.get('pathname', None)
-
     result = Vocabulary.query.all()
     return jsonify(vocabularies_schema.dump(result))
+
+
+@api_blueprint.route('/terms')
+def get_terms_list():
+    result = Term.query.all()
+    return jsonify(terms_schema.dump(result))
 
 
 @api_blueprint.route('/terms/<vocabulary>')
 def get_terms(vocabulary):
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
     if vocab:
-        deep = request.args.get('deep')
-        terms = vocab.terms.filter_by(parent_id=None).all()
-        if deep:
-            terms_full = []
-            for term in terms:
-                terms_full.append(load_term(term))
-            return jsonify({'vocab': vocabulary_schema.dump(vocab), 
-                        'terms': terms_full})
-        else:
-            return jsonify({'vocab': vocabulary_schema.dump(vocab), 
+        terms = vocab.terms.filter_by(parent_id=None).all()        
+        return jsonify({'vocab': vocabulary_schema.dump(vocab), 
                         'terms': terms_schema.dump(terms)})
+    return jsonify({'vocab': 'no vocab'})
+
+
+@api_blueprint.route('/terms/<vocabulary>/tree')
+def get_terms_tree(vocabulary):
+    vocab = Vocabulary.query.filter_by(name=vocabulary).first()
+    if vocab:
+        terms = vocab.terms.filter_by(parent_id=None).all()
+        terms_full = []
+        for term in terms:
+            terms_full.append(load_term(term))
+        return jsonify({'vocab': vocabulary_schema.dump(vocab), 
+                    'terms': terms_full})
+        
     return jsonify({'vocab': 'no vocab'})
 
 
