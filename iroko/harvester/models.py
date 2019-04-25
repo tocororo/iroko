@@ -3,14 +3,14 @@ import enum
 from sqlalchemy_utils.types import UUIDType, JSONType
 
 from invenio_db import db
-
+from datetime import datetime
 
 # from  iroko.sources.models import Sources
 
 class HarvestedSource(db.Model):
     """The sources harvested"""
 
-    __tablename__ = 'iroko_harvestsources'
+    __tablename__ = 'iroko_harvest_sources'
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -18,8 +18,10 @@ class HarvestedSource(db.Model):
                         db.ForeignKey('iroko_sources.id', ondelete='CASCADE'),
                         nullable=False, index=True)
     source = db.relationship("Sources", 
-                            backref=db.backref("harvested_items",cascade="all, delete-orphan", lazy='dynamic'))
-    rundate = db.Column(db.DateTime, default=datetime.datetime(year=1900, month=1, day=1), nullable=True)
+                            backref=db.backref("harvested_sources",cascade="all, delete-orphan", lazy='dynamic'))
+    rundate = db.Column(db.DateTime, default=datetime(year=1900, month=1, day=1), nullable=True)
+
+    harvest_data = db.Column(JSONType)
 
 
 
@@ -36,7 +38,7 @@ class HarvestedItemStatus(enum.Enum):
 class HarvestedItem(db.Model):
     """The items harvested"""
 
-    __tablename__ = 'iroko_harvestitems'
+    __tablename__ = 'iroko_harvest_items'
 
     id = db.Column(db.Integer, primary_key=True)
 

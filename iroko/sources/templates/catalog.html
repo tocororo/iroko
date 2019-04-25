@@ -1,6 +1,75 @@
 
+{% set cdn_path = "http://10.2.4.248/dist-app-catalog" -%}
 
 {%- extends "iroko/page.html" %}
+
+{%- block header %}
+  <base href="https://localhost:5000/catalog">
+
+  {%- block head_meta %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://10.2.4.248">
+  {%- endblock head_meta %}
+
+<style type="text/css">
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    .app-loading {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .app-loading .spinner {
+      height: 200px;
+      width: 200px;
+      animation: rotate 2s linear infinite;
+      transform-origin: center center;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
+
+    .app-loading .spinner .path {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+      animation: dash 1.5s ease-in-out infinite;
+      stroke-linecap: round;
+      stroke: #ddd;
+    }
+
+    @keyframes rotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes dash {
+      0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+      }
+      50% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -35px;
+      }
+      100% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -124px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="static/dist-app-catalog/styles.f5a4a6bc158a5aa37805.css">
+  {%- endblock header %}
 
 {%- block page_body %}
 <div class="container">
@@ -9,11 +78,29 @@
             <h1 class="text-center">Catalogo...</h1>
         </div>
     </div>
+
 </div>
+  <toco-root>
+    <div class="app-loading">
+      <div class="logo"></div>
+      <svg class="spinner" viewBox="25 25 50 50">
+        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+      </svg>
+    </div>
+  </toco-root>
 {%- endblock %}
 
 
 {%- block javascript %}
-<script src="angular dist app...."></script>
+
+<script src="static/dist-app-catalog/runtime.a519891646eb55480af6.js"></script>
+<script src="static/dist-app-catalog/polyfills.a5e611dccaf86beb778a.js"></script>
+<script src="static/dist-app-catalog/main.fd8a86e424e2854919f9.js"></script>
+
+<script src="static/dist-app-catalog/0.8c08288a99caed04c8fc.js"></script>
+<script src="static/dist-app-catalog/1.3a79b196661e7fff44ad.js"></script>
+<script src="static/dist-app-catalog/2.16a009ff0977bdc3d981.js"></script>
+<script src="static/dist-app-catalog/3.86a42603137803b90fc9.js"></script>
+
 {%- endblock javascript %}
 

@@ -44,7 +44,7 @@ class HarvestedItemModelView(ModelView):
     form_columns = ('source', 'identifier', 'status')
 
 harvest_item_adminview = dict(
-    modelview=HarvestItemModelView,
+    modelview=HarvestedItemModelView,
     model=HarvestedItem,
     name='HarvestedItems',
     category='Iroko'

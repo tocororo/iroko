@@ -86,7 +86,7 @@ setup(
             'iroko_sources = iroko.sources.views:api_blueprint'
         ],
         'invenio_celery.tasks': [
-            'iroko_harveser = iroko.harvester.tasks'
+            'iroko_harvester = iroko.harvester.tasks'
         ],
     },
     classifiers=[

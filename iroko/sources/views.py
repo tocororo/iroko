@@ -12,9 +12,10 @@ from invenio_db import db
 
 
 blueprint = Blueprint(
-    'iroko_harvester',
+    'iroko_sources',
     __name__,
-    template_folder='templates'
+    template_folder='templates',
+    static_folder='static'
 )
 
 
@@ -26,6 +27,7 @@ api_blueprint = Blueprint(
 @blueprint.route('/catalog')
 def catalog_app():
     return render_template('catalog.html')
+
 
 @api_blueprint.route('/sources')
 def get_sources():
@@ -93,13 +95,13 @@ def check_issn(source, issn):
     return False
 
 
-def get_all_sources(title):
-    query = []
-    if title:
-        query.append(Sources.name.ilike('%'+title+'%'))
+# def get_all_sources(title):
+    # query = []
+    # if title:
+    #     query.append(Sources.name.ilike('%'+title+'%'))
     
-    result = Sources.query.filter(and_(*query)).limit(limit).offset(offset).all()
-    return jsonify(sources_schema.dump(result))
+    # result = Sources.query.filter(and_(*query)).limit(limit).offset(offset).all()
+    # return jsonify(sources_schema.dump(result))
 
 
 @api_blueprint.route('/sources/count')
