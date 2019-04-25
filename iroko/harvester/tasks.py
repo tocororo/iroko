@@ -4,7 +4,7 @@
 from __future__ import absolute_import, print_function
 
 from celery import shared_task 
-from iroko.modules.harvester.processors.oai import OaiIterator
+from iroko.harvester.processors.oai import OaiIterator
 
 
 @shared_task

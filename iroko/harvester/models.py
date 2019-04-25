@@ -4,7 +4,7 @@ import enum
 from invenio_db import db
 from sqlalchemy_utils.types import UUIDType, JSONType
 
-# from  iroko.modules.sources.models import Sources
+# from  iroko.sources.models import Sources
 
 class HarvestedSource(db.Model):
     """The sources harvested"""
@@ -28,8 +28,8 @@ class HarvestedItemStatus(enum.Enum):
     HARVESTED = "HARVESTED"
     SCHEMA_VALID = "SCHEMA_VALID"
     RECORDED = "RECORDED"
-    RECORD_VALID = "SCHEMA_VALID"
     ENRICHED = "ENRICHED"
+
 
 
 class HarvestedItem(db.Model):

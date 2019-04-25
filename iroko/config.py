@@ -17,16 +17,12 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-
+from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
 
 
-IP_ELASTIC = '10.2.83.239'
-IP_POSGRE = '10.80.3.147'
-IP_RABBIT = '10.80.3.250'
-IP_REDIS = '10.80.3.217'
 
 CACHE_REDIS_URL='redis://'+IP_REDIS+':6379/0'
 CACHE_TYPE='redis'
@@ -157,7 +153,6 @@ SESSION_COOKIE_SECURE = True
 #: provided, the allowed hosts variable is set to localhost. In production it
 #: should be set to the correct host and it is strongly recommended to only
 #: route correct hosts to the application.
-APP_ALLOWED_HOSTS = ['iroko.tocororo.cu', 'localhost', '127.0.0.1','10.80.4.34']
 
 WSGI_PROXIES=2
 
