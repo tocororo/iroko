@@ -17,23 +17,12 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-<<<<<<< HEAD
 from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
-=======
-from .dev_ips import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
-
-
-
->>>>>>> b741c16a296046b70d90d62b60af6ace465c2358
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> b741c16a296046b70d90d62b60af6ace465c2358
 CACHE_REDIS_URL='redis://'+IP_REDIS+':6379/0'
 CACHE_TYPE='redis'
 
@@ -163,10 +152,6 @@ SESSION_COOKIE_SECURE = True
 #: provided, the allowed hosts variable is set to localhost. In production it
 #: should be set to the correct host and it is strongly recommended to only
 #: route correct hosts to the application.
-<<<<<<< HEAD
-=======
-
->>>>>>> b741c16a296046b70d90d62b60af6ace465c2358
 
 WSGI_PROXIES=2
 
