@@ -17,11 +17,10 @@ from os import listdir, path
 blueprint = Blueprint(
     'iroko_harvester',
     __name__,
-    template_folder='templates', 
-    url_prefix= '/sources'
+    template_folder='templates'
 )
 
-@blueprint.route('/')
+@blueprint.route('/sources')
 @login_required
 def view_sources():
     page = request.args.get('page')
