@@ -32,6 +32,7 @@ class OaiIterator(SourceIterator):
         self.harvest_dir = path.join(p, str(self.source.id))
         if init_directory and path.exists(self.harvest_dir):
             shutil.rmtree(self.harvest_dir)
+        if not path.exists(self.harvest_dir):
             mkdir(self.harvest_dir)
         
         self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries)
