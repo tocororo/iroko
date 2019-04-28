@@ -36,7 +36,7 @@ class OaiIterator(SourceIterator):
         if not path.exists(self.harvest_dir):
             mkdir(self.harvest_dir)
         
-        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries)
+        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, timeout=15)
         print('self.sickle')
         
         self.formats = []
