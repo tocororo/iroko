@@ -84,6 +84,7 @@ class OaiIterator(SourceIterator):
             id = idxml.find('.//{' + nsmap['oai'] + '}' + 'identifier')
             for f in self.formats:
                 arguments ={'identifier': id.text,'metadataPrefix':f}
+                print(arguments)
                 record = self.sickle.GetRecord(**arguments)
                 f = open(path.join(self.harvest_dir, item,f+".xml"),"w")
                 f.write(record.raw)
