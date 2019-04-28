@@ -27,8 +27,8 @@ class OaiIterator(SourceIterator):
         self.source = source
         self.formater = DubliCoreElements(None)
 
-        # p = current_app.config['HARVESTER_FILES_PATH']
-        p = "data/harvester"
+        p = current_app.config['HARVESTER_DATA_DIRECTORY']
+
         self.harvest_dir = path.join(p, self.source['id'])
         if init_directory and path.exists(self.harvest_dir):
             shutil.rmtree(self.harvest_dir)
@@ -64,7 +64,7 @@ class OaiIterator(SourceIterator):
             f.write(item.raw)
             f.close()
             count+=1
-        # print(count)
+        print(count)
 
     def get_all_metadata(self):
         """using the directory structure, iterate over the source folders and retrieve all the metadata of all records."""

@@ -35,10 +35,13 @@ from iroko.sources.models import Sources, HarvestType
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
-from sickle import Sickle
-from sickle.oaiexceptions import BadArgument
+# from sickle import Sickle
+# from sickle.oaiexceptions import BadArgument
 
 # from .formats.dc import marshmallow
+
+from iroko.harvester.processors.oai.iterator import OaiIterator
+from iroko.harvester.processors.oai.formaters import DubliCoreElements
 
 @click.group()
 def harvester():
@@ -53,6 +56,9 @@ def harvestall():
     count = 1
     for source in sources:
         print(source.harvest_endpoint)
+        iterator = OaiIterator(None, source,  init_directory=True)
+        iterator.get_identifiers()
+        iterator.get_all_metadata()
         count+=1
 
     print("def harvestall():"+str(count))
