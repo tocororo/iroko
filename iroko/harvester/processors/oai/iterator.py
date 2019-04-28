@@ -1,4 +1,5 @@
 from os import path, mkdir, removedirs, listdir
+import time
 
 import shutil
 
@@ -89,12 +90,13 @@ class OaiIterator(SourceIterator):
             id = idxml.find('.//{' + nsmap['oai'] + '}' + 'identifier')
             for f in self.formats:
                 arguments ={'identifier': id.text,'metadataPrefix':f}
-                print(arguments)
+                print(idxml)
                 record = self.sickle.GetRecord(**arguments)
                 f = open(path.join(self.harvest_dir, item,f+".xml"),"w")
                 f.write(record.raw)
                 f.close()
                 # valitate metadata format
+            time.sleep(3)
 
     def harvest_relation_resources(self, item):
         """retrieve all the files associated to the record (full texts) based on the relation element in oai_dc schema"""
