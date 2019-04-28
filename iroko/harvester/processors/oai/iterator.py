@@ -34,7 +34,7 @@ class OaiIterator(SourceIterator):
             shutil.rmtree(self.harvest_dir)
             mkdir(self.harvest_dir)
         
-        self.sickle = Sickle(self.source.havest_endpoint, encoding=None)
+        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None)
         
         self.formats = []
         items = self.sickle.ListMetadataFormats(**{})
