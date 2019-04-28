@@ -56,7 +56,7 @@ def harvestall():
     count = 1
     for source in sources:
         print(source.harvest_endpoint)
-        iterator = OaiIterator(None, source,  init_directory=True)
+        iterator = OaiIterator(None, source,  init_directory=True,max_retries=2)
         iterator.get_identifiers()
         iterator.get_all_metadata()
         count+=1
