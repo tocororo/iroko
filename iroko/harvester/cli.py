@@ -64,7 +64,6 @@ def harvestall():
             count+=1
         except Exception as e:
             print (e.__doc__)
-            print(e.message)
 
         
 
