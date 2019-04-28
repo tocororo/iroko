@@ -29,7 +29,7 @@ class OaiIterator(SourceIterator):
 
         p = current_app.config['HARVESTER_DATA_DIRECTORY']
 
-        self.harvest_dir = path.join(p, self.source.id])
+        self.harvest_dir = path.join(p, self.source.id)
         if init_directory and path.exists(self.harvest_dir):
             shutil.rmtree(self.harvest_dir)
             mkdir(self.harvest_dir)
