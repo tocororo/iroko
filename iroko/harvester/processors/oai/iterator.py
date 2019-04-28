@@ -36,11 +36,13 @@ class OaiIterator(SourceIterator):
             mkdir(self.harvest_dir)
         
         self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries)
+        print('self.sickle')
         
         self.formats = []
         items = self.sickle.ListMetadataFormats(**{})
         for f in items:
             self.formats.append(f.metadataPrefix)
+            print(f.metadataPrefix)
 
 
     def __iter__(self):
