@@ -39,7 +39,8 @@ class OaiIterator(SourceIterator):
         print('self.sickle')
         
         self.formats = []
-        items = self.sickle.ListMetadataFormats(**{})
+        arguments ={}
+        items = self.sickle.ListMetadataFormats(**arguments)
         for f in items:
             self.formats.append(f.metadataPrefix)
             print(f.metadataPrefix)
