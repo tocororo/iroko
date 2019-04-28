@@ -35,8 +35,13 @@ class OaiIterator(SourceIterator):
             shutil.rmtree(self.harvest_dir)
         if not path.exists(self.harvest_dir):
             mkdir(self.harvest_dir)
-        
-        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, timeout=15)
+
+        proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
+
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+        args = {'headers':headers,'proxies':proxies,'timeout':15, 'verify':False}
+        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
         print('self.sickle')
         
         self.formats = []
