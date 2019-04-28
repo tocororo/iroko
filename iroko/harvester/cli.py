@@ -29,6 +29,7 @@ import sys
 from datetime import date
 
 from flask.cli import with_appcontext
+import traceback
 
 # from iroko.documents.api import Document
 from iroko.sources.models import Sources, HarvestType
@@ -56,10 +57,16 @@ def harvestall():
     count = 1
     for source in sources:
         print(source.harvest_endpoint)
-        iterator = OaiIterator(None, source,  init_directory=True,max_retries=2)
-        iterator.get_identifiers()
-        iterator.get_all_metadata()
-        count+=1
+        try:
+            iterator = OaiIterator(None, source,  init_directory=True,max_retries=2)
+            iterator.get_identifiers()
+            iterator.get_all_metadata()
+            count+=1
+        except Exception as e:
+            print (e.__doc__)
+            print(e.message)
+
+        
 
     print("def harvestall():"+str(count))
 #     # ids1 = ['oai:cfores.upr.edu.cu:article/82', \
