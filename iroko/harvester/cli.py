@@ -31,7 +31,7 @@ from datetime import date
 from flask.cli import with_appcontext
 
 # from iroko.documents.api import Document
-from iroko.sources.models import Sources
+from iroko.sources.models import Sources, HarvestType
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
@@ -49,7 +49,13 @@ def harvester():
 @with_appcontext
 def harvestall():
     """harvest all sources with oai"""
-    print("def harvestall():")
+    sources = Sources.query.filter_by(harvest_type=HarvestType.OAI).all()
+    count = 1
+    for source in sources:
+        print(source.harvest_endpoint)
+        count+=1
+
+    print("def harvestall():"+str(count))
 #     # ids1 = ['oai:cfores.upr.edu.cu:article/82', \
 #     #     'oai:cfores.upr.edu.cu:article/329']
 

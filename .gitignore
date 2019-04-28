@@ -75,3 +75,5 @@ node_modules
 data/harvester
 
 dev_ip.py
+
+Pipfile.lock
