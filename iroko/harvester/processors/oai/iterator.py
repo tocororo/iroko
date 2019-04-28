@@ -20,7 +20,7 @@ from .formaters import DubliCoreElements
 
 class OaiIterator(SourceIterator):
 
-    def __init__(self, logger, source, init_directory=True):
+    def __init__(self, logger, source, init_directory=True,max_retries=3, timeout=20):
 
         self.logger= logger 
         # eventually, check type?
@@ -34,7 +34,8 @@ class OaiIterator(SourceIterator):
             shutil.rmtree(self.harvest_dir)
             mkdir(self.harvest_dir)
         
-        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None)
+        arguments ={'timeout':timeout}
+        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, **arguments)
         
         self.formats = []
         items = self.sickle.ListMetadataFormats(**{})
