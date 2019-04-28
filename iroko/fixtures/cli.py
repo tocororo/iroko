@@ -30,7 +30,7 @@ import sys
 from flask.cli import with_appcontext
 
 from .taxonomy import init_taxonomy
-from .sources import init_journals
+from .sources import init_journals, add_oaiurls
 
 
 @click.group()
@@ -44,6 +44,14 @@ def init():
     """Init the system with fixtures."""
     init_taxonomy()
     init_journals()
+
+@fixtures.command()
+@with_appcontext
+def oaiurls():
+    add_oaiurls()
+
+
+
 
 
 
