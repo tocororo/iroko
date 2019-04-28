@@ -12,6 +12,7 @@ from iroko.harvester.base import SourceIterator, Formater
 
 from iroko.sources.models import Sources
 
+from iroko.harvester.processors.oai import nsmap
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
