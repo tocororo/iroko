@@ -25,7 +25,8 @@
         },
         "title": {
           "type": "text",
-          "copy_to": "suggest_title"
+          "copy_to": "suggest_title",
+          "analyzer": "spanish"
         },
         "suggest_title": {
           "type": "completion"
@@ -34,7 +35,8 @@
           "type": "keyword"
         },
         "description": {
-          "type": "text"
+          "type": "text",
+          "analyzer": "spanish"
         },
         "language": {
           "type": "keyword"

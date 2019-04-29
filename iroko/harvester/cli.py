@@ -68,6 +68,13 @@ def harvestall():
         
 
     print("def harvestall():"+str(count))
+
+@harvester.command()
+@with_appcontext
+def preprocess_items():
+    print('preprocess_items():')
+
+
 #     # ids1 = ['oai:cfores.upr.edu.cu:article/82', \
 #     #     'oai:cfores.upr.edu.cu:article/329']
 
