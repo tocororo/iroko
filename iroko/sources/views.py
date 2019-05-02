@@ -37,11 +37,15 @@ def get_sources():
     title = request.args.get('title')
     issn = request.args.get('issn')
 
-    tids = request.args.get('terms').split(',')
-    term_op = tids[0]    
-    if tids[0].lower() is 'and' or tids[0].lower() is 'or':
-        del tids[0]    
-    terms = tids
+    tids = request.args.get('terms')
+    terms = []
+    if tids:
+        tids= tids.split(',')
+        term_op = tids[0]    
+        if tids[0].lower() is 'and' or tids[0].lower() is 'or':
+            del tids[0]    
+        terms = tids    
+    
 
     if not limit: 
         limit = 5
@@ -71,8 +75,8 @@ def get_sources():
             sources.append(t.source)    
     
     if sources:    
-        return jsonify(sources_schema_full.dump(sources))        
-    return jsonify({'term': 'source not found'})
+        return jsonify(sources_schema_full.dump(sources[offset:offset+limit]))        
+    return jsonify({'message':'Sources not found'})
 
 
 def check_title(source, title):
@@ -93,7 +97,7 @@ def check_issn(source, issn):
     return False
 
 
-def get_all_sources(title):
+def get_all_sources(title, limit=10, offset=0):
     query = []
     if title:
         query.append(Sources.name.ilike('%'+title+'%'))
