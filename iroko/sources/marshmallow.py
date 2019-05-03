@@ -13,14 +13,14 @@ class TermSourcesSchema(Schema):
     # data = fields.Nested(TermSourcesMetadataSchema)
 
 class ISSNSchema(Schema):
-    printed = fields.Str()
-    electronic = fields.Str()
-    link = fields.Str()
+    p = fields.Str()
+    e = fields.Str()
+    l = fields.Str()
+
 
 class SourcesDataSchema(Schema):
     description = fields.Str()
     url = fields.Url()
-    
 
 class JournalSchema(SourcesDataSchema):
 
@@ -32,19 +32,13 @@ class JournalSchema(SourcesDataSchema):
     year_start = fields.DateTime()
     year_end = fields.DateTime()
 
-    # institution = fields.Nested(TermSourcesSchema)
-    # subjects = fields.Nested(TermSourcesSchema, many=True)
-    # licence = fields.Nested(TermSourcesSchema)
-    # referecences = fields.Nested(TermSourcesSchema, many=True)
-
-
 
 class SourcesSchema(Schema):
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str()
     source_type = fields.Str()
-    data = fields.Nested(SourcesDataSchema, many=False)
+    data = fields.Nested(JournalSchema, many=False)
     harvest_type = fields.Str()
     harvest_endpoint = fields.Url()
 

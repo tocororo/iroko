@@ -7,8 +7,10 @@ from flask import Blueprint, jsonify, request, json, render_template
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Sources, TermSources
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import sources_schema, sources_schema_full, journal_schema
+from iroko.sources.marshmallow import sources_schema, sources_schema_full, journal_schema, SourcesSchema
 from invenio_db import db
+
+from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 
 blueprint = Blueprint(
@@ -31,15 +33,28 @@ def catalog_app():
 
 @api_blueprint.route('/sources')
 def get_sources():
-    """."""
 
-    op = request.args.get('op')
-    limit = request.args.get('limit')
-    offset = request.args.get('offset')
-    title = request.args.get('title')
-    issn = request.args.get('issn')
+    and_op = True if request.args.get('op') and request.args.get('op') == 'and' else False
+
+    count = int(request.args.get('count')) if request.args.get('count') else 10
+    page = int(request.args.get('page')) if request.args.get('page') else 0
+
+    limit = count
+    offset = count*page
+    print(limit,offset)
 
     tids = request.args.get('terms')
+
+    data_args = {
+        'title' : str(request.args.get('title')),
+        'description': str(request.args.get('description')),
+        'url': str(request.args.get('url')),
+        'issn': str(request.args.get('issn')),
+        'rnps': str(request.args.get('rnps')),
+        'year_start': str(request.args.get('year_start')),
+        'year_end': str(request.args.get('year_end'))
+    }
+
     terms = []
     if tids:
         tids= tids.split(',')
@@ -47,90 +62,87 @@ def get_sources():
         if tids[0].lower() is 'and' or tids[0].lower() is 'or':
             del tids[0]    
         terms = tids    
+    all_terms = load_terms_tree(terms)
+
+    result=[]
+    ask_terms = len(all_terms) > 0
+    if ask_terms:
+        sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).order_by('sources.name').all()
+    else:
+        sources = Sources.query.order_by('name').all()
+
+    for item in sources:
+        source = item.source if ask_terms else item
+        if is_like(source, data_args, and_op):
+            result.append(source)
     
+    if result:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','sources', \
+                        {'data': sources_schema_full.dump(result[offset:offset+limit]).data,\
+                         'count': len(result)})
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'Sources not found', None, None)
 
-    if not limit: 
-        limit = 5
-    if not offset:
-        offset = 0   
+def no_params(param_data):
+    return param_data['title'] == 'None' and \
+        param_data['description'] == 'None' and \
+        param_data['url'] == 'None' and \
+        param_data['issn'] == 'None' and \
+        param_data['rnps'] == 'None' and \
+        param_data['year_start'] == 'None' and \
+        param_data['year_end'] == 'None' 
+
+def is_like(source, data, and_op):
+    """ esto es ineficiente... pero es lo que hay.. por el momento.. 
+    solo debe usarse para la lista de revistas que no pasa de 300"""
     
-    their_children = []
-    for par_term in terms:
-        aux = Term.query.filter_by(id=par_term).first()        
-        tchildren = load_term_children_id(aux)
-        if tchildren:
-            their_children += tchildren
-    all_terms = set(their_children + terms)    
-    print(all_terms)
-
-    sources=[]        
-    tm = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
-    for t in tm:
-        iftitle = check_title(t.source, title) 
-        ifissn = check_issn(t.source, issn)     
-
-        andcheck = iftitle and ifissn
-        orcheck = iftitle or ifissn
-        if andcheck:
-            print(t.source.name)
-        if (str(op) == 'and' and andcheck) or orcheck:
-            sources.append(t.source)    
-    
-    if sources:    
-        return jsonify(sources_schema_full.dump(sources[offset:offset+limit]))        
-    return jsonify({'message':'Sources not found'})
-
-
-def check_title(source, title):
-    if not title or title in source.name:
+    if no_params(data):
         return True
-    return False
 
+    title = data['title'].lower() in str(source.name).lower()
+    description = data['description'] in source.data['description'] \
+        if 'description' in source.data else False
+    url = data['url'] in source.data['url'] if 'url' in source.data else False
 
-def check_rnps(source, rnps):
-    if not rnps or rnps in source.rnps:
-        return True
-    return False
+    issn = False
+    if 'issn' in source.data:
+        issn_p = data['issn'].lower() in source.data['issn']['p'].lower() if 'p' in source.data['issn'] else False
+        issn_e = data['issn'].lower() in source.data['issn']['e'].lower() if 'e' in source.data['issn']else False
+        issn_l = data['issn'].lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn']else False
+        issn = issn_p or issn_e or issn_l
 
+    rnps = data['rnps'].lower() in source.data['rnps'].lower() if 'rnps' in source.data else False
+    year_start = data['year_start'].lower() in source.data['year_start'].lower() if 'year_start' in source.data else False
+    year_end = data['year_end'].lower() in source.data['year_end'].lower() if 'year_end' in source.data else False
 
-def check_issn(source, issn):
-    if not issn or issn in source.data['issn'].values():
-        return True
-    return False
-
-
-def get_all_sources(title, limit=10, offset=0):
-    query = []
-    if title:
-        query.append(Sources.name.ilike('%'+title+'%'))
-    
-    # result = Sources.query.filter(and_(*query)).limit(limit).offset(offset).all()
-    # return jsonify(sources_schema.dump(result))
+    if and_op:
+        return title and description and url and issn and rnps and year_start and year_end
+    else: 
+        return title or description or url or issn or rnps or year_start or year_end
 
 
 @api_blueprint.route('/sources/count')
 def get_sources_count():
     """retorna la cantidad de sources"""
     result = Sources.query.count()
-    return jsonify({'count':result})
+    return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result) 
 
 @api_blueprint.route('/source/id/<id>')
 def get_source_by_id(id):    
     src = Sources.query.filter_by(id=id)
-    if src:
-        # terms = terms_schema.dump(vocab.terms)
-        return jsonify({'source': sources_schema.dump(src)})
-    return jsonify({'source': 'source not found'})
-
+    return jsonify_source(src)
 
 @api_blueprint.route('/source/uuid/<uuid>')
 def get_source_by_uuid(uuid):    
     src = Sources.query.filter_by(uuid=uuid)
-    if src:
-        # terms = terms_schema.dump(vocab.terms)
-        return jsonify({'source': sources_schema.dump(src)})
-    return jsonify({'source': 'source not found'})
+    return jsonify_source(src)
 
+def jsonify_source(src):
+    if src:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','sources', \
+                            sources_schema_full.dump(src).data)
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'Sources not found', None, None)
 
 def load_term_children_id(term):    
     if term.children:
@@ -140,28 +152,11 @@ def load_term_children_id(term):
             load_term_children_id(child)
         return children
 
-
-@api_blueprint.route('/term/sources')
-def get_sources_by_term_id():
-    '''Los sources que estan asociados a un termino'''
-    
-    terms = request.args.get('terms').split(',')    
-    their_children = []
+def load_terms_tree(terms):
+    children = []
     for par_term in terms:
         aux = Term.query.filter_by(id=par_term).first()        
         tchildren = load_term_children_id(aux)
         if tchildren:
-            their_children += tchildren
-    all_terms = set(their_children + terms)
-    
-    sources=[]        
-    tm = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
-    for t in tm:
-        one_source = t.source
-
-        sources.append(one_source)    
-    
-    if sources:    
-        return jsonify(sources_schema.dump(sources))        
-    return jsonify({'term': 'source not found'})
-
+            children += tchildren
+    return set(children + terms)
