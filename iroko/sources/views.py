@@ -99,17 +99,10 @@ def check_issn(source, issn):
     return False
 
 
-<<<<<<< HEAD
 def get_all_sources(title, limit=10, offset=0):
     query = []
     if title:
         query.append(Sources.name.ilike('%'+title+'%'))
-=======
-# def get_all_sources(title):
-    # query = []
-    # if title:
-    #     query.append(Sources.name.ilike('%'+title+'%'))
->>>>>>> 45b3340fca55a7b7390e6062afcd83db2f6a9548
     
     # result = Sources.query.filter(and_(*query)).limit(limit).offset(offset).all()
     # return jsonify(sources_schema.dump(result))
