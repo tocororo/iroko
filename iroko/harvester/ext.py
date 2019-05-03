@@ -14,13 +14,13 @@ class IrokoHarvester(object):
         app.cli.add_command(harvester)
         app.extensions['iroko-harvester'] = self
 
-    def process_source(self, logger, source_iterator, element_processor):
+    # def process_source(self, logger, source_iterator, element_processor):
 
-        # logger, start process source with format
+    #     # logger, start process source with format
         
-        source_iterator.logger = logger
+    #     source_iterator.logger = logger
 
-        for element in source_iterator:
-            # logger, start process element with format....
-            record = element_processor.process(element, logger)
+    #     for element in source_iterator:
+    #         # logger, start process element with format....
+    #         record = element_processor.process(element, logger)
 

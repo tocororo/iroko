@@ -42,7 +42,7 @@ setup(
         'invenio_base.apps': [
             'iroko_records = iroko.records:iroko',
             'iroko_fixtures = iroko.fixtures.ext:IrokoFixtures',
-            # 'iroko_harvester = iroko.harvester.ext:IrokoHarvester'
+            'iroko_harvester = iroko.harvester.ext:IrokoHarvester'
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
@@ -86,7 +86,7 @@ setup(
             'iroko_sources = iroko.sources.views:api_blueprint'
         ],
         'invenio_celery.tasks': [
-            'iroko_harveser = iroko.harvester.tasks'
+            'iroko_harvester = iroko.harvester.tasks'
         ],
     },
     classifiers=[

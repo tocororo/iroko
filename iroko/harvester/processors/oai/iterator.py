@@ -1,4 +1,5 @@
 from os import path, mkdir, removedirs, listdir
+import time
 
 import shutil
 
@@ -12,6 +13,7 @@ from iroko.harvester.base import SourceIterator, Formater
 
 from iroko.sources.models import Sources
 
+from iroko.harvester.processors.oai import nsmap
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
@@ -20,26 +22,35 @@ from .formaters import DubliCoreElements
 
 class OaiIterator(SourceIterator):
 
-    def __init__(self, logger, source, init_directory=True):
+    def __init__(self, logger, source, init_directory=True,max_retries=3):
 
         self.logger= logger 
         # eventually, check type?
         self.source = source
         self.formater = DubliCoreElements(None)
 
-        # p = current_app.config['HARVESTER_FILES_PATH']
-        p = "data/harvester"
-        self.harvest_dir = path.join(p, self.source['id'])
+        p = current_app.config['HARVESTER_DATA_DIRECTORY']
+
+        self.harvest_dir = path.join(p, str(self.source.id))
         if init_directory and path.exists(self.harvest_dir):
             shutil.rmtree(self.harvest_dir)
+        if not path.exists(self.harvest_dir):
             mkdir(self.harvest_dir)
-        
-        self.sickle = Sickle(self.source['havest_endpoint'], encoding=None)
+
+        proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
+
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+        args = {'headers':headers,'proxies':proxies,'timeout':15, 'verify':False}
+        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
+        print('self.sickle')
         
         self.formats = []
-        items = self.sickle.ListMetadataFormats(**{})
+        arguments ={}
+        items = self.sickle.ListMetadataFormats(**arguments)
         for f in items:
             self.formats.append(f.metadataPrefix)
+            print(f.metadataPrefix)
 
 
     def __iter__(self):
@@ -64,7 +75,7 @@ class OaiIterator(SourceIterator):
             f.write(item.raw)
             f.close()
             count+=1
-        # print(count)
+        print(count)
 
     def get_all_metadata(self):
         """using the directory structure, iterate over the source folders and retrieve all the metadata of all records."""
@@ -79,11 +90,13 @@ class OaiIterator(SourceIterator):
             id = idxml.find('.//{' + nsmap['oai'] + '}' + 'identifier')
             for f in self.formats:
                 arguments ={'identifier': id.text,'metadataPrefix':f}
+                print(idpath)
                 record = self.sickle.GetRecord(**arguments)
                 f = open(path.join(self.harvest_dir, item,f+".xml"),"w")
                 f.write(record.raw)
                 f.close()
                 # valitate metadata format
+            time.sleep(3)
 
     def harvest_relation_resources(self, item):
         """retrieve all the files associated to the record (full texts) based on the relation element in oai_dc schema"""

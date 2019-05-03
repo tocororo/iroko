@@ -29,16 +29,20 @@ import sys
 from datetime import date
 
 from flask.cli import with_appcontext
+import traceback
 
 # from iroko.documents.api import Document
-from iroko.sources.models import Sources
+from iroko.sources.models import Sources, HarvestType
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
-from sickle import Sickle
-from sickle.oaiexceptions import BadArgument
+# from sickle import Sickle
+# from sickle.oaiexceptions import BadArgument
 
 # from .formats.dc import marshmallow
+
+from iroko.harvester.processors.oai.iterator import OaiIterator
+from iroko.harvester.processors.oai.formaters import DubliCoreElements
 
 @click.group()
 def harvester():
@@ -49,7 +53,28 @@ def harvester():
 @with_appcontext
 def harvestall():
     """harvest all sources with oai"""
-    print("def harvestall():")
+    sources = Sources.query.filter_by(harvest_type=HarvestType.OAI).all()
+    count = 1
+    for source in sources:
+        print(source.harvest_endpoint)
+        try:
+            iterator = OaiIterator(None, source,  init_directory=True,max_retries=2)
+            iterator.get_identifiers()
+            iterator.get_all_metadata()
+            count+=1
+        except Exception as e:
+            print (e.__doc__)
+
+        
+
+    print("def harvestall():"+str(count))
+
+@harvester.command()
+@with_appcontext
+def preprocess_items():
+    print('preprocess_items():')
+
+
 #     # ids1 = ['oai:cfores.upr.edu.cu:article/82', \
 #     #     'oai:cfores.upr.edu.cu:article/329']
 
