@@ -3,3 +3,4 @@ IP_ELASTIC = '10.2.83.239'
 IP_POSGRE = '10.138.10.132'
 IP_RABBIT = '10.138.10.34'
 IP_REDIS = '10.138.10.91'
+APP_ALLOWED_HOSTS = ['iroko.tocororo.cu', 'localhost', '127.0.0.1','10.2.83.113']
