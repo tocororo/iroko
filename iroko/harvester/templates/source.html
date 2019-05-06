@@ -1,0 +1,36 @@
+
+
+
+{%- extends "iroko/page.html" %}
+
+{%- block page_body %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="text-center">{{source.name}}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <p><h2>Info</h2></p><br />
+        <p>{{source.id}}</p><br />
+        <p>{{source.uuid}}</p><br />
+        <p>{{source.source_type}}</p><br />
+        <p>{{source.harvest_type}}</p><br />
+        <p>{{source.harvest_endpoint}}</p><br />
+        <p>{{source.data}}</p><br />
+        <hr />
+    </div>
+    <div class="row">
+        <p><h2>Actions</h2></p><br />
+        <hr />
+    </div>
+    <div class="row">
+        <p><h2>Harvest Basic Info</h2></p><br />
+        <hr />
+    </div>
+    <div class="row">
+        <p><h2>Harvest Error</h2></p><br />
+        <hr />
+    </div>
+</div>
+{%- endblock %}

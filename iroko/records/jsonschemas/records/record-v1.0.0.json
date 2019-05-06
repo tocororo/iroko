@@ -1,17 +1,17 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost/schemas/records/record-v1.0.0.json",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "title": "iroko v1.0.0",
   "type": "object",
   "properties": {
-    "id": {
+    "pid": {
       "type": "string"
     },
     "original_identifier": {
       "type": "string"
     },
-    "docid": {
+    "recid": {
       "description": "Invenio document identifier (integer).",
       "type": "number"
     },
@@ -19,10 +19,21 @@
       "description": "UUID Source from which the document was harvest",
       "type": "string"
     },
-    "source_url":{
+    "spec": {
+      "description": "setSpec Name from Dublin Core",
+      "type": "string"
+    },
+    "sourceSet":{
+      "description": "Issue of the source, source element from Dublin Core",
+      "type": "string"
+    },
+    "identifiers":{
       "description": "original url of the document",
-      "type": "string",
-      "format": "uri"
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "type": "array"
     },
     "title": {
       "description": "Document title.",
@@ -177,7 +188,7 @@
     "references": {
       "description": "Raw textual references",
       "items": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "raw_reference": {
             "type": "string"

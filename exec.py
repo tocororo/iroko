@@ -1,13 +1,24 @@
+from iroko.sources.models import Sources
+from iroko.harvester.oai.harvester import OaiHarvester
+source = Sources.query.filter_by(name='Villena').first()
+harvester = OaiHarvester(source)
+print(source.harvest_endpoint)
+
+harvester.identity_source()
+harvester.discover_items()
+harvester.process_items()
+
+
 # url="http://10.80.3.42/index.php/coodes/oai"
 
-from iroko.harvester.processors.oai import OaiIterator
-from iroko.harvester.processors.formaters.dublincore import DubliCoreElements
-from iroko.harvester.base import Item
-from lxml import etree
+# from iroko.harvester.processors.oai.iterator import OaiIterator
+# from iroko.harvester.processors.oai.formaters import DubliCoreElements
+# from iroko.harvester.base import Item
+# from lxml import etree
 
-nsmap = {'oai': 'http://www.openarchives.org/OAI/2.0/', 'dc': 'http://purl.org/dc/elements/1.1/', 'xsi': 'http://www.w3.org/2001/XMLSchema-instance','xml':'http://www.w3.org/XML/1998/namespace'}
+# nsmap = {'oai': 'http://www.openarchives.org/OAI/2.0/', 'dc': 'http://purl.org/dc/elements/1.1/', 'xsi': 'http://www.w3.org/2001/XMLSchema-instance','xml':'http://www.w3.org/XML/1998/namespace', 'nlm':'http://dtd.nlm.nih.gov/publishing/2.3'}
 
-XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
+# XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
 # idxml = etree.parse("data/harvester/1/0/id.xml", parser=XMLParser)
 # # print(idxml)
@@ -16,14 +27,23 @@ XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entiti
 # id = idxml.find('.//{' + nsmap['oai'] + '}' + 'identifier')
 # print(id.text)
 
+# nlm = etree.parse('data/harvester/0/nlm.xml', parser=XMLParser)
+# group = nlm.find('.//{' + nsmap['nlm'] + '}' + 'contrib-group')
+# for contrib in group.findall('.//{' + nsmap['nlm'] + '}' + 'contrib'):
+#     print(contrib)
+#     print(contrib.attrib['contrib-type'])
+
+# nlm_xmlschema = etree.parse('iroko/harvester/schemas/journalpublishing.xsd')
+# validator = etree.XMLSchema(nlm_xmlschema)
+# if validator.validate(nlm):
+#     print('VALID')
+# else:
+#     print('in-VALID')
 
 
-url="http://192.168.56.6/index.php/cfores/oai"
-
-
-source = {'id':"1", 'havest_endpoint': url}
-formater = DubliCoreElements(None)
-iterator = OaiIterator(None, source,  init_directory=False)
+# source = {'id':"1", 'havest_endpoint': url}
+# formater = DubliCoreElements(None)
+# iterator = OaiIterator(None, source,  init_directory=False)
 # count=0
 # for item in iterator.formats:
 #     count+=1
@@ -33,7 +53,7 @@ iterator = OaiIterator(None, source,  init_directory=False)
 # iterator.get_identifiers()
 # iterator.get_all_metadata()
 
-iterator.harvest_relation_resources('0')
+# iterator.harvest_relation_resources('0')
 
 # from lxml import etree
 

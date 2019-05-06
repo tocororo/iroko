@@ -72,4 +72,10 @@ data/images
 
 node_modules
 
-dev_ips.py
+data/harvester
+
+dev_ip.py
+
+Pipfile.lock
+
+data/sceiba-data

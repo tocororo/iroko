@@ -17,10 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from .dev_ips import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
-
-
-
+from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
@@ -156,7 +153,6 @@ SESSION_COOKIE_SECURE = True
 #: should be set to the correct host and it is strongly recommended to only
 #: route correct hosts to the application.
 
-
 WSGI_PROXIES=2
 
 
@@ -188,6 +184,10 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 
 INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
 INIT_JOURNALS_JSON_PATH = 'data/journals.json'
+INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
+
 
 
 REST_ENABLE_CORS = True
+
+HARVESTER_DATA_DIRECTORY='data/sceiba-data'

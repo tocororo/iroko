@@ -15,6 +15,13 @@ from invenio_records_rest.schemas.fields import DateString, \
 from marshmallow import fields, missing, validate
 
 
+def get_recid(obj, context):
+    """Get record id."""
+    pid = context.get('pid')
+    return pid.pid_value if pid else missing
+
+
+
 class PersonIdsSchemaV1(StrictKeysMixin):
     """Ids schema."""
 
@@ -50,10 +57,13 @@ class ContributorSchemaV1(StrictKeysMixin):
 class MetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
-    id = PersistentIdentifier()
+    # id = PersistentIdentifier()
+    recid = fields.Function(serialize=get_recid, deserialize=get_recid)
     original_identifier = fields.Str()
     source = fields.Str()
-    source_url = fields.Str()
+    sourceSet = fields.Str()
+    spec = SanitizedUnicode(validate=validate.Length(min=3))
+    identifiers = fields.List(fields.Str(), many=True)
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
     keywords = fields.List(SanitizedUnicode(), many=True)
     description = SanitizedUnicode(required=True, validate=validate.Length(min=3))
@@ -72,4 +82,7 @@ class RecordSchemaV1(StrictKeysMixin):
     revision = fields.Integer(dump_only=True)
     updated = fields.Str(dump_only=True)
     links = fields.Dict(dump_only=True)
-    id = PersistentIdentifier()
+    # id = PersistentIdentifier()
+    id = fields.Function(
+        serialize=get_recid,
+        deserialize=get_recid)

@@ -42,7 +42,7 @@ setup(
         'invenio_base.apps': [
             'iroko_records = iroko.records:iroko',
             'iroko_fixtures = iroko.fixtures.ext:IrokoFixtures',
-            # 'iroko_harvester = iroko.harvester.ext:IrokoHarvester'
+            'iroko_harvester = iroko.harvester.ext:IrokoHarvester'
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
@@ -73,8 +73,12 @@ setup(
             'term_admin = iroko.taxonomy.admin:terms_adminview',
             'source_admin = iroko.sources.admin:sources_adminview',
             'term_source_admin = iroko.sources.admin:term_sources_adminview',
-            'harvester_items_admin = '
-            'iroko.harvester.admin:harvest_item_adminview',
+            'harvester_repositories_adminview = '
+            'iroko.harvester.admin:harvester_repositories_adminview',
+            'harvester_repositories_sets_adminview = '
+            'iroko.harvester.admin:harvester_repositories_sets_adminview',
+            'harvester_items_adminview = '
+            'iroko.harvester.admin:harvester_items_adminview',
         ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.taxonomy.models',
@@ -86,7 +90,15 @@ setup(
             'iroko_sources = iroko.sources.views:api_blueprint'
         ],
         'invenio_celery.tasks': [
-            'iroko_harveser = iroko.harvester.tasks'
+            'iroko_harvester = iroko.harvester.tasks'
+        ],
+        'invenio_pidstore.fetchers': [
+            'iroko_records_fetcher '
+            '= iroko.pidstore.fetchers:record_pid_fetcher',
+        ],
+        'invenio_pidstore.minters': [
+             'iroko_documents_minter '
+            '= iroko.pidstore.minters:record_pid_minter',
         ],
     },
     classifiers=[

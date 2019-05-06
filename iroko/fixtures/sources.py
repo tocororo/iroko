@@ -30,7 +30,7 @@ import json
 from invenio_db import db
 
 from ..taxonomy.models import Term
-from ..sources.models import Sources, SourcesType, TermSources
+from ..sources.models import Sources, SourcesType, TermSources, HarvestType
 
 def init_journals():
     # sources_path = '../../data/journals.json' 
@@ -129,3 +129,25 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
 
 def remove_nulls(d):
     return {k: v for k, v in d.items() if v is not None}   
+
+def add_oaiurls():
+    path = current_app.config['INIT_JOURNALS_JSON_PATH']
+    path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
+    with open(path) as fsource, open(path_oai) as foai:
+        journals = json.load(fsource, object_hook=remove_nulls)
+        urls = json.load(foai)
+        if isinstance(journals, dict):
+            for k, record in journals.items():
+                src = Sources.query.filter_by(id=k).first()
+                if src:
+                    src.harvest_type = None
+                    for url in urls:
+                        if url['id'] == k:
+                            # print(k)
+                            # print(record['id'])
+                            # print(url['url'])
+                            src.harvest_endpoint = url['url']
+                            src.harvest_type = HarvestType.OAI
+                            print(src)
+                    db.session.commit()
+                            
