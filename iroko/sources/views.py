@@ -52,7 +52,7 @@ def get_sources():
         'year_start': str(request.args.get('year_start')),
         'year_end': str(request.args.get('year_end'))
     }
-    print(terms)
+    print(tids)
     terms = []
     if tids:
         tids= tids.split(',')
