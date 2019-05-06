@@ -69,8 +69,7 @@ def get_terms(vocabulary):
         
         terms = vocab.terms.filter_by(parent_id=None).all()
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms', \
-                            {'terms': terms_schema.dump(terms).data})
+                            'ok','terms',terms_schema.dump(terms).data)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
