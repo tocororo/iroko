@@ -25,7 +25,7 @@ api_blueprint = Blueprint(
 
 @blueprint.route('/catalog')
 def catalog_app():
-    return render_template('catalog.html')
+    return render_template('index.html')
 
 @api_blueprint.route('/sources')
 def get_sources():
