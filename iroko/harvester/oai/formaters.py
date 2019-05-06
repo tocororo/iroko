@@ -1,13 +1,13 @@
 
 
-from iroko.harvester.base import SourceIterator, Formater
-from iroko.harvester.processors.oai import nsmap
+from iroko.harvester.base import Formater
+from iroko.harvester.oai import nsmap
 
 from .utils import get_sigle_element, get_multiple_elements
 
 class DubliCoreElements(Formater):
 
-    def __init__(self, logger):
+    def __init__(self):
 
         self.metadataPrefix ='oai_dc'
         self.xmlns = 'http://purl.org/dc/elements/1.1/'
@@ -29,6 +29,9 @@ class DubliCoreElements(Formater):
         data['title'] = get_sigle_element(metadata, 'title', xmlns=self.xmlns, language='es-ES')
 
         creators = get_multiple_elements(metadata, 'creator', xmlns=self.xmlns, itemname='name')
+        # data['creators'] = []
+        # for creator in creators:
+        #     data['creators'].append({'name': creator})
         data['creators'] = creators
 
         data['keywords'] = get_sigle_element(metadata, 'subject', xmlns=self.xmlns, language='es-ES')
@@ -37,7 +40,10 @@ class DubliCoreElements(Formater):
 
         data['publisher'] = get_sigle_element(metadata, 'publisher', xmlns=self.xmlns, language='es-ES')
         
-        data['contributors'] = get_sigle_element(metadata, 'contributor', xmlns=self.xmlns, language='es-ES')
+        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, language='es-ES')
+        data['contributors'] = []
+        for contributor in contributors:
+            data['contributors'].append({'name': contributor})
 
         data['publication_date'] = get_sigle_element(metadata, 'date', xmlns=self.xmlns, language='es-ES')
         
@@ -47,7 +53,7 @@ class DubliCoreElements(Formater):
         formats = get_multiple_elements(metadata, 'format', xmlns=self.xmlns)
         data['formats'] = formats
 
-        sources = get_multiple_elements(metadata, 'source', xmlns=self.xmlns)
+        sources = get_sigle_element(metadata, 'source', xmlns=self.xmlns, language='es-ES')
         data['sources'] = sources
 
         data['language'] = get_sigle_element(metadata, 'language', xmlns=self.xmlns)
@@ -67,14 +73,15 @@ class DubliCoreElements(Formater):
 
 class JournalPublishing(Formater):
 
-    def __init__(self, logger):
+    def __init__(self):
 
         self.metadataPrefix ='nlm'
         self.xmlns = 'http://dtd.nlm.nih.gov/publishing/2.3'
 
 
     def ProcessItem(self, xml):
-        """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid """
+        """given an xml item return a dict, ensure is http://dtd.nlm.nih.gov/publishing/2.3 
+        is mainly focussed on contributors and authors"""
 
         data = {}
         header = xml.find('.//{' + nsmap['oai'] + '}header')

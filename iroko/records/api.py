@@ -8,12 +8,13 @@ from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.resolver import Resolver
+from invenio_pidstore import current_pidstore
 
 from invenio_records.api import Record
 
-# from .fetchers import document_pid_fetcher
-# from .minters import build_document_pid, document_pid_minter
-# from .providers import DocumentPidProvider
+from iroko.pidstore.fetchers import record_pid_fetcher
+from iroko.pidstore.minters import build_record_pid, record_pid_minter
+from iroko.pidstore.providers import IrokoRecordsPidProvider
 
 from invenio_jsonschemas import current_jsonschemas
 
@@ -21,9 +22,9 @@ class IrokoRecord (Record):
     """IrokoRecord class"""
 
 
-    # minter = document_pid_minter
-    # fetcher = document_pid_fetcher
-    # provider = DocumentPidProvider
+    minter = record_pid_minter
+    fetcher = record_pid_fetcher
+    provider = IrokoRecordsPidProvider
     object_type = 'rec'
     uri_key = 'electronic_location_and_access'
 
@@ -40,7 +41,7 @@ class IrokoRecord (Record):
         **kwargs
     ):
         """Create or update sources record."""
-        pid = build_document_pid(data, vendor)
+        pid = build_record_pid(data, vendor)
         record = cls.get_record_by_pid(pid, with_deleted=False)
         if record:
             # merged_data = cls._merge_uri(data, record)
@@ -87,7 +88,7 @@ class IrokoRecord (Record):
         force=False,
     ):
         """Delete a IrokoRecord record."""
-        pid = build_document_pid(data, vendor)
+        pid = build_record_pid(data, vendor)
         record = cls.get_record_by_pid(pid, with_deleted=False)
         pid.delete()
         result = record.delete(force=force)

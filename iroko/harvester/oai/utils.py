@@ -1,5 +1,5 @@
 
-from iroko.harvester.processors.oai import nsmap
+from iroko.harvester.oai import nsmap
 
 
 def get_sigle_element(metadata, name, xmlns='dc', language=None):

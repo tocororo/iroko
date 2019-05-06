@@ -14,13 +14,20 @@
         "original_identifier": {
           "type": "keyword"
         },
-        "docid": {
+        "recid": {
           "type": "double"
         },
         "source":{
           "type": "keyword"
         },
-        "source_url":{
+        "sourceSet":{
+          "type": "keyword"
+        },
+        "spec": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "identifiers":{
           "type": "keyword"
         },
         "title": {

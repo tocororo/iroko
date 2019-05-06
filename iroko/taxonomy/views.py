@@ -31,6 +31,8 @@ from flask import Blueprint, jsonify, request, json
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.taxonomy.marshmallow import vocabularies_schema, vocabulary_schema, terms_schema, term_schema
 
+from iroko.utils import iroko_json_response, IrokoResponseStatus
+
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
     __name__,
@@ -39,26 +41,39 @@ api_blueprint = Blueprint(
 
 @api_blueprint.route('/vocabularies')
 def get_vocabularies():
-    """."""
-    # path = request.args.get('pathname', None)
+
     result = Vocabulary.query.all()
-    return jsonify(vocabularies_schema.dump(result))
+    if result:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','vocabularies', \
+                            vocabularies_schema.dump(result).data)
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'vocabularies not found', None, None)
+
 
 
 @api_blueprint.route('/terms')
 def get_terms_list():
+
     result = Term.query.all()
-    return jsonify(terms_schema.dump(result))
+    if result:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','terms', \
+                            terms_schema.dump(result).data)
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'terms not found', None, None)
 
 
 @api_blueprint.route('/terms/<vocabulary>')
 def get_terms(vocabulary):
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
     if vocab:
-        terms = vocab.terms.filter_by(parent_id=None).all()        
-        return jsonify({'vocab': vocabulary_schema.dump(vocab), 
-                        'terms': terms_schema.dump(terms)})
-    return jsonify({'vocab': 'no vocab'})
+        
+        terms = vocab.terms.filter_by(parent_id=None).all()
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','terms', \
+                            {'vocab': vocabulary_schema.dump(vocab).data,\
+                            'terms': terms_schema.dump(terms).data})
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
 
 @api_blueprint.route('/terms/<vocabulary>/tree')
@@ -69,17 +84,22 @@ def get_terms_tree(vocabulary):
         terms_full = []
         for term in terms:
             terms_full.append(load_term(term))
-        return jsonify({'vocab': vocabulary_schema.dump(vocab), 
-                    'terms': terms_full})
-        
-    return jsonify({'vocab': 'no vocab'})
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','terms', \
+                            {'vocab': vocabulary_schema.dump(vocab).data,\
+                            'terms': terms_full})
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
 
 @api_blueprint.route('/term/<uuid>')
 def get_term(uuid):
     term = Term.query.filter_by(uuid=uuid).first()
     if term:
-        return jsonify(load_term(term))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','terms', load_term(term))
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'no term', None, None)        
 
 
 def load_term(term):

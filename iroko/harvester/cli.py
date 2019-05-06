@@ -41,8 +41,8 @@ from iroko.sources.models import Sources, HarvestType
 
 # from .formats.dc import marshmallow
 
-from iroko.harvester.processors.oai.iterator import OaiIterator
-from iroko.harvester.processors.oai.formaters import DubliCoreElements
+# from iroko.harvester.processors.oai.iterator import OaiIterator
+# from iroko.harvester.processors.oai.formaters import DubliCoreElements
 
 @click.group()
 def harvester():
@@ -54,19 +54,16 @@ def harvester():
 def harvestall():
     """harvest all sources with oai"""
     sources = Sources.query.filter_by(harvest_type=HarvestType.OAI).all()
-    count = 1
-    for source in sources:
-        print(source.harvest_endpoint)
-        try:
-            iterator = OaiIterator(None, source,  init_directory=True,max_retries=2)
-            iterator.get_identifiers()
-            iterator.get_all_metadata()
-            count+=1
-        except Exception as e:
-            print (e.__doc__)
-
-        
-
+    # count = 1
+    # for source in sources:
+    #     print(source.harvest_endpoint)
+    #     try:
+    #         iterator = OaiIterator(None, source,  init_directory=True,max_retries=2)
+    #         iterator.get_identifiers()
+    #         iterator.get_all_metadata()
+    #         count+=1
+    #     except Exception as e:
+    #         print (e.__doc__)
     print("def harvestall():"+str(count))
 
 @harvester.command()
