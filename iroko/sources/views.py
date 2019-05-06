@@ -52,7 +52,7 @@ def get_sources():
         'year_start': str(request.args.get('year_start')),
         'year_end': str(request.args.get('year_end'))
     }
-    print(tids)
+    
     terms = []
     if tids:
         tids= tids.split(',')
@@ -60,7 +60,7 @@ def get_sources():
         if tids[0].lower() is 'and' or tids[0].lower() is 'or':
             del tids[0]    
         terms = tids   
-     
+    print(tids, terms)
     all_terms = load_terms_tree(terms)
 
     result=[]
