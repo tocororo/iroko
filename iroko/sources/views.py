@@ -41,10 +41,8 @@ def get_sources():
 
     limit = count
     offset = count*page
-    print(limit,offset)
-
     tids = request.args.get('terms')
-
+    
     data_args = {
         'title' : str(request.args.get('title')),
         'description': str(request.args.get('description')),
@@ -54,14 +52,15 @@ def get_sources():
         'year_start': str(request.args.get('year_start')),
         'year_end': str(request.args.get('year_end'))
     }
-
+    
     terms = []
     if tids:
         tids= tids.split(',')
         term_op = tids[0]    
         if tids[0].lower() is 'and' or tids[0].lower() is 'or':
             del tids[0]    
-        terms = tids    
+        terms = tids   
+    print(tids, terms) 
     all_terms = load_terms_tree(terms)
 
     result=[]
@@ -154,7 +153,6 @@ def load_term_children_id(term):
 
 def load_terms_tree(terms):
     children = []
-    print(terms)
     for par_term in terms:
         aux = Term.query.filter_by(id=par_term).first()        
         tchildren = load_term_children_id(aux)
