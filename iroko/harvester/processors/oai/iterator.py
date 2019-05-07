@@ -44,23 +44,31 @@ class OaiIterator(SourceIterator):
         args = {'headers':headers,'proxies':proxies,'timeout':15, 'verify':False}
         self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
         print('self.sickle')
-        
+
+    def get_identify(self):
+        identify = self.sickle.Identify()
+        f = open(path.join(self.harvest_dir, "metadata_formats.xml"),"w")
+        f.write(identify.raw)
+
+    def get_formats(self):
         self.formats = []
         arguments ={}
         items = self.sickle.ListMetadataFormats(**arguments)
+        f = open(path.join(self.harvest_dir, "metadata_formats.xml"),"w")
+        f.write(items.raw)
         for f in items:
             self.formats.append(f.metadataPrefix)
             print(f.metadataPrefix)
 
 
-    def __iter__(self):
-        self.records_iterator = self.sickle.ListRecords(metadataPrefix=self.formater.metadataPrefix)
-        return self
+    # def __iter__(self):
+    #     self.records_iterator = self.sickle.ListRecords(metadataPrefix=self.formater.metadataPrefix)
+    #     return self
 
-    def __next__(self):
-        item = self.records_iterator.next()
-        data = self.formater.ProcessItem(item.xml)
-        return data
+    # def __next__(self):
+    #     item = self.records_iterator.next()
+    #     data = self.formater.ProcessItem(item.xml)
+    #     return data
 
     def get_identifiers(self):
         """retrieve all the identifiers of the source, create a directory structure, and save id.xml for each identified retrieved."""

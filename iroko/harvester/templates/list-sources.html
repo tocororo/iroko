@@ -12,11 +12,17 @@
     </div>
     <div class="row">
         {% for source in sources %}
-            <a href="/sources/{{source.id}}">
+        <p>
+            <a href="/sources/id/{{source.id}}">
                 <b>{{source.name}}</b><br />
             </a>
-            <p>{{source.harvest_type}}</p><br />
-            <p>{{source.harvest_endpoint}}</p><br />
+        </p>    <!-- <p>{{source.id}}</p><br />
+            <p>{{source.uuid}}</p><br /> -->
+        <p>
+            {{source.source_type}}<br />
+            {{source.harvest_type}}<br />
+            {{source.harvest_endpoint}}<br />
+        </p>
             <hr />
         {% endfor %}
     </div>

@@ -8,7 +8,7 @@ from flask import Blueprint, request, render_template
 from flask_login import login_required
 
 from iroko.sources.models import Sources, HarvestType
-from iroko.sources.marshmallow import sources_schema, sources_schema_full
+from iroko.sources.marshmallow import sources_schema, sources_schema_full, source_schema_full
 
 from .tasks import test_task
 
@@ -29,7 +29,7 @@ def view_sources():
     limit = 10
     offset = int(page) * limit
     result = Sources.query.filter_by(harvest_type=HarvestType.OAI).limit(limit).offset(offset).all()
-    sources = sources_schema_full.dump(result)
+    sources = sources_schema.dump(result)
 
     prev_page = int(page) - 1
     next_page = int(page) + 1
@@ -39,6 +39,13 @@ def view_sources():
         next_page=int(page)
 
     return render_template('list-sources.html', sources=sources.data, prev_page= prev_page, next_page= next_page)
+
+@blueprint.route('/sources/id/<id>')
+@login_required
+def view_source_id(id):
+    src = Sources.query.filter_by(id=id).first()
+    source = source_schema_full.dump(src)
+    return render_template('source.html', source=source.data)
 
 @blueprint.route('/harvest')
 def harvest_task():

@@ -44,9 +44,10 @@ class SourcesSchema(Schema):
 
 
 
-sources_schema = SourcesSchema(many=True, only=('id', 'uuid', 'name', 'source_type'))
+sources_schema = SourcesSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'harvest_type','harvest_endpoint'))
 
 sources_schema_full = SourcesSchema(many=True)
+source_schema_full = SourcesSchema()
 
 journal_schema = JournalSchema()
 
