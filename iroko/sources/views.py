@@ -154,7 +154,7 @@ def load_term_children_id(term):
 def load_terms_tree(terms):
     children = []
     for par_term in terms:
-        if str(par_term).isdigit()
+        if str(par_term).isdigit
             aux = Term.query.filter_by(id=par_term).first()        
             tchildren = load_term_children_id(aux)
             if tchildren:
