@@ -152,11 +152,12 @@ def load_term_children_id(term):
         return children
 
 def load_terms_tree(terms):
-    children = []
+    temp_terms = []    
     for par_term in terms:
         if str(par_term).isdigit():
+            temp_terms += [par_term]
             aux = Term.query.filter_by(id=par_term).first()        
             tchildren = load_term_children_id(aux)
             if tchildren:
-                children += tchildren
-    return set(children + terms)
+                temp_terms += tchildren
+    return set(temp_terms)
