@@ -57,7 +57,7 @@ def get_sources():
     if tids:
         tids= tids.split(',')
         term_op = tids[0]    
-        if tids[0].lower() is 'and' or tids[0].lower() is 'or':
+        if tids[0].lower() == 'and' or tids[0].lower() == 'or':
             del tids[0]    
         terms = tids   
     
