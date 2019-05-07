@@ -190,4 +190,4 @@ INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
 
 REST_ENABLE_CORS = True
 
-HARVESTER_DATA_DIRECTORY='/opt/sceiba-data'
+HARVESTER_DATA_DIRECTORY='data/sceiba-data'

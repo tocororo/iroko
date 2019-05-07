@@ -1,28 +1,66 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost/schemas/records/record-v1.0.0.json",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "title": "iroko v1.0.0",
   "type": "object",
   "properties": {
     "id": {
+      "description": "Iroko UUID, pid_type = irouid",
       "type": "string"
     },
-    "original_identifier": {
-      "type": "string"
-    },
-    "docid": {
-      "description": "Invenio document identifier (integer).",
-      "type": "number"
+    "identifiers":{
+      "description": "identificadores del record",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "idtype": {
+            "description": "el tipo de identificador",
+            "type": "string",
+            "enum": [
+              "ark",
+              "arxiv",
+              "doi",
+              "bibcode",
+              "ean8",
+              "ean13",
+              "eissn",
+              "handle",
+              "isbn",
+              "issn",
+              "istc",
+              "lissn",
+              "lsid",
+              "pmid",
+              "pmcid",
+              "purl",
+              "upc",
+              "url",
+              "urn",
+              "orcid",
+              "gnd",
+              "ads"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "array"
     },
     "source":{
       "description": "UUID Source from which the document was harvest",
       "type": "string"
     },
-    "source_url":{
-      "description": "original url of the document",
-      "type": "string",
-      "format": "uri"
+    "spec": {
+      "description": "setSpec Name from Dublin Core",
+      "type": "string"
+    },
+    "sourceSet":{
+      "description": "Issue of the source, source element from Dublin Core",
+      "type": "string"
     },
     "title": {
       "description": "Document title.",
@@ -50,7 +88,7 @@
     },
     "contributors": {
       "description": "Contributors in order of importance.",
-      "minItems": 1,
+      "minItems": 0,
       "type": "array",
       "items": {
         "type": "object",
@@ -177,7 +215,7 @@
     "references": {
       "description": "Raw textual references",
       "items": {
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "raw_reference": {
             "type": "string"

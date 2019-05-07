@@ -20,10 +20,10 @@ def _(x):
     return x
 
 RECORDS_REST_ENDPOINTS = {
-    'recid': dict(
-        pid_type='recid',
-        pid_minter='recid',
-        pid_fetcher='recid',
+    'irouid': dict(
+        pid_type='irouid',
+        pid_minter='irouid',
+        pid_fetcher='irouid',
         default_endpoint_prefix=True,
         search_class=RecordsSearch,
         indexer_class=RecordIndexer,
@@ -42,7 +42,7 @@ RECORDS_REST_ENDPOINTS = {
                                  ':json_v1'),
         },
         list_route='/records/',
-        item_route='/records/<pid(recid):pid_value>',
+        item_route='/records/<pid(irouid):pid_value>',
         default_media_type='application/json',
         max_result_window=10000,
         error_handlers=dict(),
@@ -57,9 +57,9 @@ RECORDS_REST_ENDPOINTS = {
 
 RECORDS_UI_ENDPOINTS = {
     'recid': {
-        'pid_type': 'recid',
+        'pid_type': 'irouid',
         'route': '/records/<pid_value>',
-        'template': 'records/record.html',
+        'template': 'records/record.html'
     },
 }
 """Records UI for iroko."""
@@ -114,3 +114,4 @@ RECORDS_REST_DEFAULT_SORT = dict(
     )
 )
 """Set default sorting options."""
+

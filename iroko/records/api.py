@@ -8,86 +8,64 @@ from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.resolver import Resolver
+from invenio_pidstore import current_pidstore
 
 from invenio_records.api import Record
 
-# from .fetchers import document_pid_fetcher
-# from .minters import build_document_pid, document_pid_minter
-# from .providers import DocumentPidProvider
+from iroko.pidstore.fetchers import iroko_uuid_fetcher
+from iroko.pidstore.minters import iroko_uuid_minter
+from iroko.pidstore.providers import IrokoUUIDProvider
 
 from invenio_jsonschemas import current_jsonschemas
 
+from flask import current_app
+
 class IrokoRecord (Record):
-    """IrokoRecord class"""
+    """IrokoRecord class
+    en general esto no esta muy bien, hay que profundizar en el problema de los PID, ahora mismo es solo un UUID, pero el PID no se puede generar a partir de la data... lo cual puede no ser muy bueno pues para manipular el record hay que saber el uuid, esto es contradictorio, pues en la data pueden venir doi, oai y otras formas de identificar el record..."""
 
 
-    # minter = document_pid_minter
-    # fetcher = document_pid_fetcher
-    # provider = DocumentPidProvider
+    minter = iroko_uuid_minter
+    fetcher = iroko_uuid_fetcher
+    provider = IrokoUUIDProvider
     object_type = 'rec'
     uri_key = 'electronic_location_and_access'
+    pid_field = 'id'
 
     _schema = "records/record-v1.0.0.json"
 
     @classmethod
-    def create_or_update(
-        cls,
-        data,
-        id_=None,
-        dbcommit=False,
-        reindex=False,
-        vendor=None,
-        **kwargs
-    ):
-        """Create or update sources record."""
-        pid = build_document_pid(data, vendor)
-        record = cls.get_record_by_pid(pid, with_deleted=False)
-        if record:
-            # merged_data = cls._merge_uri(data, record)
-            record.update(data, dbcommit=dbcommit, reindex=reindex)
-            return record, 'updated'
+    def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, record_uuid=None, **kwargs):
+        """Create or update IrokoRecord."""
+        if record_uuid:
+            record = cls.get_record_by_pid(record_uuid, with_deleted=False)
+            if record:
+                # merged_data = cls._merge_uri(data, record)
+                record.update(data, dbcommit=dbcommit, reindex=reindex)
+                return record, 'updated'
         else:
-            created_record = cls.create(
-                data,
-                id_=None,
-                vendor=vendor,
-                dbcommit=dbcommit,
-                reindex=reindex,
-            )
+            created_record = cls.create(data, id_=None, dbcommit=dbcommit, reindex=reindex)
             return created_record, 'created'
 
     @classmethod
-    def create(
-        cls,
-        data,
-        id_=None,
-        dbcommit=False,
-        reindex=False,
-        vendor=None,
-        **kwargs
-    ):
-        """Create a new sources record."""
+    def create(cls, data, id_=None, dbcommit=False, reindex=False, **kwargs):
+        """Create a new IrokoRecord."""
         data['$schema'] = current_jsonschemas.path_to_url(cls._schema)
         assert cls.minter
-        assert not data.get('pid')
+        assert not data.get(cls.pid_field)
         if not id_:
             id_ = uuid4()
-        cls.minter(id_, data, vendor)
+        cls.minter(id_, data)
         record = super(IrokoRecord, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:
             record.dbcommit(reindex)
         return record
 
     @classmethod
-    def delete(
-        cls,
-        data,
-        vendor=None,
-        delindex=True,
-        force=False,
-    ):
+    def delete( cls, data, vendor=None, delindex=True, force=False):
         """Delete a IrokoRecord record."""
-        pid = build_document_pid(data, vendor)
+        assert data.get(cls.pid_field)
+        pid = data.get(cls.pid_field)
         record = cls.get_record_by_pid(pid, with_deleted=False)
         pid.delete()
         result = record.delete(force=force)

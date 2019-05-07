@@ -8,20 +8,29 @@
           "type": "text",
           "index": false
         },
-        "pid": {
+        "id": {
           "type": "keyword"
         },
-        "original_identifier": {
-          "type": "keyword"
-        },
-        "docid": {
-          "type": "double"
+        "identifiers":{
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
         },
         "source":{
           "type": "keyword"
         },
-        "source_url":{
+        "sourceSet":{
           "type": "keyword"
+        },
+        "spec": {
+          "type": "text",
+          "analyzer": "spanish"
         },
         "title": {
           "type": "text",

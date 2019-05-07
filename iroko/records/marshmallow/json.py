@@ -15,6 +15,13 @@ from invenio_records_rest.schemas.fields import DateString, \
 from marshmallow import fields, missing, validate
 
 
+def get_recid(obj, context):
+    """Get record id."""
+    pid = context.get('pid')
+    return pid.pid_value if pid else missing
+
+
+
 class PersonIdsSchemaV1(StrictKeysMixin):
     """Ids schema."""
 
@@ -46,14 +53,22 @@ class ContributorSchemaV1(StrictKeysMixin):
     email = fields.Email()  
     role = SanitizedUnicode()
 
+class IdentifierSchemaV1(StrictKeysMixin):
+    """Ids schema."""
+
+    idtype = SanitizedUnicode()
+    value = SanitizedUnicode()
+    
+
 
 class MetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
     id = PersistentIdentifier()
-    original_identifier = fields.Str()
+    identifiers = Nested(IdentifierSchemaV1, many=True)
     source = fields.Str()
-    source_url = fields.Str()
+    sourceSet = fields.Str()
+    spec = SanitizedUnicode(validate=validate.Length(min=3))
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
     keywords = fields.List(SanitizedUnicode(), many=True)
     description = SanitizedUnicode(required=True, validate=validate.Length(min=3))

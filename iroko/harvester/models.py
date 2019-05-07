@@ -1,33 +1,26 @@
 import uuid
 import enum
-from sqlalchemy_utils.types import UUIDType, JSONType
+from sqlalchemy_utils.types import UUIDType, JSONType, ScalarListType
 
 from invenio_db import db
+from datetime import datetime
 
 from datetime import datetime
 
 # from  iroko.sources.models import Sources
 
-class HarvestedSource(db.Model):
-    """The sources harvested"""
+class RepositoryStatus(enum.Enum):
 
-    __tablename__ = 'iroko_harvest_sources'
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    source_id = db.Column(db.Integer(),
-                        db.ForeignKey('iroko_sources.id', ondelete='CASCADE'),
-                        nullable=False, index=True)
-    source = db.relationship("Sources", 
-                            backref=db.backref("harvested_sources",cascade="all, delete-orphan", lazy='dynamic'))
-    rundate = db.Column(db.DateTime, default=datetime(year=1900, month=1, day=1), nullable=True)
-
-    harvest_data = db.Column(JSONType)
-
+    ERROR = "ERROR"
+    IDENTIFIED = "IDENTIFIED"
+    HARVESTED = "HARVESTED"
+    RECORDED = "RECORDED"
+    ENRICHED = "ENRICHED"
 
 
 class HarvestedItemStatus(enum.Enum):
 
+    DELETED = "DELETED"
     ERROR = "ERROR"
     HARVESTED = "HARVESTED"
     SCHEMA_VALID = "SCHEMA_VALID"
@@ -35,27 +28,62 @@ class HarvestedItemStatus(enum.Enum):
     ENRICHED = "ENRICHED"
 
 
+class Repository(db.Model):
+    """A Repository is a Source to be harvest"""
 
-class HarvestedItem(db.Model):
-    """The items harvested"""
-
-    __tablename__ = 'iroko_harvest_items'
+    __tablename__ = 'iroko_harvest_repository'
 
     id = db.Column(db.Integer, primary_key=True)
 
     source_id = db.Column(db.Integer(),
                         db.ForeignKey('iroko_sources.id', ondelete='CASCADE'),
                         nullable=False, index=True)
-    source = db.relationship("Sources", 
-                            backref=db.backref("harvested_items",cascade="all, delete-orphan", lazy='dynamic'))
+    last_run = db.Column(db.DateTime, default=datetime(year=1900, month=1, day=1), nullable=True)
+
+    identifier = db.Column(db.String)
+
+    metadata_formats = db.Column(ScalarListType)
+
+    status = db.Column(db.Enum(RepositoryStatus))
+
+    def __str__(self):
+        """Representation."""
+        return self.identifier
+
+class RepositorySet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    repository_id = db.Column(db.Integer(),
+                        db.ForeignKey('iroko_harvest_repository.id', ondelete='CASCADE'),
+                        nullable=False, index=True)
+    repository = db.relationship("Repository", backref=db.backref("sets"))
+    setSpec = db.Column(db.String)
+    setName = db.Column(db.String)
+
+    def __str__(self):
+        """Representation."""
+        return self.setName
+
+
+class HarvestedItem(db.Model):
+    """The items harvested from a repository"""
+
+    __tablename__ = 'iroko_harvest_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    repository_id = db.Column(db.Integer(),
+                        db.ForeignKey('iroko_harvest_repository.id', ondelete='CASCADE'),
+                        nullable=False, index=True)
+    repository = db.relationship("Repository", backref=db.backref("harvested_items"))
 
     identifier = db.Column(db.String, nullable=False)
 
+    # TODO: default must be set no None
     record = db.Column(UUIDType, default=uuid.uuid4)
 
     status = db.Column(db.Enum(HarvestedItemStatus))
 
-    harvesting_data = db.Column(JSONType)
+    setSpec = db.Column(db.String)
 
     def __str__(self):
         """Representation."""
