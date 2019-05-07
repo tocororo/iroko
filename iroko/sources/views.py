@@ -28,7 +28,7 @@ api_blueprint = Blueprint(
 
 @blueprint.route('/catalog')
 def catalog_app():
-    return render_template('catalog.html')
+    return render_template('index.html')
 
 
 @api_blueprint.route('/sources')
@@ -41,10 +41,8 @@ def get_sources():
 
     limit = count
     offset = count*page
-    print(limit,offset)
-
     tids = request.args.get('terms')
-
+    
     data_args = {
         'title' : str(request.args.get('title')),
         'description': str(request.args.get('description')),
@@ -54,23 +52,24 @@ def get_sources():
         'year_start': str(request.args.get('year_start')),
         'year_end': str(request.args.get('year_end'))
     }
-
+    
     terms = []
     if tids:
         tids= tids.split(',')
         term_op = tids[0]    
-        if tids[0].lower() is 'and' or tids[0].lower() is 'or':
+        if tids[0].lower() == 'and' or tids[0].lower() == 'or':
             del tids[0]    
-        terms = tids    
+        terms = tids   
+    
     all_terms = load_terms_tree(terms)
-
+    
     result=[]
     ask_terms = len(all_terms) > 0
     if ask_terms:
-        sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).order_by('sources.name').all()
+        sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
     else:
         sources = Sources.query.order_by('name').all()
-
+    print(tids, terms, all_terms, sources)
     for item in sources:
         source = item.source if ask_terms else item
         if is_like(source, data_args, and_op):
@@ -153,10 +152,12 @@ def load_term_children_id(term):
         return children
 
 def load_terms_tree(terms):
-    children = []
+    temp_terms = []    
     for par_term in terms:
-        aux = Term.query.filter_by(id=par_term).first()        
-        tchildren = load_term_children_id(aux)
-        if tchildren:
-            children += tchildren
-    return set(children + terms)
+        if str(par_term).isdigit():
+            temp_terms += [par_term]
+            aux = Term.query.filter_by(id=par_term).first()        
+            tchildren = load_term_children_id(aux)
+            if tchildren:
+                temp_terms += tchildren
+    return set(temp_terms)

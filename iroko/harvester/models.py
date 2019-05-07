@@ -3,6 +3,7 @@ import enum
 from sqlalchemy_utils.types import UUIDType, JSONType, ScalarListType
 
 from invenio_db import db
+from datetime import datetime
 
 from datetime import datetime
 
