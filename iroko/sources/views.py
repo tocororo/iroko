@@ -60,9 +60,9 @@ def get_sources():
         if tids[0].lower() is 'and' or tids[0].lower() is 'or':
             del tids[0]    
         terms = tids   
-    print(tids, terms)
+    
     all_terms = load_terms_tree(terms)
-
+    print(tids, terms, all_terms)
     result=[]
     ask_terms = len(all_terms) > 0
     if ask_terms:
