@@ -66,7 +66,7 @@ def get_sources():
     result=[]
     ask_terms = len(all_terms) > 0
     if ask_terms:
-        sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).order_by('sources_id').all()
+        sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
     else:
         sources = Sources.query.order_by('name').all()
 
