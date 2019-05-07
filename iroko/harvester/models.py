@@ -77,6 +77,7 @@ class HarvestedItem(db.Model):
 
     identifier = db.Column(db.String, nullable=False)
 
+    # TODO: default must be set no None
     record = db.Column(UUIDType, default=uuid.uuid4)
 
     status = db.Column(db.Enum(HarvestedItemStatus))

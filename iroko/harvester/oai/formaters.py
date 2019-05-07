@@ -4,6 +4,7 @@ from iroko.harvester.base import Formater
 from iroko.harvester.oai import nsmap
 
 from .utils import get_sigle_element, get_multiple_elements
+from iroko.utils import get_identifier_schema
 
 class DubliCoreElements(Formater):
 
@@ -22,28 +23,41 @@ class DubliCoreElements(Formater):
         
         identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
         data['original_identifier'] = identifier.text
-        identifiers = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
-        identifiers.insert(0, identifier.text)
+        pids = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
+        identifiers = []
+        for pid in pids:
+            schema = get_identifier_schema(pid)
+            if schema:
+                identifiers.append({'idtype': schema,'value': pid})
+        # identifiers.insert(0, {'idtype': 'oai','value': identifier.text})
         data['identifiers'] = identifiers
         
         data['title'] = get_sigle_element(metadata, 'title', xmlns=self.xmlns, language='es-ES')
 
         creators = get_multiple_elements(metadata, 'creator', xmlns=self.xmlns, itemname='name')
-        # data['creators'] = []
-        # for creator in creators:
-        #     data['creators'].append({'name': creator})
-        data['creators'] = creators
-
-        data['keywords'] = get_sigle_element(metadata, 'subject', xmlns=self.xmlns, language='es-ES')
+        data['creators'] = []
+        for creator in creators:
+            if isinstance(creator['name'], str):
+                data['creators'].append(creator)
+        # data['creators'] = creators
+        keywords = get_sigle_element(metadata, 'subject', xmlns=self.xmlns, language='es-ES')
+        print(keywords)
+        if keywords and isinstance(keywords, str):
+            data['keywords'] = keywords.split(';')
         
-        data['description'] = get_sigle_element(metadata, 'description', xmlns=self.xmlns, language='es-ES')
+        desc = get_sigle_element(metadata, 'description', xmlns=self.xmlns, language='es-ES')
+        if desc and desc != '':
+            data['description'] = desc
 
         data['publisher'] = get_sigle_element(metadata, 'publisher', xmlns=self.xmlns, language='es-ES')
         
-        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, language='es-ES')
+        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name', language='es-ES')
         data['contributors'] = []
+
         for contributor in contributors:
-            data['contributors'].append({'name': contributor})
+            if isinstance(contributor['name'], str) and contributor['name'] != '':
+                data['contributors'].append(contributor)
+        # data['contributors'] = contributors 
 
         data['publication_date'] = get_sigle_element(metadata, 'date', xmlns=self.xmlns, language='es-ES')
         

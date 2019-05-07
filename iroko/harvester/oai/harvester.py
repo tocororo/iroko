@@ -218,11 +218,11 @@ class OaiHarvester(SourceHarvester):
 
         items = HarvestedItem.query.filter_by(repository_id=self.repository.id).all()
         for item in items:
-            if item.status != HarvestedItemStatus.DELETED:
+            if item.status == HarvestedItemStatus.HARVESTED:
                 dc = self.process_item_formatter(item, self.oai_dc)
                 # nlm = self.process_item_formatter(item, self.formaters['nlm'])
                 data = self.crate_iroko_dict(item, dc)
-                record, status = IrokoRecord.create_or_update(data, vendor=str(self.source.uuid), dbcommit=True, reindex=True)
+                record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
                 item.status = HarvestedItemStatus.RECORDED
 
 

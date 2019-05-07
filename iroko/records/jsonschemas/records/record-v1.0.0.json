@@ -5,15 +5,50 @@
   "title": "iroko v1.0.0",
   "type": "object",
   "properties": {
-    "pid": {
+    "id": {
+      "description": "Iroko UUID, pid_type = irouid",
       "type": "string"
     },
-    "original_identifier": {
-      "type": "string"
-    },
-    "recid": {
-      "description": "Invenio document identifier (integer).",
-      "type": "number"
+    "identifiers":{
+      "description": "identificadores del record",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "idtype": {
+            "description": "el tipo de identificador",
+            "type": "string",
+            "enum": [
+              "ark",
+              "arxiv",
+              "doi",
+              "bibcode",
+              "ean8",
+              "ean13",
+              "eissn",
+              "handle",
+              "isbn",
+              "issn",
+              "istc",
+              "lissn",
+              "lsid",
+              "pmid",
+              "pmcid",
+              "purl",
+              "upc",
+              "url",
+              "urn",
+              "orcid",
+              "gnd",
+              "ads"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "array"
     },
     "source":{
       "description": "UUID Source from which the document was harvest",
@@ -26,14 +61,6 @@
     "sourceSet":{
       "description": "Issue of the source, source element from Dublin Core",
       "type": "string"
-    },
-    "identifiers":{
-      "description": "original url of the document",
-      "items": {
-        "type": "string",
-        "format": "uri"
-      },
-      "type": "array"
     },
     "title": {
       "description": "Document title.",
@@ -61,7 +88,7 @@
     },
     "contributors": {
       "description": "Contributors in order of importance.",
-      "minItems": 1,
+      "minItems": 0,
       "type": "array",
       "items": {
         "type": "object",

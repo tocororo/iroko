@@ -4,11 +4,11 @@ source = Sources.query.filter_by(name='Villena').first()
 harvester = OaiHarvester(source)
 print(source.harvest_endpoint)
 
-harvester.identity_source()
-harvester.discover_items()
+
 harvester.process_items()
 
-
+harvester.identity_source()
+harvester.discover_items()
 # url="http://10.80.3.42/index.php/coodes/oai"
 
 # from iroko.harvester.processors.oai.iterator import OaiIterator

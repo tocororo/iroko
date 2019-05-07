@@ -8,14 +8,19 @@
           "type": "text",
           "index": false
         },
-        "pid": {
+        "id": {
           "type": "keyword"
         },
-        "original_identifier": {
-          "type": "keyword"
-        },
-        "recid": {
-          "type": "double"
+        "identifiers":{
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
         },
         "source":{
           "type": "keyword"
@@ -26,9 +31,6 @@
         "spec": {
           "type": "text",
           "analyzer": "spanish"
-        },
-        "identifiers":{
-          "type": "keyword"
         },
         "title": {
           "type": "text",

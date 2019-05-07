@@ -5,13 +5,13 @@ from collections import namedtuple
 
 from flask import current_app
 
-from .providers import IrokoRecordsPidProvider
+from .providers import IrokoUUIDProvider
 
 FetchedPID = namedtuple('FetchedPID', ['provider', 'pid_type', 'pid_value'])
 """A pid fetcher."""
 
 
-def record_pid_fetcher(record_uuid, data):
+def iroko_uuid_fetcher(record_uuid, data):
     """Fetch a document's identifiers.
 
     :param record_uuid: The record UUID.
@@ -20,7 +20,8 @@ def record_pid_fetcher(record_uuid, data):
     """
     pid_field = current_app.config['PIDSTORE_RECID_FIELD']
     return FetchedPID(
-        provider=IrokoRecordsPidProvider,
-        pid_type=IrokoRecordsPidProvider.pid_type,
+        provider=IrokoUUIDProvider,
+        pid_type=IrokoUUIDProvider.pid_type,
         pid_value=str(data[pid_field]),
     )
+

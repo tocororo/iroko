@@ -93,12 +93,12 @@ setup(
             'iroko_harvester = iroko.harvester.tasks'
         ],
         'invenio_pidstore.fetchers': [
-            'iroko_records_fetcher '
-            '= iroko.pidstore.fetchers:record_pid_fetcher',
+            'irouid'
+            '= iroko.pidstore.fetchers:iroko_uuid_fetcher',
         ],
         'invenio_pidstore.minters': [
-             'iroko_documents_minter '
-            '= iroko.pidstore.minters:record_pid_minter',
+             'irouid'
+            '= iroko.pidstore.minters:iroko_uuid_minter',
         ],
     },
     classifiers=[

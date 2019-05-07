@@ -53,17 +53,22 @@ class ContributorSchemaV1(StrictKeysMixin):
     email = fields.Email()  
     role = SanitizedUnicode()
 
+class IdentifierSchemaV1(StrictKeysMixin):
+    """Ids schema."""
+
+    idtype = SanitizedUnicode()
+    value = SanitizedUnicode()
+    
+
 
 class MetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
-    # id = PersistentIdentifier()
-    recid = fields.Function(serialize=get_recid, deserialize=get_recid)
-    original_identifier = fields.Str()
+    id = PersistentIdentifier()
+    identifiers = Nested(IdentifierSchemaV1, many=True)
     source = fields.Str()
     sourceSet = fields.Str()
     spec = SanitizedUnicode(validate=validate.Length(min=3))
-    identifiers = fields.List(fields.Str(), many=True)
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
     keywords = fields.List(SanitizedUnicode(), many=True)
     description = SanitizedUnicode(required=True, validate=validate.Length(min=3))
@@ -82,7 +87,4 @@ class RecordSchemaV1(StrictKeysMixin):
     revision = fields.Integer(dump_only=True)
     updated = fields.Str(dump_only=True)
     links = fields.Dict(dump_only=True)
-    # id = PersistentIdentifier()
-    id = fields.Function(
-        serialize=get_recid,
-        deserialize=get_recid)
+    id = PersistentIdentifier()
