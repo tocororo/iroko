@@ -29,7 +29,7 @@ def view_sources():
     limit = 10
     offset = int(page) * limit
     result = Sources.query.filter_by(harvest_type=HarvestType.OAI).limit(limit).offset(offset).all()
-    sources = sources_schema.dump(result)
+    sources = sources_schema_full.dump(result)
 
     prev_page = int(page) - 1
     next_page = int(page) + 1
