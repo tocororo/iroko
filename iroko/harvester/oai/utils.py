@@ -24,15 +24,18 @@ def get_multiple_elements(metadata, name, xmlns='dc', itemname=None, language=No
     elements = metadata.findall('.//{' + xmlns + '}' + name)
     for e in elements:
         lang='{' + nsmap['xml'] + '}lang'
+        apend = None
         if language and lang in e.attrib:
                 if e.attrib[lang] == language:
                     if(itemname == ''):
-                        results.append(e.text)
+                        apend = e.text
                     else:
-                        results.append({itemname: e.text})
+                        apend = {itemname: e.text}
         else:
             if(itemname):
-                results.append({itemname: e.text})
+                apend = {itemname: e.text}
             else:
-                results.append(e.text)
+                apend = e.text
+        if e.text is not None and e.text != '' and apend is not None:
+            results.append(apend)
     return results

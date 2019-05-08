@@ -5,8 +5,19 @@ from iroko.records.api import IrokoRecord
 from iroko.sources.models import Sources
 from iroko.harvester.models import HarvestedItem
 from iroko.harvester.oai.harvester import OaiHarvester
-source = Sources.query.filter_by(name='Villena').first()
-harvester = OaiHarvester(source)
+
+
+
+for sid in [94,123,43,107]:
+    source = Sources.query.filter_by(id=sid).first()
+    print(source.harvest_endpoint)
+    harvester = OaiHarvester(source)
+    harvester.identity_source()
+    harvester.discover_items()
+    harvester.process_items()
+
+
+
 
 items = HarvestedItem.query.filter_by(repository_id=harvester.repository.id).all()
 for item in items:
@@ -16,11 +27,11 @@ for item in items:
         if 'nlm' in harvester.repository.metadata_formats:
             nlm = harvester._process_format(item, harvester.nlm)
         data = harvester._crate_iroko_dict(item, dc, nlm)
-        print(data['contributors'])
-        # record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
-        # item.status = HarvestedItemStatus.RECORDED
-        # item.record = record.id
-# db.session.commit()
+        # print(data['contributors'])
+        record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
+        item.status = HarvestedItemStatus.RECORDED
+        item.record = record.id
+db.session.commit()
 
 # from lxml import etree
 # from iroko.harvester.oai.formaters import JournalPublishing

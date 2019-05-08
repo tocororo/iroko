@@ -199,7 +199,7 @@ class OaiHarvester(SourceHarvester):
                 if harvest_item.status != HarvestedItemStatus.DELETED:
                     self._get_all_formats(harvest_item)
                     harvest_item.status = HarvestedItemStatus.HARVESTED
-                # TODO: time.sleep(5)
+                time.sleep(5)
             except Exception as e:
                 harvest_item.status = HarvestedItemStatus.ERROR
                 harvest_item.error_log = e.__doc__
@@ -214,8 +214,8 @@ class OaiHarvester(SourceHarvester):
             arguments ={'identifier': item.identifier,'metadataPrefix':f}
             record = self.sickle.GetRecord(**arguments)
             self._write_file(f+".xml", record.raw, str(item.id))
-            # TODO: time.sleep(3)
-        # TODO: time.sleep(3)
+            time.sleep(1)
+        time.sleep(1)
 
 
     def record_items(self):
