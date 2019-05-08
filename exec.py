@@ -1,20 +1,31 @@
-from iroko.sources.models import Sources
-from iroko.harvester.oai.harvester import OaiHarvester
-source = Sources.query.filter_by(name='Villena').first()
-harvester = OaiHarvester(source)
-print(source.harvest_endpoint)
+from lxml import etree
+from iroko.harvester.oai.formaters import JournalPublishing
+
+XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
+xmlpath = 'data/sceiba-data/182/1/nlmxml'
+xml = etree.parse(xmlpath, parser=XMLParser)
+formater = JournalPublishing()
+data = formater.ProcessItem(xml)
+print(data)
 
 
-harvester.process_items()
+# from iroko.sources.models import Sources
+# from iroko.harvester.models import HarvestedItem
+# from iroko.harvester.oai.harvester import OaiHarvester
+# source = Sources.query.filter_by(name='Villena').first()
+# harvester = OaiHarvester(source)
 
-harvester.identity_source()
-harvester.discover_items()
+# item = HarvestedItem.query.filter_by(id=9).first()
+
+# harvester.record_item(item)
+
+
 # url="http://10.80.3.42/index.php/coodes/oai"
 
 # from iroko.harvester.processors.oai.iterator import OaiIterator
 # from iroko.harvester.processors.oai.formaters import DubliCoreElements
 # from iroko.harvester.base import Item
-# from lxml import etree
+
 
 # nsmap = {'oai': 'http://www.openarchives.org/OAI/2.0/', 'dc': 'http://purl.org/dc/elements/1.1/', 'xsi': 'http://www.w3.org/2001/XMLSchema-instance','xml':'http://www.w3.org/XML/1998/namespace', 'nlm':'http://dtd.nlm.nih.gov/publishing/2.3'}
 

@@ -82,7 +82,8 @@ class HarvestedItem(db.Model):
     record = db.Column(UUIDType, default=uuid.uuid4)
 
     status = db.Column(db.Enum(HarvestedItemStatus))
-
+    # TODO: annadir un error log o algo asi, un campo para poner texto del error
+    # TODO: eliminar
     setSpec = db.Column(db.String)
 
     def __str__(self):
