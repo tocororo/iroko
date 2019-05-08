@@ -47,7 +47,7 @@ class DubliCoreElements(Formater):
         data['contributors'] = []
         creators = get_multiple_elements(metadata, 'creator', xmlns=self.xmlns, itemname='name')
         for creator in creators:
-            if isinstance(creator['name'], str) and  contributor['name'] != '':
+            if isinstance(creator['name'], str) and  creators['name'] != '':
                 creator['roles'] = []
                 creator['roles'].append(ContributorRole.Author.value)
                 data['contributors'].append(creator)

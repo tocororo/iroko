@@ -1,3 +1,16 @@
+items = HarvestedItem.query.filter_by(repository_id=harvester.repository.id).all()
+for item in items:
+    if item.status == HarvestedItemStatus.HARVESTED:
+        dc = harvester._process_format(item, harvester.oai_dc)
+        nlm = None
+        if 'nlm' in harvester.formats:
+            nlm = harvester._process_format(item, harvester.nlm)
+        data = harvester._crate_iroko_dict(item, dc, nlm)
+        record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
+        item.status = HarvestedItemStatus.RECORDED
+        item.record = record.id
+db.session.commit()
+
 # from lxml import etree
 # from iroko.harvester.oai.formaters import JournalPublishing
 
@@ -7,6 +20,18 @@
 # formater = JournalPublishing()
 # data = formater.ProcessItem(xml)
 # print(data)
+
+iterator = harvester.sickle.ListIdentifiers(metadataPrefix=harvester.oai_dc.metadataPrefix)
+for item in iterator:
+    harvest_item = HarvestedItem.query.filter_by(repository_id=harvester.repository.id,identifier=item.identifier).first()
+    harvester._get_all_formats(harvest_item)
+    harvest_item.status = HarvestedItemStatus.HARVESTED
+db.session.commit()
+
+items = HarvestedItem.query.filter_by(repository_id=harvester.repository.id).all()
+for item in items:
+    item.status = HarvestedItemStatus.HARVESTED
+db.session.commit()
 
 
 from iroko.sources.models import Sources
