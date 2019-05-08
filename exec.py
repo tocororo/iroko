@@ -52,7 +52,11 @@ harvester.process_items()
 # harvester.get_sets()
 
 # harvester.record_item(item)
-# item = HarvestedItem.query.filter_by(id=9).first()
+item = HarvestedItem.query.filter_by(id=156).first()
+dc = harvester._process_format(item, harvester.oai_dc)
+
+from os import path
+xmlpath = path.join(harvester.harvest_dir, str(item.id), formater.getMetadataPrefix()+".xml")
 # harvester.record_item(item)
 
 # url="http://10.80.3.42/index.php/coodes/oai"
