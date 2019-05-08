@@ -138,14 +138,15 @@ def add_oaiurls():
         urls = json.load(foai)
         if isinstance(journals, dict):
             for k, record in journals.items():
-                src = Sources.query.filter_by(id=k).first()
+                src = Sources.query.filter_by(name=record['title']).first()
                 if src:
                     src.harvest_type = None
                     for url in urls:
                         if url['id'] == k:
                             # print(k)
                             # print(record['id'])
-                            # print(url['url'])
+                            print(url['url'])
+                            # print(src.data['url'])
                             src.harvest_endpoint = url['url']
                             src.harvest_type = HarvestType.OAI
                             print(src)
