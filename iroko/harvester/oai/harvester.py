@@ -183,6 +183,7 @@ class OaiHarvester(SourceHarvester):
                     harvest_item.repository_id = self.repository.id
                     harvest_item.identifier = item.identifier
                     db.session.add(harvest_item)
+                    db.session.commit()
                     p = path.join(self.harvest_dir, str(harvest_item.id))
                     if path.exists(p):
                         raise IrokoHarvesterError(p + 'exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
