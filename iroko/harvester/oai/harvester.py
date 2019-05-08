@@ -48,7 +48,8 @@ class OaiHarvester(SourceHarvester):
         max_retries=3
 
         self.source = source
-        p = current_app.config['HARVESTER_DATA_DIRECTORY']
+        # p = current_app.config['HARVESTER_DATA_DIRECTORY']
+        p = 'data/sceiba-data'
         self.harvest_dir = path.join(p, str(self.source.id))
 
         repo = Repository.query.filter_by(source_id=self.source.id).first()
@@ -147,6 +148,7 @@ class OaiHarvester(SourceHarvester):
         if not self.oai_dc.metadataPrefix in self.formats:
             raise IrokoHarvesterError(f + " is not supported by " + self.repository.identifier + " Repository " + self.source.name)
 
+
     def get_sets(self):
         """get_sets"""
 
@@ -171,46 +173,46 @@ class OaiHarvester(SourceHarvester):
         for item in iterator:
             harvest_item = HarvestedItem.query.filter_by(repository_id=self.repository.id,\
                                 identifier=item.identifier).first()
-            if not harvest_item:
-                harvest_item = HarvestedItem()
-                harvest_item.repository_id = self.repository.id
-                harvest_item.identifier = item.identifier
-                harvest_item.setSpec = item.setSpecs
-                db.session.add(harvest_item)
-                db.session.commit()
+            try:
+                if not harvest_item:
+                    harvest_item = HarvestedItem()
+                    harvest_item.repository_id = self.repository.id
+                    harvest_item.identifier = item.identifier
+                    db.session.add(harvest_item)
+                    p = path.join(self.harvest_dir, str(harvest_item.id))
+                    if path.exists(p):
+                        raise IrokoHarvesterError(p + 'exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
+                    mkdir(p)
+                if item.deleted:
+                    harvest_item.status = HarvestedItemStatus.DELETED
                 p = path.join(self.harvest_dir, str(harvest_item.id))
-                if path.exists(p):
-                    raise IrokoHarvesterError(p + 'exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
-                    # shutil.rmtree(p) delete instead of rise?
-                mkdir(p)
-            
-            if item.deleted:
-                harvest_item.status = HarvestedItemStatus.DELETED
-            if harvest_item.setSpec != item.setSpecs:
-                harvest_item.setSpec = item.setSpecs
-            # db.session.update(harvest_item)
-            db.session.commit()
-            p = path.join(self.harvest_dir, str(harvest_item.id))
-            
-            if not path.exists(p):
-                raise IrokoHarvesterError(p + 'NOT exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
-            self._write_file("id.xml", item.raw, str(harvest_item.id))
-            
-            if harvest_item.status != HarvestedItemStatus.DELETED:
-                self.fetch_full_item(harvest_item)
-            # time.sleep(5)
+
+                if not path.exists(p):
+                    raise IrokoHarvesterError(p + 'NOT exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
+                self._write_file("id.xml", item.raw, str(harvest_item.id))
+                
+                if harvest_item.status != HarvestedItemStatus.DELETED:
+                    self._get_all_formats(harvest_item)
+                    harvest_item.status = HarvestedItemStatus.HARVESTED
+                db.session.commit()
+                # TODO: time.sleep(5)
+            except Exception as e:
+                if harvest_item:
+                    harvest_item.status = HarvestedItemStatus.ERROR
+                    print (e.__doc__)
+                else:
+                    raise e
 
 
-    def fetch_full_item(self, item:HarvestedItem):
+    def _get_all_formats(self, item:HarvestedItem):
         """retrieve all the metadata of an item and save it to files"""
 
         for f in self.formats:
             arguments ={'identifier': item.identifier,'metadataPrefix':f}
             record = self.sickle.GetRecord(**arguments)
-            self._write_file(f+"xml", record.raw, str(item.id))
-            # time.sleep(3)
-        # time.sleep(3)
-        item.status = HarvestedItemStatus.HARVESTED
+            self._write_file(f+".xml", record.raw, str(item.id))
+            # TODO: time.sleep(3)
+        # TODO: time.sleep(3)
 
 
     def record_items(self):
@@ -219,16 +221,19 @@ class OaiHarvester(SourceHarvester):
         items = HarvestedItem.query.filter_by(repository_id=self.repository.id).all()
         for item in items:
             if item.status == HarvestedItemStatus.HARVESTED:
-                dc = self.process_item_formatter(item, self.oai_dc)
-                # nlm = self.process_item_formatter(item, self.formaters['nlm'])
-                data = self.crate_iroko_dict(item, dc)
-                record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
-                item.status = HarvestedItemStatus.RECORDED
+                try:
+                    dc = self._process_format(item, self.oai_dc)
+                    nlm = self._process_format(item, self.nlm)
+                    data = self.crate_iroko_dict(item, dc)
+                    record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
+                    item.status = HarvestedItemStatus.RECORDED
+                    item.record = record.id
+                except Exception as e:
+                    item.status = HarvestedItemStatus.ERROR
+                    print (e.__doc__)
 
 
-
-    def process_item_formatter(self, item:HarvestedItem, formater: Formater):
-        """retrieve all the files associated to the record (full texts) based on the relation element in oai_dc schema"""
+    def _process_format(self, item:HarvestedItem, formater: Formater):
 
         xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+"xml")
         if not path.exists(xmlpath):
@@ -241,7 +246,7 @@ class OaiHarvester(SourceHarvester):
         data = dc
         data['source'] = str(self.source.uuid)
         for s in self.repository.sets:
-            if item.setSpec == s.setSpec:
+            if idata['setSpec']  == s.setSpec:
                 data['spec'] = s.setName
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations
