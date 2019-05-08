@@ -146,7 +146,7 @@ class OaiHarvester(SourceHarvester):
             if self.oai_dc is None:
                 # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
                 raise IrokoHarvesterError(" oai_dc is not supported by " \
-                    + self.repository.identifier + " Repository " + self.source.name) 
+                    + self.repository.identifier + " Repository : Source ID" + self.source) 
         self.repository.metadata_formats = self.formats
 
 
