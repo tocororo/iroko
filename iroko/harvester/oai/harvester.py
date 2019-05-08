@@ -50,8 +50,8 @@ class OaiHarvester(SourceHarvester):
 
         self.source = source
         #TODO changeme
-        # p = current_app.config['HARVESTER_DATA_DIRECTORY']
-        p = 'data/sceiba-data'
+        p = current_app.config['HARVESTER_DATA_DIRECTORY']
+        # p = 'data/sceiba-data'
         self.harvest_dir = path.join(p, str(self.source.id))
 
         repo = Repository.query.filter_by(source_id=self.source.id).first()
