@@ -146,9 +146,6 @@ class OaiHarvester(SourceHarvester):
                     + self.repository.identifier + " Repository " + self.source.name) 
         self.repository.metadata_formats = self.formats
 
-        if not self.oai_dc.metadataPrefix in self.formats:
-            
-
 
     def get_sets(self):
         """get_sets"""
