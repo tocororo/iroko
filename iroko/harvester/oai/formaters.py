@@ -117,6 +117,8 @@ class JournalPublishing(Formater):
         contribs = metadata.findall('.//' + self.xmlns + 'contrib')
         cs = []
         for contrib in contribs:
-            cs.append(IrokoPerson.get_person_dict_from_nlm(contrib))
+            p = IrokoPerson.get_person_dict_from_nlm(contrib)
+            if p is not None:
+                cs.append(p)
         data['contributors'] = cs
         return data

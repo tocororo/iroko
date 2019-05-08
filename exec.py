@@ -1,17 +1,26 @@
 from iroko.harvester.models import Repository, RepositorySet, RepositoryStatus, HarvestedItem, HarvestedItemStatus
 from iroko.records.api import IrokoRecord
+
+
+from iroko.sources.models import Sources
+from iroko.harvester.models import HarvestedItem
+from iroko.harvester.oai.harvester import OaiHarvester
+source = Sources.query.filter_by(name='Villena').first()
+harvester = OaiHarvester(source)
+
 items = HarvestedItem.query.filter_by(repository_id=harvester.repository.id).all()
 for item in items:
     if item.status == HarvestedItemStatus.HARVESTED:
         dc = harvester._process_format(item, harvester.oai_dc)
         nlm = None
-        if 'nlm' in harvester.formats:
+        if 'nlm' in harvester.repository.metadata_formats:
             nlm = harvester._process_format(item, harvester.nlm)
         data = harvester._crate_iroko_dict(item, dc, nlm)
-        record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
-        item.status = HarvestedItemStatus.RECORDED
-        item.record = record.id
-db.session.commit()
+        print(data['contributors'])
+        # record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
+        # item.status = HarvestedItemStatus.RECORDED
+        # item.record = record.id
+# db.session.commit()
 
 # from lxml import etree
 # from iroko.harvester.oai.formaters import JournalPublishing
@@ -36,11 +45,6 @@ for item in items:
 db.session.commit()
 
 
-from iroko.sources.models import Sources
-from iroko.harvester.models import HarvestedItem
-from iroko.harvester.oai.harvester import OaiHarvester
-source = Sources.query.filter_by(name='Villena').first()
-harvester = OaiHarvester(source)
 
 
 

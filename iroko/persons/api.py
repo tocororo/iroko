@@ -17,6 +17,9 @@ class IrokoPerson:
         if given_names is not None and surname is not None\
             and given_names.text is not None and surname.text is not None:
             person['name']=given_names.text + surname.text
+        else:
+            # FIXME if a person dont have surname and given name, then is not a person.... this should be an exception?
+            return None
         if aff is not None:
             person['affiliations'] = []
             person['affiliations'].append(aff.text)
