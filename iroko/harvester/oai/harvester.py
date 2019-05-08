@@ -68,6 +68,9 @@ class OaiHarvester(SourceHarvester):
             if not path.exists(self.harvest_dir):
                 raise IrokoHarvesterError(self.harvest_dir + 'NOT exists!!!. Source ' + self.source.name)
 
+        self.oai_dc = None
+        self.nlm = None
+
         # proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
 
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
