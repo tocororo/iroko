@@ -1,24 +1,30 @@
-from lxml import etree
-from iroko.harvester.oai.formaters import JournalPublishing
+# from lxml import etree
+# from iroko.harvester.oai.formaters import JournalPublishing
 
-XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
-xmlpath = 'data/sceiba-data/53/0/nlm.xml'
-xml = etree.parse(xmlpath, parser=XMLParser)
-formater = JournalPublishing()
-data = formater.ProcessItem(xml)
-print(data)
+# XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
+# xmlpath = 'data/sceiba-data/53/0/nlm.xml'
+# xml = etree.parse(xmlpath, parser=XMLParser)
+# formater = JournalPublishing()
+# data = formater.ProcessItem(xml)
+# print(data)
 
 
-# from iroko.sources.models import Sources
-# from iroko.harvester.models import HarvestedItem
-# from iroko.harvester.oai.harvester import OaiHarvester
-# source = Sources.query.filter_by(name='Villena').first()
-# harvester = OaiHarvester(source)
+from iroko.sources.models import Sources
+from iroko.harvester.models import HarvestedItem
+from iroko.harvester.oai.harvester import OaiHarvester
+source = Sources.query.filter_by(name='Villena').first()
+harvester = OaiHarvester(source)
 
-# item = HarvestedItem.query.filter_by(id=9).first()
+
+
+harvester.identity_source()
+harvester.discover_items()
+harvester.process_items()
+
 
 # harvester.record_item(item)
-
+# item = HarvestedItem.query.filter_by(id=9).first()
+# harvester.record_item(item)
 
 # url="http://10.80.3.42/index.php/coodes/oai"
 
