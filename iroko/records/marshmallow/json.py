@@ -33,25 +33,15 @@ class ReferenceSchemaV1(StrictKeysMixin):
     raw_reference = fields.Str()
 
 
-class CreatorSchemaV1(StrictKeysMixin):
-    """Contributor schema."""
-
-    ids = fields.Nested(PersonIdsSchemaV1, many=True)
-    name = SanitizedUnicode(required=True)
-    role = SanitizedUnicode()
-    affiliations = fields.List(SanitizedUnicode())
-    email = fields.Email()
-
-
 class ContributorSchemaV1(StrictKeysMixin):
     """Contributor schema."""
 
     ids = fields.Nested(PersonIdsSchemaV1, many=True)
     name = SanitizedUnicode(required=True)
-    role = SanitizedUnicode()
     affiliations = fields.List(SanitizedUnicode())
-    email = fields.Email()  
-    role = SanitizedUnicode()
+    email = fields.Email()
+    roles = fields.List(SanitizedUnicode())
+
 
 class IdentifierSchemaV1(StrictKeysMixin):
     """Ids schema."""
@@ -75,7 +65,6 @@ class MetadataSchemaV1(StrictKeysMixin):
     language = fields.Str()
     publication_date = DateString()
     contributors = Nested(ContributorSchemaV1, many=True)
-    creators = Nested(CreatorSchemaV1, many=True)
     references = Nested(ReferenceSchemaV1, many=True)
 
 

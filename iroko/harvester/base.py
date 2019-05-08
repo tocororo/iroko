@@ -28,11 +28,11 @@ class SourceHarvester(object):
         raise NotImplementedError
 
     def discover_items(self):
-        """descubrir los items que tiene, en el caso de oai es el verbo getIdentifiers"""
+        """descubrir los items que tiene, en el caso de oai es el verbo getIdentifiers y posteriormente , se traen los datos, en el caso de oai, esto es traer para cada item todos los metadata formats y guardarlo como ficheros xml en el HARVESTER_DATA_DIRECTORY"""
         raise NotImplementedError
 
     def process_items(self):
-        """ una vez descubiertos los items (los identificadores en el caso de oai, o las urls en otro caso) aqui se procesan todos los items, es decir se traen los datos y eventualmente se crea un record"""
+        """ una vez descubiertos los items aqui se procesan y eventualmente se crea un record"""
         raise NotImplementedError
 
 
@@ -47,6 +47,6 @@ class Formater(object):
         """name of the formater oai_dc, nlm, jats"""
         return self.metadataPrefix
 
-    def ProcessItem(self, item:HarvestedItem):
+    def ProcessItem(self, item):
         """given an item return a dict given an item"""
         raise NotImplementedError

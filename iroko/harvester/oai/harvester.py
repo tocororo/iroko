@@ -31,6 +31,7 @@ class OaiHarvester(SourceHarvester):
      [source_id]
         - identify.xml
         - metadata_formats.xml
+        - sets.xml
         - [item_id]
             - id.xml
             - metadata_format_1.xml
@@ -44,10 +45,11 @@ class OaiHarvester(SourceHarvester):
 
     def __init__(self, source: Sources):
 
-        init_directory=True
+        # init_directory=True
         max_retries=3
 
         self.source = source
+        #TODO changeme
         # p = current_app.config['HARVESTER_DATA_DIRECTORY']
         p = 'data/sceiba-data'
         self.harvest_dir = path.join(p, str(self.source.id))
@@ -66,9 +68,6 @@ class OaiHarvester(SourceHarvester):
             if not path.exists(self.harvest_dir):
                 raise IrokoHarvesterError(self.harvest_dir + 'NOT exists!!!. Source ' + self.source.name)
 
-        self.oai_dc = DubliCoreElements()
-        self.nlm = JournalPublishing()
-
         # proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
 
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
@@ -84,10 +83,8 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.IDENTIFIED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            print (e.__doc__)
-            raise e
+            self.repository.error_log = e.__doc__
         finally:
-            # db.session.update(self.repository)
             db.session.commit()
 
 
@@ -97,10 +94,8 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.HARVESTED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            print (e.__doc__)
-            raise e
+            self.repository.error_log = e.__doc__
         finally:
-            # db.session.update(self.repository)
             db.session.commit()
 
 
@@ -110,8 +105,7 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.RECORDED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            print (e.__doc__)
-            raise e
+            self.repository.error_log = e.__doc__
         finally:
             # db.session.update(self.repository)
             db.session.commit()
@@ -142,11 +136,18 @@ class OaiHarvester(SourceHarvester):
         self._write_file("metadata_formats.xml", items.oai_response.raw)
         for f in items:
             self.formats.append(f.metadataPrefix)
-            print(f.metadataPrefix)
+            if f.metadataPrefix == 'oai_dc':
+                self.oai_dc = DubliCoreElements()
+            if f.metadataPrefix == 'nlm':
+                self.nlm = JournalPublishing()
+            if self.oai_dc is None:
+                # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
+                raise IrokoHarvesterError(" oai_dc is not supported by " \
+                    + self.repository.identifier + " Repository " + self.source.name) 
         self.repository.metadata_formats = self.formats
 
         if not self.oai_dc.metadataPrefix in self.formats:
-            raise IrokoHarvesterError(f + " is not supported by " + self.repository.identifier + " Repository " + self.source.name)
+            
 
 
     def get_sets(self):
@@ -174,7 +175,7 @@ class OaiHarvester(SourceHarvester):
             harvest_item = HarvestedItem.query.filter_by(repository_id=self.repository.id,\
                                 identifier=item.identifier).first()
             try:
-                if not harvest_item:
+                if harvest_item is None:
                     harvest_item = HarvestedItem()
                     harvest_item.repository_id = self.repository.id
                     harvest_item.identifier = item.identifier
@@ -194,14 +195,12 @@ class OaiHarvester(SourceHarvester):
                 if harvest_item.status != HarvestedItemStatus.DELETED:
                     self._get_all_formats(harvest_item)
                     harvest_item.status = HarvestedItemStatus.HARVESTED
-                db.session.commit()
                 # TODO: time.sleep(5)
             except Exception as e:
-                if harvest_item:
-                    harvest_item.status = HarvestedItemStatus.ERROR
-                    print (e.__doc__)
-                else:
-                    raise e
+                harvest_item.status = HarvestedItemStatus.ERROR
+                harvest_item.error_log = e.__doc__
+            finally:
+                db.session.commit()
 
 
     def _get_all_formats(self, item:HarvestedItem):
@@ -223,30 +222,37 @@ class OaiHarvester(SourceHarvester):
             if item.status == HarvestedItemStatus.HARVESTED:
                 try:
                     dc = self._process_format(item, self.oai_dc)
-                    nlm = self._process_format(item, self.nlm)
-                    data = self.crate_iroko_dict(item, dc)
+                    nlm = None
+                    if self.nlm is not None:
+                        nlm = self._process_format(item, self.nlm)
+                    data = self._crate_iroko_dict(item, dc, nlm)
                     record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
                     item.status = HarvestedItemStatus.RECORDED
                     item.record = record.id
                 except Exception as e:
                     item.status = HarvestedItemStatus.ERROR
-                    print (e.__doc__)
+                    item.error_log = e.__doc__
 
 
     def _process_format(self, item:HarvestedItem, formater: Formater):
 
-        xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+"xml")
+        xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+".xml")
         if not path.exists(xmlpath):
             raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
         xml = etree.parse(xmlpath, parser=XMLParser)
         return formater.ProcessItem(xml)
 
 
-    def crate_iroko_dict(self, item:HarvestedItem ,dc , nlm=None):
+    def _crate_iroko_dict(self, item:HarvestedItem ,dc , nlm=None):
+
         data = dc
+        if nlm is not None:
+            data['contributors'] = nlm['contributors']
+        
         data['source'] = str(self.source.uuid)
+        
         for s in self.repository.sets:
-            if idata['setSpec']  == s.setSpec:
+            if data['setSpec']  == s.setSpec:
                 data['spec'] = s.setName
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations

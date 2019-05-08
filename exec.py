@@ -2,7 +2,7 @@ from lxml import etree
 from iroko.harvester.oai.formaters import JournalPublishing
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
-xmlpath = 'data/sceiba-data/182/1/nlmxml'
+xmlpath = 'data/sceiba-data/53/0/nlm.xml'
 xml = etree.parse(xmlpath, parser=XMLParser)
 formater = JournalPublishing()
 data = formater.ProcessItem(xml)

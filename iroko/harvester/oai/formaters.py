@@ -8,6 +8,11 @@ from iroko.utils import get_identifier_schema
 
 from lxml import etree
 
+from iroko.persons.api import IrokoPerson
+from iroko.records import ContributorRole 
+
+import re
+
 class DubliCoreElements(Formater):
 
     def __init__(self):
@@ -16,7 +21,7 @@ class DubliCoreElements(Formater):
         self.xmlns = 'http://purl.org/dc/elements/1.1/'
 
 
-    def ProcessItem(self, xml):
+    def ProcessItem(self, xml:etree._Element):
         """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid """
 
         data = {}
@@ -39,30 +44,28 @@ class DubliCoreElements(Formater):
         
         data['title'] = get_sigle_element(metadata, 'title', xmlns=self.xmlns, language='es-ES')
 
+        data['contributors'] = []
         creators = get_multiple_elements(metadata, 'creator', xmlns=self.xmlns, itemname='name')
-        data['creators'] = []
         for creator in creators:
-            if isinstance(creator['name'], str):
-                data['creators'].append(creator)
-        # data['creators'] = creators
+            if isinstance(creator['name'], str) and  contributor['name'] != '':
+                creator['roles'] = []
+                creator['roles'].append(ContributorRole.Author.value)
+                data['contributors'].append(creator)
+        
+        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name', language='es-ES')
+        for contributor in contributors:
+            if isinstance(contributor['name'], str) and contributor['name'] != '':
+                data['contributors'].append(contributor)
+
         keywords = get_sigle_element(metadata, 'subject', xmlns=self.xmlns, language='es-ES')
-        print(keywords)
         if keywords and isinstance(keywords, str):
-            data['keywords'] = keywords.split(';')
+            data['keywords'] = re.split('; |, ', keywords)
         
         desc = get_sigle_element(metadata, 'description', xmlns=self.xmlns, language='es-ES')
         if desc and desc != '':
             data['description'] = desc
 
         data['publisher'] = get_sigle_element(metadata, 'publisher', xmlns=self.xmlns, language='es-ES')
-        
-        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name', language='es-ES')
-        data['contributors'] = []
-
-        for contributor in contributors:
-            if isinstance(contributor['name'], str) and contributor['name'] != '':
-                data['contributors'].append(contributor)
-        # data['contributors'] = contributors 
 
         data['publication_date'] = get_sigle_element(metadata, 'date', xmlns=self.xmlns, language='es-ES')
         
@@ -86,7 +89,6 @@ class DubliCoreElements(Formater):
 
         rights = get_multiple_elements(metadata, 'rights', xmlns=self.xmlns)
         data['rights'] = rights
-        
 
         return data
 
@@ -98,7 +100,7 @@ class JournalPublishing(Formater):
         self.xmlns = '{http://dtd.nlm.nih.gov/publishing/2.3}'
 
 
-    def ProcessItem(self, xml):
+    def ProcessItem(self, xml:etree._Element):
         """given an xml item return a dict, ensure is http://dtd.nlm.nih.gov/publishing/2.3 
         is mainly focussed on contributors and authors"""
 
@@ -115,35 +117,6 @@ class JournalPublishing(Formater):
         contribs = metadata.findall('.//' + self.xmlns + 'contrib')
         cs = []
         for contrib in contribs:
-            c = {}
-            surname = contrib.find(self.xmlns+'name/'+self.xmlns+'surname')
-            given_names = contrib.find(self.xmlns+'name/'+self.xmlns+'given-names')
-            if given_names is not None and surname is not None\
-                and given_names.text is not None and surname.text is not None:
-                print(given_names)
-                print(surname)
-                c['name']=given_names.text + surname.text
-            aff = contrib.find(self.xmlns+'aff')
-            if aff is not None:
-                print(aff)
-                c['aff'] = aff.text
-            email = contrib.find(self.xmlns+'email')
-            if email is not None:
-                print(email)
-                c['email'] = email.text
-            cs.append(c)
-            
-            print('-----------------------------------------------')
-            # if 'contrib-type' in contrib.attrib:
-            #     print(contrib.attrib['contrib-type'])
-            # for e in contrib:
-            #     if isinstance(e, etree._Element):
-            #         print(e.tag)
-            #         print(e.text)
-            # for atrib in contrib.attrib:
-            #     if atrib == 'contrib-type':
-            #         print (atrib.text)
-            # print (contrib)
-        # print(contrib_group)
+            cs.append(IrokoPerson.get_person_dict_from_nlm(contrib))
         data['contributors'] = cs
         return data
