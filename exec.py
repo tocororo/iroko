@@ -18,6 +18,10 @@ harvester = OaiHarvester(source)
 
 
 harvester.identity_source()
+# harvester.get_identify()
+# harvester.get_formats()
+# harvester.get_sets()
+
 harvester.discover_items()
 harvester.process_items()
 

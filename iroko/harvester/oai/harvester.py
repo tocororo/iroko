@@ -68,8 +68,8 @@ class OaiHarvester(SourceHarvester):
             if not path.exists(self.harvest_dir):
                 raise IrokoHarvesterError(self.harvest_dir + 'NOT exists!!!. Source ' + self.source.name)
 
-        self.oai_dc = None
-        self.nlm = None
+        self.oai_dc = DubliCoreElements()
+        self.nlm = JournalPublishing()
 
         # proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
 
@@ -139,15 +139,18 @@ class OaiHarvester(SourceHarvester):
         self._write_file("metadata_formats.xml", items.oai_response.raw)
         for f in items:
             self.formats.append(f.metadataPrefix)
-            if f.metadataPrefix == 'oai_dc':
-                self.oai_dc = DubliCoreElements()
-            if f.metadataPrefix == 'nlm':
-                self.nlm = JournalPublishing()
-            if self.oai_dc is None:
-                # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
-                raise IrokoHarvesterError(" oai_dc is not supported by " \
-                    + self.repository.identifier + " Repository : Source ID" + self.source) 
+            # if f.metadataPrefix == 'oai_dc':
+            #     self.oai_dc = DubliCoreElements()
+            # if f.metadataPrefix == 'nlm':
+            #     self.nlm = JournalPublishing()
+            # if self.oai_dc is None:
+                
+                
         self.repository.metadata_formats = self.formats
+        # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
+        if 'oai_dc' not in self.formats:
+            raise IrokoHarvesterError(" oai_dc is not supported by " \
+                    + self.repository.identifier + " Repository : Source ID" + self.source) 
 
 
     def get_sets(self):
@@ -223,7 +226,7 @@ class OaiHarvester(SourceHarvester):
                 try:
                     dc = self._process_format(item, self.oai_dc)
                     nlm = None
-                    if self.nlm is not None:
+                    if 'nlm' in self.formats:
                         nlm = self._process_format(item, self.nlm)
                     data = self._crate_iroko_dict(item, dc, nlm)
                     record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
