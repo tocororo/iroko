@@ -1,3 +1,5 @@
+from iroko.harvester.models import Repository, RepositorySet, RepositoryStatus, HarvestedItem, HarvestedItemStatus
+from iroko.records.api import IrokoRecord
 items = HarvestedItem.query.filter_by(repository_id=harvester.repository.id).all()
 for item in items:
     if item.status == HarvestedItemStatus.HARVESTED:

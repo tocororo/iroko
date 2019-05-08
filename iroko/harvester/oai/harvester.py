@@ -210,7 +210,7 @@ class OaiHarvester(SourceHarvester):
     def _get_all_formats(self, item:HarvestedItem):
         """retrieve all the metadata of an item and save it to files"""
 
-        for f in self.formats:
+        for f in self.repository.metadata_formats:
             arguments ={'identifier': item.identifier,'metadataPrefix':f}
             record = self.sickle.GetRecord(**arguments)
             self._write_file(f+".xml", record.raw, str(item.id))
@@ -227,7 +227,7 @@ class OaiHarvester(SourceHarvester):
                 try:
                     dc = self._process_format(item, self.oai_dc)
                     nlm = None
-                    if 'nlm' in self.formats:
+                    if 'nlm' in self.repository.metadata_formats:
                         nlm = self._process_format(item, self.nlm)
                     data = self._crate_iroko_dict(item, dc, nlm)
                     record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
