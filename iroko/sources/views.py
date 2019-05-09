@@ -95,6 +95,8 @@ def is_like(source, data, and_op):
     """ esto es ineficiente... pero es lo que hay.. por el momento.. 
     solo debe usarse para la lista de revistas que no pasa de 300"""
     
+    if data is None:
+        return True
     if no_params(data):
         return True
 
