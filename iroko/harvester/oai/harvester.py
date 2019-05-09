@@ -1,6 +1,8 @@
 from os import path, mkdir
 import time
 
+import traceback
+
 import shutil
 
 from lxml import etree
@@ -86,7 +88,7 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.IDENTIFIED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = e.__doc__
+            self.repository.error_log = traceback.format_exc()
         finally:
             db.session.commit()
 
@@ -97,7 +99,7 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.HARVESTED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = e.__doc__
+            self.repository.error_log = traceback.format_exc()
         finally:
             db.session.commit()
 
@@ -108,7 +110,7 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.RECORDED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = e.__doc__
+            self.repository.error_log = traceback.format_exc()
         finally:
             # db.session.update(self.repository)
             db.session.commit()
@@ -202,7 +204,7 @@ class OaiHarvester(SourceHarvester):
                 time.sleep(5)
             except Exception as e:
                 harvest_item.status = HarvestedItemStatus.ERROR
-                harvest_item.error_log = e.__doc__
+                harvest_item.error_log = traceback.format_exc()
             finally:
                 db.session.commit()
 
@@ -235,7 +237,7 @@ class OaiHarvester(SourceHarvester):
                     item.record = record.id
                 except Exception as e:
                     item.status = HarvestedItemStatus.ERROR
-                    item.error_log = e.__doc__
+                    item.error_log = traceback.format_exc()
 
 
     def _process_format(self, item:HarvestedItem, formater: Formater):
