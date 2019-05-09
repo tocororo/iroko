@@ -41,7 +41,7 @@ class SourcesModelView(ModelView):
 
     column_filters = ('id', 'name', 'source_type', 'harvest_type','harvest_endpoint')
 
-    form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint')
+    form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint', 'data')
 
 class TermSourcesModelView(ModelView):
     """View for managing terms."""
