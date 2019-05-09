@@ -11,7 +11,7 @@ from iroko.harvester.oai.harvester import OaiHarvester
 # UPR 
 # for sid in [94,123,43,107]: UPR IDS 
 # UH
-for sid in [173,208,81,134,63,57,192,128,8,41,70,167,122,127,209]:
+for sid in [173,208,81,134,63,57,192,128,8,41,70,167,122,127,209,98]:
     source = Sources.query.filter_by(id=sid).first()
     print(source.harvest_endpoint)
     harvester = OaiHarvester(source)
