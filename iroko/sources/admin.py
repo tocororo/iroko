@@ -39,7 +39,7 @@ class SourcesModelView(ModelView):
 
     column_default_sort = ('name', True)
 
-    column_filters = ('id', 'name', 'source_type', 'harvest_type')
+    column_filters = ('id', 'name', 'source_type', 'harvest_type','harvest_endpoint')
 
     form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint')
 
