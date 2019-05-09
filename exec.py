@@ -17,10 +17,8 @@ for sid in [182]:
     print(source.harvest_endpoint)
     harvester = OaiHarvester(source)
     harvester.identity_source()
-    if harvester.repository.status == RepositoryStatus.IDENTIFIED:
-        harvester.discover_items()
-    if harvester.repository.status == RepositoryStatus.HARVESTED:
-        harvester.process_items()
+    harvester.discover_items()
+    harvester.process_items()
 
 
 

@@ -82,7 +82,7 @@ class OaiHarvester(SourceHarvester):
 
     def identity_source(self):
         if self.repository.status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError(self.repository.id + ' RepositoryStatus.ERROR ' + self.source.name)
+            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.get_identify()
             self.get_formats()
@@ -97,7 +97,7 @@ class OaiHarvester(SourceHarvester):
 
     def discover_items(self):
         if self.repository.status != RepositoryStatus.ERROR:
-            raise IrokoHarvesterError(self.repository.id + ' RepositoryStatus.ERROR ' + self.source.name)
+            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.get_items()
             self.repository.status = RepositoryStatus.HARVESTED
@@ -110,7 +110,7 @@ class OaiHarvester(SourceHarvester):
 
     def process_items(self):
         if self.repository.status != RepositoryStatus.ERROR:
-            raise IrokoHarvesterError(self.repository.id + ' RepositoryStatus.ERROR ' + self.source.name)
+            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.record_items()
             self.repository.status = RepositoryStatus.RECORDED
