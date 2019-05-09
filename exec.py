@@ -8,6 +8,7 @@ from iroko.harvester.oai.harvester import OaiHarvester
 
 
 
+# for sid in [94,123,43,107]:
 for sid in [94,123,43,107]:
     source = Sources.query.filter_by(id=sid).first()
     print(source.harvest_endpoint)

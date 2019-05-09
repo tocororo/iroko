@@ -33,7 +33,7 @@ class SourcesModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'uuid', 'source_type', 'harvest_type')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'harvest_type', 'harvest_endpoint')
 
     column_list = list_all
 

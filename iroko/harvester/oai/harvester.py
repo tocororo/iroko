@@ -214,8 +214,8 @@ class OaiHarvester(SourceHarvester):
             arguments ={'identifier': item.identifier,'metadataPrefix':f}
             record = self.sickle.GetRecord(**arguments)
             self._write_file(f+".xml", record.raw, str(item.id))
-            time.sleep(1)
-        time.sleep(1)
+            time.sleep(3)
+        time.sleep(3)
 
 
     def record_items(self):
