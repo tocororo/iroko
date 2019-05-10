@@ -57,6 +57,7 @@ class OaiHarvester(SourceHarvester):
         self.harvest_dir = path.join(p, str(self.source.id))
 
         repo = Repository.query.filter_by(source_id=self.source.id).first()
+        # print(repo.status)
         if not repo:
             if path.exists(self.harvest_dir):
                 raise IrokoHarvesterError(self.harvest_dir + 'exists!!!. Source ' + self.source.name)
@@ -81,8 +82,8 @@ class OaiHarvester(SourceHarvester):
 
 
     def identity_source(self):
-        if self.repository.status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
+    #     if self.repository.status == RepositoryStatus.ERROR:
+    #         raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.get_identify()
             self.get_formats()
@@ -91,6 +92,7 @@ class OaiHarvester(SourceHarvester):
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
             self.repository.error_log = traceback.format_exc()
+            print('error: identity_source(self):')
         finally:
             db.session.commit()
 
@@ -104,6 +106,7 @@ class OaiHarvester(SourceHarvester):
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
             self.repository.error_log = traceback.format_exc()
+            print('error: discover_items(self):')
         finally:
             db.session.commit()
 
@@ -117,6 +120,7 @@ class OaiHarvester(SourceHarvester):
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
             self.repository.error_log = traceback.format_exc()
+            print('error: process_items(self):')
         finally:
             # db.session.update(self.repository)
             db.session.commit()
@@ -219,10 +223,16 @@ class OaiHarvester(SourceHarvester):
         """retrieve all the metadata of an item and save it to files"""
 
         for f in self.repository.metadata_formats:
-            arguments ={'identifier': item.identifier,'metadataPrefix':f}
-            record = self.sickle.GetRecord(**arguments)
-            self._write_file(f+".xml", record.raw, str(item.id))
-            time.sleep(3)
+            try:
+                arguments ={'metadataPrefix':f,'identifier': item.identifier}
+                record = self.sickle.GetRecord(**arguments)
+                self._write_file(f+".xml", record.raw, str(item.id))
+                time.sleep(3)
+            except Exception as e:
+                traceback.print_exc()
+                print(str(arguments))
+                print(str(self.source.harvest_endpoint))
+                print('-----------------------------')
         time.sleep(3)
 
 
