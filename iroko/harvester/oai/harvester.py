@@ -1,6 +1,8 @@
 from os import path, mkdir
 import time
 
+import traceback
+
 import shutil
 
 from lxml import etree
@@ -55,6 +57,7 @@ class OaiHarvester(SourceHarvester):
         self.harvest_dir = path.join(p, str(self.source.id))
 
         repo = Repository.query.filter_by(source_id=self.source.id).first()
+        # print(repo.status)
         if not repo:
             if path.exists(self.harvest_dir):
                 raise IrokoHarvesterError(self.harvest_dir + 'exists!!!. Source ' + self.source.name)
@@ -79,6 +82,8 @@ class OaiHarvester(SourceHarvester):
 
 
     def identity_source(self):
+    #     if self.repository.status == RepositoryStatus.ERROR:
+    #         raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.get_identify()
             self.get_formats()
@@ -86,29 +91,36 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = RepositoryStatus.IDENTIFIED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = e.__doc__
+            self.repository.error_log = traceback.format_exc()
+            print('error: identity_source(self):')
         finally:
             db.session.commit()
 
 
     def discover_items(self):
+        if self.repository.status == RepositoryStatus.ERROR:
+            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.get_items()
             self.repository.status = RepositoryStatus.HARVESTED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = e.__doc__
+            self.repository.error_log = traceback.format_exc()
+            print('error: discover_items(self):')
         finally:
             db.session.commit()
 
 
     def process_items(self):
+        if self.repository.status == RepositoryStatus.ERROR:
+            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.record_items()
             self.repository.status = RepositoryStatus.RECORDED
         except Exception as e:
             self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = e.__doc__
+            self.repository.error_log = traceback.format_exc()
+            print('error: process_items(self):')
         finally:
             # db.session.update(self.repository)
             db.session.commit()
@@ -202,7 +214,7 @@ class OaiHarvester(SourceHarvester):
                 time.sleep(5)
             except Exception as e:
                 harvest_item.status = HarvestedItemStatus.ERROR
-                harvest_item.error_log = e.__doc__
+                harvest_item.error_log = traceback.format_exc()
             finally:
                 db.session.commit()
 
@@ -211,16 +223,22 @@ class OaiHarvester(SourceHarvester):
         """retrieve all the metadata of an item and save it to files"""
 
         for f in self.repository.metadata_formats:
-            arguments ={'identifier': item.identifier,'metadataPrefix':f}
-            record = self.sickle.GetRecord(**arguments)
-            self._write_file(f+".xml", record.raw, str(item.id))
-            time.sleep(1)
-        time.sleep(1)
+            try:
+                arguments ={'metadataPrefix':f,'identifier': item.identifier}
+                record = self.sickle.GetRecord(**arguments)
+                self._write_file(f+".xml", record.raw, str(item.id))
+                time.sleep(3)
+            except Exception as e:
+                traceback.print_exc()
+                print(str(arguments))
+                print(str(self.source.harvest_endpoint))
+                print('-----------------------------')
+        time.sleep(3)
 
 
     def record_items(self):
         """ process all item, create an IrokoRecord and save/update it"""
-
+        
         items = HarvestedItem.query.filter_by(repository_id=self.repository.id).all()
         for item in items:
             if item.status == HarvestedItemStatus.HARVESTED:
@@ -235,7 +253,7 @@ class OaiHarvester(SourceHarvester):
                     item.record = record.id
                 except Exception as e:
                     item.status = HarvestedItemStatus.ERROR
-                    item.error_log = e.__doc__
+                    item.error_log = traceback.format_exc()
 
 
     def _process_format(self, item:HarvestedItem, formater: Formater):

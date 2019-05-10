@@ -39,7 +39,7 @@ class RepositoryModelView(ModelView):
 
     column_filters = ('id', 'source_id', 'status')
     
-    form_columns = ('last_run', 'identifier', 'metadata_formats', 'status')
+    form_columns = ('last_run', 'identifier', 'metadata_formats', 'status', 'error_log')
 
 class RepositorySetModelView(ModelView):
     """View for managing vocabularies."""
@@ -66,7 +66,7 @@ class HarvestedItemModelView(ModelView):
 
     column_filters = ('id', 'repository_id', 'status')
     
-    form_columns = ('identifier', 'status')
+    form_columns = ('identifier', 'status','error_log')
 
 harvester_repositories_adminview = dict(
     modelview=RepositoryModelView,

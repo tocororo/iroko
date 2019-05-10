@@ -33,15 +33,15 @@ class SourcesModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'uuid', 'source_type', 'harvest_type')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'harvest_type', 'harvest_endpoint')
 
     column_list = list_all
 
     column_default_sort = ('name', True)
 
-    column_filters = ('id', 'name', 'source_type', 'harvest_type')
+    column_filters = ('id', 'name', 'source_type', 'harvest_type','harvest_endpoint')
 
-    form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint')
+    form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint', 'data')
 
 class TermSourcesModelView(ModelView):
     """View for managing terms."""

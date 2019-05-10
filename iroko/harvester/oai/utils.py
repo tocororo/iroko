@@ -15,7 +15,7 @@ def get_sigle_element(metadata, name, xmlns='dc', language=None):
         print('self.logger no '+language+' error')
     if len(elements) == 1:
         return elements[0].text
-    print('self.logger no name error...')
+    # print('self.logger no name error...')
 
 
 def get_multiple_elements(metadata, name, xmlns='dc', itemname=None, language=None):
