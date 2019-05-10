@@ -14,7 +14,7 @@ from iroko.sources.marshmallow import sources_schema, sources_schema_full, sourc
 from os import listdir, path
 
 blueprint = Blueprint(
-    'iroko_harvester',
+    'iroko_curator',
     __name__,
     url_prefix='/curator',
     template_folder='templates',
