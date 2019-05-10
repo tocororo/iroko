@@ -21,17 +21,17 @@ blueprint = Blueprint(
     static_folder='static'
 )
 
-@blueprint.route('/vocabulary/<id>')
-@login_required
-def edit_vocabulary():
-    # the form stuffs...
+# @blueprint.route('/vocabulary/<id>')
+# @login_required
+# def edit_vocabulary():
+#     # the form stuffs...
 
-@blueprint.route('/add/vocabulary')
-@login_required
-def add_vocabulary():
-    # the form stuffs...
+# @blueprint.route('/add/vocabulary')
+# @login_required
+# def add_vocabulary():
+#     # the form stuffs...
 
-@blueprint.route('/term/<id>')
-@login_required
-def edit_vocabulary():
-    # the form stuffs...
+# @blueprint.route('/term/<id>')
+# @login_required
+# def edit_vocabulary():
+#     # the form stuffs...
