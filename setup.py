@@ -45,13 +45,20 @@ setup(
             'iroko_harvester = iroko.harvester.ext:IrokoHarvester'
         ],
         'invenio_base.blueprints': [
-            'iroko = iroko.theme.views:blueprint',
+            'iroko = iroko.iroko_theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
             'iroko_harvester = iroko.harvester.views:blueprint',
             'iroko_sources = iroko.sources.views:blueprint',
         ],
+        'invenio_assets.bundles': [
+            'iroko_theme_css = iroko.iroko_theme.bundles:css',
+            'iroko_theme_admin_lte_css = iroko.iroko_theme.bundles:admin_lte_css',
+            'iroko_theme_admin_css = iroko.iroko_theme.bundles:admin_css',
+            'iroko_theme_js = iroko.iroko_theme.bundles:js',
+            'iroko_theme_admin_js = iroko.iroko_theme.bundles:admin_js',
+        ],
         'invenio_assets.webpack': [
-            'iroko_theme = iroko.theme.webpack:theme',
+            'iroko_theme = iroko.iroko_theme.webpack:theme',
         ],
         'invenio_config.module': [
             'iroko = iroko.config',

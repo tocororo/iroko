@@ -58,15 +58,15 @@ I18N_LANGUAGES = [
 # Base templates
 # ==============
 #: Global base template.
-BASE_TEMPLATE = 'iroko/page.html'
+BASE_TEMPLATE = 'iroko_theme/page.html'
 #: Cover page base template (used for e.g. login/sign-up).
-COVER_TEMPLATE = 'invenio_theme/page_cover.html'
+COVER_TEMPLATE = 'iroko_theme/page_cover.html'
 #: Footer base template.
-FOOTER_TEMPLATE = 'invenio_theme/footer.html'
+FOOTER_TEMPLATE = 'iroko_theme/footer.html'
 #: Header base template.
-HEADER_TEMPLATE = 'invenio_theme/header.html'
+HEADER_TEMPLATE = 'iroko_theme/header.html'
 #: Settings base template.
-SETTINGS_TEMPLATE = 'invenio_theme/page_settings.html'
+SETTINGS_TEMPLATE = 'iroko_theme/page_settings.html'
 
 # Theme configuration
 # ===================
@@ -76,8 +76,13 @@ THEME_SITENAME = _('iroko')
 THEME_FRONTPAGE = True
 #: Frontpage title.
 THEME_FRONTPAGE_TITLE = _('iroko')
+#: Theme logo.
+THEME_LOGO = 'images/invenio-black.svg'
 #: Frontpage template.
-THEME_FRONTPAGE_TEMPLATE = 'iroko/frontpage.html'
+THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
+
+THEME_FOOTER_TEMPLATE   = 'iroko_theme/footer.html'
+
 
 # Email configuration
 # ===================
