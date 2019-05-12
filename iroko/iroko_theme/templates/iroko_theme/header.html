@@ -8,58 +8,62 @@
 #}
 <header>
   {%- block navbar %}
-  <nav class="navbar navbar-default navbar-static-top">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
       {%- block navbar_header %}
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <!-- <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
           <span class="sr-only">{{_('Toggle navigation')}}</span>
+          <span class="fa fa-icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+        </button> -->
         {%- block brand %}
-        {%- if config.THEME_LOGO %}
-          <a href="/"><img class="navbar-brand" src="{{ url_for('static', filename=config.THEME_LOGO)}}" alt="{{_(config.THEME_SITENAME)}}" /></a>
-        {%- else %}
-          <a class="navbar-brand" href="/">{{_(config.THEME_SITENAME)}}</a>
-        {%- endif %}
-        {%- endblock %}
-      </div>
-      {%- endblock navbar_header %}
-      {%- block navbar_inner %}
-      <div id="navbar" class="navbar-collapse collapse">
-        {%- block navbar_nav %}
-        {%- if config.THEME_SEARCHBAR %}
-        {%- block navbar_search %}
-        <form class="navbar-form navbar-left" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
-          <div class="form-group">
-            <div class="input-group">
-              <input type="text" class="form-control" name="q" placeholder="{{_('Search')}}">
-              <div class="input-group-btn">
-                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-              </div>
-            </div>
-          </div>
-        </form>
-        {%- endblock navbar_search %}
-        {%- endif %}
-        <ul class="nav navbar-nav">
-          {%- for item in current_menu.submenu('main').children|sort(attribute='order') if item.visible recursive %}
-          {%- if item.children %}
-          <li class="dropdown{{ ' active' if item.active else ''}}">
-            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="{{ item.url }}">{{ item.text|safe }} <b class="caret"></b></a>
-            <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
-          </li>
+          {%- if config.THEME_LOGO %}
+            <a href="/"><img class="navbar-brand" src="{{ url_for('static', filename=config.THEME_LOGO)}}" alt="{{_(config.THEME_SITENAME)}}" width="150"></a>
           {%- else %}
-            <li{{ ' class="active"'|safe if item.active and loop.depth == 1 else '' }}><a href="{{ item.url }}">{{ item.text|safe }}</a></li>
+            <a class="navbar-brand" href="/">{{_(config.THEME_SITENAME)}}</a>
           {%- endif %}
-          {%- endfor %}
-        </ul>
-        {%- endblock navbar_nav %}
-        {%- block navbar_right %}
-{%- include config.THEME_HEADER_LOGIN_TEMPLATE %}
-        {%- endblock navbar_right %}
+        {%- endblock %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      {%- endblock navbar_header %}
+
+      {%- block navbar_inner %}
+      <div class="collapse navbar-collapse" id="navbarToggler">
+        {%- block navbar_nav %}
+        <div class=" d-flex justify-content-between w-100">
+          <ul class="nav navbar-nav">
+            {%- for item in current_menu.submenu('main').children|sort(attribute='order') if item.visible recursive %}
+            {%- if item.children %}
+            <li class="dropdown{{ ' active' if item.active else ''}}">
+              <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="{{ item.url }}">{{ item.text|safe }} <b class="caret"></b></a>
+              <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
+            </li>
+            {%- else %}
+              <li{{ ' class="active"'|safe if item.active and loop.depth == 1 else '' }}><a href="{{ item.url }}">{{ item.text|safe }}</a></li>
+            {%- endif %}
+            {%- endfor %}
+          </ul>
+          {%- endblock navbar_nav %}
+          <div class="d-flex">
+            {%- if config.THEME_SEARCHBAR %}
+              {%- block navbar_search %}
+                <form class="navbar-form navbar-left mr-sm-2" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
+                  <div class="input-group">
+                    <input type="text" class="form-control" name="q" placeholder="{{_('Search')}}">
+                    <div class="input-group-prepend">
+                      <button type="submit" class="input-group-text btn-default"><i class="fa fa-search"></i></button>
+                    </div>
+                  </div>
+                </form>
+              {%- endblock navbar_search %}
+            {%- endif %}
+            {%- block navbar_right %}
+              {%- include config.THEME_HEADER_LOGIN_TEMPLATE %}
+            {%- endblock navbar_right %}
+          </div>
+        </div>
       </div>
       {%- endblock navbar_inner %}
     </div>

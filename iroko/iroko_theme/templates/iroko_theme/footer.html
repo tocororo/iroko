@@ -6,7 +6,7 @@
   Invenio is free software; you can redistribute it and/or modify it
   under the terms of the MIT License; see LICENSE file for more details.
 #}
-<footer id="footer">
+<!-- <footer id="footer" style="background-color: blue">
   <div class="container">
     <div class="row">
       <div class="col-xs-12"><hr /></div>
@@ -14,13 +14,26 @@
     <div class="row">
       <div class="col-xs-6 col-xs-push-6 text-right">
         {%- if config.I18N_LANGUAGES %}
-        {% from "invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
-        {{ language_selector_dropdown() }}
+          {% from "invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
+          {{ language_selector_dropdown() }}
         {%- endif %}
       </div>
       <div class="col-xs-6 col-xs-pull-6">
         {% trans link="http://inveniosoftware.org" %}Powered by <a href="{{link}}">Invenio</a>{% endtrans %}
       </div>
     </div>
+  </div>
+</footer> -->
+<footer class="bd-footer text-muted">
+  <hr>
+  <div class="d-flex flex-column align-items-center container p-3 p-md-5">
+    <div class="d-flex justify-content-around w-50">
+      <a href="https://github.com/iroko">GitHub</a>
+      <a href="https://twitter.com/getbootstrap">Twitter</a>
+      <a href="/docs/4.3/examples/">Examples</a>
+      <a href="/docs/4.3/about/overview/">About</a>
+    </div>
+    <p>Designed and built with all the love in the world by the <a href="/docs/4.3/about/team/">Bootstrap team</a> with the help of <a href="https://github.com/twbs/bootstrap/graphs/contributors">our contributors</a>.</p>
+    <p>Currently v4.3.1. Code licensed <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank" rel="license noopener">MIT</a>, docs <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="license noopener">CC BY 3.0</a>.</p>
   </div>
 </footer>

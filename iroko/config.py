@@ -57,14 +57,27 @@ I18N_LANGUAGES = [
 
 # Base templates
 # ==============
+REQUIREJS_CONFIG = 'js/build.js'
+
+SASS_BIN = 'node-sass'
+
 #: Global base template.
 BASE_TEMPLATE = 'iroko_theme/page.html'
+THEME_BASE_TEMPLATE = 'iroko_theme/page.html'
 #: Cover page base template (used for e.g. login/sign-up).
 COVER_TEMPLATE = 'iroko_theme/page_cover.html'
-#: Footer base template.
-FOOTER_TEMPLATE = 'iroko_theme/footer.html'
 #: Header base template.
-HEADER_TEMPLATE = 'iroko_theme/header.html'
+THEME_HEADER_TEMPLATE = 'iroko_theme/header.html'
+#: Footer base template.
+THEME_FOOTER_TEMPLATE = 'iroko_theme/footer.html'
+
+SECURITY_LOGIN_USER_TEMPLATE = 'iroko_theme/accounts/login_user.html'
+
+SECURITY_REGISTER_USER_TEMPLATE = 'iroko_theme/accounts/register_user.html'
+
+THEME_SEARCHBAR = True
+
+THEME_HEADER_LOGIN_TEMPLATE = 'iroko_theme/header_login.html'
 #: Settings base template.
 SETTINGS_TEMPLATE = 'iroko_theme/page_settings.html'
 
@@ -77,11 +90,16 @@ THEME_FRONTPAGE = True
 #: Frontpage title.
 THEME_FRONTPAGE_TITLE = _('iroko')
 #: Theme logo.
-THEME_LOGO = 'images/invenio-black.svg'
+THEME_LOGO = 'images/sceiba-logo.png'
+THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
 #: Frontpage template.
 THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
+THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
 
-THEME_FOOTER_TEMPLATE   = 'iroko_theme/footer.html'
+
+
+
+
 
 
 # Email configuration
