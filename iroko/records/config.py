@@ -64,13 +64,13 @@ IROKO_ENDPOINTS_ENABLED = True
 RECORDS_REST_FACETS = {
     'records':{
         'aggs':{
-            'language':{'terms':{'field': 'language'}}
+            'source':{'terms':{'field': 'source'}}
         },
         'post_filters':{
             'language': terms_filter('language')
         },
         'filters':{
-            'languagefilter': terms_filter('language')
+            'languagefilter': terms_filter('source')
         }
     }
 }
