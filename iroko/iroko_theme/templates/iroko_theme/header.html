@@ -32,21 +32,21 @@
       {%- block navbar_inner %}
       <div class="collapse navbar-collapse" id="navbarToggler">
         {%- block navbar_nav %}
-        <div class=" d-flex justify-content-between w-100">
-          <ul class="nav navbar-nav">
+        <div class=" d-flex justify-content-between w-100 flex-wrap">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             {%- for item in current_menu.submenu('main').children|sort(attribute='order') if item.visible recursive %}
             {%- if item.children %}
-            <li class="dropdown{{ ' active' if item.active else ''}}">
+            <li class="nav-item dropdown{{ ' active' if item.active else ''}}">
               <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="{{ item.url }}">{{ item.text|safe }} <b class="caret"></b></a>
               <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
             </li>
             {%- else %}
-              <li{{ ' class="active"'|safe if item.active and loop.depth == 1 else '' }}><a href="{{ item.url }}">{{ item.text|safe }}</a></li>
+              <li{{ ' class="nav-item active"'|safe if item.active and loop.depth == 1 else '' }}><a class="nav-link" href="{{ item.url }}">{{ item.text|safe }}</a></li>
             {%- endif %}
             {%- endfor %}
           </ul>
           {%- endblock navbar_nav %}
-          <div class="d-flex">
+          <div class="d-flex flex-wrap">
             {%- if config.THEME_SEARCHBAR %}
               {%- block navbar_search %}
                 <form class="navbar-form navbar-left mr-sm-2" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
