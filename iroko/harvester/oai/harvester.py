@@ -260,7 +260,8 @@ class OaiHarvester(SourceHarvester):
 
         xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+".xml")
         if not path.exists(xmlpath):
-            raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
+            # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
+            return {}
         xml = etree.parse(xmlpath, parser=XMLParser)
         return formater.ProcessItem(xml)
 

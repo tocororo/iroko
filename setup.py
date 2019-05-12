@@ -48,7 +48,6 @@ setup(
             'iroko = iroko.iroko_theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
             'iroko_harvester = iroko.harvester.views:blueprint',
-            'iroko_sources = iroko.sources.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
         ],
         'invenio_assets.bundles': [

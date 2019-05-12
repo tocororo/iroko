@@ -18,7 +18,9 @@ def iroko_uuid_fetcher(record_uuid, data):
     :param data: The record metadata.
     :returns: A :data:`invenio_pidstore.fetchers.FetchedPID` instance.
     """
-    pid_field = current_app.config['PIDSTORE_RECID_FIELD']
+    # pid_field = current_app.config['PIDSTORE_RECID_FIELD']
+    print(str(data))
+    pid_field = 'id'
     return FetchedPID(
         provider=IrokoUUIDProvider,
         pid_type=IrokoUUIDProvider.pid_type,
