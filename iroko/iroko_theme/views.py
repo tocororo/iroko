@@ -11,6 +11,7 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, current_app, render_template
+from flask_menu import register_menu
 
 blueprint = Blueprint(
     'iroko_theme_frontpage',
@@ -19,13 +20,19 @@ blueprint = Blueprint(
     static_folder='static',
 )
 
-
 @blueprint.route('/')
 def index():
     """Simplistic front page view."""
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
     )
+
+
+@blueprint.route('/catalog')
+@register_menu(blueprint, 'main.cover', 'Catalogo de Revistas', order=2)
+def catalogo():
+
+    return render_template('iroko_theme/catalog/index.html')
 
 
 def unauthorized(e):

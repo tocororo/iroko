@@ -64,14 +64,19 @@ IROKO_ENDPOINTS_ENABLED = True
 RECORDS_REST_FACETS = {
     'records':{
         'aggs':{
-            'source':{'terms':{'field': 'source'}}
+            'source':{
+                'terms':{'field': 'source'}
+            },
+            'language':{
+                'terms':{'field': 'language'}
+            }
         },
-        'post_filters':{
-            'language': terms_filter('language')
-        },
-        'filters':{
-            'languagefilter': terms_filter('source')
-        }
+        # 'post_filters':{
+        #     'language': terms_filter('language')
+        # },
+        # 'filters':{
+        #     'languagefilter': terms_filter('source')
+        # }
     }
 }
 """Introduce searching facets."""
