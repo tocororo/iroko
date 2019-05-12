@@ -99,13 +99,6 @@ THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
 
 
 
-
-
-
-
-
-
-
 RECORDS_UI_ENDPOINTS = {
     'recid': {
         'pid_type': 'irouid',
@@ -124,6 +117,8 @@ SEARCH_UI_SEARCH_INDEX = 'records'
 
 SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/search_ui/results.html'
 """Result list template."""
+
+SEARCH_UI_HEADER_TEMPLATE = 'iroko_theme/search_ui/base_header.html'
 
 SEARCH_UI_SEARCH_TEMPLATE = 'iroko_theme/search_ui/search.html'
 """Configure the search page template."""
