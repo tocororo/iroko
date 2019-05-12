@@ -84,6 +84,66 @@ THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
 THEME_FOOTER_TEMPLATE   = 'iroko_theme/footer.html'
 
 
+
+
+
+
+RECORDS_UI_ENDPOINTS = {
+    'recid': {
+        'pid_type': 'irouid',
+        'route': '/records/<pid_value>',
+        'template': 'iroko_theme/records/record.html'
+    },
+}
+
+
+"""Records UI for iroko."""
+SEARCH_UI_SEARCH_API = '/api/records/'
+"""Configure the search engine endpoint."""
+
+SEARCH_UI_SEARCH_INDEX = 'records'
+"""Name of the search index used."""
+
+SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/search_ui/results.html'
+"""Result list template."""
+
+SEARCH_UI_SEARCH_TEMPLATE = 'iroko_theme/search_ui/search.html'
+"""Configure the search page template."""
+
+SEARCH_UI_JSTEMPLATE_COUNT = 'templates/search_ui/count.html'
+"""Configure the count template."""
+
+SEARCH_UI_JSTEMPLATE_ERROR = 'templates/search_ui/error.html'
+"""Configure the error page template."""
+
+SEARCH_UI_JSTEMPLATE_FACETS = 'templates/search_ui/facets.html'
+"""Configure the facets template."""
+
+SEARCH_UI_JSTEMPLATE_RANGE = 'templates/search_ui/range.html'
+"""Configure the range template."""
+
+SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS = {'histogramId': '#year_hist',
+                                      'selectionId': '#year_select',
+                                      'name': 'years',
+                                      'width': 180}
+"""Configure the range template options."""
+
+SEARCH_UI_JSTEMPLATE_LOADING = 'templates/search_ui/loading.html'
+"""Configure the loading template."""
+
+SEARCH_UI_JSTEMPLATE_PAGINATION = 'templates/search_ui/pagination.html'
+"""Configure the pagination template."""
+
+SEARCH_UI_JSTEMPLATE_SELECT_BOX = 'templates/search_ui/selectbox.html'
+"""Configure the select box template."""
+
+SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
+"""Configure the toggle button template."""
+
+
+
+
+
 # Email configuration
 # ===================
 #: Email address for support.
@@ -197,3 +257,5 @@ REST_ENABLE_CORS = True
 
 # HARVESTER_DATA_DIRECTORY='data/sceiba-data'
 HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
+
+

@@ -42,7 +42,7 @@ RECORDS_REST_ENDPOINTS = {
                                  ':json_v1'),
         },
         list_route='/records/',
-        item_route='/records/<pid_value>',
+        item_route='/records/<pid(irouid):pid_value>',
         default_media_type='application/json',
         max_result_window=10000,
         error_handlers=dict(),
@@ -55,42 +55,25 @@ RECORDS_REST_ENDPOINTS = {
 }
 """REST API for iroko."""
 
-RECORDS_UI_ENDPOINTS = {
-    'recid': {
-        'pid_type': 'irouid',
-        'route': '/records/<pid_value>',
-        'template': 'records/record.html'
-    },
-}
-
-
-"""Records UI for iroko."""
-
-SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/records/results.html'
-"""Result list template."""
-
 PIDSTORE_RECID_FIELD = 'id'
 
 IROKO_ENDPOINTS_ENABLED = True
 """Enable/disable automatic endpoint registration."""
 
 
-RECORDS_REST_FACETS = dict(
-    records=dict(
-        aggs=dict(
-            type=dict(terms=dict(field='type')),
-            keywords=dict(terms=dict(field='keywords'))
-        ),
-        filters=dict(
-            sourceSet=terms_filter('keywords'),
-            years= range_filter('publication_date', format='yyyy', end_date_math='/y'),
-        ),
-        post_filters=dict(
-            type=terms_filter('type'),
-            keywords=terms_filter('keywords'),
-        )
-    )
-)
+RECORDS_REST_FACETS = {
+    'records':{
+        'aggs':{
+            'language':{'terms':{'field': 'language'}}
+        },
+        'post_filters':{
+            'language': terms_filter('language')
+        },
+        'filters':{
+            'languagefilter': terms_filter('language')
+        }
+    }
+}
 """Introduce searching facets."""
 
 
