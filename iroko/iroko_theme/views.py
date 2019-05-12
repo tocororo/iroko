@@ -29,7 +29,7 @@ def index():
 
 
 @blueprint.route('/catalog')
-@register_menu(blueprint, 'main.cover', 'Catalogo de Revistas', order=2)
+@register_menu(blueprint, 'main.catalog', 'Catalogo de Revistas', order=2)
 def catalogo():
 
     return render_template('iroko_theme/catalog/index.html')

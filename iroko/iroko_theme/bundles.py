@@ -118,3 +118,4 @@ admin_js = NpmBundle(
     }
 )
 """AdminJS contains JQuery, Moment, Select2, Bootstrap, and Admin-LTE."""
+
