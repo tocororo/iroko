@@ -10,7 +10,7 @@
 from __future__ import absolute_import, print_function
 
 from invenio_indexer.api import RecordIndexer
-from invenio_records_rest.facets import terms_filter
+from invenio_records_rest.facets import terms_filter, range_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch
 from invenio_search import RecordsSearch
 
@@ -79,6 +79,10 @@ RECORDS_REST_FACETS = dict(
             type=dict(terms=dict(field='type')),
             keywords=dict(terms=dict(field='keywords'))
         ),
+        filters=dict(
+            sourceSet=terms_filter('keywords'),
+            years= range_filter('publication_date', format='yyyy', end_date_math='/y'),
+        ),
         post_filters=dict(
             type=terms_filter('type'),
             keywords=terms_filter('keywords'),
@@ -98,7 +102,7 @@ RECORDS_REST_SORT_OPTIONS = dict(
         ),
         mostrecent=dict(
             title=_('Most recent'),
-            fields=['-_created'],
+            fields=['publication_date'],
             default_order='asc',
             order=2,
         ),

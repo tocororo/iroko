@@ -37,6 +37,7 @@ class IrokoRecord (Record):
     @classmethod
     def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, record_uuid=None, **kwargs):
         """Create or update IrokoRecord."""
+        # TODO: crar una funcion get_record_by_data, que reciba un data de un iroko record y busque, si existe, puede ser, por el source uuid y el original_identifier....
         if record_uuid:
             record = cls.get_record_by_pid(record_uuid, with_deleted=False)
             if record:
