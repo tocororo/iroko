@@ -57,7 +57,7 @@ def get_sources():
         sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
     else:
         sources = Sources.query.order_by('name').all()
-    print(tids, terms, all_terms, sources)
+    # print(tids, terms, all_terms, sources)
     for item in sources:
         source = item.source if ask_terms else item
         if is_like(source, data_args, and_op):

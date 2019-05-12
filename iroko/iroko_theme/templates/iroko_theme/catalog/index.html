@@ -70,6 +70,7 @@
 
 {%- block page_body %}
 
+      <div class="container">
         <toco-root>
                 <div class="app-loading">
                   <div class="logo"></div>
@@ -78,14 +79,14 @@
                   </svg>
                 </div>
         </toco-root>
-
+      </div>
 {%- endblock page_body %}
 
 {%- block javascript %}
-{{super()}}
+{% include config.THEME_JAVASCRIPT_TEMPLATE %}
 
 
-<script type="text/javascript" src="https://localhost:5000/static/catalog/runtime.b0e5f22fe716a451ffdb.js"></script><script type="text/javascript" src="https://localhost:5000/static/catalog/polyfills.a5e611dccaf86beb778a.js"></script><script type="text/javascript" src="https://localhost:5000/static/catalog/main.3fb3957f5c1450d9439e.js"></script>
+<script type="text/javascript" src="https://localhost:5000/static/catalog/runtime.d816d91ee93cab85862a.js"></script><script type="text/javascript" src="https://localhost:5000/static/catalog/polyfills.a5e611dccaf86beb778a.js"></script><script type="text/javascript" src="https://localhost:5000/static/catalog/main.819f1d8bb01704e5a513.js"></script>
 {%- endblock javascript %}
 
 
