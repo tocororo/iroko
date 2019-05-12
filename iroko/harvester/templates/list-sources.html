@@ -1,16 +1,16 @@
 
 
 
-{%- extends "iroko/page.html" %}
+{%- extends "iroko_theme/page.html" %}
 
 {%- block page_body %}
 <div class="container">
-    <div class="row">
-        <div class="col-lg-12">
+    <div >
+        <div>
             <h1 class="text-center">Sources</h1>
         </div>
     </div>
-    <div class="row">
+    <div>
         {% for source in sources %}
         <p>
             <a href="/sources/id/{{source.id}}">
@@ -27,8 +27,8 @@
             <hr />
         {% endfor %}
     </div>
-    <div class="row">
-            <div class="col-lg-12">
+    <div>
+            <div>
                     <a href="?page={{prev_page}}">Prev</a>
                     <a href="?page={{next_page}}">Next</a>
             </div>

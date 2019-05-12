@@ -5,7 +5,6 @@
   Invenio is free software; you can redistribute it and/or modify it
   under the terms of the MIT License; see LICENSE file for more details.
 -->
-<h3 class="panel-title">facets</h3>
 <div ng-init="tree=[];tree_more=[]" ng-repeat="aggr in orderedAggs track by $index">
   <div ng-if="aggr.value.buckets.length > 0 || getValues(aggr.key)" class="panel panel-default">
     <div class="panel-heading">
