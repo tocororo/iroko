@@ -27,8 +27,7 @@
    search-endpoint="{{ config.SEARCH_UI_SEARCH_API }}"
    search-extra-params='{% if search_extra_params %}{{search_extra_params|tojson}}{% endif %}'
    search-hidden-params='{% if search_hidden_params %}{{search_hidden_params|tojson}}{% endif %}'
-   search-headers='{"Accept": "{{ config.SEARCH_UI_SEARCH_MIMETYPE|default('application/json')}}"}'
-  >
+   search-headers='{"Accept": "{{ config.SEARCH_UI_SEARCH_MIMETYPE|default('application/json')}}"}'>
   {{super()}}
   </invenio-search>
 </div>
@@ -38,9 +37,17 @@
 {% include "iroko_theme/search_ui/header.html" %}
 {%- endblock page_header %}
 
+
 {%- block page_body %}
 <div class="container search-page">
+    {%- block search_block %}
+      <invenio-search-bar class="container d-flex justify-content-start"
+        template="{{ url_for('static', filename='templates/search_ui/page_searchbar.html') }}"
+        placeholder="{{ search_input_placeholder|default(_('Search')) }}">
+      </invenio-search-bar>
+    {%- endblock search_block %}
   <div class="row">
+      
     {%- block search_body %}
     <div class="col-xs-12 col-md-9 col-md-push-3">
       {%- block search_header %}

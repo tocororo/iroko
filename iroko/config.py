@@ -66,6 +66,9 @@ BASE_TEMPLATE = 'iroko_theme/page.html'
 THEME_BASE_TEMPLATE = 'iroko_theme/page.html'
 #: Cover page base template (used for e.g. login/sign-up).
 COVER_TEMPLATE = 'iroko_theme/page_cover.html'
+
+THEME_BODY_TEMPLATE = 'iroko_theme/body.html'
+
 #: Header base template.
 THEME_HEADER_TEMPLATE = 'iroko_theme/header.html'
 #: Footer base template.
