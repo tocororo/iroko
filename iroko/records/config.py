@@ -42,7 +42,7 @@ RECORDS_REST_ENDPOINTS = {
                                  ':json_v1'),
         },
         list_route='/records/',
-        item_route='/records/<pid(irouid):pid_value>',
+        item_route='/records/<pid_value>',
         default_media_type='application/json',
         max_result_window=10000,
         error_handlers=dict(),
@@ -62,6 +62,8 @@ RECORDS_UI_ENDPOINTS = {
         'template': 'records/record.html'
     },
 }
+
+
 """Records UI for iroko."""
 
 SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/records/results.html'

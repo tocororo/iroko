@@ -13,23 +13,11 @@ from invenio_db import db
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 
-blueprint = Blueprint(
-    'iroko_sources',
-    __name__,
-    template_folder='templates',
-    static_folder='static'
-)
-
 
 api_blueprint = Blueprint(
     'iroko_api_sources',
     __name__,
 )
-
-@blueprint.route('/catalog')
-def catalog_app():
-    return render_template('index.html')
-
 
 @api_blueprint.route('/sources')
 def get_sources():
