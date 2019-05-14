@@ -8,7 +8,7 @@ from iroko.sources.models import Sources, HarvestType, SourcesType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.sources.marshmallow import sources_schema, sources_schema_full, source_schema_full
 from os import listdir, path
-from .forms import VocabularyForm, TermFo rm, SourceForm
+from .forms import VocabularyForm, TermForm, SourceForm
 from .api import create_vocabulary
 from invenio_db import db
 
