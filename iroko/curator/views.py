@@ -76,7 +76,7 @@ def add_term():
         # )
         # redirect to the success page
         new_term = Term()
-        new_term.uuid = uuid.uuid4        
+        new_term.uuid = uuid.uuid4
         if form.name.data:
             new_term.name = form.name.data
         if form.description.data:
@@ -111,8 +111,8 @@ def add_source():
         # )
         # redirect to the success page
         new_source = Sources()
-        if form.uuid.data:
-            new_source.uuid = form.uuid.data
+        new_source.uuid = uuid.uuid4
+        
         if form.name.data:
             new_source.name = form.name.data
         if form.source_type.data:

@@ -18,7 +18,7 @@ class VocabularyForm(FlaskForm):
         description=_('Optional explanation for the vocabulary')
     )
     
-    def validate_name(form, field):
+    def validate_name(self, field):
         if Vocabulary.query.filter_by(name=field.data).first():
             raise validators.ValidationError(_('Name must not exist'))
 
