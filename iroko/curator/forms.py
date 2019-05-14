@@ -35,13 +35,13 @@ class TermForm(FlaskForm):
     vocabulary = SelectField(
         'Vocabulary',
         validators=[validators.DataRequired()],
-        coerce='Integer',
-        choices=Vocabulary.query.all()     
+        # coerce='Integer',
+        # choices=[(choice.id, choice.name) for choice in Vocabulary.query.all()]
     )
     parent = SelectField(
         'Parent' ,
-        coerce='Integer',
-        choices=Term.query.all()
+        # coerce='Integer',
+        # choices=[(choice.id, choice.name) for choice in Term.query.all()]
     )   
 
 
@@ -58,7 +58,7 @@ class SourceForm(FlaskForm):
     source_type = SelectField(
         'Source Type',
         validators=[validators.DataRequired()],        
-        choices=[(choice.name, choice.value) for choice in SourcesType]  
+        choices=[(choice.name, choice.value) for choice in SourcesType]
     )    
     harvest_type = SelectField(
         'Harvest Type',

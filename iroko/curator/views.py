@@ -50,7 +50,7 @@ def add_vocabulary():
         db.session.add(new_vocab)
         db.session.commit()
 
-    return render_template('curator/add_vocabulary.html', form=form)
+    return render_template('add_vocabulary.html', form=form)
 
 
 @blueprint.route('/add/term')
@@ -86,14 +86,14 @@ def add_term():
         db.session.add(new_term)
         db.session.commit()
 
-    return render_template('curator/add_vocabulary.html', form=form)
+    return render_template('add_term.html', form=form)
 
 
 @blueprint.route('/add/source')
 @login_required
 def add_source():
     """The create view."""
-    form = TermForm()    
+    form = SourceForm()    
     # if the form is submitted and valid
     if form.validate_on_submit():
         # set the owner as the current logged in user
@@ -122,7 +122,7 @@ def add_source():
         db.session.add(new_source)
         db.session.commit()
         
-    return render_template('curator/add_source.html', form=form)
+    return render_template('add_source.html', form=form)
 
 
 @blueprint.route('/edit/term/<id>')
