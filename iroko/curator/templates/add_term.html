@@ -5,7 +5,7 @@
   <span class="help-block">
     <ul class=errors>
     {% for error in field.errors %}
-      <li>{{ error }}</li>
+    <li><span style="color: red;">{{ error }}</span></li>
     {% endfor %}
     </ul>
   {% endif %}
@@ -19,12 +19,7 @@
         <h2>Add Term</h2>
       </div>
       <div class="col-md-offset-3 col-md-6 well">
-        <form action="{{ url_for('iroko_curator.add_term') }}" method="POST">
-            <div class="form-group {{ 'has-error' if form.uuid.errors }}">
-                <label for="uuid">{{ form.uuid.label }}</label>
-                {{ form.uuid(class_="form-control")|safe }}
-                {{ errors(form.uuid) }}
-            </div>
+        <form action="{{ url_for('iroko_curator.add_term') }}" method="POST">            
             <div class="form-group {{ 'has-error' if form.name.errors }}">
                 <label for="name">{{ form.name.label }}</label>
                 {{ form.name(class_="form-control")|safe }}

@@ -5,7 +5,7 @@
   <span class="help-block">
     <ul class=errors>
     {% for error in field.errors %}
-      <li>{{ error }}</li>
+    <li><span style="color: red;">{{ error }}</span></li>
     {% endfor %}
     </ul>
   {% endif %}
