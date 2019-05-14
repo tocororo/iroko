@@ -17,6 +17,7 @@ blueprint = Blueprint(
     'iroko_curator',
     __name__,
     url_prefix='/curator',
+    
     template_folder='templates',
     static_folder='static'
 )
