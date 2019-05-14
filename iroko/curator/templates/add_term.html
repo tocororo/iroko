@@ -1,0 +1,56 @@
+{%- extends config.BASE_TEMPLATE %}
+
+{% macro errors(field) %}
+  {% if field.errors %}
+  <span class="help-block">
+    <ul class=errors>
+    {% for error in field.errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </span>
+{% endmacro %}
+
+{% block page_body %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Add Term</h2>
+      </div>
+      <div class="col-md-offset-3 col-md-6 well">
+        <form action="{{ url_for('curator.add_term') }}" method="POST">
+            <div class="form-group {{ 'has-error' if form.uuid.errors }}">
+                <label for="uuid">{{ form.uuid.label }}</label>
+                {{ form.uuid(class_="form-control")|safe }}
+                {{ errors(form.uuid) }}
+            </div>
+            <div class="form-group {{ 'has-error' if form.name.errors }}">
+                <label for="name">{{ form.name.label }}</label>
+                {{ form.name(class_="form-control")|safe }}
+                {{ errors(form.name) }}
+            </div>
+            <div class="form-group {{ 'has-error' if form.description.errors }}">
+                <label for="description">{{ form.description.label }}</label>
+                {{ form.description(class_="form-control")|safe }}
+                {{ errors(form.description) }}
+            </div>
+            <div class="form-group {{ 'has-error' if form.vocabulary.errors }}">
+                <label for="vocabulary">{{ form.vocabulary.label }}</label>
+                {{ form.vocabulary(class_="form-control")|safe }}
+                {{ errors(form.vocabulary) }}
+            </div>
+            <div class="form-group {{ 'has-error' if form.parent.errors }}">
+                <label for="parent">{{ form.parent.label }}</label>
+                {{ form.parent(class_="form-control")|safe }}
+                {{ errors(form.parent) }}
+            </div>
+              
+            {{ form.csrf_token }}
+            {{ errors(form.csrf_token) }}
+            <button type="submit" class="btn btn-default">Add Term</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock page_body %}
