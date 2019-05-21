@@ -1,0 +1,27 @@
+{%- extends config.BASE_TEMPLATE %}
+
+{% macro errors(field) %}
+  {% if field.errors %}
+  <span class="help-block">
+    <ul class=errors>
+    {% for error in field.errors %}
+    <li><span style="color: red;">{{ error }}</span></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </span>
+{% endmacro %}
+
+{% block page_body %}
+<br/>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>{{ _('Something wrong happend') }}</h2>
+      </div>
+      <div>
+          {{ message }}
+      </div>
+    </div>
+  </div>
+{% endblock page_body %}
