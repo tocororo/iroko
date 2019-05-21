@@ -2,8 +2,9 @@
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, flash
 from flask_login import login_required
+from flask_babelex import lazy_gettext as _
 from iroko.sources.models import Sources, HarvestType, SourcesType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.sources.marshmallow import sources_schema, sources_schema_full, source_schema_full
@@ -11,6 +12,8 @@ from os import listdir, path
 from .forms import VocabularyForm, TermForm, SourceForm
 from .api import create_vocabulary
 from invenio_db import db
+import uuid
+
 
 
 blueprint = Blueprint(
@@ -23,7 +26,7 @@ blueprint = Blueprint(
 )
 
 
-@blueprint.route('/add/vocabulary')
+@blueprint.route('/add/vocabulary', methods=['GET', 'POST'])
 @login_required
 def add_vocabulary():
     """The create view."""
@@ -49,7 +52,8 @@ def add_vocabulary():
         
         db.session.add(new_vocab)
         db.session.commit()
-
+        flash(_('Vocabulary added'), 'info')
+        return render_template('add_vocabulary.html', form=VocabularyForm())
     return render_template('add_vocabulary.html', form=form)
 
 
@@ -72,8 +76,7 @@ def add_term():
         # )
         # redirect to the success page
         new_term = Term()
-        if form.uuid.data:
-            new_term.uuid = form.uuid.data
+        new_term.uuid = uuid.uuid4
         if form.name.data:
             new_term.name = form.name.data
         if form.description.data:
@@ -108,8 +111,8 @@ def add_source():
         # )
         # redirect to the success page
         new_source = Sources()
-        if form.uuid.data:
-            new_source.uuid = form.uuid.data
+        new_source.uuid = uuid.uuid4
+        
         if form.name.data:
             new_source.name = form.name.data
         if form.source_type.data:
