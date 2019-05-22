@@ -36,7 +36,7 @@ def index():
 @register_menu(blueprint, 'main.catalog', 'Catalogo de Revistas', order=2)
 def catalogo():
 
-    return render_template('iroko_theme/catalog/index.html')
+    return render_template('iroko_theme/catalog/index.html', static_host='http://200.14.49.24')
 
 @blueprint.route('/catalog/<id>')
 def view_source_id(id):
