@@ -61,7 +61,7 @@
 /******/
 /******/ 	// script path function
 /******/ 	function jsonpScriptSrc(chunkId) {
-/******/ 		return __webpack_require__.p + "" + ({"irokoui-catalog-catalog-module":"irokoui-catalog-catalog-module"}[chunkId]||chunkId) + ".js"
+/******/ 		return __webpack_require__.p + "" + ({"catalog-catalog-module-ngfactory~irokoui-harvester-harvester-module-ngfactory":"catalog-catalog-module-ngfactory~irokoui-harvester-harvester-module-ngfactory","catalog-catalog-module-ngfactory":"catalog-catalog-module-ngfactory","irokoui-harvester-harvester-module-ngfactory":"irokoui-harvester-harvester-module-ngfactory","journal-journal-module-ngfactory":"journal-journal-module-ngfactory","pages-pages-module-ngfactory":"pages-pages-module-ngfactory","person-person-module-ngfactory":"person-person-module-ngfactory"}[chunkId]||chunkId) + ".js"
 /******/ 	}
 /******/
 /******/ 	// The require function
