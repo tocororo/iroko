@@ -5,7 +5,7 @@
 {%- block header %}
 <base href="{{iroko_catalog}}"> 
 <meta charset="utf-8">    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' {{static_host}}">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' {{static_host}}">
 <style type="text/css">
     body, html {
       height: 100%;
@@ -87,7 +87,7 @@
 {% include config.THEME_JAVASCRIPT_TEMPLATE %}
 
 
-<script type="text/javascript" src="{{static_host}}/static/catalog/runtime.121c167a6540bcae1663.js"></script><script type="text/javascript" src="{{static_host}}/static/catalog/polyfills.33ae7ba55e2c12e2e97e.js"></script><script type="text/javascript" src="{{static_host}}/static/catalog/main.fb59283f21525eb9c941.js"></script>
+<script type="text/javascript" src="{{static_host}}/static/catalog/runtime.121c167a6540bcae1663.js"></script><script type="text/javascript" src="{{static_host}}/static/catalog/polyfills.33ae7ba55e2c12e2e97e.js"></script><script type="text/javascript" src="{{static_host}}/static/catalog/main.92b50aa6508cefeb34ee.js"></script>
 {%- endblock javascript %}
 
 
