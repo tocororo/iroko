@@ -17,34 +17,27 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <h2>{{ _('Adding Term') }}</h2>
+        <h2>{{ _('Editing Vocabulary') }}</h2>
       </div>
       <div class="col-md-offset-3 col-md-6 well">
-        <form action="{{ url_for('iroko_curator.add_term') }}" method="POST">            
+        <form action="{{ url_for('iroko_curator.edit_vocabulary', id=id) }}" method="POST">
+            <div class="form-group">              
+              {{ form.id(class_="form-control")|safe }}              
+            </div>
             <div class="form-group {{ 'has-error' if form.name.errors }}">
-                <label for="name">{{ form.name.label }}</label>
-                {{ form.name(class_="form-control")|safe }}
-                {{ errors(form.name) }}
+              <label for="name">{{ form.name.label }}</label>
+              {{ form.name(class_="form-control")|safe }}
+              {{ errors(form.name) }}
             </div>
             <div class="form-group {{ 'has-error' if form.description.errors }}">
                 <label for="description">{{ form.description.label }}</label>
                 {{ form.description(class_="form-control")|safe }}
                 {{ errors(form.description) }}
-            </div>
-            <div class="form-group {{ 'has-error' if form.vocabulary.errors }}">
-                <label for="vocabulary">{{ form.vocabulary.label }}</label>
-                {{ form.vocabulary(class_="form-control")|safe }}
-                {{ errors(form.vocabulary) }}
-            </div>
-            <div class="form-group {{ 'has-error' if form.parent.errors }}">
-                <label for="parent">{{ form.parent.label }}</label>
-                {{ form.parent(class_="form-control")|safe }}
-                {{ errors(form.parent) }}
-            </div>
+              </div>
               
             {{ form.csrf_token }}
             {{ errors(form.csrf_token) }}
-            <button type="submit" class="btn btn-default">{{ _('Add Term') }}</button>
+            <button type="submit" class="btn btn-default">{{ _('Save Changes') }}</button>
         </form>
       </div>
     </div>

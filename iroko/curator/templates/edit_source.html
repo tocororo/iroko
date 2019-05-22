@@ -13,13 +13,14 @@
 {% endmacro %}
 
 {% block page_body %}
+<br/>
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <h2>{{ _('Adding Source') }}</h2>
+        <h2>{{ _('Editing Source') }}</h2>
       </div>
       <div class="col-md-offset-3 col-md-6 well">
-        <form action="{{ url_for('iroko_curator.add_source') }}" method="POST">            
+        <form action="{{ url_for('iroko_curator.edit_source', id=id) }}" method="POST">            
             <div class="form-group {{ 'has-error' if form.name.errors }}">
                 <label for="name">{{ form.name.label }}</label>
                 {{ form.name(class_="form-control")|safe }}
@@ -43,7 +44,7 @@
               
             {{ form.csrf_token }}
             {{ errors(form.csrf_token) }}
-            <button type="submit" class="btn btn-default">{{ _('Add Source') }}</button>
+            <button type="submit" class="btn btn-default">{{ _('Edit Source') }}</button>
         </form>
       </div>
     </div>
