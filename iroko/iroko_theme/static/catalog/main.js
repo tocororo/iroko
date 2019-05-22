@@ -343,9 +343,9 @@ var environment = {
     production: false,
     appName: "Publicaciones Cientificas Cubanas",
     appHost: "http://tocororo.upr.edu.cu",
-    irokoHost: "https://localhost:5000",
+    irokoHost: "https://200.14.49.24/",
     apisEndpoints: {
-        irokoCatalog: "http://localhost:5000/api",
+        irokoCatalog: "https://200.14.49.24/api",
         pages: "http://10.2.24.246/pages"
     }
 };
