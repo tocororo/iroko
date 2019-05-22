@@ -4,7 +4,8 @@
 
 {%- block header %}
 <base href="{{iroko_catalog}}"> 
-<meta charset="utf-8">    <meta http-equiv="X-UA-Compatible" content="IE=edge">    
+<meta charset="utf-8">    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' {{static_host}}">
 <style type="text/css">
     body, html {
       height: 100%;
