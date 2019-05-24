@@ -9,7 +9,7 @@ from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 from iroko.sources.marshmallow import sources_schema_full, source_schema_full
 
-from iroko.sources.api import Source
+from iroko.sources.api import Sources
 
 blueprint = Blueprint(
     'iroko_sources',
@@ -20,7 +20,7 @@ blueprint = Blueprint(
 
 @blueprint.route('/source/<id>')
 def view_source_id(id):
-    src = Source.get_source_by_id(id=id)
+    src = Sources.get_source_by_id(id=id)
     source = source_schema_full.dump(src)
     return render_template('source.html', source=source.data)
 
@@ -65,7 +65,7 @@ def get_sources():
         'year_end': str(request.args.get('year_end'))
     }
 
-    result = Source.get_sources(and_op, terms, data_args, repo_args)
+    result = Sources.get_sources(and_op, terms, data_args, repo_args)
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
@@ -77,17 +77,17 @@ def get_sources():
 @api_blueprint.route('/sources/count')
 def get_sources_count():
     """retorna la cantidad de sources"""
-    result = Source.count_sources()
+    result = Sources.count_sources()
     return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result) 
 
 @api_blueprint.route('/source/id/<id>')
 def get_source_by_id(id):    
-    src = Source.get_source_by_id(id=id)
+    src = Sources.get_source_by_id(id=id)
     return jsonify_source(src)
 
 @api_blueprint.route('/source/uuid/<uuid>')
 def get_source_by_uuid(uuid):    
-    src = Source.get_source_by_id(uuid=uuid)
+    src = Sources.get_source_by_id(uuid=uuid)
     return jsonify_source(src)
 
 def jsonify_source(src):
