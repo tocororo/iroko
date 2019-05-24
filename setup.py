@@ -47,7 +47,6 @@ setup(
         'invenio_base.blueprints': [
             'iroko = iroko.iroko_theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
-            'iroko_sources = iroko.sources.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
         ],
         'invenio_assets.bundles': [
@@ -90,7 +89,7 @@ setup(
         ],
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
-            'iroko_sources = iroko.sources.views:api_blueprint'
+            'iroko_sources = iroko.sources.views:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint'
         ],
         'invenio_celery.tasks': [

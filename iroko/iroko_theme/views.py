@@ -12,11 +12,12 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, current_app, render_template
 from flask_menu import register_menu
-
+from iroko.sources.api import Sources
+from iroko.sources.marshmallow import source_schema_full
 
 
 blueprint = Blueprint(
-    'iroko_theme_frontpage',
+    'iroko_theme',
     __name__,
     template_folder='templates',
     static_folder='static',
@@ -35,6 +36,13 @@ def index():
 def catalogo():
 
     return render_template('iroko_theme/catalog/index.html', static_host='https://200.14.49.24', iroko_catalog='https://200.14.49.24/catalog')
+
+
+@blueprint.route('/source/<id>')
+def view_source_id(id):
+    src = Sources.get_source_by_id(id=id)
+    source = source_schema_full.dump(src)
+    return render_template('source.html', source=source.data)
 
 
 def unauthorized(e):

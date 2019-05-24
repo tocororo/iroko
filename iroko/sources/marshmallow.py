@@ -45,7 +45,7 @@ class SourceSchema(Schema):
     repo_harvest_endpoint = fields.Str()
     repo_last_harvest_run = DateString()
     repo_identifier = fields.Str()
-    repo_metadata_formats = fields.Nested(fields.Str(), many=True)
+    repo_metadata_formats = fields.Str(many=True)
     repo_status = fields.Str()
     repo_error_log = fields.Str()
 

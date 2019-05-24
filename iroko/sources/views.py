@@ -11,18 +11,12 @@ from iroko.sources.marshmallow import sources_schema_full, source_schema_full
 
 from iroko.sources.api import Sources
 
-blueprint = Blueprint(
-    'iroko_sources',
-    __name__,
-    template_folder='templates',
-    static_folder='static',
-)
-
-@blueprint.route('/source/<id>')
-def view_source_id(id):
-    src = Sources.get_source_by_id(id=id)
-    source = source_schema_full.dump(src)
-    return render_template('source.html', source=source.data)
+# blueprint = Blueprint(
+#     'iroko_sources',
+#     __name__,
+#     template_folder='templates',
+#     static_folder='static',
+# )
 
 
 api_blueprint = Blueprint(
