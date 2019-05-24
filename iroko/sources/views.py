@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request, json, render_template
 
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
-from iroko.sources.marshmallow import sources_schema_full
+from iroko.sources.marshmallow import sources_schema_full, source_schema_full
 
 from iroko.sources.api import Source
 
