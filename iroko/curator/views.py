@@ -85,7 +85,7 @@ def add_source():
 
     # if the form is submitted and valid
     if form.validate_on_submit():        
-        new_source = Sources()
+        new_source = Source()
         
         if form.name.data:
             new_source.name = form.name.data
