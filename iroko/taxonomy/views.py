@@ -115,4 +115,4 @@ def load_term(term):
     children = []
     for child in term.children:
         children.append(load_term(child))
-    return {'term': term_schema.dump(term), 'children':children}
+    return {'term': term_schema.dump(term).data, 'children':children}
