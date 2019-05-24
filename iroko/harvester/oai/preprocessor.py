@@ -10,7 +10,7 @@ from flask import current_app
 from iroko.harvester.base import SourceIterator, Formater
 
 
-from iroko.sources.models import Sources
+from iroko.sources.models import Source
 
 from iroko.harvester.processors.oai import nsmap
 

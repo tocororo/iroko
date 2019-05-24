@@ -5,7 +5,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, request, render_template, flash
 from flask_login import login_required
 from flask_babelex import lazy_gettext as _
-from iroko.sources.models import Sources, HarvestType, SourcesType
+from iroko.sources.models import Source, HarvestType, SourcesType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.sources.marshmallow import sources_schema, sources_schema_full, source_schema_full
 from os import listdir, path
@@ -110,7 +110,7 @@ def add_source():
         #   )
         # )
         # redirect to the success page
-        new_source = Sources()
+        new_source = Source()
         new_source.uuid = uuid.uuid4
         
         if form.name.data:

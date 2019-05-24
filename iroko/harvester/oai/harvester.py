@@ -1,4 +1,5 @@
-from os import path, mkdir
+from os import path, mkdir, listdir
+
 import time
 
 import traceback
@@ -13,16 +14,18 @@ from flask import current_app
 
 from iroko.harvester.base import SourceHarvester, Formater
 
-from iroko.sources.models import Sources
+from iroko.sources.models import Source, RepositoryStatus, RepositorySet
+
 from iroko.records.api import IrokoRecord
 
-from iroko.harvester.models import Repository, RepositorySet, RepositoryStatus, HarvestedItem, HarvestedItemStatus
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
 
 from invenio_db import db
 
-from . import nsmap, request_headers
-from .formaters import DubliCoreElements, JournalPublishing
-from ..errors import IrokoHarvesterError
+from iroko.harvester.oai import nsmap, request_headers
+from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
+from iroko.harvester.errors import IrokoHarvesterError
+import iroko.harvester.utils as utils
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
@@ -45,31 +48,21 @@ class OaiHarvester(SourceHarvester):
     """
 
 
-    def __init__(self, source: Sources):
+    def __init__(self, source: Source, work_remote=True, request_wait_time=3):
 
         # init_directory=True
         max_retries=3
 
         self.source = source
-        #TODO changeme
+        self.work_remote = work_remote
+        self.request_wait_time = request_wait_time
+        
         p = current_app.config['HARVESTER_DATA_DIRECTORY']
         # p = 'data/sceiba-data'
         self.harvest_dir = path.join(p, str(self.source.id))
 
-        repo = Repository.query.filter_by(source_id=self.source.id).first()
-        # print(repo.status)
-        if not repo:
-            if path.exists(self.harvest_dir):
-                raise IrokoHarvesterError(self.harvest_dir + 'exists!!!. Source ' + self.source.name)
+        if not path.exists(self.harvest_dir):
             mkdir(self.harvest_dir)
-            self.repository = Repository()
-            self.repository.source_id = self.source.id
-            db.session.add(self.repository)
-            db.session.commit()
-        else:
-            self.repository = repo
-            if not path.exists(self.harvest_dir):
-                raise IrokoHarvesterError(self.harvest_dir + 'NOT exists!!!. Source ' + self.source.name)
 
         self.oai_dc = DubliCoreElements()
         self.nlm = JournalPublishing()
@@ -78,51 +71,48 @@ class OaiHarvester(SourceHarvester):
 
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
         args = {'headers':request_headers,'timeout':15, 'verify':False}
-        self.sickle = Sickle(self.source.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
+        self.sickle = Sickle(self.source.repo_harvest_endpoint, encoding=None,max_retries=max_retries, **args)
 
 
     def identity_source(self):
-    #     if self.repository.status == RepositoryStatus.ERROR:
-    #         raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
         try:
             self.get_identify()
             self.get_formats()
             self.get_sets()
-            self.repository.status = RepositoryStatus.IDENTIFIED
+            self.source.repo_status = RepositoryStatus.IDENTIFIED
         except Exception as e:
-            self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = traceback.format_exc()
+            self.source.repo_status = RepositoryStatus.ERROR
+            self.source.repo_error_log = traceback.format_exc()
             print('error: identity_source(self):')
         finally:
             db.session.commit()
 
 
     def discover_items(self):
-        if self.repository.status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
+        if self.source.repo_status == RepositoryStatus.ERROR:
+            raise IrokoHarvesterError('calling discover_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repo_status))
         try:
             self.get_items()
-            self.repository.status = RepositoryStatus.HARVESTED
+            self.source.repo_status = RepositoryStatus.HARVESTED
         except Exception as e:
-            self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = traceback.format_exc()
+            self.source.repo_status = RepositoryStatus.ERROR
+            self.source.repo_error_log = traceback.format_exc()
             print('error: discover_items(self):')
         finally:
             db.session.commit()
 
 
     def process_items(self):
-        if self.repository.status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError(str(self.repository.id) + ' RepositoryStatus.ERROR ' + self.source.name)
+        if self.source.repo_status == RepositoryStatus.ERROR:
+            raise IrokoHarvesterError('calling process_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repo_status))
         try:
             self.record_items()
-            self.repository.status = RepositoryStatus.RECORDED
+            self.source.repo_status = RepositoryStatus.RECORDED
         except Exception as e:
-            self.repository.status = RepositoryStatus.ERROR
-            self.repository.error_log = traceback.format_exc()
+            self.source.repo_status = RepositoryStatus.ERROR
+            self.source.repo_error_log = traceback.format_exc()
             print('error: process_items(self):')
         finally:
-            # db.session.update(self.repository)
             db.session.commit()
 
 
@@ -133,135 +123,201 @@ class OaiHarvester(SourceHarvester):
         f.write(content)
         f.close()
 
+    def _get_xml_from_file(self, name, extra_path=""):
+        xmlpath = path.join(self.harvest_dir, extra_path, name)
+        if not path.exists(xmlpath):
+                raise IrokoHarvesterError('working offline and {0} not exists. Source.id={1}'.format(xmlpath, self.source.id))
+        return etree.parse(xmlpath, parser=XMLParser)
+
 
     def get_identify(self):
-        """get_identity"""
-
-        identify = self.sickle.Identify()
-        self._write_file("identify.xml", identify.raw)
-        self.repository.identifier = identify._identify_dict['repositoryIdentifier']
-
+        """get_identity, raise IrokoHarvesterError"""
+        if self.work_remote:
+            identify = self.sickle.Identify()
+            identifier = identify._identify_dict['repositoryIdentifier']
+        else:
+            xml = self._get_xml_from_file("identify.xml")
+            identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier').text
+        
+        if self.source.repo_identifier is not None and self.source.repo_identifier != identifier:
+            raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.source.repo_identifier, identifier, self.source.id, self.work_remote))
+            
+        self.source.repo_identifier = identifier
+        if self.work_remote:
+            self._write_file("identify.xml", identify.raw)
 
     def get_formats(self):
-        """get_formats"""
+        """get_formats, raise IrokoHarvesterError"""
 
         self.formats = []
-        arguments ={}
-        items = self.sickle.ListMetadataFormats(**arguments)
-        self._write_file("metadata_formats.xml", items.oai_response.raw)
-        for f in items:
-            self.formats.append(f.metadataPrefix)
-            # if f.metadataPrefix == 'oai_dc':
-            #     self.oai_dc = DubliCoreElements()
-            # if f.metadataPrefix == 'nlm':
-            #     self.nlm = JournalPublishing()
-            # if self.oai_dc is None:
-                
-                
-        self.repository.metadata_formats = self.formats
+        if self.work_remote:
+            arguments ={}
+            items = self.sickle.ListMetadataFormats(**arguments)
+            for f in items:
+                self.formats.append(f.metadataPrefix)
+            self._write_file("metadata_formats.xml", items.oai_response.raw)
+        else:
+            xml = self._get_xml_from_file("metadata_formats.xml")
+            self.formats = utils.get_multiple_elements(xml, 'metadataPrefix', xmlns=utils.xmlns.oai())
+            print(self.formats)
+            
+        self.source.repo_metadata_formats = self.formats
+
         # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
         if 'oai_dc' not in self.formats:
-            raise IrokoHarvesterError(" oai_dc is not supported by " \
-                    + self.repository.identifier + " Repository : Source ID" + self.source) 
+            raise IrokoHarvesterError(" oai_dc is not supported by Source.id={0} ".format(self.source.id))
 
 
     def get_sets(self):
         """get_sets"""
 
-        arguments ={}
-        items = self.sickle.ListSets(**arguments)
-        self._write_file("sets.xml", items.oai_response.raw)
-        for f in items:
-            rset = RepositorySet.query.filter_by(repository_id=self.repository.id,\
-                                setSpec=f.setSpec).first()
-            if not rset:
-                rset = RepositorySet()
-                rset.repository_id = self.repository.id
-                rset.setSpec = f.setSpec
-                rset.setName = f.setName
-                db.session.add(rset)
+        sets = []
+        if self.work_remote:
+            arguments ={}
+            items = self.sickle.ListSets(**arguments)
+            self._write_file("sets.xml", items.oai_response.raw)
+            for s in items:
+                rset = RepositorySet.query.filter_by(source_id=self.source.id, setSpec=s.setSpec).first()
+                if not rset:
+                    rset = RepositorySet()
+                    rset.source_id = self.source.id
+                    rset.setSpec = s.setSpec
+                    rset.setName = s.setName
+                    db.session.add(rset)
+        else:
+            xml = self._get_xml_from_file("sets.xml")
+            sets_items = xml.findall('.//{' + utils.xmlns.oai() + '}' + 'set')
+            for s in sets_items:
+                setSpec = s.find('.//{' + utils.xmlns.oai() + '}' + 'setSpec')
+                setName = s.find('.//{' + utils.xmlns.oai() + '}' + 'setName')
+                rset = RepositorySet.query.filter_by(source_id=self.source.id, setSpec=setSpec.text).first()
+                if not rset:
+                    rset = RepositorySet()
+                    rset.source_id = self.source.id
+                    rset.setSpec = setSpec.text
+                    rset.setName = setName.text
+                    db.session.add(rset)
+                
 
 
     def get_items(self):
-        """retrieve all the identifiers of the source, create a directory structure, and save id.xml for each identified retrieved."""
+        """retrieve all the identifiers of the source, create a directory structure, and save id.xml for each identified retrieved. Check if the repo object identifier is the same that the directory identifier. If a item directory exist, delete it and continue"""
 
-        iterator = self.sickle.ListIdentifiers(metadataPrefix=self.oai_dc.metadataPrefix)
-        for item in iterator:
-            harvest_item = HarvestedItem.query.filter_by(repository_id=self.repository.id,\
-                                identifier=item.identifier).first()
-            try:
-                if harvest_item is None:
-                    harvest_item = HarvestedItem()
-                    harvest_item.repository_id = self.repository.id
-                    harvest_item.identifier = item.identifier
-                    db.session.add(harvest_item)
-                    db.session.commit()
+        xml = self._get_xml_from_file("identify.xml")
+        identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier')
+        if self.source.repo_identifier is not None and self.source.repo_identifier != identifier.text:
+            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repo_identifier, identifier, self.source.id))
+
+        if not self.work_remote:
+            # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
+            # db.session.delete?
+            for itemdir in listdir(self.harvest_dir):
+                itempath = path.join(self.harvest_dir, itemdir)
+                if path.isdir(itempath):
+                    shutil.move(itempath, path.join(self.harvest_dir, itemdir)+'.old')
+            for itemdir in listdir(self.harvest_dir):
+                itempath = path.join(self.harvest_dir, itemdir)
+                if path.isdir(itempath):
+                    idpath = path.join(itempath, "id.xml")
+                    if path.exists(idpath):
+                        xml = self._get_xml_from_file("id.xml", itemdir)
+                        identifier = xml.find('.//{' + utils.xmlns.oai() + '}identifier')
+                        harvest_item = HarvestedItem()
+                        harvest_item.repository_id = self.source.id
+                        harvest_item.identifier = identifier.text
+                        harvest_item.status = HarvestedItemStatus.HARVESTED
+                        db.session.add(harvest_item)
+                        db.session.commit()
+                        shutil.move(itempath, path.join(self.harvest_dir, str(harvest_item.id)))
+        else:
+            iterator = self.sickle.ListIdentifiers(metadataPrefix=self.oai_dc.metadataPrefix)
+            for item in iterator:
+                harvest_item = HarvestedItem.query.filter_by(repository_id=self.source.id,\
+                                    identifier=item.identifier).first()
+                try:
+                    if harvest_item is None:
+                        harvest_item = HarvestedItem()
+                        harvest_item.repository_id = self.source.id
+                        harvest_item.identifier = item.identifier
+                        db.session.add(harvest_item)
+                        db.session.commit()
+                        p = path.join(self.harvest_dir, str(harvest_item.id))
+                        if path.exists(p):
+                            raise IrokoHarvesterError('Item.id={0}, already a directoy with that id. harvest_item.identifier={1}. Source.id={2}.'.format(harvest_item.id,harvest_item.identifier, self.source.id))
+                        mkdir(p)
+                    if item.deleted:
+                        harvest_item.status = HarvestedItemStatus.DELETED
                     p = path.join(self.harvest_dir, str(harvest_item.id))
-                    if path.exists(p):
-                        raise IrokoHarvesterError(p + 'exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
-                    mkdir(p)
-                if item.deleted:
-                    harvest_item.status = HarvestedItemStatus.DELETED
-                p = path.join(self.harvest_dir, str(harvest_item.id))
 
-                if not path.exists(p):
-                    raise IrokoHarvesterError(p + 'NOT exists!!!. Source:' + self.source.name + " id:" + harvest_item.id + " " + harvest_item.identifier)
-                self._write_file("id.xml", item.raw, str(harvest_item.id))
-                
-                if harvest_item.status != HarvestedItemStatus.DELETED:
-                    self._get_all_formats(harvest_item)
-                    harvest_item.status = HarvestedItemStatus.HARVESTED
-                time.sleep(5)
-            except Exception as e:
-                harvest_item.status = HarvestedItemStatus.ERROR
-                harvest_item.error_log = traceback.format_exc()
-            finally:
-                db.session.commit()
+                    if not path.exists(p):
+                        mkdir(p)
+                    
+                    self._write_file("id.xml", item.raw, str(harvest_item.id))
+                    
+                    if harvest_item.status != HarvestedItemStatus.DELETED:
+                        self._get_all_formats(harvest_item)
+                        harvest_item.status = HarvestedItemStatus.HARVESTED
+                    time.sleep(self.request_wait_time)
+                except Exception as e:
+                    harvest_item.status = HarvestedItemStatus.ERROR
+                    harvest_item.error_log = traceback.format_exc()
+                finally:
+                    db.session.commit()
 
 
     def _get_all_formats(self, item:HarvestedItem):
         """retrieve all the metadata of an item and save it to files"""
 
-        for f in self.repository.metadata_formats:
+        if not self.work_remote:
+            return
+
+        for f in self.source.metadata_formats:
             try:
                 arguments ={'metadataPrefix':f,'identifier': item.identifier}
                 record = self.sickle.GetRecord(**arguments)
                 self._write_file(f+".xml", record.raw, str(item.id))
-                time.sleep(3)
+                time.sleep(self.request_wait_time)
             except Exception as e:
-                traceback.print_exc()
-                print(str(arguments))
-                print(str(self.source.harvest_endpoint))
-                print('-----------------------------')
-        time.sleep(3)
+                item.error_log = traceback.print_exc()
+        time.sleep(self.request_wait_time)
 
 
     def record_items(self):
         """ process all item, create an IrokoRecord and save/update it"""
         
-        items = HarvestedItem.query.filter_by(repository_id=self.repository.id).all()
+        items = HarvestedItem.query.filter_by(repository_id=self.source.id).all()
         for item in items:
-            if item.status == HarvestedItemStatus.HARVESTED:
-                try:
-                    dc = self._process_format(item, self.oai_dc)
-                    nlm = None
-                    if 'nlm' in self.repository.metadata_formats:
-                        nlm = self._process_format(item, self.nlm)
-                    data = self._crate_iroko_dict(item, dc, nlm)
-                    record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
-                    item.status = HarvestedItemStatus.RECORDED
-                    item.record = record.id
-                except Exception as e:
-                    item.status = HarvestedItemStatus.ERROR
-                    item.error_log = traceback.format_exc()
+            # if item.status == HarvestedItemStatus.HARVESTED:
+            try:
+                # print('--------------------')
+                # print(item.identifier)
+                dc = self._process_format(item, self.oai_dc)
+                # print(str(self.source.repo_metadata_formats))
+                nlm = None
+                if 'nlm' in self.source.repo_metadata_formats:
+                    nlm = self._process_format(item, self.nlm)
+                    # print(str(nlm))
+                data = self._crate_iroko_dict(item, dc, nlm)
+                
+                
+                record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
+                item.status = HarvestedItemStatus.RECORDED
+                item.record = record.id
+                # print(item.record)
+            except Exception as e:
+                item.status = HarvestedItemStatus.ERROR
+                item.error_log = traceback.format_exc()
 
 
     def _process_format(self, item:HarvestedItem, formater: Formater):
 
-        xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+".xml")
+        #TODO change xml to .xml esto esta asi por un error en los datos que tengo en la casa...
+        xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+"xml")
         if not path.exists(xmlpath):
+            
             # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
             return {}
+        # print(xmlpath)
         xml = etree.parse(xmlpath, parser=XMLParser)
         return formater.ProcessItem(xml)
 
@@ -269,12 +325,13 @@ class OaiHarvester(SourceHarvester):
     def _crate_iroko_dict(self, item:HarvestedItem ,dc , nlm=None):
 
         data = dc
+        # print(str(data))
         if nlm is not None:
             data['contributors'] = nlm['contributors']
         
         data['source'] = str(self.source.uuid)
         
-        for s in self.repository.sets:
+        for s in self.source.sets:
             if data['setSpec']  == s.setSpec:
                 data['spec'] = s.setName
         # aqui iria encontrar los tipos de colaboradores usando nlm...

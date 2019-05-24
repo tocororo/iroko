@@ -32,7 +32,7 @@ from flask.cli import with_appcontext
 import traceback
 
 # from iroko.documents.api import Document
-from iroko.sources.models import Sources, HarvestType
+from iroko.sources.models import Source, HarvestType
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
@@ -44,16 +44,35 @@ from iroko.sources.models import Sources, HarvestType
 # from iroko.harvester.processors.oai.iterator import OaiIterator
 # from iroko.harvester.processors.oai.formaters import DubliCoreElements
 
+from iroko.harvester.api import Harvester
+from iroko.sources.models import Source
+from iroko.harvester.tasks import harvest_source
 @click.group()
 def harvester():
     """Command related to harevest iroko data."""
+
+@harvester.command()
+@with_appcontext
+def rescan():
+    """rescanea el directorio """
+    Harvester.rescan_and_fix_harvest_dir()
+
+@harvester.command()
+@with_appcontext
+def testcelery():
+    sources = Source.query.all()
+    for source in sources:
+        job = harvest_source.delay(source.id, work_remote=True, request_wait_time=3)
+        print("Scheduled job {0}".format(job.id))
+    
+
 
 
 @harvester.command()
 @with_appcontext
 def harvestall():
     """harvest all sources with oai"""
-    sources = Sources.query.filter_by(harvest_type=HarvestType.OAI).all()
+    sources = Source.query.filter_by(harvest_type=HarvestType.OAI).all()
     # count = 1
     # for source in sources:
     #     print(source.harvest_endpoint)
@@ -64,7 +83,7 @@ def harvestall():
     #         count+=1
     #     except Exception as e:
     #         print (e.__doc__)
-    print("def harvestall():"+str(count))
+    # print("def harvestall():"+str(count))
 
 @harvester.command()
 @with_appcontext
@@ -95,7 +114,7 @@ def preprocess_items():
 
 # def some():    
 #     count = 0
-#     sources = Sources.query.all()
+#     sources = Source.query.all()
     # for source in sources:
     #     if source.havest_endpoint:
     #         print(source.havest_endpoint)

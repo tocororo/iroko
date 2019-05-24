@@ -73,6 +73,17 @@ def get_terms(vocabulary):
 
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
+@api_blueprint.route('/terms/<vocabulary>/any')
+def get_terms_any(vocabulary):
+    vocab = Vocabulary.query.filter_by(name=vocabulary).first()
+    if vocab:
+        
+        terms = vocab.terms.all()
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','terms',terms_schema.dump(terms).data)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
+
 
 @api_blueprint.route('/terms/<vocabulary>/tree')
 def get_terms_tree(vocabulary):

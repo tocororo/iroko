@@ -1,7 +1,6 @@
 
 import enum
-from iroko.sources.models import Sources
-from iroko.harvester.models import HarvestedItem
+from iroko.sources.models import Source
 
 class Item:
 
@@ -19,7 +18,7 @@ class SourceHarvesterMode(enum.Enum):
 class SourceHarvester(object):
     """An iterator is responsible iterate over the items of a source, the OAI case is the most simple, in other case, is also responsible for discover the iterm before iterate over its"""
 
-    def __init__(self, source: Sources):
+    def __init__(self, source: Source, work_remote=True, request_wait_time=3):
 
         self.source = source
 
@@ -34,7 +33,6 @@ class SourceHarvester(object):
     def process_items(self):
         """ una vez descubiertos los items aqui se procesan y eventualmente se crea un record"""
         raise NotImplementedError
-
 
 
 class Formater(object):

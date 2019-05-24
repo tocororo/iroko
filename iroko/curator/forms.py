@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from flask_babelex import lazy_gettext as _
 from wtforms import StringField, SelectField, SelectMultipleField, validators
 from iroko.taxonomy.models import Vocabulary, Term
-from iroko.sources.models import Sources, TermSources, SourcesType, HarvestType
+from iroko.sources.models import Source, TermSources, SourcesType, HarvestType
 
 
 
