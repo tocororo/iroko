@@ -26,33 +26,7 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import HarvestedItem, Repository, RepositorySet
-
-class RepositoryModelView(ModelView):
-    """View for managing vocabularies."""
-
-    list_all = ('id', 'source_id', 'last_run', 'identifier', 'metadata_formats', 'status')
-
-    column_list = ('id', 'source_id', 'last_run', 'identifier', 'status')
-
-    column_default_sort = ('status', True)
-
-    column_filters = ('id', 'source_id', 'status')
-    
-    form_columns = ('last_run', 'identifier', 'metadata_formats', 'status', 'error_log')
-
-class RepositorySetModelView(ModelView):
-    """View for managing vocabularies."""
-
-    list_all = ('id', 'repository_id', 'setSpec', 'setName')
-
-    column_list = list_all
-
-    column_default_sort = ('repository_id', True)
-
-    column_filters = ('id', 'repository_id')
-    
-    form_columns = ('repository_id', 'setSpec', 'setName')
+from .models import HarvestedItem
 
 
 class HarvestedItemModelView(ModelView):
@@ -68,19 +42,6 @@ class HarvestedItemModelView(ModelView):
     
     form_columns = ('identifier', 'status','error_log')
 
-harvester_repositories_adminview = dict(
-    modelview=RepositoryModelView,
-    model=Repository,
-    name='Harvester-Repositories',
-    category='Iroko'
-)
-
-harvester_repositories_sets_adminview = dict(
-    modelview=RepositorySetModelView,
-    model=RepositorySet,
-    name='Harvester-Repositories-Sets',
-    category='Iroko'
-)
 
 harvester_items_adminview = dict(
     modelview=HarvestedItemModelView,
@@ -90,4 +51,4 @@ harvester_items_adminview = dict(
 )
 
 
-__all__ = ('harvester_repositories_adminview', 'harvester_repositories_sets_adminview', 'harvester_items_adminview')
+__all__ = ('harvester_items_adminview')

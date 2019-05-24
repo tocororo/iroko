@@ -1,0 +1,73 @@
+################################################################################
+# This requirements file has been automatically generated from `Pipfile` with
+# `pipenv-to-requirements`
+#
+#
+# This has been done to maintain backward compatibility with tools and services
+# that do not support `Pipfile` yet.
+#
+# Do NOT edit it directly, use `pipenv install [-d]` to modify `Pipfile` and
+# `Pipfile.lock` and then regenerate `requirements*.txt`.
+################################################################################
+
+alabaster==0.7.12
+apipkg==1.5
+astroid==2.2.5
+atomicwrites==1.3.0
+attrs==19.1.0
+babel==2.6.0
+blinker==1.4
+certifi==2019.3.9
+chardet==3.0.4
+check-manifest==0.38
+click==7.0
+coverage==4.5.3
+docutils==0.14
+execnet==1.6.0
+flask-debugtoolbar==0.10.1
+flask==1.0.2
+idna==2.7
+imagesize==1.1.0
+isort==4.3.18
+itsdangerous==1.1.0
+jinja2==2.10.1
+lazy-object-proxy==1.3.1
+markupsafe==1.1.1
+marshmallow==2.19.2
+mccabe==0.6.1
+mock==3.0.3
+more-itertools==7.0.0
+packaging==19.0
+pep8==1.7.1
+pluggy==0.9.0
+py==1.8.0
+pydocstyle==3.0.0
+pygments==2.3.1
+pylint==2.3.1
+pyparsing==2.4.0
+pytest-cache==1.0
+pytest-cov==2.6.1
+pytest-flask==0.14.0
+pytest-invenio==1.0.6
+pytest-mock==1.10.4
+pytest-pep8==1.0.6
+pytest-random-order==1.0.4
+pytest-runner==4.4
+pytest==4.4.1
+pytz==2019.1
+requests==2.21.0
+selenium==3.141.0
+six==1.12.0
+snowballstemmer==1.2.1
+sphinx==2.0.1
+sphinxcontrib-applehelp==1.0.1
+sphinxcontrib-devhelp==1.0.1
+sphinxcontrib-htmlhelp==1.0.2
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==1.0.2
+sphinxcontrib-serializinghtml==1.1.3
+toml==0.10.0
+typed-ast==1.3.5
+urllib3==1.24.3
+werkzeug==0.15.2
+wrapt==1.11.1

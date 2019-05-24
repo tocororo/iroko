@@ -47,7 +47,7 @@ setup(
         'invenio_base.blueprints': [
             'iroko = iroko.iroko_theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
-            'iroko_harvester = iroko.harvester.views:blueprint',
+            'iroko_sources = iroko.sources.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
         ],
         'invenio_assets.bundles': [
@@ -80,10 +80,6 @@ setup(
             'term_admin = iroko.taxonomy.admin:terms_adminview',
             'source_admin = iroko.sources.admin:sources_adminview',
             'term_source_admin = iroko.sources.admin:term_sources_adminview',
-            'harvester_repositories_adminview = '
-            'iroko.harvester.admin:harvester_repositories_adminview',
-            'harvester_repositories_sets_adminview = '
-            'iroko.harvester.admin:harvester_repositories_sets_adminview',
             'harvester_items_adminview = '
             'iroko.harvester.admin:harvester_items_adminview',
         ],
@@ -95,6 +91,7 @@ setup(
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
             'iroko_sources = iroko.sources.views:api_blueprint'
+            'iroko_harvester = iroko.harvester.views:api_blueprint'
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'

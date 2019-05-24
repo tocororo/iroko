@@ -30,7 +30,7 @@ import json
 from invenio_db import db
 
 from ..taxonomy.models import Term
-from ..sources.models import Sources, SourcesType, TermSources, HarvestType
+from ..sources.models import Source, SourcesType, TermSources, HarvestType
 
 def init_journals():
     # sources_path = '../../data/journals.json' 
@@ -45,7 +45,7 @@ def init_journals():
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
-                    source = Sources()
+                    source = Source()
                     source.source_type = SourcesType.JOURNAL
                     source.name = record['title']
                     data = {}
@@ -77,7 +77,7 @@ def init_term_sources():
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
-                    source = Sources.query.filter_by(name=record['title']).first()
+                    source = Source.query.filter_by(name=record['title']).first()
                     
                     if record.__contains__('institution'):
                         add_term_source(source, record, record['institution'], tax, 'institutions')
@@ -98,7 +98,7 @@ def init_term_sources():
         db.session.commit()
 
 def delete_all_sources():
-    s = Sources.query.all()
+    s = Source.query.all()
     for so in s:
         db.session.delete(so)
 
@@ -138,17 +138,17 @@ def add_oaiurls():
         urls = json.load(foai)
         if isinstance(journals, dict):
             for k, record in journals.items():
-                src = Sources.query.filter_by(name=record['title']).first()
+                src = Source.query.filter_by(name=record['title']).first()
                 if src:
-                    src.harvest_type = None
+                    src.repo_harvest_type = None
                     for url in urls:
                         if url['id'] == k:
                             # print(k)
                             # print(record['id'])
                             print(url['url'])
                             # print(src.data['url'])
-                            src.harvest_endpoint = url['url']
-                            src.harvest_type = HarvestType.OAI
+                            src.repo_harvest_endpoint = url['url']
+                            src.repo_harvest_type = HarvestType.OAI
                             print(src)
                     db.session.commit()
                             

@@ -13,8 +13,6 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, render_template
 from flask_menu import register_menu
 
-from iroko.sources.models import Sources
-from iroko.sources.marshmallow import source_schema_full
 
 
 blueprint = Blueprint(
@@ -36,13 +34,7 @@ def index():
 @register_menu(blueprint, 'main.catalog', 'Catalogo de Revistas', order=2)
 def catalogo():
 
-    return render_template('iroko_theme/catalog/index.html')
-
-@blueprint.route('/catalog/<id>')
-def view_source_id(id):
-    src = Sources.query.filter_by(uuid=id).first()
-    source = source_schema_full.dump(src)
-    return render_template('iroko_theme/catalog/source.html', source=source.data)
+    return render_template('iroko_theme/catalog/index.html', static_host='https://200.14.49.24', iroko_catalog='https://200.14.49.24/catalog')
 
 
 def unauthorized(e):
