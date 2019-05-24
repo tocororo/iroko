@@ -312,7 +312,7 @@ class OaiHarvester(SourceHarvester):
     def _process_format(self, item:HarvestedItem, formater: Formater):
 
         #TODO change xml to .xml esto esta asi por un error en los datos que tengo en la casa...
-        xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+"xml")
+        xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+".xml")
         if not path.exists(xmlpath):
             
             # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
