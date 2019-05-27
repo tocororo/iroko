@@ -42,7 +42,7 @@ def catalogo():
 def view_source_id(uuid):
     src = Sources.get_source_by_id(uuid=uuid)
     source = source_schema_full.dump(src)
-    return render_template('source.html', source=source.data)
+    return render_template('iroko_theme/sources/source.html', source=source.data)
 
 
 def unauthorized(e):

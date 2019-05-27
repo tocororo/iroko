@@ -38,12 +38,82 @@
 
 {%- block page_body %}
 <div class="container">
-  <h2>{{record.title}}</h2>
-  <div class="panel panel-default">
+  <h2 class="mt-5">{{record.title}}</h2>
+  <div class="card">
+    <h5 class="card-header">Descripción</h5>
+    <div class="card-body">
+      <p class="text-justify">{{ record.description }}</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+  <p>
+    Fuente: 
+    <a href="https://localhost:5000/source/{{record.source}}" class="text-info">{{ record.publisher }}</a>
+  </p>
+  <p class="card-text">Spec: {{record.spec}}</p>
+  <div>
+      Formato del Artículo:
+    {%-if record.formats is iterable and record.formats is not string %}
+      {% for format in record.formats %}
+        <p class="card-text">{{ format }}</p>
+      {% endfor %}  
+    {%- endif %}
+  </div>
+  <div>
+     Derechos:
+    {%-if record.rights is iterable and record.rights is not string %}
+      {% for e in record.rights %}
+        <p class="card-text">{{ e }}</p>
+      {% endfor %}  
+    {%- endif %}
+    
+  </div>
+  <div>
+      Palabras claves:
+     {%-if record.keywords is iterable and record.keywords is not string %}
+        <p class="card-text">
+          {% for key in record.keywords %}
+            {{ key }}
+          {% endfor %}
+          
+        </p>
+     {%- endif %}
+     
+   </div>
+  <p>Ver 
+    {%- if record.identifiers is iterable and record.identifiers is not string%}
+      {%- for identify in record.identifiers %}
+        {%- if identify.idtype == 'url' %} <a href="{{ identify.value }}" target="blank">Artículo Original</a> {%- endif %}
+      {%- endfor %}
+    {%- endif %}
+  </p>
+  <p>Fecha de publicación: {{ record.publication_date }}</p>
+
+  <div>
+    Autores:
+    {%- if record.contributors is iterable and record.contributors is not string%}
+      {%- for contributor in record.contributors %}
+        {%- if contributor.roles%}
+          {%- for rol in contributor.roles %}
+            {%- if rol == 'Author' and contributor.name %}
+              <p>{{contributor.name}}</p>
+            {%- endif %}
+          {%- endfor %}
+        {%- endif%}
+      {%- endfor %}
+    {%- endif %}
+  </div>
+
+  <p>Campo o alcance: {{ record.coverage }}</p>
+
+  
+
+  <!-- <div class="panel panel-default mt-5">
+    {{record}}
     <ul class="list-group">
       {{ record_content(record) }}
     </ul>
   </div>
-</div>
+</div> -->
 {%- endblock %}
 

@@ -51,9 +51,9 @@
     {%- block search_body %}
     <div class="col-xs-12 col-md-9 col-md-push-3">
       {%- block search_header %}
-      <div class="row">
+      <div class="row d-flex justify-content-around align-items-center">
         {%- block search_count %}
-        <div class="col-md-3 col-sm-12">
+        <div class="col-md-2 col-sm-12">
           <invenio-search-count
            template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_COUNT) }}">
           </invenio-search-count>
@@ -71,7 +71,7 @@
         {%- if sort_options %}
         <div class="col-md-3 col-sm-12 text-right">
           {%- block search_sort_select scoped %}
-          Sort by:
+          Ordenar por:
           <invenio-search-select-box
              sort-key="sort"
              available-options='{{ sort_options|format_sortoptions|safe }}'
