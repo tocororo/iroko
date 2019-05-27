@@ -5,7 +5,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import login_required
 from flask_babelex import lazy_gettext as _
-from iroko.sources.models import Sources, HarvestType, SourcesType
+from iroko.sources.models import Sources, HarvestType, SourcesType, TermSources
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.sources.marshmallow import sources_schema, sources_schema_full, source_schema_full
 from os import listdir, path
@@ -68,6 +68,8 @@ def add_term():
         if form.parent.data and form.parent.data != 0:
             new_term.parent_id = form.parent.data 
         
+        form.terms.data
+        
         db.session.add(new_term)
         db.session.commit()
 
@@ -95,7 +97,11 @@ def add_source():
             new_source.harvest_type = HarvestType[form.harvest_type.data]
         if form.harvest_endpoint.data:
             new_source.harvest_endpoint_id = form.harvest_endpoint.data 
-        
+        print(form.terms.data)
+
+        # for term in form.terms.data:
+        #     new_source
+
         db.session.add(new_source)
         db.session.commit()
 
@@ -186,13 +192,14 @@ def edit_source(id=None):
         form.source_type.data = aux_source.source_type
         form.harvest_type.data = aux_source.harvest_type
         form.harvest_endpoint.data = aux_source.harvest_endpoint
-        
-
+        #form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
+    
     if form.validate_on_submit():        
         aux_source.name = form.name.data
         aux_source.source_type = form.source_type.data
         aux_source.harvest_type = form.harvest_type.data
         aux_source.harvest_endpoint = form.harvest_endpoint.data    
+
                 
         db.session.commit()
 
