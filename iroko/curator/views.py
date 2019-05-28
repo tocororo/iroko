@@ -68,6 +68,8 @@ def add_term():
         if form.parent.data and form.parent.data != 0:
             new_term.parent_id = form.parent.data 
         
+        form.terms.data
+        
         db.session.add(new_term)
         db.session.commit()
 
@@ -91,11 +93,15 @@ def add_source():
             new_source.name = form.name.data
         if form.source_type.data:
             new_source.source_type = SourcesType[form.source_type.data]
-        if form.harvest_type.data:
-            new_source.harvest_type = HarvestType[form.harvest_type.data]
-        if form.harvest_endpoint.data:
-            new_source.harvest_endpoint_id = form.harvest_endpoint.data 
-        
+        if form.repo_harvest_type.data:
+            new_source.repo_harvest_type = HarvestType[form.repo_harvest_type.data]
+        if form.repo_harvest_endpoint.data:
+            new_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data 
+        print(form.terms.data)
+
+        # for term in form.terms.data:
+        #     new_source
+
         db.session.add(new_source)
         db.session.commit()
 
@@ -177,23 +183,25 @@ def edit_term(id=None):
 def edit_source(id=None):
     #security quiestiong here
 
-    aux_source = Sources.query.get_or_404(id)
+    aux_source = Source.query.get_or_404(id)
     form = SourceForm()
 
     if request.method == 'GET':        
         # form.id.data = aux_term.id
         form.name.data = aux_source.name
         form.source_type.data = aux_source.source_type
-        form.harvest_type.data = aux_source.harvest_type
-        form.harvest_endpoint.data = aux_source.harvest_endpoint
-        
+        form.repo_harvest_type.data = aux_source.repo_harvest_type
+        form.repo_harvest_endpoint.data = aux_source.repo_harvest_endpoint
+        #form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
+        print(aux_source.source_type)
 
     if form.validate_on_submit():        
         aux_source.name = form.name.data
         aux_source.source_type = form.source_type.data
-        aux_source.harvest_type = form.harvest_type.data
-        aux_source.harvest_endpoint = form.harvest_endpoint.data    
-                
+        aux_source.repo_harvest_type = form.repo_harvest_type.data
+        aux_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data    
+        print(aux_source.source_type)
+                    
         db.session.commit()
 
         flash(_('Source changed'), 'info')

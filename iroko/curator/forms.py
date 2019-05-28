@@ -1,11 +1,16 @@
 from __future__ import absolute_import, print_function
 from flask_wtf import FlaskForm
 from flask_babelex import lazy_gettext as _
-from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, validators
-from wtforms.widgets import HiddenInput
+from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, validators
+from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput
 from iroko.sources.models import Source, TermSources, SourcesType, HarvestType
 from iroko.taxonomy.models import Vocabulary, Term
 from invenio_db import db
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget			= ListWidget(prefix_label=False)
+    option_widget	= CheckboxInput()
 
 
 class Unique(object):
@@ -81,13 +86,23 @@ class SourceForm(FlaskForm):
         validators=[validators.DataRequired()],        
         choices=[(choice.name, choice.value) for choice in SourcesType]
     )    
-    harvest_type = SelectField(
+    repo_harvest_type = SelectField(
         'Harvest Type',
         validators=[validators.DataRequired()],        
         choices=[(choice.name, choice.value) for choice in HarvestType]  
     )
-    harvest_endpoint = StringField(
+    repo_harvest_endpoint = StringField(
         'Harvest Endpoint'
     )
+    data = TextAreaField(
+        'Data'
+    )
+    terms = MultiCheckboxField(
+        'Terms', 
+        validators=[validators.Required(message='Please tick at least a term')],
+        coerce=int
+    )
     
-         
+    def __init__(self, *args, **kwargs):
+        super(SourceForm, self).__init__()
+        self.terms.choices=[(choice.id, choice.name) for choice in Term.query.all()]

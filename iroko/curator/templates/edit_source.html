@@ -31,16 +31,21 @@
                 {{ form.source_type(class_="form-control")|safe }}
                 {{ errors(form.source_type) }}
             </div>
-            <div class="form-group {{ 'has-error' if form.harvest_type.errors }}">
-                <label for="harvest_type">{{ form.harvest_type.label }}</label>
-                {{ form.harvest_type(class_="form-control")|safe }}
-                {{ errors(form.harvest_type) }}
+            <div class="form-group {{ 'has-error' if form.repo_harvest_type.errors }}">
+                <label for="repo_harvest_type">{{ form.repo_harvest_type.label }}</label>
+                {{ form.repo_harvest_type(class_="form-control")|safe }}
+                {{ errors(form.repo_harvest_type) }}
             </div>
-            <div class="form-group {{ 'has-error' if form.harvest_endpoint.errors }}">
-                <label for="harvest_endpoint">{{ form.harvest_endpoint.label }}</label>
-                {{ form.harvest_endpoint(class_="form-control")|safe }}
-                {{ errors(form.harvest_endpoint) }}
+            <div class="form-group {{ 'has-error' if form.repo_harvest_endpoint.errors }}">
+                <label for="repo_harvest_endpoint">{{ form.repo_harvest_endpoint.label }}</label>
+                {{ form.repo_harvest_endpoint(class_="form-control")|safe }}
+                {{ errors(form.repo_harvest_endpoint) }}
             </div>
+            <!-- <div class="form-group {{ 'has-error' if form.terms.errors }}">
+                <label for="terms">{{ form.terms.label }}</label>
+                {{ form.terms()|safe }}
+                {{ errors(form.terms) }}
+            </div> -->
               
             {{ form.csrf_token }}
             {{ errors(form.csrf_token) }}
