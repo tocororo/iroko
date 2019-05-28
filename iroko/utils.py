@@ -13,6 +13,7 @@ class IrokoResponseStatus(enum.Enum):
     SUCCESS = "success"
     FAIL = "fail"
     ERROR = "error"
+    NOT_FOUND = "not found"
 
 
 def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):

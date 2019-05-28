@@ -34,7 +34,7 @@ def _load_term_children_id(term):
         children = []
         for child in term.children:
             children.append(child.id)
-            load_term_children_id(child)
+            _load_term_children_id(child)
         return children
 
 def _filter_data_args(source:Source, data, and_op):

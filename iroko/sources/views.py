@@ -39,9 +39,9 @@ def get_sources():
     terms = []
     if tids:
         tids= tids.split(',')
-        term_op = tids[0]    
+        term_op = tids[0]
         if tids[0].lower() == 'and' or tids[0].lower() == 'or':
-            del tids[0]    
+            del tids[0]
         terms = tids
 
     repo_args = {
@@ -60,12 +60,12 @@ def get_sources():
     }
 
     result = Sources.get_sources(and_op, terms, data_args, repo_args)
-    if result:
+    if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': sources_schema_full.dump(result[offset:offset+limit]).data,\
                          'count': len(result)})
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'Sources not found', None, None)
+    return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 
 
 @api_blueprint.route('/sources/count')
@@ -75,12 +75,12 @@ def get_sources_count():
     return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result) 
 
 @api_blueprint.route('/source/id/<id>')
-def get_source_by_id(id):    
+def get_source_by_id(id):
     src = Sources.get_source_by_id(id=id)
     return jsonify_source(src)
 
 @api_blueprint.route('/source/uuid/<uuid>')
-def get_source_by_uuid(uuid):    
+def get_source_by_uuid(uuid):
     src = Sources.get_source_by_id(uuid=uuid)
     return jsonify_source(src)
 
@@ -90,7 +90,7 @@ def jsonify_source(src):
                             'ok','sources', \
                             {'data': sources_schema_full.dump(src).data,\
                              'count': 1})
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'Sources not found', None, None)
+    return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 
 
 
