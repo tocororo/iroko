@@ -1,6 +1,3 @@
-
-
-
 {%- extends "iroko_theme/page.html" %}
 
 {%- block page_body %}
@@ -17,9 +14,9 @@
                 <div class="card shadow-none border-light">
                     <!-- quitar el "not" cuando esten los logos en la aplicacion -->
                     {%- if not source.data.logo and source.data.logo != '' %}
-                        <img src="../../../static/images/{{ source.data.logo }}" class="card-img-top" alt="{{source.data.logo}}">
+                        <img src="{{ url_for('static', filename='images/source.data.logo') }}" class="card-img-top" alt="{{source.data.logo}}">
                     {%- else %}
-                        <img src="../../../static/images/sceiba-logo.png" class="card-img-top" alt="{{source.data.logo}}">
+                        <img src="{{ url_for('static', filename='images/sceiba-logo.png') }}" class="card-img-top" alt="{{source.data.logo}}">
                     {%- endif %}
                     <div class="card-body">
                         <h6 class="card-title">{{source.source_type}}</h6>

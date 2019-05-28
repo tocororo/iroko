@@ -1,15 +1,9 @@
 from __future__ import absolute_import, print_function
 from flask_wtf import FlaskForm
 from flask_babelex import lazy_gettext as _
-<<<<<<< HEAD
-from wtforms import IntegerField, TextAreaField, StringField, SelectField, SelectMultipleField, HiddenField, validators
+from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, validators
 from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput
-from iroko.sources.models import Sources, TermSources, SourcesType, HarvestType
-=======
-from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, validators
-from wtforms.widgets import HiddenInput
 from iroko.sources.models import Source, TermSources, SourcesType, HarvestType
->>>>>>> 65e8cb1646213fd6cabdfa3420000ca390896da8
 from iroko.taxonomy.models import Vocabulary, Term
 from invenio_db import db
 
@@ -92,12 +86,12 @@ class SourceForm(FlaskForm):
         validators=[validators.DataRequired()],        
         choices=[(choice.name, choice.value) for choice in SourcesType]
     )    
-    harvest_type = SelectField(
+    repo_harvest_type = SelectField(
         'Harvest Type',
         validators=[validators.DataRequired()],        
         choices=[(choice.name, choice.value) for choice in HarvestType]  
     )
-    harvest_endpoint = StringField(
+    repo_harvest_endpoint = StringField(
         'Harvest Endpoint'
     )
     data = TextAreaField(
