@@ -1,9 +1,15 @@
 from __future__ import absolute_import, print_function
 from flask_wtf import FlaskForm
 from flask_babelex import lazy_gettext as _
+<<<<<<< HEAD
 from wtforms import IntegerField, TextAreaField, StringField, SelectField, SelectMultipleField, HiddenField, validators
 from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput
 from iroko.sources.models import Sources, TermSources, SourcesType, HarvestType
+=======
+from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, validators
+from wtforms.widgets import HiddenInput
+from iroko.sources.models import Source, TermSources, SourcesType, HarvestType
+>>>>>>> 65e8cb1646213fd6cabdfa3420000ca390896da8
 from iroko.taxonomy.models import Vocabulary, Term
 from invenio_db import db
 

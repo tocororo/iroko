@@ -26,22 +26,23 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import Sources, TermSources
+from .models import Source, TermSources
 
 class SourcesModelView(ModelView):
     """View for managing vocabularies."""
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'uuid', 'source_type', 'harvest_type', 'harvest_endpoint')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'repo_harvest_type', 'repo_harvest_endpoint', 'repo_status')
 
     column_list = list_all
 
     column_default_sort = ('name', True)
 
-    column_filters = ('id', 'name', 'source_type', 'harvest_type','harvest_endpoint')
+    column_filters = ('name', 'source_type', 'repo_harvest_type','repo_status')
 
-    form_columns = ('name', 'source_type', 'harvest_type', 'harvest_endpoint', 'data')
+    form_columns = ('name', 'source_type', 'repo_harvest_type', 'repo_harvest_endpoint', 'repo_last_harvest_run', 'repo_identifier', 'repo_metadata_formats', 'repo_status', 'repo_error_log')
+
 
 class TermSourcesModelView(ModelView):
     """View for managing terms."""
@@ -62,7 +63,7 @@ class TermSourcesModelView(ModelView):
 
 sources_adminview = dict(
     modelview=SourcesModelView,
-    model=Sources,
+    model=Source,
     name='Sources',
     category='Iroko'
 )

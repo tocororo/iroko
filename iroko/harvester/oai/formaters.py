@@ -3,7 +3,7 @@
 from iroko.harvester.base import Formater
 from iroko.harvester.oai import nsmap
 
-from .utils import get_sigle_element, get_multiple_elements
+from iroko.harvester.utils import get_sigle_element, get_multiple_elements
 from iroko.utils import get_identifier_schema
 
 from lxml import etree

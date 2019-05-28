@@ -1,6 +1,7 @@
 
 from marshmallow import Schema, fields, ValidationError, pre_load
-from iroko.sources.models import Sources, SourcesType, TermSources
+from iroko.sources.models import Source, SourcesType, TermSources
+from invenio_records_rest.schemas.fields import DateString
 
 # class TermSourcesMetadataSchema(Schema):
 
@@ -33,21 +34,27 @@ class JournalSchema(SourcesDataSchema):
     year_end = fields.DateTime()
 
 
-class SourcesSchema(Schema):
+class SourceSchema(Schema):
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str()
     source_type = fields.Str()
     data = fields.Nested(JournalSchema, many=False)
-    harvest_type = fields.Str()
-    harvest_endpoint = fields.Url()
+
+    repo_harvest_type = fields.Str()
+    repo_harvest_endpoint = fields.Str()
+    repo_last_harvest_run = DateString()
+    repo_identifier = fields.Str()
+    repo_metadata_formats = fields.Str(many=True)
+    repo_status = fields.Str()
+    repo_error_log = fields.Str()
 
 
 
-sources_schema = SourcesSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'harvest_type','harvest_endpoint'))
+sources_schema = SourceSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'harvest_type','harvest_endpoint'))
 
-sources_schema_full = SourcesSchema(many=True)
-source_schema_full = SourcesSchema()
+sources_schema_full = SourceSchema(many=True)
+source_schema_full = SourceSchema()
 
 journal_schema = JournalSchema()
 
