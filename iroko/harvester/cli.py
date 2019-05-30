@@ -73,7 +73,7 @@ def harvest_source(source_id):
     try:
         sid = int(source_id)
         Harvester.harvest_pipeline(sid, work_remote=True)
-    except Exception
+    except Exception:
         traceback.format_exc()
     
 
