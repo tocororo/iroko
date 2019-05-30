@@ -65,6 +65,14 @@ def rescan_dir(source_dir):
     Harvester.rescan_and_fix_source_dir(source_dir)
 
 
+@harvester.command("harvestsource")
+@click.argument('source_id', click.INT)
+@with_appcontext
+def harvest_source(source_id):
+    """rescanea el directorio """
+    Harvester.harvest_pipeline(source_id, work_remote=True)
+
+
 @harvester.command()
 @with_appcontext
 def testcelery():
