@@ -66,11 +66,16 @@ def rescan_dir(source_dir):
 
 
 @harvester.command("harvestsource")
-@click.argument('source_id', click.INT)
+@click.argument('source_id')
 @with_appcontext
 def harvest_source(source_id):
-    """rescanea el directorio """
-    Harvester.harvest_pipeline(source_id, work_remote=True)
+    """harvest source"""
+    try:
+        sid = int(source_id)
+        Harvester.harvest_pipeline(sid, work_remote=True)
+    except Exception
+        traceback.format_exc()
+    
 
 
 @harvester.command()
