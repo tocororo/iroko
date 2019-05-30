@@ -57,7 +57,8 @@ def rescan():
     """rescanea el directorio """
     Harvester.rescan_and_fix_harvest_dir()
 
-@harvester.command()
+@harvester.command("rescandir")
+@click.argument('source_dir')
 @with_appcontext
 def rescan_dir(source_dir):
     """rescanea un source dir """
