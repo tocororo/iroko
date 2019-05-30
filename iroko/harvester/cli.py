@@ -78,7 +78,7 @@ def harvest_source(source_id, step=0):
     try:
         sid = int(source_id)
         st = int(step)
-        Harvester.harvest_pipeline(sid, work_remote=True, step==st)
+        Harvester.harvest_pipeline(sid, work_remote=True, step=st)
     except Exception:
         traceback.format_exc()
     
