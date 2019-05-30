@@ -47,6 +47,29 @@ class Harvester(object):
                         shutil.move(repopath, path.join(harvest_dir, str(source.id)))
                         Harvester.harvest_pipeline(source.id, False)
                         
+    @staticmethod
+    def rescan_and_fix_source_dir(source_dir):
+        """
+        3- renombra la carpeta old con el source.id corresponiente
+        4- borra todos los items y records asociados al source que se esta reescaneando
+        4- relanza el proceso completo de harvest usando work_remote=False
+        """
+        harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        repopath = path.join(harvest_dir, source_dir)
+        if path.isdir(repopath):
+            shutil.move(repopath, path.join(harvest_dir, source_dir)+'.old')
+            repopath = path.join(harvest_dir, source_dir)+'.old'
+            print(repopath)
+            xmlpath = path.join(repopath, "identify.xml")
+            if path.exists(xmlpath):
+                xml = etree.parse(xmlpath, parser=XMLParser)
+                baseURL = xml.find('.//{' + utils.xmlns.oai() + '}baseURL')
+                print(baseURL.text)
+                source = Source.query.filter_by(repo_harvest_endpoint=baseURL.text).first()
+                if source is not None:
+                    shutil.move(repopath, path.join(harvest_dir, str(source.id)))
+                    Harvester.harvest_pipeline(source.id, False)
+                        
             
 
     @staticmethod
@@ -56,11 +79,14 @@ class Harvester(object):
             Harvester.harvest_pipeline(source, work_remote)
 
     @staticmethod
-    def harvest_pipeline(source_id: int, work_remote=True):
+    def harvest_pipeline(source_id: int, work_remote=True, step=0):
         """default harvest pipeline, identify, discover, process"""
         source = Source.query.filter_by(id=source_id).first()
         if source is not None:
             harvester = OaiHarvester(source, work_remote=work_remote, request_wait_time=0)
-            harvester.identity_source()
-            harvester.discover_items()
-            harvester.process_items()
+            if step == 0:
+                harvester.identity_source()
+            if step <= 1:
+                harvester.discover_items()
+            if step <= 2:
+                harvester.process_items()
