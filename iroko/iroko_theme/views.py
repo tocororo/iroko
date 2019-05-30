@@ -35,7 +35,7 @@ def index():
 @register_menu(blueprint, 'main.catalog', 'Catalogo de Revistas', order=2)
 def catalogo():
 
-    return render_template('iroko_theme/catalog/index.html', static_host='https://200.14.49.24', iroko_catalog='https://200.14.49.24/catalog')
+    return render_template('iroko_theme/catalog/index.html', static_host='https://crai-static.upr.edu.cu/', iroko_catalog='https://sceiba-lab.upr.edu.cu/catalog')
 
 
 @blueprint.route('/source/<uuid>')
