@@ -66,13 +66,19 @@ def rescan_dir(source_dir):
 
 
 @harvester.command("harvestsource")
+@click.option('-s', '--step')
 @click.argument('source_id')
 @with_appcontext
-def harvest_source(source_id):
-    """harvest source"""
+def harvest_source(source_id, step=0):
+    """harvest source
+    -s = 0 start harvest in harvester.identity_source()
+    -s = 1 start harvest in harvester.discover_items()
+    -s = 2 start harvest in harvester.process_items()
+    """
     try:
         sid = int(source_id)
-        Harvester.harvest_pipeline(sid, work_remote=True)
+        st = int(step)
+        Harvester.harvest_pipeline(sid, work_remote=True, step==st)
     except Exception:
         traceback.format_exc()
     

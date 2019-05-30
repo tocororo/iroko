@@ -79,11 +79,14 @@ class Harvester(object):
             Harvester.harvest_pipeline(source, work_remote)
 
     @staticmethod
-    def harvest_pipeline(source_id: int, work_remote=True):
+    def harvest_pipeline(source_id: int, work_remote=True, step=0):
         """default harvest pipeline, identify, discover, process"""
         source = Source.query.filter_by(id=source_id).first()
         if source is not None:
             harvester = OaiHarvester(source, work_remote=work_remote, request_wait_time=0)
-            harvester.identity_source()
-            harvester.discover_items()
-            harvester.process_items()
+            if step == 0:
+                harvester.identity_source()
+            if step <= 1:
+                harvester.discover_items()
+            if step <= 2:
+                harvester.process_items()
