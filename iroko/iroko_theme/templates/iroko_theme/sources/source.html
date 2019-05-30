@@ -26,8 +26,8 @@
                         <div class="card shadow-none border-light">
                             <h6 class="card-header text-center">ISSN </h6>
                             <div class="card-body">
-                                {%- if source.data.issn.p %}<p class="card-text">Impreso: {{ source.data.issn.p }}</p>{%- endif %}
-                                {%- if source.data.issn.e %}<p class="card-text">Electrónico: {{ source.data.issn.e }}</p>{%- endif %}
+                                {%- if source.data.issn.p %}<p class="card-text">{{ _('Printed')}}: {{ source.data.issn.p }}</p>{%- endif %}
+                                {%- if source.data.issn.e %}<p class="card-text">{{ _('Electronic')}}: {{ source.data.issn.e }}</p>{%- endif %}
                                 {%- if source.data.issn.l %}<p class="card-text">l: {{ source.data.issn.l }}</p>{%- endif %}
                                 {%- if source.data.rnps %}<p class="card-text upper">rnps: {{ source.data.rnps }}</p>{%- endif %}
                                 <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
@@ -36,27 +36,27 @@
                 {%- endif %}
                 {%- if source.data.url %}
                         <div class="card shadow-none border-light">
-                            <h6 class="card-header text-center">Sitio web </h6>
+                            <h6 class="card-header text-center">{{ _('Web Site')}} </h6>
                             <div class="card-body">
                                 <div class="row">
-                                    <p class="card-text ml-3">URL:</p> 
+                                    <p class="card-text ml-3">{{ _('URL') }}:</p> 
                                     <a href="{{ source.data.url}}" target="blank" class="card-text text-info col-10 text-truncate">
                                         {%- if not source.name %} {{source.name}} 
                                         {%- else %} {{source.data.url}}
                                         {%- endif %}
                                     </a>
                                 </div>
-                                <p class="card-text">Soporte: <a href="#" class="text-info">Open Journal System</a></p>
-                                {%- if source.repo_last_harvest_run %} <p class="card-text">Última Comprobación: {{source.repo_last_harvest_run}}</p> {%- endif %}
-                                {%- if source.data.seriadas_cubanas %} <p class="card-text">Acceso en: <a href="{{ source.data.seriadas_cubanas }}" class="card-text text-info">Seriadas Cubanas</a> </p> {%- endif %}
-                                {%- if source.data.year_start %} <p class="card-text">Fecha de Creación: {{source.data.year_start}} </p> {%- endif %}
+                                <p class="card-text">{{ _('Platform')}}: <a href="#" class="text-info">Open Journal System</a></p>
+                                {%- if source.repo_last_harvest_run %} <p class="card-text">{{ _('Last Check')}}: {{source.repo_last_harvest_run}}</p> {%- endif %}
+                                {%- if source.data.seriadas_cubanas %} <p class="card-text">{{ _('Access in')}}: <a href="{{ source.data.seriadas_cubanas }}" class="card-text text-info">Seriadas Cubanas</a> </p> {%- endif %}
+                                {%- if source.data.year_start %} <p class="card-text">{{ _('Creation date')}}: {{source.data.year_start}} </p> {%- endif %}
                             </div>
                         </div>
                 {%- endif %}
             </div>
             <div class="card mt-5">
                 <div class="card-header font-weight-bold">
-                    Descripción
+                    {{ _('Description')}}
                 </div>
                 <div class="card-body">
                     <p class="card-text text-justify">{{ source.data.description }}</p>
@@ -66,9 +66,9 @@
     {%- else %}
         <h1>
             <i class="fa fa-flash"></i>
-            {{_('Page not found')}}
+            {{_('Source not found')}}
         </h1>
-        <p>{{_('The page you are looking for could not be found.')}}</p>
+        <p>{{_('The source you are looking for could not be found.')}}</p>
     {%- endif %}
 </div>
 {%- endblock %}

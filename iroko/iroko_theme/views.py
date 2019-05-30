@@ -14,6 +14,8 @@ from flask import Blueprint, current_app, render_template
 from flask_menu import register_menu
 from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_full
+from iroko.sources.models import Source, HarvestType, SourcesType
+from iroko.taxonomy.models import Vocabulary, Term
 
 
 blueprint = Blueprint(
@@ -26,8 +28,16 @@ blueprint = Blueprint(
 @blueprint.route('/')
 def index():
     """Simplistic front page view."""
+    vocabularies = Vocabulary.query.all()
+    vocab_stats = []
+    for vocab in vocabularies:
+        vocab_stats.append({vocabularies.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
+
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
+        vocabularies=vocabularies,
+        vocab_stats=vocab_stats
+
     )
 
 
