@@ -274,7 +274,7 @@ class OaiHarvester(SourceHarvester):
         if not self.work_remote:
             return
 
-        for f in self.source.metadata_formats:
+        for f in self.source.repo_metadata_formats:
             try:
                 arguments ={'metadataPrefix':f,'identifier': item.identifier}
                 record = self.sickle.GetRecord(**arguments)
