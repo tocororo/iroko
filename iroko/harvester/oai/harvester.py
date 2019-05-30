@@ -206,7 +206,9 @@ class OaiHarvester(SourceHarvester):
         xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier')
         if self.source.repo_identifier is not None and self.source.repo_identifier != identifier.text:
-            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repo_identifier, identifier, self.source.id))
+            print(self.source.repo_identifier)
+            print(identifier.text)
+            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repo_identifier, identifier.text, self.source.id))
 
         if not self.work_remote:
             # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
