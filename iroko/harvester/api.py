@@ -85,5 +85,5 @@ class Harvester(object):
         if source is not None:
             harvester = OaiHarvester(source, work_remote=work_remote, request_wait_time=0)
             harvester.identity_source()
-            harvester.discover_items()
-            harvester.process_items()
+            # harvester.discover_items()
+            # harvester.process_items()

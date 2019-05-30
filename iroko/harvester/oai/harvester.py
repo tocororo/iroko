@@ -134,10 +134,11 @@ class OaiHarvester(SourceHarvester):
         """get_identity, raise IrokoHarvesterError"""
         if self.work_remote:
             identify = self.sickle.Identify()
-            identifier = identify._identify_dict['repositoryIdentifier']
+            xml = identify.xml
+            # identifier = identify._identify_dict['repositoryIdentifier']
         else:
             xml = self._get_xml_from_file("identify.xml")
-            identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier').text
+        identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier').text
         
         if self.source.repo_identifier is not None and self.source.repo_identifier != identifier:
             raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.source.repo_identifier, identifier, self.source.id, self.work_remote))
