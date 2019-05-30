@@ -59,6 +59,13 @@ def rescan():
 
 @harvester.command()
 @with_appcontext
+def rescan_dir(source_dir):
+    """rescanea un source dir """
+    Harvester.rescan_and_fix_source_dir(source_dir)
+
+
+@harvester.command()
+@with_appcontext
 def testcelery():
     sources = Source.query.all()
     for source in sources:
