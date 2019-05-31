@@ -118,6 +118,7 @@ class JournalPublishing(Formater):
         cs = []
         for contrib in contribs:
             p = IrokoPerson.get_person_dict_from_nlm(contrib)
+            # TODO: los nombres de los autores se estan uniendo...
             if p is not None:
                 cs.append(p)
         data['contributors'] = cs
