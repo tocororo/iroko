@@ -11,33 +11,20 @@
 
         {%- if source.data %}
             <div class="d-flex justify-content-center flex-wrap card-deck">
-                <div class="card shadow-none border-light">
-                    <!-- quitar el "not" cuando esten los logos en la aplicacion -->
-                    {%- if not source.data.logo and source.data.logo != '' %}
-                        <img src="{{ url_for('static', filename='images/source.data.logo') }}" class="card-img-top" alt="{{source.data.logo}}">
-                    {%- else %}
-                        <img src="{{ url_for('static', filename='images/sceiba-logo.png') }}" class="card-img-top" alt="{{source.data.logo}}">
-                    {%- endif %}
-                    <div class="card-body">
-                        <h6 class="card-title">{{source.source_type}}</h6>
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <!-- quitar el "not" cuando esten los logos en la aplicacion -->
+                        {%- if not source.data.logo and source.data.logo != '' %}
+                            <img src="{{ url_for('static', filename='images/source.data.logo') }}" class="card-img-top" alt="{{source.data.logo}}">
+                        {%- else %}
+                            <img src="{{ url_for('static', filename='images/sceiba-logo.png') }}" class="card-img-top" alt="{{source.data.logo}}">
+                        {%- endif %}
                     </div>
-                </div>
-                {%- if source.data.issn %}
+                    <div class="col-md-8">
                         <div class="card shadow-none border-light">
-                            <h6 class="card-header text-center">ISSN </h6>
                             <div class="card-body">
-                                {%- if source.data.issn.p %}<p class="card-text">{{ _('Printed')}}: {{ source.data.issn.p }}</p>{%- endif %}
-                                {%- if source.data.issn.e %}<p class="card-text">{{ _('Electronic')}}: {{ source.data.issn.e }}</p>{%- endif %}
-                                {%- if source.data.issn.l %}<p class="card-text">l: {{ source.data.issn.l }}</p>{%- endif %}
-                                {%- if source.data.rnps %}<p class="card-text upper">rnps: {{ source.data.rnps }}</p>{%- endif %}
-                                <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
-                            </div>
-                        </div>
-                {%- endif %}
-                {%- if source.data.url %}
-                        <div class="card shadow-none border-light">
-                            <h6 class="card-header text-center">{{ _('Web Site')}} </h6>
-                            <div class="card-body">
+                            {%- if source.data.url %}                                 
+                                <h5 class="card-title">{{ _('Web Site') }}</h5>
                                 <div class="row">
                                     <p class="card-text ml-3">{{ _('URL') }}:</p> 
                                     <a href="{{ source.data.url}}" target="blank" class="card-text text-info col-10 text-truncate">
@@ -49,10 +36,24 @@
                                 <p class="card-text">{{ _('Platform')}}: <a href="#" class="text-info">Open Journal System</a></p>
                                 {%- if source.repo_last_harvest_run %} <p class="card-text">{{ _('Last Check')}}: {{source.repo_last_harvest_run}}</p> {%- endif %}
                                 {%- if source.data.seriadas_cubanas %} <p class="card-text">{{ _('Access in')}}: <a href="{{ source.data.seriadas_cubanas }}" class="card-text text-info">Seriadas Cubanas</a> </p> {%- endif %}
-                                {%- if source.data.year_start %} <p class="card-text">{{ _('Creation date')}}: {{source.data.year_start}} </p> {%- endif %}
+                                {%- if source.data.year_start %} <p class="card-text">{{ _('Creation date')}}: {{source.data.year_start}} </p> {%- endif %}                                
+                            {%- endif %}  
+                            
+                            {%- if source.data.issn %}
+                                <h5 class="card-title">{{ _('ISSN') }}</h5>
+                                {%- if source.data.issn.p %}<p class="card-text">{{ _('Printed') }}: {{ source.data.issn.p }}</p>{%- endif %}
+                                {%- if source.data.issn.e %}<p class="card-text">{{ _('Electronic') }}: {{ source.data.issn.e }}</p>{%- endif %}
+                                {%- if source.data.issn.l %}<p class="card-text">{{ _('l') }}: {{ source.data.issn.l }}</p>{%- endif %}                                                                           
+                                        
+                            {%- endif %}                            
+                            {%- if source.data.rnps %}<p class="card-title">{{ _('RNPS') }}:&nbsp;<span class="card-text">{{ source.data.rnps }}</span></p>{%- endif %}                       
+                            <p class="card-text"><small class="text-muted">{{source.source_type}}</small></p>
                             </div>
                         </div>
-                {%- endif %}
+                    </div>
+                </div>
+                
+                
             </div>
             <div class="card mt-5">
                 <div class="card-header font-weight-bold">

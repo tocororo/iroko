@@ -47,10 +47,7 @@
         <dd class="col-sm-10">
           {%-if record.keywords is iterable and record.keywords is not string %}        
               {% for key in record.keywords %}
-                {{ key | upper }} 
-                {% if key != record.keywords|last %}
-                  ,&nbsp;
-                {% endif %}
+                {{ key | lower }}{% if key != record.keywords|last %},&nbsp;{% endif %}
                 
               {% endfor %}                
           {%- endif %}
@@ -61,7 +58,16 @@
       <div class="card">
         <h5 class="card-header">{{ _('Description') }}</h5>    
         <div class="card-body">
-          <p class="text-justify">{{ record.description }}</p>      
+          <p class="text-justify">{{ record.description }}</p>    
+          {%- if record.identifiers is iterable and record.identifiers is not string%}
+            {%- for identify in record.identifiers %}
+              {%- if identify.idtype == 'url' %} 
+                <a class="btn btn-default" href="{{ identify.value }}" target="blank">
+                    {{ _('Original Record') }}
+                </a> 
+              {%- endif %}
+            {%- endfor %}          
+          {% endif %}  
         </div>
       </div>
     {% endif %}
@@ -105,14 +111,14 @@
       {% endif %}
       {% if record.relations %}
         {%- if record.relations is iterable and record.relations is not string %}
-          <dt class="col-sm-2">{{ _('Relation') }}:</dt>      
+          <!-- <dt class="col-sm-2">{{ _('Relation') }}:</dt>      
             <dd class="col-sm-10">
                 <dl class="row">            
                     {% for one_relation in record.relations %}
                       <dd class="col-sm-12">{{ one_relation }}</dd>
                     {% endfor %} 
                 </dl>          
-            </dd>     
+            </dd>      -->
         {%- endif %}
       {% endif %}
     </dl>
@@ -122,7 +128,7 @@
         <div class="card-body">
           <dl class="row">          
             <dt class="col-sm-2">
-              {{ _('Creator') }}:
+              {{ _('Author or Creator') }}:
             </dt>
             <dd class="col-sm-10"> 
               <dl class="row">   
@@ -132,10 +138,7 @@
                       {%- for rol in contributor.roles %}
                         {%- if rol == 'Author' and contributor.name %}
                         <dd class="col-sm-12">
-                          {{ contributor.name }} 
-                          {% if contributor.email %}
-                            &nbsp;{{ _('Email')}}:<a href = "mailto:{{ contributor.email }}">{{ contributor.email }}</a>
-                          {% endif %}
+                          {{ contributor.name }}                           
                           {% if contributor.affiliations is iterable and record.affiliations is not string %}
                               (
                               {% for afiliation in contributor.affiliations %}
@@ -167,10 +170,7 @@
                         {%- for rol in contributor.roles %}
                           {%- if rol != 'Author' and contributor.name %}
                           <dd class="col-sm-12">
-                            {{ contributor.name }} 
-                            {% if contributor.email %}
-                              &nbsp;{{ _('Email')}}:<a href = "mailto:{{ contributor.email }}">{{ contributor.email }}</a>
-                            {% endif %}
+                            {{ contributor.name }}                            
                             ({{ rol }})
                           </dd>
                           {%- endif %}
