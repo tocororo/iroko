@@ -51,20 +51,119 @@
       "type": "array"
     },
     "source":{
-      "description": "UUID Source from which the document was harvest",
-      "type": "string"
+      "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uuid":{
+            "description": "Source UUID from which the document was harvest",
+            "type": "string"
+          },
+          "name":{
+            "description": "Source Name from which the document was harvest",
+            "type": "string"
+          }
+      }
     },
     "spec": {
-      "description": "setSpec Name from Dublin Core",
-      "type": "string"
-    },
-    "sourceSet":{
-      "description": "Issue of the source, source element from Dublin Core",
-      "type": "string"
+      "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code":{
+            "description": "setSpec element from Dublin Core, the code",
+            "type": "string"
+          },
+          "name":{
+            "description": "setSpec Name from Dublin Core, the full name",
+            "type": "string"
+          }
+      }
     },
     "title": {
       "description": "Document title.",
       "type": "string"
+    },
+    "creators": {
+      "description": "Contributors in order of importance.",
+      "minItems": 0,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "description": "List of IDs related with the person.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "name": {
+            "description": "Full name of person or organisation. Personal name format: family, given.",
+            "type": "string"
+          },
+          "affiliations": {
+            "description": "Affiliation(s) for the purpose of this specific document.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact email for the purpose of this specific document.",
+            "format": "email"
+          },
+          "roles": {
+            "description": "",
+            "uniqueItems": true,
+            "type":"array",
+            "items": {
+              "type":"string",
+              "enum": [
+                "Author",
+                "ContactPerson",
+                "DataCollector",
+                "DataCurator",
+                "DataManager",
+                "Distributor",
+                "Editor",
+                "JournalManager",
+                "Funder",
+                "HostingInstitution",
+                "Other",
+                "Producer",
+                "ProjectLeader",
+                "ProjectManager",
+                "ProjectMember",
+                "RegistrationAgency",
+                "RegistrationAuthority",
+                "RelatedPerson",
+                "ResearchGroup",
+                "RightsHolder",
+                "Researcher",
+                "Sponsor",
+                "Supervisor",
+                "WorkPackageLeader"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+
+      }
     },
     "keywords": {
       "description": "Free text keywords.",
@@ -76,6 +175,38 @@
     "description": {
       "description": "Description/abstract for document.",
       "type": "string"
+    },
+    "publisher": {
+      "description": "Publisher name",
+      "type": "string"
+    },
+    "sources":{
+      "description": "Free text keywords.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "rights":{
+      "description": "Rights.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "types":{
+      "description": "Types. Eg: info:eu-repo/semantics/article, or Artículo revisado por pares",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "formats":{
+      "description": "formats. Eg: application/pdf",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
     },
     "language": {
       "description": "ISO 639-3 language code.",

@@ -18,6 +18,13 @@ import os
 from datetime import timedelta
 
 from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
+
+from invenio_indexer.api import RecordIndexer
+from invenio_records_rest.facets import terms_filter, range_filter
+from invenio_records_rest.utils import allow_all, check_elasticsearch
+from invenio_search import RecordsSearch
+
+
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
@@ -100,16 +107,8 @@ THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
 THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
 
 
-
-
-RECORDS_UI_ENDPOINTS = {
-    'recid': {
-        'pid_type': 'irouid',
-        'route': '/records/<pid_value>',
-        'template': 'iroko_theme/records/record.html'
-    },
-}
-
+# Search configuration
+# ===================
 
 """Records UI for iroko."""
 SEARCH_UI_SEARCH_API = '/api/records/'
@@ -157,6 +156,137 @@ SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
 """Configure the toggle button template."""
 
 
+# Records configuration
+# ===================
+
+
+RECORDS_UI_ENDPOINTS = {
+    'recid': {
+        'pid_type': 'irouid',
+        'route': '/records/<pid_value>',
+        'template': 'iroko_theme/records/record.html',
+        'view_imp': 'iroko.records.views.iroko_record_view'
+    },
+}
+
+
+RECORDS_REST_ENDPOINTS = {
+    'irouid': {
+        'pid_type': 'irouid',
+        'pid_minter': 'irouid',
+        'pid_fetcher': 'irouid',
+        'default_endpoint_prefix': True,
+        'search_class': RecordsSearch,
+        'indexer_class': RecordIndexer,
+        'search_index': 'records',
+        'search_type': None,
+        'record_serializers': {
+            'application/json': ('iroko.records.serializers'
+                                 ':json_v1_response'),
+        },
+        'search_serializers': {
+            'application/json': ('iroko.records.serializers'
+                                 ':json_v1_search'),
+        },
+        'record_loaders': {
+            'application/json': ('iroko.records.loaders'
+                                 ':json_v1'),
+        },
+        'list_route': '/records/',
+        'item_route': '/records/<pid(irouid):pid_value>',
+        'default_media_type': 'application/json',
+        'max_result_window': 10000,
+        'error_handlers': { },
+        'create_permission_factory_imp': allow_all,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': allow_all,
+        'delete_permission_factory_imp': allow_all,
+        'list_permission_factory_imp': allow_all,
+        'suggesters': {
+            'title': {
+                'completion': {
+                    'field': 'suggest_title'
+                }
+            }
+        }
+    },
+}
+
+"""REST API for iroko."""
+
+PIDSTORE_RECID_FIELD = 'id'
+
+IROKO_ENDPOINTS_ENABLED = True
+"""Enable/disable automatic endpoint registration."""
+
+
+RECORDS_REST_FACETS = {
+    'records':{
+        "filters": {
+            'keywords': terms_filter('keywords'),
+            'creators': terms_filter('creators.name'),
+            'spec': terms_filter('spec.name'),
+            'sources': terms_filter('source.name')
+        },
+        'aggs':{
+            'keywords':{
+                'terms':{
+                    'field': 'keywords'
+                }
+            },
+            'creators':{
+                'terms':{
+                    'field': 'creators.name'
+                }
+            },
+            'spec':{
+                'terms':{
+                    'field': 'spec.name'
+                }
+            },
+            'sources':{
+                'terms':{
+                    'field': 'source.name'
+                }
+            },
+            # 'language':{
+            #     'terms':{'field': 'language'}
+            # }
+        }
+    }
+}
+"""Introduce searching facets."""
+
+
+RECORDS_REST_SORT_OPTIONS = {
+    'records':{
+        'mostrecent': {
+            'title': _('Most recent'),
+            'fields': ['-publication_date'],
+            'default_order': 'asc',
+            'order': 1,
+        },
+        'bestmatch': {
+            'title': _('Best match'),
+            'fields': ['-_score'],
+            'default_order': 'asc',
+            'order': 2,
+        },
+        
+    }
+}
+"""Setup sorting options."""
+
+
+RECORDS_REST_DEFAULT_SORT: {
+    'records': {
+        'query': 'mostrecent',
+        'noquery': 'mostrecent',
+    }
+}
+"""Set default sorting options."""
+
+
 
 
 
@@ -186,6 +316,8 @@ ACCOUNTS_SESSION_REDIS_URL = 'redis://'+IP_REDIS+':6379/1'
 #: proxies) removes these headers again before sending the response to the
 #: client. Set to False, in case of doubt.
 ACCOUNTS_USERINFO_HEADERS = True
+
+
 
 # Celery configuration
 # ====================
@@ -263,6 +395,10 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 
 
 
+
+# Others iroko configuration
+# =======
+
 INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
 INIT_JOURNALS_JSON_PATH = 'data/journals.json'
 INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
@@ -271,7 +407,7 @@ INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
 
 REST_ENABLE_CORS = True
 
-# HARVESTER_DATA_DIRECTORY='data/sceiba-data'
-HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
+HARVESTER_DATA_DIRECTORY='data/sceiba-data'
+# HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
 

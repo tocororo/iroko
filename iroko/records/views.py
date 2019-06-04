@@ -9,7 +9,9 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint
+from flask import Blueprint, render_template
+
+from iroko.sources.api import Sources
 
 blueprint = Blueprint(
     'iroko_records',
@@ -23,3 +25,8 @@ The sole purpose of this blueprint is to ensure that Invenio can find the
 templates and static files located in the folders of the same names next to
 this file.
 """
+
+def iroko_record_view(pid, record, template=None):
+    
+    source = Sources.get_source_by_id(uuid= record['source']['uuid'])
+    return render_template(template, pid=pid, record=record, source= source)

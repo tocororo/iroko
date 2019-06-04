@@ -15,7 +15,13 @@
   </ul>
   <p>{{record.metadata.description}}</p>
   <p>{{record.metadata.publication_date}}</p>
-  <p>{{record.metadata.spec}}</p>
+  <p>{{record.metadata.sourceSet}}</p>
+  <p>{{record.metadata.rights}}</p>
+  <ul class="list-inline">
+    <li ng-repeat='keyword in record.metadata.keywords'>
+      <a target="_self" ng-href="/search?page=1&size=20&keywords={{ keyword }}">{{ keyword }}</a>
+    </li>
+</ul>
   
   <hr />
 </div>

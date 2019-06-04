@@ -23,14 +23,26 @@
           }
         },
         "source":{
-          "type": "keyword"
-        },
-        "sourceSet":{
-          "type": "keyword"
+          "type": "object",
+          "properties": {
+            "uuid": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
         },
         "spec": {
-          "type": "text",
-          "analyzer": "spanish"
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
         },
         "title": {
           "type": "text",
@@ -40,21 +52,7 @@
         "suggest_title": {
           "type": "completion"
         },
-        "keywords": {
-          "type": "keyword"
-        },
-        "description": {
-          "type": "text",
-          "analyzer": "spanish"
-        },
-        "language": {
-          "type": "keyword"
-        },
-        "publication_date": {
-          "type": "date",
-          "format": "date"
-        },
-        "contributors": {
+        "creators": {
           "type": "object",
           "properties": {
             "ids": {
@@ -69,26 +67,38 @@
               }
             },
             "name": {
-              "type": "text"
-            },
-            "affiliations": {
-              "type": "text"
-            },
-            "email": {
-              "type": "text"
-            },
-            "roles": {
-              "type": "text"
+              "type": "keyword"
             }
           }
         },
-        "references": {
-          "type": "object",
-          "properties": {
-            "raw_reference":{
-              "type": "text"
-            }
-          }
+        "keywords": {
+          "type": "keyword"
+        },
+        "description": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "publisher": {
+          "type": "keyword"
+        },
+        "sources":{
+          "type": "keyword"
+        },
+        "rights":{
+          "type": "keyword"
+        },
+        "types":{
+          "type": "keyword"
+        },
+        "formats":{
+          "type": "keyword"
+        },
+        "language": {
+          "type": "keyword"
+        },
+        "publication_date": {
+          "type": "date",
+          "format": "date"
         },
         "_created": {
           "type": "date"

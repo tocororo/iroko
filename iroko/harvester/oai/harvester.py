@@ -207,8 +207,8 @@ class OaiHarvester(SourceHarvester):
         xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier')
         if self.source.repo_identifier is not None and self.source.repo_identifier != identifier.text:
-            print(self.source.repo_identifier)
-            print(identifier.text)
+            # print(self.source.repo_identifier)
+            # print(identifier.text)
             raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repo_identifier, identifier.text, self.source.id))
 
         if not self.work_remote:
@@ -319,7 +319,8 @@ class OaiHarvester(SourceHarvester):
         if not path.exists(xmlpath):
             
             # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
-            return {}
+            return None
+        # TODO: si llego hasta aqui y es none, habria que intentar harvestear de nuevo... 
         # print(xmlpath)
         xml = etree.parse(xmlpath, parser=XMLParser)
         return formater.ProcessItem(xml)
@@ -330,13 +331,21 @@ class OaiHarvester(SourceHarvester):
         data = dc
         # print(str(data))
         if nlm is not None:
+            data['creators'] = nlm['creators']
             data['contributors'] = nlm['contributors']
         
-        data['source'] = str(self.source.uuid)
-        
+        data['source'] = {
+            "uuid": str(self.source.uuid),
+            "name": str(self.source.name)
+            }
+        spec_code = data['spec']
         for s in self.source.sets:
-            if data['setSpec']  == s.setSpec:
-                data['spec'] = s.setName
+            if spec_code == s.setSpec:
+                data['spec'] = {
+                    "code": str(s.setSpec),
+                    "name": str(s.setName)
+                    }
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations
         return data
+  

@@ -3,19 +3,35 @@ import shutil
 from iroko.sources.models import Source
 from lxml import etree
 from iroko.harvester import utils
-
+from iroko.harvester.oai.formaters import JournalPublishing
+from iroko.harvester.oai import nsmap
+from iroko.persons.api import IrokoPerson
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
-harvest_dir = '/Users/malayo/Documents/dev/tocororo/iroko/iroko/data/sceiba-data/123/1.old/id.xml'
+harvest_dir = '/Users/malayo/Documents/dev/tocororo/iroko/iroko/data/sceiba-data/100/1/nlm.xml'
 
 
 xml = etree.parse(harvest_dir, parser=XMLParser)
 
-identifier = xml.find('.//{' + utils.xmlns.oai() + '}identifier')
+metadataPrefix ='nlm'
+xmlns = '{http://dtd.nlm.nih.gov/publishing/2.3}'
+        
+        
+data = {}
+header = xml.find('.//{' + nsmap['oai'] + '}header')
+metadata = xml.find('.//{' + nsmap['oai'] + '}metadata')
 
-print(identifier.text)
+identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
+data['original_identifier'] = identifier.text
+setSpec = header.find('.//{' + nsmap['oai'] + '}setSpec')
+data['spec'] = setSpec.text
+
+# article_meta = xml.find('.//{' + self.xmlns + '}article-meta')
+creators, contributors = IrokoPerson.get_people_from_nlm(metadata)
+
+data['creators'] = creators
+data['contributors'] = contributors
+print(data)
 
 
 
-
-Traceback (most recent call last):  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/harvester/oai/harvester.py", line 293, in record_items    if 'nlm' in self.source.metadata_formats:AttributeError: 'Source' object has no attribute 'metadata_formats'During handling of the above exception, another exception occurred:Traceback (most recent call last):  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/harvester/oai/harvester.py", line 109, in process_items    self.record_items()  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/harvester/oai/harvester.py", line 301, in record_items    item.error_log += traceback.format_exc()TypeError: unsupported operand type(s) for +=: 'NoneType' and 'str'

@@ -31,7 +31,7 @@ class DubliCoreElements(Formater):
         identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
         data['original_identifier'] = identifier.text
         setSpec = header.find('.//{' + nsmap['oai'] + '}setSpec')
-        data['setSpec'] = setSpec.text
+        data['spec'] = setSpec.text
 
         pids = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
         identifiers = []
@@ -44,14 +44,14 @@ class DubliCoreElements(Formater):
         
         data['title'] = get_sigle_element(metadata, 'title', xmlns=self.xmlns, language='es-ES')
 
-        data['contributors'] = []
+        data['creators'] = []
         creators = get_multiple_elements(metadata, 'creator', xmlns=self.xmlns, itemname='name')
         for creator in creators:
             if isinstance(creator['name'], str) and  creator['name'] != '':
                 creator['roles'] = []
                 creator['roles'].append(ContributorRole.Author.value)
-                data['contributors'].append(creator)
-        
+                data['creators'].append(creator)
+        data['contributors'] = []
         contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name', language='es-ES')
         for contributor in contributors:
             if isinstance(contributor['name'], str) and contributor['name'] != '':
@@ -75,7 +75,7 @@ class DubliCoreElements(Formater):
         formats = get_multiple_elements(metadata, 'format', xmlns=self.xmlns)
         data['formats'] = formats
 
-        sources = get_sigle_element(metadata, 'source', xmlns=self.xmlns, language='es-ES')
+        sources = get_multiple_elements(metadata, 'source', xmlns=self.xmlns)
         data['sources'] = sources
 
         data['language'] = get_sigle_element(metadata, 'language', xmlns=self.xmlns)
@@ -111,15 +111,23 @@ class JournalPublishing(Formater):
         identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
         data['original_identifier'] = identifier.text
         setSpec = header.find('.//{' + nsmap['oai'] + '}setSpec')
-        data['setSpec'] = setSpec.text
+        data['spec'] = setSpec.text
 
         # article_meta = xml.find('.//{' + self.xmlns + '}article-meta')
-        contribs = metadata.findall('.//' + self.xmlns + 'contrib')
-        cs = []
-        for contrib in contribs:
-            p = IrokoPerson.get_person_dict_from_nlm(contrib)
-            # TODO: los nombres de los autores se estan uniendo...
-            if p is not None:
-                cs.append(p)
-        data['contributors'] = cs
+        # contribs = metadata.findall('.//' + self.xmlns + 'contrib')
+        # print(contribs)
+        creators, contributors = IrokoPerson.get_people_from_nlm(metadata)
+        #  = []
+        # for contrib in contribs:
+        #     p, is_author = IrokoPerson.get_people_from_nlm(contrib)
+        #     print(is_author)
+            
+        #     # TODO: los nombres de los autores se estan uniendo...
+        #     if p is not None:
+        #         if is_author:
+        #             creators.append(p)
+        #         else:
+        #             contributors.append(p)
+        data['creators'] = creators
+        data['contributors'] = contributors
         return data
