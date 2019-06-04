@@ -10,19 +10,19 @@
   <h4><a target="_self" ng-href="/records/{{ record.metadata.id }}">{{ record.metadata.title }}</a></h4>
   <ul class="list-inline">
       <li ng-repeat='creator in record.metadata.creators'>
-        {{ creator.name }};  
+        <a target="_self" ng-href="/search?page=1&size=20&creators={{ creator.name }}">{{ creator.name }}</a>  
       </li>
   </ul>
-  <p>{{record.metadata.description}}</p>
-  <p>{{record.metadata.publication_date}}</p>
-  <p>{{record.metadata.sourceSet}}</p>
-  <p>{{record.metadata.rights}}</p>
   <ul class="list-inline">
     <li ng-repeat='keyword in record.metadata.keywords'>
       <a target="_self" ng-href="/search?page=1&size=20&keywords={{ keyword }}">{{ keyword }}</a>
     </li>
 </ul>
-  
+  <p>{{record.metadata.description}}</p>
+  <p>
+      <a target="_self" ng-href="/source/{{ record.metadata.source.uuid }}">{{ record.metadata.source.name }}</a>
+  </p>
+  <p>{{record.metadata.publication_date}}</p>
   <hr />
 </div>
 

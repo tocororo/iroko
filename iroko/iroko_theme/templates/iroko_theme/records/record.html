@@ -92,7 +92,7 @@
             {{ record.sources }}
           {% endif %}
                   
-          &nbsp;| <a class="card-text text-info text-truncate" href="{{ url_for('iroko_theme.view_source_id', uuid=record.source) }}">
+          &nbsp;| <a class="card-text text-info text-truncate" href="{{ url_for('iroko_theme.view_source_id', uuid=record.source.uuid) }}">
               <i>{{ _('Source in Sceiba') }}</i>
             </a>
         </dd>

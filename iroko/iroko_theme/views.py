@@ -31,13 +31,12 @@ def index():
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
     for vocab in vocabularies:
-        vocab_stats.append({vocabularies.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
+        vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
         vocabularies=vocabularies,
         vocab_stats=vocab_stats
-
     )
 
 
@@ -45,7 +44,7 @@ def index():
 @register_menu(blueprint, 'main.catalog', 'Catalogo de Revistas', order=2)
 def catalogo():
 
-    return render_template('iroko_theme/catalog/index.html', static_host='https://crai-static.upr.edu.cu/', iroko_catalog='https://sceiba-lab.upr.edu.cu/catalog')
+    return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
 
 
 @blueprint.route('/source/<uuid>')

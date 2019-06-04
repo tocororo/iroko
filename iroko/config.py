@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS
+from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS, IROKO_HOST
 
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
@@ -96,7 +96,7 @@ SETTINGS_TEMPLATE = 'iroko_theme/page_settings.html'
 #: Site name
 THEME_SITENAME = _('iroko')
 #: Use default frontpage.
-THEME_FRONTPAGE = True
+THEME_FRONTPAGE = False
 #: Frontpage title.
 THEME_FRONTPAGE_TITLE = _('iroko')
 #: Theme logo.
@@ -225,28 +225,40 @@ RECORDS_REST_FACETS = {
         "filters": {
             'keywords': terms_filter('keywords'),
             'creators': terms_filter('creators.name'),
-            'spec': terms_filter('spec.name'),
+            # 'spec': terms_filter('spec.name'),
             'sources': terms_filter('source.name')
         },
         'aggs':{
             'keywords':{
                 'terms':{
                     'field': 'keywords'
+                },
+                "meta": {
+                    "title": "Palabras Clave",
+                    "order": 3,
                 }
             },
             'creators':{
                 'terms':{
                     'field': 'creators.name'
+                },
+                "meta": {
+                    "title": "Autores",
+                    "order": 2,
                 }
             },
-            'spec':{
-                'terms':{
-                    'field': 'spec.name'
-                }
-            },
+            # 'spec':{
+            #     'terms':{
+            #         'field': 'spec.name'
+            #     }
+            # },
             'sources':{
                 'terms':{
                     'field': 'source.name'
+                },
+                "meta": {
+                    "title": "Fuentes",
+                    "order": 1,
                 }
             },
             # 'language':{

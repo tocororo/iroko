@@ -3,10 +3,10 @@
 {%- extends config.THEME_BASE_TEMPLATE %}
 
 {%- block header %}
-<base href="{{iroko_catalog}}"> 
+<base href="{{iroko_host}}/catalog"> 
 <meta charset="utf-8">    
 <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' crai-static.upr.edu.cu sceiba-lab.upr.edu.cu; script-src 'self' crai-static.upr.edu.cu sceiba-lab.upr.edu.cu 'unsafe-inline' 'unsafe-eval'; style-src 'self' crai-static.upr.edu.cu sceiba-lab.upr.edu.cu 'unsafe-inline'; img-src 'self' crai-static.upr.edu.cu sceiba-lab.upr.edu.cu data:">
+
 
 <style type="text/css">
     body, html {
@@ -65,7 +65,8 @@
     }
   </style>  
 
-  <link rel="stylesheet" href="https://crai-static.upr.edu.cu/sceiba/catalog/styles.css"></head>
+<link rel="stylesheet" href="{{ url_for('static', filename='catalog/styles.f5a4a6bc158a5aa37805.css') }}">
+
 
 {% endblock header %}
 
@@ -87,9 +88,10 @@
 {%- block javascript %}
 {# {% include config.THEME_JAVASCRIPT_TEMPLATE %} #}
 
-<script type="text/javascript" src="https://crai-static.upr.edu.cu/sceiba/catalog/runtime.js"></script>
-<script type="text/javascript" src="https://crai-static.upr.edu.cu/sceiba/catalog/polyfills.js"></script>
-<script type="text/javascript" src="https://crai-static.upr.edu.cu/sceiba/catalog/main.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='catalog/runtime.1e78f8f19c6ca1a0bf81.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='catalog/polyfills.33ae7ba55e2c12e2e97e.js') }}">
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='catalog/main.203af93a06241ee71dc0.js') }}"></script>
 
 {%- endblock javascript %}
 
