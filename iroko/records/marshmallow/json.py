@@ -48,20 +48,34 @@ class IdentifierSchemaV1(StrictKeysMixin):
 
     idtype = SanitizedUnicode()
     value = SanitizedUnicode()
-    
 
+
+class SourceSchemaV1(StrictKeysMixin):
+
+    uuid = fields.Str()
+    name = SanitizedUnicode()
+
+class SpecSchemaV1(StrictKeysMixin):
+    
+    code = fields.Str()
+    name = SanitizedUnicode(validate=validate.Length(min=3))
 
 class MetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
     id = PersistentIdentifier()
     identifiers = Nested(IdentifierSchemaV1, many=True)
-    source = fields.Str()
-    sourceSet = fields.Str()
-    spec = SanitizedUnicode(validate=validate.Length(min=3))
+    source = Nested(SourceSchemaV1)
+    spec = Nested(SpecSchemaV1)
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
+    creators = Nested(ContributorSchemaV1, many=True)
     keywords = fields.List(SanitizedUnicode(), many=True)
     description = SanitizedUnicode(required=True, validate=validate.Length(min=3))
+    publisher = SanitizedUnicode()
+    sources = fields.List(SanitizedUnicode(), many=True)
+    rights = fields.List(SanitizedUnicode(), many=True)
+    types = fields.List(SanitizedUnicode(), many=True)
+    formats = fields.List(SanitizedUnicode(), many=True)
     language = fields.Str()
     publication_date = DateString()
     contributors = Nested(ContributorSchemaV1, many=True)

@@ -72,6 +72,10 @@
       </div>
     {% endif %}
     <br/>
+    {{source.name}}
+    <br/>
+    {{source.data}}
+    <br/>
     <dl class="row">  
       {% if record.identifiers %}  
         <dt class="col-sm-2">{{ _('Source') }}:</dt>
@@ -248,4 +252,6 @@
   {% endif %}
 </div> 
 {%- endblock %}
+
+
 

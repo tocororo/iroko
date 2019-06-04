@@ -57,6 +57,7 @@ class IrokoRecord (Record):
         if not id_:
             id_ = uuid4()
         cls.minter(id_, data)
+        data['suggest_title']= data.get('title')
         record = super(IrokoRecord, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:
             record.dbcommit(reindex)
@@ -114,3 +115,7 @@ class IrokoRecord (Record):
             RecordIndexer(version_type="external_gte").index(self)
         else:
             RecordIndexer().index(self)
+
+
+
+
