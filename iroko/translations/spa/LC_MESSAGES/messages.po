@@ -1,0 +1,381 @@
+# Spanish (Spain) translations for iroko.
+# Copyright (C) 2019 UPR
+# This file is distributed under the same license as the iroko project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: iroko 1.0.0\n"
+"Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
+"POT-Creation-Date: 2019-06-04 02:56-0400\n"
+"PO-Revision-Date: 2019-06-04 02:58-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es_ES\n"
+"Language-Team: es_ES <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: iroko/config.py:93 iroko/config.py:97
+msgid "iroko"
+msgstr ""
+
+#: iroko/config.py:183
+msgid "Welcome to iroko!"
+msgstr "Bienvenido a Iroko"
+
+#: iroko/curator/forms.py:40
+msgid "Name"
+msgstr "Nombre"
+
+#: iroko/curator/forms.py:41
+msgid "Name for the new vocabulary"
+msgstr "Nombre para el nuevo vocabulario"
+
+#: iroko/curator/forms.py:45
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:59
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:60
+msgid "Description"
+msgstr ""
+
+#: iroko/curator/forms.py:46
+msgid "Optional explanation for the vocabulary"
+msgstr "Explicación opcional para el vocabulario"
+
+#: iroko/curator/forms.py:75
+msgid "None"
+msgstr "Ninguno"
+
+#: iroko/curator/views.py:46
+msgid "Vocabulary added"
+msgstr "Vocabulario agregado"
+
+#: iroko/curator/views.py:76
+msgid "Term added"
+msgstr "Término agregado"
+
+#: iroko/curator/views.py:108
+msgid "Source added"
+msgstr "Fuente agregada"
+
+#: iroko/curator/views.py:141
+msgid "Vocabulary changed"
+msgstr "Vocabulario cambiado"
+
+#: iroko/curator/views.py:175
+msgid "Term changed"
+msgstr "Término cambiado"
+
+#: iroko/curator/views.py:207
+msgid "Source changed"
+msgstr "Fuente cambiado"
+
+#: iroko/curator/templates/add_source.html:26
+msgid "Adding Source"
+msgstr "Agregando Fuente"
+
+#: iroko/curator/templates/add_source.html:71
+msgid "Add Source"
+msgstr "Agregar Fuente"
+
+#: iroko/curator/templates/add_term.html:20
+msgid "Adding Term"
+msgstr "Agregando Término"
+
+#: iroko/curator/templates/add_term.html:47
+msgid "Add Term"
+msgstr "Agregar Término"
+
+#: iroko/curator/templates/add_vocabulary.html:20
+msgid "Adding Vocabulary"
+msgstr "Agregando Vocabulario"
+
+#: iroko/curator/templates/add_vocabulary.html:37
+msgid "Add Vocabulary"
+msgstr "Agregar Vocabulario"
+
+#: iroko/curator/templates/edit_source.html:20
+msgid "Editing Source"
+msgstr "Editando Fuente"
+
+#: iroko/curator/templates/edit_source.html:52
+msgid "Edit Source"
+msgstr "Editar Fuente"
+
+#: iroko/curator/templates/edit_term.html:20
+msgid "Editing Term"
+msgstr "Editando Término"
+
+#: iroko/curator/templates/edit_term.html:47
+#: iroko/curator/templates/edit_vocabulary.html:40
+msgid "Save Changes"
+msgstr "Editar Término"
+
+#: iroko/curator/templates/edit_vocabulary.html:20
+msgid "Editing Vocabulary"
+msgstr "Editando Vocabulario"
+
+#: iroko/curator/templates/error.html:20
+msgid "Something wrong happend"
+msgstr "Ha ocurrido algo inesperado"
+
+#: iroko/iroko_theme/ext.py:65
+msgid "Home"
+msgstr "Inicio"
+
+#: iroko/iroko_theme/templates/iroko_theme/401.html:13
+msgid "Unauthorized"
+msgstr "No autorizado"
+
+#: iroko/iroko_theme/templates/iroko_theme/401.html:14
+msgid "You need to be authenticated to view this page."
+msgstr "Necesita estar autenticado para ver esta página"
+
+#: iroko/iroko_theme/templates/iroko_theme/403.html:13
+msgid "Permission required"
+msgstr "Se requiere permisos"
+
+#: iroko/iroko_theme/templates/iroko_theme/403.html:14
+msgid "You do not have sufficient permissions to view this page."
+msgstr "No tiene permisos suficientes para ver esta página"
+
+#: iroko/iroko_theme/templates/iroko_theme/404.html:13
+msgid "Page not found"
+msgstr "Página no encontrada"
+
+#: iroko/iroko_theme/templates/iroko_theme/404.html:14
+msgid "The page you are looking for could not be found."
+msgstr "La página que busca no se ha podido encontrar"
+
+#: iroko/iroko_theme/templates/iroko_theme/500.html:13
+msgid "Internal server error"
+msgstr "Error interno del servidor"
+
+#: iroko/iroko_theme/templates/iroko_theme/500.html:15
+msgid "Error identifier"
+msgstr "Error de identificador"
+
+#: iroko/iroko_theme/templates/iroko_theme/admin_header.html:72
+msgid "Logout"
+msgstr "Salir"
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:22
+#, python-format
+msgid "Powered by <a href=\"%(link)s\">Invenio</a>"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/header.html:15
+#: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:15
+msgid "Toggle navigation"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/header.html:54
+#: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:59
+#: iroko/iroko_theme/templates/iroko_theme/search_ui/base_header.html:15
+#: iroko/iroko_theme/templates/iroko_theme/search_ui/header.html:14
+#: iroko/iroko_theme/templates/iroko_theme/search_ui/search.html:46
+msgid "Search"
+msgstr "Buscar"
+
+#: iroko/iroko_theme/templates/iroko_theme/header_login.html:16
+#: iroko/iroko_theme/templates/iroko_theme/header_login.html:21
+msgid "Log in"
+msgstr "Entrar"
+
+#: iroko/iroko_theme/templates/iroko_theme/header_login.html:17
+#: iroko/iroko_theme/templates/iroko_theme/header_login.html:22
+msgid "Sign up"
+msgstr "Registrarse"
+
+#: iroko/iroko_theme/templates/iroko_theme/header_login.html:39
+#: iroko/iroko_theme/templates/iroko_theme/header_login.html:43
+msgid "Log out"
+msgstr "Salir"
+
+#: iroko/iroko_theme/templates/iroko_theme/page.html:27
+#: iroko/iroko_theme/templates/iroko_theme/page_admin.html:34
+msgid "Invenio"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/page_settings.html:19
+msgid "Settings"
+msgstr "Configuraciones"
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:18
+msgid "Log in to account"
+msgstr "Autenticarse"
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:27
+#: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:38
+msgid "Log In"
+msgstr "Entrar"
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:35
+#, python-format
+msgid "New to %(sitename)s?"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:35
+#: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:32
+msgid "Sign Up"
+msgstr "Registrarse"
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:42
+msgid "Forgot password?"
+msgstr "¿Ha olvidado su contraseña?"
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:18
+#, python-format
+msgid "Sign up for a %(sitename)s account!"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:37
+msgid "Already have an account?"
+msgstr "¿Tiene un usuario?"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:46
+msgid "Key Words"
+msgstr "Palabras claves"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:66
+msgid "Original Record"
+msgstr "Registro Original"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:77
+msgid "Source"
+msgstr "Fuente"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:92
+msgid "Source in Sceiba"
+msgstr "Fuente en Sceiba"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:98
+msgid "Resource Type"
+msgstr "Tipo de recurso"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:109
+msgid "Coverage"
+msgstr "Covertura"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:114
+msgid "Relation"
+msgstr "Relación"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:127
+msgid "Intellectual Property"
+msgstr "Propiedad Intelectual"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:131
+msgid "Author or Creator"
+msgstr "Autor o Creador"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:161
+msgid "Publisher"
+msgstr "Editorial"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:164
+msgid "Contributors"
+msgstr "Colaboradores"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:184
+msgid "Rights"
+msgstr "Derechos"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:204
+msgid "Instanciation"
+msgstr "Instanciación"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:208
+msgid "Date"
+msgstr "Fecha"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:212
+msgid "Format"
+msgstr "Formato"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:224
+msgid "Resource Identifier"
+msgstr "Identificador del Recurso"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:228
+msgid "Lenguage"
+msgstr "Idioma"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:245
+msgid "Record not found"
+msgstr "Recurso no encontrado"
+
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:247
+msgid "The record you are looking for could not be found."
+msgstr "El registro que solicita no se ha encontrado"
+
+#: iroko/iroko_theme/templates/iroko_theme/search_ui/search.html:98
+msgid "Search failed."
+msgstr "Búsqueda fallida"
+
+#: iroko/iroko_theme/templates/iroko_theme/search_ui/search.html:104
+msgid "Loading..."
+msgstr "Cargando"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:27
+msgid "Web Site"
+msgstr "Sitio Web"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:29
+msgid "URL"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:36
+msgid "Platform"
+msgstr "Plataforma"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:37
+msgid "Last Check"
+msgstr "Última vista"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:38
+msgid "Access in"
+msgstr "Acceso en"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:39
+msgid "Creation date"
+msgstr "Fecha de creación"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:43
+msgid "ISSN"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:44
+msgid "Printed"
+msgstr "Impreso"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:45
+msgid "Electronic"
+msgstr "Electrónico"
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:46
+msgid "l"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:49
+msgid "RNPS"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:70
+msgid "Source not found"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/sources/source.html:72
+msgid "The source you are looking for could not be found."
+msgstr ""
+
+#: iroko/records/config.py:88
+msgid "Best match"
+msgstr "Mejor enlace"
+
+#: iroko/records/config.py:94
+msgid "Most recent"
+msgstr "Más Reciente"
+

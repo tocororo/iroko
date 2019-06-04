@@ -69,3 +69,6 @@ class Term(db.Model):
     def __str__(self):
         """Representation."""
         return self.name
+
+
+class
