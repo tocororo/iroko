@@ -77,8 +77,8 @@ class BasesxGroup(db.Model):
     term_group_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
     term_base_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))    
 
-    group = db.relationship("Term", backref=db.backref("group_mes")) 
-    data_base = db.relationship("Term", backref=db.backref("data_bases")) 
+    group = db.relationship("Term", foreign_keys='BasesxGroup.term_group_id') 
+    data_base = db.relationship("Term", foreign_keys='BasesxGroup.term_base_id') 
 
     def __str__(self):
         """Representation."""
