@@ -6,24 +6,22 @@
   Invenio is free software; you can redistribute it and/or modify it
   under the terms of the MIT License; see LICENSE file for more details.
 #}
-<!-- <footer id="footer" style="background-color: blue">
+<footer id="footer" style="background-color: rgb(153, 153, 172)">
   <div class="container">
-    <div class="row">
-      <div class="col-xs-12"><hr /></div>
-    </div>
-    <div class="row">
-      <div class="col-xs-6 col-xs-push-6 text-right">
-        {%- if config.I18N_LANGUAGES %}
-          {% from "invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
-          {{ language_selector_dropdown() }}
-        {%- endif %}
-      </div>
-      <div class="col-xs-6 col-xs-pull-6">
-        {% trans link="http://inveniosoftware.org" %}Powered by <a href="{{link}}">Invenio</a>{% endtrans %}
-      </div>
-    </div>
+      <div class="d-flex bd-highlight">
+          <div class="p-2 w-100 bd-highlight">
+            {% trans link="http://inveniosoftware.org" %} Powered by&nbsp;<a href="{{link}}">Invenio</a>{% endtrans %}
+          </div>
+          <div class="p-2 flex-shrink-1 bd-highlight">
+            {%- if config.I18N_LANGUAGES %}
+              {% from "invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
+              {{ language_selector_dropdown() }}
+            {%- endif %}
+          </div>
+      </div>    
+    
   </div>
-</footer> -->
+</footer>
 <footer class="bd-footer text-muted">
   <hr>
   <div class="d-flex flex-column align-items-center container p-3 p-md-5">

@@ -21,7 +21,7 @@ msgstr ""
 
 #: iroko_theme/ext.py:77
 msgid "Home"
-msgstr ""
+msgstr "Inicio"
 
 #: iroko_theme/ext.py:94
 msgid "Invenio"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: iroko_theme/templates/iroko_theme/header.html:53
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: iroko_theme/templates/iroko_theme/header_login.html:27
 msgid "Log in"

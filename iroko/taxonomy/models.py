@@ -69,3 +69,18 @@ class Term(db.Model):
     def __str__(self):
         """Representation."""
         return self.name
+
+
+class BasesxGroup(db.Model):
+    __tablename__ = 'iroko_bases_groups'
+    id = db.Column(db.Integer, primary_key=True)
+    term_group_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
+    term_base_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))    
+
+    group = db.relationship("Term", backref=db.backref("group_mes")) 
+    data_base = db.relationship("Term", backref=db.backref("data_bases")) 
+
+    def __str__(self):
+        """Representation."""
+        return self.data_base.name + ' de '+ self.group.name
+    
