@@ -19,6 +19,7 @@ from iroko.taxonomy.models import Vocabulary, Term
 from flask_babelex import lazy_gettext as _
 
 
+
 blueprint = Blueprint(
     'iroko_theme',
     __name__,
