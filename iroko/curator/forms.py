@@ -20,7 +20,7 @@ class Unique(object):
         self.model = model
         self.field = field
         if not message:
-            message = u'this element already exists'
+            message = _('this element already exists')
         self.message = message
 
     def __call__(self, form, field):
@@ -53,53 +53,63 @@ class VocabularyForm(FlaskForm):
 
 class TermForm(FlaskForm):    
     name = StringField(
-        'Name',
+        _('Name'),
         validators=[validators.DataRequired()]
     )
     description = StringField(
-        'Description'
+        _('Description')
     )
     vocabulary = SelectField(
-        'Vocabulary',
+        _('Vocabulary'),
         validators=[validators.DataRequired()],
+        id='vocabulary',
+        coerce=int
+    )
+    group = SelectField(
+        _('MES Group'),
+        validators=[validators.DataRequired()],
+        id='group',
         coerce=int
     )
     parent = SelectField(
-        'Parent',
+        _('Parent'),
         coerce=int
     )
 
     def __init__(self, *args, **kwargs):
         super(TermForm, self).__init__()
+        group_mes_vocab = Vocabulary.query.filter_by(name='grupo_mes').first()
+        
         self.vocabulary.choices=[(choice.id, choice.name) for choice in Vocabulary.query.all()]
+        self.group.choices=[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.id).all()]
         self.parent.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.order_by('name').all()]
      
 
 
 class SourceForm(FlaskForm):
     name = StringField(
-        'Name',
+        _('Name'),
         validators=[validators.DataRequired()]
     )
     source_type = SelectField(
-        'Source Type',
+        _('Source Type'),
         validators=[validators.DataRequired()],        
         choices=[(choice.name, choice.value) for choice in SourcesType]
     )    
     repo_harvest_type = SelectField(
-        'Harvest Type',
+        _('Harvest Type'),
         validators=[validators.DataRequired()],        
         choices=[(choice.name, choice.value) for choice in HarvestType]  
     )
     repo_harvest_endpoint = StringField(
-        'Harvest Endpoint'
+        _('Harvest Endpoint')
     )
     data = TextAreaField(
-        'Data'
+        _('Data')
     )
     terms = MultiCheckboxField(
-        'Terms', 
-        validators=[validators.Required(message='Please tick at least a term')],
+        _('Terms'), 
+        validators=[validators.Required(message=_('Please tick at least a term'))],
         coerce=int
     )
     

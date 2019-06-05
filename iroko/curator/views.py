@@ -66,9 +66,8 @@ def add_term():
         if form.vocabulary.data:
             new_term.vocabulary_id = form.vocabulary.data
         if form.parent.data and form.parent.data != 0:
-            new_term.parent_id = form.parent.data 
+            new_term.parent_id = form.parent.data     
         
-        form.terms.data
         
         db.session.add(new_term)
         db.session.commit()

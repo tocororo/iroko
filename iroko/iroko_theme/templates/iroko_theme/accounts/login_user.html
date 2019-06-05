@@ -32,7 +32,7 @@
     {%- block registerable %}
     {%- if security.registerable %}
     <div class="panel-footer text-center">
-        <h4 class="text-muted">{% trans sitename=config.ACCOUNTS_SITENAME %}New to {{sitename}}?{% endtrans %} <a href="{{url_for('security.register')}}">{{_('Sign Up')}}</a></h4>
+        <h4 class="text-muted"> {{ _('Already have an account?') }} <a href="{{url_for('security.register')}}">{{_('Sign Up')}}</a></h4>
     </div>
     {%- endif %}
     {%- endblock %}

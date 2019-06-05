@@ -23,6 +23,7 @@ from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch
 from invenio_search import RecordsSearch
+from flask_babelex import lazy_gettext as _
 
 
 def _(x):
@@ -230,7 +231,7 @@ RECORDS_REST_FACETS = {
             'sources': terms_filter('source.name')
         },
         'aggs':{
-            'keywords':{
+            _('Keywords'):{
                 'terms':{
                     'field': 'keywords',
                     'size' : 5
@@ -240,7 +241,7 @@ RECORDS_REST_FACETS = {
                     "order": 3,
                 }
             },
-            'creators':{
+            _('Creators'):{
                 'terms':{
                     'field': 'creators.name',
                     'size' : 5
@@ -255,7 +256,7 @@ RECORDS_REST_FACETS = {
             #         'field': 'spec.name'
             #     }
             # },
-            'sources':{
+            _('Sources'):{
                 'terms':{
                     'field': 'source.name',
                     'size' : 5

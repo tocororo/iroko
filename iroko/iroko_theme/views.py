@@ -16,6 +16,7 @@ from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_full
 from iroko.sources.models import Source, HarvestType, SourcesType
 from iroko.taxonomy.models import Vocabulary, Term
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
 from flask_babelex import lazy_gettext as _
 
 
@@ -27,6 +28,12 @@ blueprint = Blueprint(
     static_folder='static',
 )
 
+
+def get_record_count():
+    cant_records = HarvestedItem.query.filter_by(status=HarvestedItemStatus.RECORDED).count()
+    return cant_records
+
+
 @blueprint.route('/')
 def index():
     """Simplistic front page view."""
@@ -34,6 +41,9 @@ def index():
     vocab_stats = []
     for vocab in vocabularies:
         vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
+
+    vocab_stats.append({'sources':str(Source.query.count())})
+    vocab_stats.append({'records':str(get_record_count())})
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
