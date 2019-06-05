@@ -59,11 +59,9 @@ BABEL_DEFAULT_LANGUAGE = 'en'
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 #: Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
-    ('spa', _('Español'))    
+    ('es', _('Spanish')) ,  
 ]
-I18N_SESSION_KEY = 'language'
-#I18N_SET_LANGUAGE_URL = '/lang'
-I18N_USER_LANG_ATTR = 'prefered_language'
+
 
 # Base templates
 # ==============

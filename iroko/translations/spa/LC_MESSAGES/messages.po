@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-04 02:56-0400\n"
+"POT-Creation-Date: 2019-06-04 22:33-0400\n"
 "PO-Revision-Date: 2019-06-04 02:58-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es_ES\n"
@@ -18,11 +18,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: iroko/config.py:93 iroko/config.py:97
+#: iroko/config.py:62
+msgid "Spanish"
+msgstr ""
+
+#: iroko/config.py:98 iroko/config.py:102
 msgid "iroko"
 msgstr ""
 
-#: iroko/config.py:183
+#: iroko/config.py:265
+msgid "Most recent"
+msgstr "Más Reciente"
+
+#: iroko/config.py:271
+msgid "Best match"
+msgstr "Mejor enlace"
+
+#: iroko/config.py:311
 msgid "Welcome to iroko!"
 msgstr "Bienvenido a Iroko"
 
@@ -125,6 +137,10 @@ msgstr "Ha ocurrido algo inesperado"
 msgid "Home"
 msgstr "Inicio"
 
+#: iroko/iroko_theme/views.py:46
+msgid "Journal Catalog"
+msgstr ""
+
 #: iroko/iroko_theme/templates/iroko_theme/401.html:13
 msgid "Unauthorized"
 msgstr "No autorizado"
@@ -161,9 +177,9 @@ msgstr "Error de identificador"
 msgid "Logout"
 msgstr "Salir"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:22
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:13
 #, python-format
-msgid "Powered by <a href=\"%(link)s\">Invenio</a>"
+msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/header.html:15
@@ -243,71 +259,72 @@ msgstr "Palabras claves"
 msgid "Original Record"
 msgstr "Registro Original"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:77
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:81
 msgid "Source"
 msgstr "Fuente"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:92
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:96
 msgid "Source in Sceiba"
 msgstr "Fuente en Sceiba"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:98
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:102
 msgid "Resource Type"
 msgstr "Tipo de recurso"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:109
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:113
 msgid "Coverage"
 msgstr "Covertura"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:114
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:118
 msgid "Relation"
 msgstr "Relación"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:127
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:131
 msgid "Intellectual Property"
 msgstr "Propiedad Intelectual"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:131
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:135
 msgid "Author or Creator"
 msgstr "Autor o Creador"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:161
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:165
 msgid "Publisher"
 msgstr "Editorial"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:164
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:168
 msgid "Contributors"
 msgstr "Colaboradores"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:184
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:188
 msgid "Rights"
-msgstr "Derechos"
+msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:204
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:208
 msgid "Instanciation"
 msgstr "Instanciación"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:208
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:212
 msgid "Date"
 msgstr "Fecha"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:212
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:216
 msgid "Format"
 msgstr "Formato"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:224
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:228
 msgid "Resource Identifier"
 msgstr "Identificador del Recurso"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:228
-msgid "Lenguage"
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:232
+#, fuzzy
+msgid "Language"
 msgstr "Idioma"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:245
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:249
 msgid "Record not found"
 msgstr "Recurso no encontrado"
 
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:247
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:251
 msgid "The record you are looking for could not be found."
 msgstr "El registro que solicita no se ha encontrado"
 
@@ -371,11 +388,21 @@ msgstr ""
 msgid "The source you are looking for could not be found."
 msgstr ""
 
-#: iroko/records/config.py:88
-msgid "Best match"
-msgstr "Mejor enlace"
+#~ msgid "Rights"
+#~ msgstr "Derechos"
 
-#: iroko/records/config.py:94
-msgid "Most recent"
-msgstr "Más Reciente"
+#~ msgid "Rights prov"
+#~ msgstr ""
+
+#~ msgid "Español"
+#~ msgstr ""
+
+#~ msgid "Spain Spanish"
+#~ msgstr ""
+
+#~ msgid "Powered by <a href=\"%(link)s\">Invenio</a>"
+#~ msgstr ""
+
+#~ msgid " Powered by <a href=\"%(link)s\">Invenio</a>"
+#~ msgstr ""
 

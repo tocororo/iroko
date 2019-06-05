@@ -16,6 +16,7 @@ from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_full
 from iroko.sources.models import Source, HarvestType, SourcesType
 from iroko.taxonomy.models import Vocabulary, Term
+from flask_babelex import lazy_gettext as _
 
 
 blueprint = Blueprint(
@@ -42,7 +43,7 @@ def index():
 
 
 @blueprint.route('/catalog')
-@register_menu(blueprint, 'main.catalog', 'Catalogo de Revistas', order=2)
+@register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
 def catalogo():
 
     return render_template('iroko_theme/catalog/index.html', static_host='https://crai-static.upr.edu.cu/', iroko_catalog='https://sceiba-lab.upr.edu.cu/catalog')
