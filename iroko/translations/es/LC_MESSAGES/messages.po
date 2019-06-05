@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-04 22:33-0400\n"
+"POT-Creation-Date: 2019-06-05 03:12-0400\n"
 "PO-Revision-Date: 2019-06-04 04:20-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -18,27 +18,49 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: iroko/config.py:62
+#: iroko/config.py:63
 msgid "Spanish"
 msgstr "Español"
 
-#: iroko/config.py:98 iroko/config.py:102
+#: iroko/config.py:99 iroko/config.py:103
 msgid "iroko"
 msgstr ""
 
-#: iroko/config.py:265
+#: iroko/config.py:234
+#, fuzzy
+msgid "Keywords"
+msgstr "Palabras clave"
+
+#: iroko/config.py:244
+msgid "Creators"
+msgstr ""
+
+#: iroko/config.py:259
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:81
+
+msgid "Sources"
+msgstr "Fuentes"
+
+#: iroko/config.py:281
 msgid "Most recent"
 msgstr "Más reciente"
 
-#: iroko/config.py:271
+#: iroko/config.py:287
 msgid "Best match"
 msgstr "Mejor enlace"
 
-#: iroko/config.py:311
-msgid "Welcome to Iroko!"
+#: iroko/config.py:327
+#, fuzzy
+msgid "Welcome to iroko!"
 msgstr "Bienvenido a Iroko"
 
-#: iroko/curator/forms.py:40
+#: iroko/curator/forms.py:23
+#, fuzzy
+msgid "this element already exists"
+msgstr "El usuario ya existe "
+
+#: iroko/curator/forms.py:40 iroko/curator/forms.py:56
+#: iroko/curator/forms.py:91
 msgid "Name"
 msgstr "Nombre"
 
@@ -46,7 +68,7 @@ msgstr "Nombre"
 msgid "Name for the new vocabulary"
 msgstr "Nombre del nuevo vocabulario"
 
-#: iroko/curator/forms.py:45
+#: iroko/curator/forms.py:45 iroko/curator/forms.py:60
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:59
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:60
 msgid "Description"
@@ -56,88 +78,228 @@ msgstr "Descripción"
 msgid "Optional explanation for the vocabulary"
 msgstr "Explicación opcional para el vocabulario"
 
+#: iroko/curator/forms.py:63
+#, fuzzy
+msgid "Vocabulary"
+msgstr "Vocabulario"
+
+#: iroko/curator/forms.py:69
+msgid "MES Group"
+msgstr "Grupo MES"
+
 #: iroko/curator/forms.py:75
+msgid "Parent"
+msgstr "Padre"
+
+#: iroko/curator/forms.py:85
 msgid "None"
 msgstr "Ninguno"
+
+#: iroko/curator/forms.py:95
+#, fuzzy
+msgid "Source Type"
+msgstr "Tipo de recurso"
+
+#: iroko/curator/forms.py:100
+msgid "Harvest Type"
+msgstr ""
+
+#: iroko/curator/forms.py:105
+msgid "Harvest Endpoint"
+msgstr ""
+
+#: iroko/curator/forms.py:108
+msgid "Data"
+msgstr ""
+
+#: iroko/curator/forms.py:111
+msgid "Terms"
+msgstr "Térimos"
+
+#: iroko/curator/forms.py:112
+msgid "Please tick at least a term"
+msgstr "Por favor escoja al menso un elemento"
 
 #: iroko/curator/views.py:46
 msgid "Vocabulary added"
 msgstr "Vocabulario agregadp"
 
-#: iroko/curator/views.py:76
+#: iroko/curator/views.py:75
 msgid "Term added"
-msgstr ""
+msgstr "Término agregado"
 
-#: iroko/curator/views.py:108
+#: iroko/curator/views.py:107
 msgid "Source added"
-msgstr ""
+msgstr "Fuente agregada"
 
-#: iroko/curator/views.py:141
+#: iroko/curator/views.py:140
 msgid "Vocabulary changed"
-msgstr ""
+msgstr "Vocabulario editado"
 
-#: iroko/curator/views.py:175
+#: iroko/curator/views.py:174
 msgid "Term changed"
-msgstr ""
+msgstr "Término editado"
 
-#: iroko/curator/views.py:207
+#: iroko/curator/views.py:206
 msgid "Source changed"
-msgstr ""
+msgstr "Fuente editada"
 
 #: iroko/curator/templates/add_source.html:26
 msgid "Adding Source"
-msgstr ""
+msgstr "Agregando Fuente"
 
 #: iroko/curator/templates/add_source.html:71
 msgid "Add Source"
-msgstr ""
+msgstr "Adicionar Fuente"
 
 #: iroko/curator/templates/add_term.html:20
 msgid "Adding Term"
-msgstr ""
+msgstr "Agregando Término"
 
-#: iroko/curator/templates/add_term.html:47
+#: iroko/curator/templates/add_term.html:52
 msgid "Add Term"
-msgstr ""
+msgstr "Adicionar Término"
 
 #: iroko/curator/templates/add_vocabulary.html:20
 msgid "Adding Vocabulary"
-msgstr ""
+msgstr "Agregando Vocabularios"
 
 #: iroko/curator/templates/add_vocabulary.html:37
 msgid "Add Vocabulary"
-msgstr ""
+msgstr "Adicionar Vocabulario"
 
 #: iroko/curator/templates/edit_source.html:20
 msgid "Editing Source"
-msgstr ""
+msgstr "Editando Fuente"
 
 #: iroko/curator/templates/edit_source.html:52
 msgid "Edit Source"
-msgstr ""
+msgstr "Editar Fuente"
 
 #: iroko/curator/templates/edit_term.html:20
 msgid "Editing Term"
-msgstr ""
+msgstr "Editando Término"
 
 #: iroko/curator/templates/edit_term.html:47
 #: iroko/curator/templates/edit_vocabulary.html:40
 msgid "Save Changes"
-msgstr ""
+msgstr "Salvar Cambios"
 
 #: iroko/curator/templates/edit_vocabulary.html:20
 msgid "Editing Vocabulary"
-msgstr ""
+msgstr "Editando Vocabularios"
 
 #: iroko/curator/templates/error.html:20
 msgid "Something wrong happend"
+msgstr "Algo mal ha sucedido"
+
+#. NOTE: Form field label
+#: iroko/invenio_userprofiles/admin.py:45
+#: iroko/invenio_userprofiles/forms.py:48
+msgid "Username"
+msgstr "Usuario"
+
+#: iroko/invenio_userprofiles/admin.py:52
+msgid "User Management"
+msgstr "Administración de Usuario"
+
+#. NOTE: Form field help text
+#: iroko/invenio_userprofiles/forms.py:50
+#, python-format
+msgid "Required. %(username_rules)s"
 msgstr ""
+
+#: iroko/invenio_userprofiles/forms.py:52
+msgid "Username not provided."
+msgstr ""
+
+#. NOTE: Form label
+#: iroko/invenio_userprofiles/forms.py:57
+msgid "Full name"
+msgstr "Nombre completo"
+
+#. NOTE: Form validation error.
+#: iroko/invenio_userprofiles/forms.py:73
+msgid "Username already exists."
+msgstr "El usuario ya existe "
+
+#. NOTE: Form field label
+#: iroko/invenio_userprofiles/forms.py:83
+msgid "Email address"
+msgstr ""
+
+#. NOTE: Form field label
+#: iroko/invenio_userprofiles/forms.py:95
+msgid "Re-enter email address"
+msgstr ""
+
+#. NOTE: Form field help text
+#: iroko/invenio_userprofiles/forms.py:97
+msgid "Please re-enter your email address."
+msgstr ""
+
+#. NOTE: Form validation error.
+#: iroko/invenio_userprofiles/forms.py:102
+msgid "Email addresses do not match."
+msgstr ""
+
+#. NOTE: Form button label
+#: iroko/invenio_userprofiles/forms.py:111
+msgid "Resend verification email"
+msgstr "Reenviar correo electrónico de verificación"
+
+#: iroko/invenio_userprofiles/validators.py:20
+msgid ""
+"Username must start with a letter, be at least three characters long and "
+"only contain alphanumeric characters, dashes and underscores."
+msgstr ""
+
+#. NOTE: Menu item text (icon replaced by a user icon).
+#: iroko/invenio_userprofiles/views.py:82
+#, python-format
+msgid "%(icon)s Profile"
+msgstr "%(icon)s Perfil"
+
+#: iroko/invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:13
+#: iroko/invenio_userprofiles/views.py:85
+msgid "Profile"
+msgstr "Perfil"
+
+#. NOTE: Flash message.
+#: iroko/invenio_userprofiles/views.py:130
+msgid "Verification email sent."
+msgstr ""
+
+#. NOTE: Flash message after successful update of profile.
+#: iroko/invenio_userprofiles/views.py:157
+#, python-format
+msgid ""
+"Profile was updated. We have sent a verification email to %(email)s. "
+"Please check it."
+msgstr ""
+
+#. NOTE: Flash message after successful update of profile.
+#: iroko/invenio_userprofiles/views.py:163
+msgid "Profile was updated."
+msgstr "Perfil actualizado"
+
+#: iroko/invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:21
+msgid "You have not yet verified your email address."
+msgstr ""
+
+#: iroko/invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:36
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: iroko/invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:37
+msgid "Update profile"
+msgstr "Actualizar Perfil"
 
 #: iroko/iroko_theme/ext.py:65
 msgid "Home"
 msgstr "Inicio"
 
-#: iroko/iroko_theme/views.py:46
+#: iroko/iroko_theme/views.py:47
 msgid "Journal Catalog"
 msgstr "Catálogo de Revistas"
 
@@ -159,7 +321,7 @@ msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/404.html:13
 msgid "Page not found"
-msgstr ""
+msgstr "Página no encontrada"
 
 #: iroko/iroko_theme/templates/iroko_theme/404.html:14
 msgid "The page you are looking for could not be found."
@@ -175,12 +337,24 @@ msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/admin_header.html:72
 msgid "Logout"
-msgstr ""
+msgstr "Salir"
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:13
 #, fuzzy, python-format
 msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
 msgstr "Basado en <a href=\"%(link)s\">Invenio</a>"
+
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:27
+msgid "Institutions"
+msgstr "Instituciones"
+
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:45
+msgid "Data Bases"
+msgstr "Bases de Datos"
+
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:63
+msgid "Subjects"
+msgstr "Materias"
 
 #: iroko/iroko_theme/templates/iroko_theme/header.html:15
 #: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:15
@@ -226,12 +400,12 @@ msgstr ""
 #: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:27
 #: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:38
 msgid "Log In"
-msgstr ""
+msgstr "Entrar"
 
 #: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:35
-#, python-format
-msgid "New to %(sitename)s?"
-msgstr ""
+#: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:37
+msgid "Already have an account?"
+msgstr "¿No tiene cuenta aún?"
 
 #: iroko/iroko_theme/templates/iroko_theme/accounts/login_user.html:35
 #: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:32
@@ -246,10 +420,6 @@ msgstr "¿Ha olvidado su contraseña?"
 #, python-format
 msgid "Sign up for a %(sitename)s account!"
 msgstr ""
-
-#: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:37
-msgid "Already have an account?"
-msgstr "¿No tiene cuenta aún?"
 
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:46
 msgid "Key Words"
@@ -297,11 +467,11 @@ msgstr "Colaboradores"
 
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:188
 msgid "Rights"
-msgstr ""
+msgstr "Derechos"
 
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:208
 msgid "Instanciation"
-msgstr ""
+msgstr "Instanciación"
 
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:212
 msgid "Date"
@@ -322,7 +492,7 @@ msgstr "Idioma"
 
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:249
 msgid "Record not found"
-msgstr ""
+msgstr "Registro no encontrado"
 
 #: iroko/iroko_theme/templates/iroko_theme/records/record.html:251
 msgid "The record you are looking for could not be found."
@@ -350,15 +520,15 @@ msgstr "Plataforma"
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:37
 msgid "Last Check"
-msgstr ""
+msgstr "Última vez"
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:38
 msgid "Access in"
-msgstr ""
+msgstr "Acceso en"
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:39
 msgid "Creation date"
-msgstr ""
+msgstr "Fecha de creación"
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:43
 msgid "ISSN"
@@ -382,15 +552,12 @@ msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:70
 msgid "Source not found"
-msgstr ""
+msgstr "Fuente no encontrada"
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:72
 msgid "The source you are looking for could not be found."
 msgstr ""
 
-#~ msgid "Español"
-#~ msgstr ""
-
-#~ msgid "Spain Spanish"
-#~ msgstr "Español España"
+#~ msgid "New to %(sitename)s?"
+#~ msgstr "Nuevo en el Sistema"
 

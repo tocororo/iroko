@@ -72,15 +72,15 @@
       </div>
     {% endif %}
     <br/>
-    {{source.name}}
+    <!-- {{source.name}} -->
     <br/>
-    {{source.data}}
+    <!-- {{source.data}} -->
     <br/>
     <dl class="row">  
       {% if record.identifiers %}  
         <dt class="col-sm-2">{{ _('Source') }}:</dt>
         <dd class="col-sm-10">  
-          {%- if record.identifiers is iterable and record.identifiers is not string%}
+          <!-- {%- if record.identifiers is iterable and record.identifiers is not string%}
             {%- for identify in record.identifiers %}
               {%- if identify.idtype == 'url' %} 
                 <a class="card-text text-info text-truncate" href="{{ identify.value }}" target="blank">
@@ -90,8 +90,8 @@
             {%- endfor %}
           {%- else %}          
             {{ record.sources }}
-          {% endif %}
-                  
+          {% endif %} -->
+          {{source.name}}
           &nbsp;| <a class="card-text text-info text-truncate" href="{{ url_for('iroko_theme.view_source_id', uuid=record.source.uuid) }}">
               <i>{{ _('Source in Sceiba') }}</i>
             </a>

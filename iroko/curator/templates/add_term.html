@@ -36,6 +36,11 @@
                 {{ form.vocabulary(class_="form-control")|safe }}
                 {{ errors(form.vocabulary) }}
             </div>
+            <div class="form-group {{ 'has-error' if form.group.errors }}">
+              <label for="group">{{ form.group.label }}</label>
+              {{ form.group(class_="form-control")|safe }}
+              {{ errors(form.group) }}
+            </div>
             <div class="form-group {{ 'has-error' if form.parent.errors }}">
                 <label for="parent">{{ form.parent.label }}</label>
                 {{ form.parent(class_="form-control")|safe }}
