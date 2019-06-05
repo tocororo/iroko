@@ -231,7 +231,8 @@ RECORDS_REST_FACETS = {
         'aggs':{
             'keywords':{
                 'terms':{
-                    'field': 'keywords'
+                    'field': 'keywords',
+                    'size' : 5
                 },
                 "meta": {
                     "title": "Palabras Clave",
@@ -240,7 +241,8 @@ RECORDS_REST_FACETS = {
             },
             'creators':{
                 'terms':{
-                    'field': 'creators.name'
+                    'field': 'creators.name',
+                    'size' : 5
                 },
                 "meta": {
                     "title": "Autores",
@@ -254,7 +256,8 @@ RECORDS_REST_FACETS = {
             # },
             'sources':{
                 'terms':{
-                    'field': 'source.name'
+                    'field': 'source.name',
+                    'size' : 5
                 },
                 "meta": {
                     "title": "Fuentes",
