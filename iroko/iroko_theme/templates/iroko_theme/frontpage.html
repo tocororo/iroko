@@ -17,7 +17,47 @@
   <div class="d-flex flex-wrap justify-content-center ">    
     <!-- {{vocab_stats}} -->
       {% for stat in vocab_stats %}
-          {% if stat['institutions'] %}
+          {% if stat['records'] %}
+            <a href="search?">
+              <div class="row mt-3 ml-2">         
+              <div class="col my-1" >
+                <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Records') }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['records'] }}</div>
+                      </div>  
+                      <div>
+                        <i class="fa fa-list fa-2x text-default"></i>                    
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>          
+            </div>
+          </a>    
+          {% elif stat['sources'] %}
+          <a href="catalog">
+          <div class="row mt-3 ml-2">         
+            <div class="col my-1" >
+              <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Sources') }}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['sources'] }}</div>
+                    </div>  
+                    <div>
+                      <i class="fa fa-list fa-2x text-default"></i>                    
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>          
+          </div>
+        </a>           
+          {% elif stat['institutions'] %}
               <div class="row mt-3 ml-2">         
                 <div class="col my-1" >
                   <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
@@ -71,43 +111,8 @@
                   </div>
                 </div>          
               </div>
-            {% elif stat['sources'] %}
-              <div class="row mt-3 ml-2">         
-                <div class="col my-1" >
-                  <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                    <div class="card-body">
-                      <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                          <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Sources') }}</div>
-                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['sources'] }}</div>
-                        </div>  
-                        <div>
-                          <i class="fa fa-list fa-2x text-default"></i>                    
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>          
-              </div>  
-            {% elif stat['records'] %}
-              <div class="row mt-3 ml-2">         
-                <div class="col my-1" >
-                  <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                    <div class="card-body">
-                      <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                          <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Records') }}</div>
-                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['records'] }}</div>
-                        </div>  
-                        <div>
-                          <i class="fa fa-list fa-2x text-default"></i>                    
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>          
-              </div>    
-          {% endif %}          
+            {% endif %} 
+
       {% endfor %}      
   </div>
   <br />

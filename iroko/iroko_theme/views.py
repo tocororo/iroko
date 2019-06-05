@@ -39,11 +39,13 @@ def index():
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
+    vocab_stats.append({'records':str(get_record_count())})
+    vocab_stats.append({'sources':str(Source.query.count())})
     for vocab in vocabularies:
         vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
 
-    vocab_stats.append({'sources':str(Source.query.count())})
-    vocab_stats.append({'records':str(get_record_count())})
+    
+    
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
