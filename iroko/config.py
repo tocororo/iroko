@@ -25,6 +25,7 @@ from invenio_records_rest.utils import allow_all, check_elasticsearch
 from invenio_search import RecordsSearch
 from flask_babelex import lazy_gettext as _
 
+from invenio_app.config import APP_DEFAULT_SECURE_HEADERS as INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
 
 def _(x):
     """Identity function used to trigger string extraction."""
@@ -423,6 +424,18 @@ INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
 
 
 REST_ENABLE_CORS = True
+APP_DEFAULT_SECURE_HEADERS = INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
+APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {}
+APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {
+  "default-src": "'self'",
+  "script-src":"'self'",
+  "img-src": "'self' data:",
+  "object-src": "'self' ",
+  "style-src":"'self' ",
+  "media-src": "'self' ",
+  "child-src": "'self' ",
+  "font-src": "'self' data:"
+}
 
 # HARVESTER_DATA_DIRECTORY='data/sceiba-data'
 HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
