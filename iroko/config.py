@@ -428,7 +428,7 @@ APP_DEFAULT_SECURE_HEADERS = INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
 APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {}
 APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {
   "default-src": "'self'",
-  "script-src":"'self'",
+  "script-src":"'self' 'unsafe-inline' 'unsafe-eval'",
   "img-src": "'self' data:",
   "object-src": "'self' ",
   "style-src":"'self' ",
