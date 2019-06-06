@@ -431,7 +431,7 @@ APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {
   "script-src":"'self' 'unsafe-inline' 'unsafe-eval'",
   "img-src": "'self' data:",
   "object-src": "'self' ",
-  "style-src":"'self' ",
+  "style-src":"'self' 'unsafe-inline' 'unsafe-eval' ",
   "media-src": "'self' ",
   "child-src": "'self' ",
   "font-src": "'self' data:"
