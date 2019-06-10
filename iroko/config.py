@@ -97,11 +97,11 @@ SETTINGS_TEMPLATE = 'iroko_theme/page_settings.html'
 # Theme configuration
 # ===================
 #: Site name
-THEME_SITENAME = _('iroko')
+THEME_SITENAME = _('sceiba')
 #: Use default frontpage.
 THEME_FRONTPAGE = False
 #: Frontpage title.
-THEME_FRONTPAGE_TITLE = _('iroko')
+THEME_FRONTPAGE_TITLE = _('sceiba')
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
@@ -232,7 +232,7 @@ RECORDS_REST_FACETS = {
             'sources': terms_filter('source.name')
         },
         'aggs':{
-            _('Keywords'):{
+            'keywords':{
                 'terms':{
                     'field': 'keywords',
                     'size' : 5
@@ -242,13 +242,13 @@ RECORDS_REST_FACETS = {
                     "order": 3,
                 }
             },
-            _('Creators'):{
+            'creators':{
                 'terms':{
                     'field': 'creators.name',
                     'size' : 5
                 },
                 "meta": {
-                    "title": "Autores",
+                    "title":  "Autores",
                     "order": 2,
                 }
             },
@@ -257,7 +257,7 @@ RECORDS_REST_FACETS = {
             #         'field': 'spec.name'
             #     }
             # },
-            _('Sources'):{
+            'source':{
                 'terms':{
                     'field': 'source.name',
                     'size' : 5
@@ -279,13 +279,13 @@ RECORDS_REST_FACETS = {
 RECORDS_REST_SORT_OPTIONS = {
     'records':{
         'mostrecent': {
-            'title': _('Most recent'),
+            'title': 'Most recent',
             'fields': ['-publication_date'],
             'default_order': 'asc',
             'order': 1,
         },
         'bestmatch': {
-            'title': _('Best match'),
+            'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
             'order': 2,
