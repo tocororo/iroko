@@ -72,7 +72,7 @@ def get_sources():
 def get_sources_count():
     """retorna la cantidad de sources"""
     result = Sources.count_sources()
-    return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result) 
+    return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
 
 @api_blueprint.route('/source/id/<id>')
 def get_source_by_id(id):
@@ -88,7 +88,7 @@ def jsonify_source(src):
     if src:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
-                            {'data': sources_schema_full.dump(src).data,\
+                            {'data': source_schema_full.dump(src).data,\
                              'count': 1})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 

@@ -61,7 +61,7 @@ BABEL_DEFAULT_LANGUAGE = 'en'
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 #: Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
-    ('es', _('Spanish')) ,  
+    ('es', _('Spanish')) ,
 ]
 
 
@@ -290,7 +290,7 @@ RECORDS_REST_SORT_OPTIONS = {
             'default_order': 'asc',
             'order': 2,
         },
-        
+
     }
 }
 """Setup sorting options."""
@@ -424,19 +424,20 @@ INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
 
 
 REST_ENABLE_CORS = True
-APP_DEFAULT_SECURE_HEADERS = INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
-APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {}
-APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {
-  "default-src": "'self'",
-  "script-src":"'self' 'unsafe-inline' 'unsafe-eval'",
-  "img-src": "'self' data:",
-  "object-src": "'self' ",
-  "style-src":"'self' 'unsafe-inline' 'unsafe-eval' ",
-  "media-src": "'self' ",
-  "child-src": "'self' ",
-  "font-src": "'self' data:"
-}
-
+# APP_DEFAULT_SECURE_HEADERS = INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
+# APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {}
+# APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {
+#   "default-src": "'self'",
+#   "script-src":"'self' 'unsafe-inline' 'unsafe-eval'",
+#   "img-src": "'self' data:",
+#   "object-src": "'self' ",
+#   "style-src":"'self' 'unsafe-inline' 'unsafe-eval' ",
+#   "media-src": "'self' ",
+#   "child-src": "'self' ",
+#   "font-src": "'self' data:"
+# }
+# TODO: esto de unsafe inline hay que arreglarlo para el deployment to production...
+# basicamente esto parece que se debe pasar para el deployment, dentro del role o el playbook de ansible que despliega invenio.
 # HARVESTER_DATA_DIRECTORY='data/sceiba-data'
 HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
