@@ -257,7 +257,7 @@ RECORDS_REST_FACETS = {
             #         'field': 'spec.name'
             #     }
             # },
-            'source':{
+            'sources':{
                 'terms':{
                     'field': 'source.name',
                     'size' : 5
