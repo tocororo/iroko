@@ -8,21 +8,25 @@
 
 <div ng-repeat="record in vm.invenioSearchResults.hits.hits track by $index">
   <h4><a target="_self" ng-href="/records/{{ record.metadata.id }}">{{ record.metadata.title }}</a></h4>
-  <ul class="list-inline">
-      <li ng-repeat='creator in record.metadata.creators'>
-        <a target="_self" ng-href="/search?page=1&size=20&creators={{ creator.name }}">{{ creator.name }}</a>  
+  <div> Authors:
+  <ul class="list-inline d-flex flex-row flex-wrap">
+      <li class="ml-1" ng-repeat='creator in record.metadata.creators'>
+        <a class="text-primary" target="_self" ng-href="/search?page=1&size=20&creators={{ creator.name }}">{{ creator.name }}</a>
       </li>
   </ul>
-  <ul class="list-inline">
-    <li ng-repeat='keyword in record.metadata.keywords'>
-      <a target="_self" ng-href="/search?page=1&size=20&keywords={{ keyword }}">{{ keyword }}</a>
-    </li>
-</ul>
+  </div>
+
   <p>{{record.metadata.description}}</p>
+  <div> Keywords:
+    <ul class="list-inline d-flex flex-row flex-wrap">
+      <li class="ml-1" ng-repeat='keyword in record.metadata.keywords'>
+        <a class="text-primary" target="_self" ng-href="/search?page=1&size=20&keywords={{ keyword }}">{{ keyword }}</a>
+      </li>
+  </ul></div>
   <p>
-      <a target="_self" ng-href="/source/{{ record.metadata.source.uuid }}">{{ record.metadata.source.name }}</a>
+      Source: <a target="_self" ng-href="/search?page=1&size=20&source={{ record.metadata.source.name }}">{{ record.metadata.source.name }}</a>
   </p>
-  <p>{{record.metadata.publication_date}}</p>
+  <p>Publish Date: {{record.metadata.publication_date}}</p>
   <hr />
 </div>
 

@@ -238,7 +238,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title": "Palabras Clave",
+                    "title": "Keywords",
                     "order": 3,
                 }
             },
@@ -248,7 +248,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title":  "Autores",
+                    "title":  "Authors",
                     "order": 2,
                 }
             },
@@ -263,7 +263,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title": "Fuentes",
+                    "title": "Sources",
                     "order": 1,
                 }
             },

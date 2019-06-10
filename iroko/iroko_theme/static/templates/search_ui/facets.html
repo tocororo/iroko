@@ -6,10 +6,9 @@
   under the terms of the MIT License; see LICENSE file for more details.
 -->
 <div ng-init="tree=[];tree_more=[]" ng-repeat="aggr in orderedAggs track by $index">
-    {{ aggr }}
     <div ng-if="aggr.value.buckets.length > 0 || getValues(aggr.key)" class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">{{ aggr.meta.title }}</h3>
+        <h3 class="panel-title">{{ aggr.value.meta.title }}</h3>
       </div>
       <div class="panel-body">
         <ul class="list-unstyled" ng-init="values = getValues(aggr.key)" ng-repeat="item in aggr.value.buckets">
