@@ -438,7 +438,7 @@ REST_ENABLE_CORS = True
 # }
 # TODO: esto de unsafe inline hay que arreglarlo para el deployment to production...
 # basicamente esto parece que se debe pasar para el deployment, dentro del role o el playbook de ansible que despliega invenio.
-# HARVESTER_DATA_DIRECTORY='data/sceiba-data'
-HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
+HARVESTER_DATA_DIRECTORY='data/sceiba-data'
+# HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
 
