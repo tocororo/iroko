@@ -8,7 +8,7 @@
 
 <div ng-repeat="record in vm.invenioSearchResults.hits.hits track by $index">
   <h4><a target="_self" ng-href="/records/{{ record.metadata.id }}">{{ record.metadata.title }}</a></h4>
-  <div> Authors:
+  <div class="list-inline d-flex flex-row flex-wrap" ng-if="record.metadata.keywords.length > 0" > <p>Authors:</p>
   <ul class="list-inline d-flex flex-row flex-wrap">
       <li class="ml-1" ng-repeat='creator in record.metadata.creators'>
         <a class="text-primary" target="_self" ng-href="/search?page=1&size=20&creators={{ creator.name }}">{{ creator.name }}</a>
@@ -17,7 +17,8 @@
   </div>
 
   <p>{{record.metadata.description}}</p>
-  <div> Keywords:
+  <div class="list-inline d-flex flex-row flex-wrap"  ng-if="record.metadata.keywords.length > 0" >
+    <p>Keywords:</p>
     <ul class="list-inline d-flex flex-row flex-wrap">
       <li class="ml-1" ng-repeat='keyword in record.metadata.keywords'>
         <a class="text-primary" target="_self" ng-href="/search?page=1&size=20&keywords={{ keyword }}">{{ keyword }}</a>
