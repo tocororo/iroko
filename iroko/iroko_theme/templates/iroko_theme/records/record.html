@@ -41,17 +41,64 @@
   {% if record %}
     {% if record.title %}<h2 class="mt-5">{{record.title}}</h2>{% endif %}
     <br/>
+
+  <dl class="row">    
+      {% if record.source %}
+      <dt class="col-sm-2">{{ _('Source') }}:</dt>
+      <dd class="col-sm-10">
+          <a class="text-primary" target="_self" href="/search?sources={{ record.source.name }}">
+        {{ record.source.name }}</a></dd>
+          
+  {% endif %}
+  </dl>
     {% if record.keywords %}
       <dl class="row">      
-        <dt class="col-sm-2">{{ _('Key Words') }}:</dt>
+        <dt class="col-sm-2">{{ _('Keywords') }}:</dt>
         <dd class="col-sm-10">
           {%-if record.keywords is iterable and record.keywords is not string %}        
               {% for key in record.keywords %}
+              <a class="text-primary" target="_self" href="/search?keywords={{ key }}">
                 {{ key | lower }}{% if key != record.keywords|last %},&nbsp;{% endif %}
-                
+              </a>
               {% endfor %}                
           {%- endif %}
         </dd>
+      </dl>
+    {% endif %}
+    <dl class="row">
+    {% if record.creators %}
+    <dt class="col-sm-2">
+        {{ _('Authors') }}:
+      </dt>
+      <dd class="col-sm-10"> 
+        <dl class="row">   
+          {%- if record.creators is iterable and record.creators is not string %}
+            {%- for contributor in record.creators %}
+              {%- if contributor.roles %}
+                {%- for rol in contributor.roles %}
+                  {%- if rol == 'Author' and contributor.name %}
+                  <dd class="col-sm-12">
+                      <a class="text-primary" target="_self" href="/search?creators={{ contributor.name }}">
+                    {{ contributor.name }}                           
+                    {% if contributor.affiliations is iterable and record.affiliations is not string %}
+                        (
+                        {% for afiliation in contributor.affiliations %}
+                          {{afiliation}}
+                          {% if afiliation != contributor.affiliations|last %}
+                            ,
+                          {% endif %}
+                        {% endfor %}  
+                        )
+                    {% endif %}
+                  </a>
+                  </dd>
+                  {%- endif %}
+                {%- endfor %}
+              {%- endif%}
+            {%- endfor %}
+          {%- endif %}
+        </dl>  
+      </dd>
       </dl>
     {% endif %}
     {% if record.description %}
@@ -63,7 +110,7 @@
             {%- for identify in record.identifiers %}
               {%- if identify.idtype == 'url' %} 
                 <a class="btn btn-default" href="{{ identify.value }}" target="blank">
-                    {{ _('Original Record') }}
+                    {{ _('Read in Source') }}
                 </a> 
               {%- endif %}
             {%- endfor %}          
@@ -76,27 +123,34 @@
     <br/>
     <!-- {{source.data}} -->
     <br/>
-    <dl class="row">  
-      {% if record.identifiers %}  
-        <dt class="col-sm-2">{{ _('Source') }}:</dt>
+    <dl class="row">      
+        {% if record.identifiers %}  
+        <dt class="col-sm-2">{{ _('Identifiers') }}:</dt>
         <dd class="col-sm-10">  
-          <!-- {%- if record.identifiers is iterable and record.identifiers is not string%}
-            {%- for identify in record.identifiers %}
-              {%- if identify.idtype == 'url' %} 
-                <a class="card-text text-info text-truncate" href="{{ identify.value }}" target="blank">
-                    {{ record.sources }}
-                </a> 
+          {%- if record.identifiers is iterable and record.identifiers is not string%}
+              {%- for identify in record.identifiers %}
+              <p>{{ identify.idtype | upper }}: {{identify.value}}</p>
+              {%- endfor %}
+              <p>OAI: {{record.original_identifier}}</p>
+            {%- endif %}
+          </dd>
+          {%- endif %}
+          <br/>
+          {% if record.sources %}  
+          <dt class="col-sm-2">{{ _('Sources') }}:</dt>
+          <dd class="col-sm-10">  
+            {%- if record.sources is iterable%}
+                {%- for s in record.sources %}
+                <p>{{ s }}</p>
+                {%- endfor %}
               {%- endif %}
-            {%- endfor %}
-          {%- else %}          
-            {{ record.sources }}
-          {% endif %} -->
-          {{source.name}}
-          &nbsp;| <a class="card-text text-info text-truncate" href="{{ url_for('iroko_theme.view_source_id', uuid=record.source.uuid) }}">
-              <i>{{ _('Source in Sceiba') }}</i>
-            </a>
-        </dd>
-      {% endif %}
+            </dd>
+            {%- endif %}
+        
+        <!-- {% if record.original_identifier %}
+        <dt class="col-sm-2">{{ _('OAI Identifier') }}:</dt>
+        <dd class="col-sm-10">{{ record.original_identifier }}</dd>
+      {% endif %} -->
       {% if record.types %}
         {% if record.types is iterable and record.types is not string %}
           <dt class="col-sm-2">{{ _('Resource Type') }}:</dt>
@@ -109,6 +163,18 @@
           </dd>        
         {% endif %}       
       {%- endif %}
+      {% if record.formats %}
+        <dt class="col-sm-2">{{ _('Formats') }}:</dt>
+        <dd class="col-sm-10">
+          <dl class="row">
+            {%-if record.formats is iterable and record.formats is not string %}
+              {% for format in record.formats %}
+              <dd class="col-sm-12">{{ format }}</dd>
+              {% endfor %}  
+            {%- endif %}
+          </dl>           
+        </dd>
+      {% endif %}
       {% if record.coverages %}
         <dt class="col-sm-2">{{ _('Coverage') }}:</dt>
         <dd class="col-sm-10">{{ record.coverages }}</dd>
@@ -125,116 +191,37 @@
             </dd>      -->
         {%- endif %}
       {% endif %}
+      {% if record.publisher %}
+              <dt class="col-sm-2">{{ _('Publisher') }}:</dt>
+              <dd class="col-sm-10"><p>{{ record.publisher }}</p></dd>    
+      {% endif %}
+      {% if record.rights %}
+        <dt class="col-sm-2">{{ _('Rights') }}:</dt>
+        <dd class="col-sm-10">
+          <dl class="row">            
+                {%-if record.rights is iterable and record.rights is not string %}
+                  {% for e in record.rights %}
+                    <dd class="col-sm-12">
+                      {{ e }}
+                    </dd>
+                  {% endfor %}  
+                {%- endif %}
+          </dl>            
+        </dd>        
+      {% endif %}
+      {% if record.publication_date %}      
+      <dt class="col-sm-2">{{ _('Publication Date') }}:</dt>
+      <dd class="col-sm-10">{{ record.publication_date }}</dd>
+      {% endif %}
+
+
+      {% if record.language %}
+        <dt class="col-sm-2">{{ _('Language') }}:</dt>
+        <dd class="col-sm-10">{{ record.language }}</dd>
+      {% endif %}
     </dl>
 
-    <div class="card border-light mb-3">
-      <div class="card-header bg-transparent border-Secondary text-default">{{ _('Intellectual Property') }}</div>
-        <div class="card-body">
-          <dl class="row">          
-            <dt class="col-sm-2">
-              {{ _('Author or Creator') }}:
-            </dt>
-            <dd class="col-sm-10"> 
-              <dl class="row">   
-                {%- if record.contributors is iterable and record.contributors is not string %}
-                  {%- for contributor in record.contributors %}
-                    {%- if contributor.roles %}
-                      {%- for rol in contributor.roles %}
-                        {%- if rol == 'Author' and contributor.name %}
-                        <dd class="col-sm-12">
-                          {{ contributor.name }}                           
-                          {% if contributor.affiliations is iterable and record.affiliations is not string %}
-                              (
-                              {% for afiliation in contributor.affiliations %}
-                                {{afiliation}}
-                                {% if afiliation != contributor.affiliations|last %}
-                                  ,
-                                {% endif %}
-                              {% endfor %}  
-                              )
-                          {% endif %}
-                        </dd>
-                        {%- endif %}
-                      {%- endfor %}
-                    {%- endif%}
-                  {%- endfor %}
-                {%- endif %}
-              </dl>  
-            </dd>
-            {% if record.publisher %}
-              <dt class="col-sm-2">{{ _('Publisher') }}:</dt>
-              <dd class="col-sm-10">{{ record.publisher }}</dd>    
-            {% endif %}
-            <dt class="col-sm-2">{{ _('Contributors') }}:</dt>
-            <dd class="col-sm-10">
-              <dl class="row">   
-                  {%- if record.contributors is iterable and record.contributors is not string %}
-                    {%- for contributor in record.contributors %}
-                      {%- if contributor.roles and 'Author' not in contributor.roles %}
-                        {%- for rol in contributor.roles %}
-                          {%- if rol != 'Author' and contributor.name %}
-                          <dd class="col-sm-12">
-                            {{ contributor.name }}                            
-                            ({{ rol }})
-                          </dd>
-                          {%- endif %}
-                        {%- endfor %}
-                      {%- endif%}
-                    {%- endfor %}
-                  {%- endif %}
-                </dl> 
-            </dd>
-            {% if record.rights %}
-              <dt class="col-sm-2">{{ _('Rights') }}:</dt>
-              <dd class="col-sm-10">
-                <dl class="row">            
-                      {%-if record.rights is iterable and record.rights is not string %}
-                        {% for e in record.rights %}
-                          <dd class="col-sm-12">
-                            {{ e }}
-                          </dd>
-                        {% endfor %}  
-                      {%- endif %}
-                </dl>            
-              </dd>        
-            {% endif %}
-          </dl>    
-          
-        </div>
-    </div> 
-    
-    
-    <div class="card border-light mb-3">
-        <div class="card-header bg-transparent border-Secondary text-default">{{ _('Instanciation') }}</div>
-        <div class="card-body">
-          <dl class="row">    
-            {% if record.publication_date %}      
-              <dt class="col-sm-2">{{ _('Date') }}:</dt>
-              <dd class="col-sm-10">{{ record.publication_date }}</dd>
-            {% endif %}
-            {% if record.formats %}
-              <dt class="col-sm-2">{{ _('Format') }}:</dt>
-              <dd class="col-sm-10">
-                <dl class="row">
-                  {%-if record.formats is iterable and record.formats is not string %}
-                    {% for format in record.formats %}
-                    <dd class="col-sm-12">{{ format }}</dd>
-                    {% endfor %}  
-                  {%- endif %}
-                </dl>           
-              </dd>
-            {% endif %}
-            {% if record.original_identifier %}
-              <dt class="col-sm-2">{{ _('Resource Identifier') }}:</dt>
-              <dd class="col-sm-10">{{ record.original_identifier }}</dd>
-            {% endif %}
-            {% if record.language %}
-              <dt class="col-sm-2">{{ _('Language') }}:</dt>
-              <dd class="col-sm-10">{{ record.language }}</dd>
-            {% endif %}
-          </dl>
-        </div>
-    </div>
+
 
     <!-- <div>
       {% for key,value in record.items() %}
