@@ -16,9 +16,48 @@ from iroko.pidstore.fetchers import iroko_uuid_fetcher
 from iroko.pidstore.minters import iroko_uuid_minter
 from iroko.pidstore.providers import IrokoUUIDProvider
 
+from iroko.config import SEARCH_ELASTIC_HOSTS
+
 from invenio_jsonschemas import current_jsonschemas
 
 from flask import current_app
+
+from elasticsearch_dsl.connections import connections
+
+from elasticsearch_dsl import Search, Q
+
+ 
+class IrokoAggs:
+
+    @staticmethod
+    def getAggrs(field):
+        # Define a default Elasticsearch client
+        client = connections.create_connection(hosts=SEARCH_ELASTIC_HOSTS)
+        query_body = {
+            "size": 0,
+            "aggs": {
+                "sources": {
+                    "terms": {
+                        "field": field,
+                        'size' : 100
+                    }
+                }
+            }
+        }
+        s = Search(using=client, index="records").update_from_dict(query_body)
+        t = s.execute()
+        result = []
+        for item in t.aggregations.sources.buckets:
+# item.key will the house number
+            result.append({
+                'key': item.key,
+                'count': item.doc_count
+            }) 
+        # s = Search(using=client, index="records")
+        
+        # s.aggs.bucket('sources', 'terms', field='source.name', size=0)
+        # s = s.execute()
+        return result
 
 class IrokoRecord (Record):
     """IrokoRecord class

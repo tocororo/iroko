@@ -46,7 +46,7 @@
       {% if record.source %}
       <dt class="col-sm-2">{{ _('Source') }}:</dt>
       <dd class="col-sm-10">
-          <a class="text-primary" target="_self" href="/search?sources={{ record.source.name }}">
+          <a class="badge badge-primary" target="_self" href="/search?sources={{ record.source.name }}">
         {{ record.source.name }}</a></dd>
           
   {% endif %}
@@ -57,7 +57,7 @@
         <dd class="col-sm-10">
           {%-if record.keywords is iterable and record.keywords is not string %}        
               {% for key in record.keywords %}
-              <a class="text-primary" target="_self" href="/search?keywords={{ key }}">
+              <a class="badge badge-primary" target="_self" href="/search?keywords={{ key }}">
                 {{ key | lower }}{% if key != record.keywords|last %},&nbsp;{% endif %}
               </a>
               {% endfor %}                
@@ -68,7 +68,7 @@
     <dl class="row">
     {% if record.creators %}
     <dt class="col-sm-2">
-        {{ _('Authors') }}:
+        {{ _('Creators') }}:
       </dt>
       <dd class="col-sm-10"> 
         <dl class="row">   
@@ -78,7 +78,7 @@
                 {%- for rol in contributor.roles %}
                   {%- if rol == 'Author' and contributor.name %}
                   <dd class="col-sm-12">
-                      <a class="text-primary" target="_self" href="/search?creators={{ contributor.name }}">
+                      <a class="badge badge-primary" target="_self" href="/search?creators={{ contributor.name }}">
                     {{ contributor.name }}                           
                     {% if contributor.affiliations is iterable and record.affiliations is not string %}
                         (

@@ -19,6 +19,7 @@ from iroko.taxonomy.models import Vocabulary, Term
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
 from flask_babelex import lazy_gettext as _
 
+from iroko.records.api import IrokoAggs
 
 
 blueprint = Blueprint(
@@ -54,11 +55,11 @@ def index():
     )
 
 
-@blueprint.route('/catalog')
-@register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
-def catalogo():
+# @blueprint.route('/catalog')
+# @register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
+# def catalogo():
 
-    return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
+#     return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
 
 
 @blueprint.route('/source/<uuid>')
@@ -66,6 +67,21 @@ def view_source_id(uuid):
     src = Sources.get_source_by_id(uuid=uuid)
     source = source_schema_full.dump(src)
     return render_template('iroko_theme/sources/source.html', source=source.data)
+
+@blueprint.route('/aggr/sources')
+def view_aggr_sources():
+    sources = IrokoAggs.getAggrs("source.name")
+    return render_template('iroko_theme/records/aggr.html',name="Sources" ,aggrs=sources,keyword='sources')
+
+@blueprint.route('/aggr/keywords')
+def view_aggr_keywords():
+    sources = IrokoAggs.getAggrs("keywords")
+    return render_template('iroko_theme/records/aggr.html',name="Keywords" ,aggrs=sources,keyword='keywords')
+
+@blueprint.route('/aggr/authors')
+def view_aggr_authors():
+    sources = IrokoAggs.getAggrs("creators.name")
+    return render_template('iroko_theme/records/aggr.html',name="Creators" ,aggrs=sources,keyword='creators')
 
 
 def unauthorized(e):

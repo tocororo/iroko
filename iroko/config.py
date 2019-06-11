@@ -25,7 +25,7 @@ from invenio_records_rest.utils import allow_all, check_elasticsearch
 from invenio_search import RecordsSearch
 from flask_babelex import lazy_gettext as _
 
-from invenio_app.config import APP_DEFAULT_SECURE_HEADERS as INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
+
 
 def _(x):
     """Identity function used to trigger string extraction."""
@@ -248,7 +248,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title":  "Authors",
+                    "title":  "Creators",
                     "order": 2,
                 }
             },
@@ -424,20 +424,7 @@ INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
 
 
 REST_ENABLE_CORS = True
-# APP_DEFAULT_SECURE_HEADERS = INVENIO_APP_APP_DEFAULT_SECURE_HEADERS
-# APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {}
-# APP_DEFAULT_SECURE_HEADERS['content_security_policy'] = {
-#   "default-src": "'self'",
-#   "script-src":"'self' 'unsafe-inline' 'unsafe-eval'",
-#   "img-src": "'self' data:",
-#   "object-src": "'self' ",
-#   "style-src":"'self' 'unsafe-inline' 'unsafe-eval' ",
-#   "media-src": "'self' ",
-#   "child-src": "'self' ",
-#   "font-src": "'self' data:"
-# }
-# TODO: esto de unsafe inline hay que arreglarlo para el deployment to production...
-# basicamente esto parece que se debe pasar para el deployment, dentro del role o el playbook de ansible que despliega invenio.
+
 HARVESTER_DATA_DIRECTORY='data/sceiba-data'
 # HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
