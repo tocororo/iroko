@@ -2,6 +2,8 @@ from __future__ import absolute_import, print_function
 
 import enum
 from flask import jsonify
+from flask import g, request
+# from invenio_app import babel
 
 # def get_sources_by_terms(tids):
 #     """sources by a list of terms"""
@@ -26,6 +28,18 @@ def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):
             data_type: data
         }
     })
+
+
+# @babel.localeselector
+# def get_locale():
+#     # if a user is logged in, use the locale from the user settings
+#     user = getattr(g, 'user', None)
+#     if user is not None:
+#         return user.locale
+#     # otherwise try to guess the language from the user accept
+#     # header the browser transmits.  We support de/fr/en in this
+#     # example.  The best match wins.
+#     return request.accept_languages.best_match(['de', 'fr', 'en'])
 
 
 def get_identifier_schema(pid):

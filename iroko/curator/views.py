@@ -6,7 +6,7 @@ from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import login_required
 from flask_babelex import lazy_gettext as _
 from iroko.sources.models import Source, HarvestType, SourcesType
-from iroko.taxonomy.models import Vocabulary, Term
+from iroko.taxonomy.models import Vocabulary, Term, BasesxGroup
 from iroko.sources.marshmallow import sources_schema, sources_schema_full, source_schema_full
 from os import listdir, path
 from .forms import VocabularyForm, TermForm, SourceForm
@@ -64,12 +64,19 @@ def add_term():
         if form.description.data:
             new_term.description = form.description.data
         if form.vocabulary.data:
-            new_term.vocabulary_id = form.vocabulary.data
+            new_term.vocabulary_id = form.vocabulary.data           
         if form.parent.data and form.parent.data != 0:
-            new_term.parent_id = form.parent.data     
-        
+            new_term.parent_id = form.parent.data                         
         
         db.session.add(new_term)
+        db.session.flush()
+
+        if new_term.vocabulary.name == 'data_bases' and form.group.data != 0:
+            new_group = BasesxGroup()
+            new_group.term_base_id = new_term.id #id del termino que es base de datos
+            new_group.term_group_id = form.group.data # id del termino del combo que dice el grupo mes
+            db.session.add(new_group)
+        
         db.session.commit()
 
         flash(_('Term added'), 'info')
@@ -113,7 +120,7 @@ def add_source():
 @blueprint.route('/edit/vocabulary/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_vocabulary(id=None):    
-    #security quiestiong here
+    #security questiong here
     print(current_user.has_role('curator'))
 
     vocab = Vocabulary.query.get_or_404(id)
@@ -152,17 +159,34 @@ def edit_term(id=None):
     form = TermForm()
 
     if request.method == 'GET':        
-        # form.id.data = aux_term.id
+        form.id.data = aux_term.id
         form.name.data = aux_term.name
         form.description.data = aux_term.description
-        form.vocabulary.data = aux_term.vocabulary_id
+        form.vocabulary.data = aux_term.vocabulary_id        
         form.parent.data = aux_term.parent_id
-        
+
+        group = BasesxGroup.query.filter_by(term_base_id=aux_term.id).first()
+        if group:
+            form.group.data = group.term_group_id
 
     if form.validate_on_submit():        
         aux_term.name = form.name.data
         aux_term.description = form.description.data
-        aux_term.vocabulary_id = form.vocabulary.data
+        
+        data_base_vocab = Vocabulary.query.filter_by(name='data_bases').first()
+        if aux_term.vocabulary_id == data_base_vocab.id:
+            group = BasesxGroup.query.filter_by(term_base_id=aux_term.id).first()
+            if group:
+                if form.vocabulary.data != data_base_vocab.id:
+                    #delete the Mes group previously associated
+                    db.session.delete(group)
+                    db.session.commit()
+                else:                
+                    #cahnge if needed the MES group     
+                    if group.term_group_id != form.group.data:
+                        group.term_group_id = form.group.data
+                        db.session.commit()
+        aux_term.vocabulary_id = form.vocabulary.data       
         
         if form.parent.data and form.parent.data != 0:
             aux_term.parent_id = form.parent.data

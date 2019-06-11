@@ -36,7 +36,7 @@
                 {{ form.vocabulary(class_="form-control")|safe }}
                 {{ errors(form.vocabulary) }}
             </div>
-            <div class="form-group {{ 'has-error' if form.group.errors }}">
+            <div id="divgroup" name="divgroup" class="form-group {{ 'has-error' if form.group.errors }}">
               <label for="group">{{ form.group.label }}</label>
               {{ form.group(class_="form-control")|safe }}
               {{ errors(form.group) }}
@@ -54,4 +54,25 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript">
+
+    muestra_oculta_grupo();
+
+    function muestra_oculta_grupo(){
+      var eldiv = document.getElementById('divgroup'); 
+      if (document.getElementById("vocabulary").value == 4) {      
+        eldiv.style.display = 'block';
+      }
+      else {
+        eldiv.style.display = 'none';  
+      } 
+    };
+      
+    document.getElementById("vocabulary").onchange = function(){
+      muestra_oculta_grupo()
+    };    
+    
+  
+  </script>
 {% endblock page_body %}
+

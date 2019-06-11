@@ -52,9 +52,10 @@ class VocabularyForm(FlaskForm):
 
 
 class TermForm(FlaskForm):    
+    id = IntegerField(widget=HiddenInput())
     name = StringField(
         _('Name'),
-        validators=[validators.DataRequired()]
+        validators=[validators.DataRequired(), Unique(Term, Term.name)]
     )
     description = StringField(
         _('Description')
@@ -66,8 +67,7 @@ class TermForm(FlaskForm):
         coerce=int
     )
     group = SelectField(
-        _('MES Group'),
-        validators=[validators.DataRequired()],
+        _('MES Group'),        
         id='group',
         coerce=int
     )
@@ -81,9 +81,15 @@ class TermForm(FlaskForm):
         group_mes_vocab = Vocabulary.query.filter_by(name='grupo_mes').first()
         
         self.vocabulary.choices=[(choice.id, choice.name) for choice in Vocabulary.query.all()]
-        self.group.choices=[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.id).all()]
+        self.group.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.id).all()]
         self.parent.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.order_by('name').all()]
-     
+
+    def validate_group(self, field):
+        data_bases = Vocabulary.query.filter_by(name='data_bases').first()
+        if self.vocabulary.data == data_bases.id and field.data == 0:  # 4 is the data_bases id
+            raise validators.ValidationError(_('You must asign a MES group if database'))     
+        if field.data != 0 and not Term.query.filter_by(id=field.data).first():
+            raise validators.ValidationError(_('You must select a valid MES group')) 
 
 
 class SourceForm(FlaskForm):
