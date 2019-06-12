@@ -10,16 +10,17 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, current_app, render_template, url_for
 from flask_menu import register_menu
 from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_full
 from iroko.sources.models import Source, HarvestType, SourcesType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
+from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
-
 from iroko.records.api import IrokoAggs
+import json
 
 
 blueprint = Blueprint(
@@ -42,16 +43,28 @@ def index():
     vocab_stats = []
     vocab_stats.append({'records':str(get_record_count())})
     vocab_stats.append({'sources':str(Source.query.count())})
+
+    authors = IrokoAggs.getAggrs("creators.name")
+    vocab_stats.append({'authors':str(len(authors))})
+    
+    # cuando se vaya a escribir el json es agregarle la opcion w y 
+    # ensure_ascii=False para que las tildes y demas se pongan bien
+
+    texts = {}
+    with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/faq.json') as file:
+        texts = json.load(file)
+    print(texts)
+    keywords = IrokoAggs.getAggrs("keywords")
+    vocab_stats.append({'Keywords':str(len(keywords))})
+
     for vocab in vocabularies:
         vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
-
-    
-    
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
         vocabularies=vocabularies,
-        vocab_stats=vocab_stats
+        vocab_stats=vocab_stats,
+        texts=texts
     )
 
 

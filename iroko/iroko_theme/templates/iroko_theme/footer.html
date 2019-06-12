@@ -1,11 +1,4 @@
-{# -*- coding: utf-8 -*-
 
-  This file is part of Invenio.
-  Copyright (C) 2015-2018 CERN.
-
-  Invenio is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
-#}
 <footer id="footer" style="background-color: rgb(153, 153, 172)">
   <div class="container">
       <div class="d-flex bd-highlight">
@@ -14,7 +7,7 @@
           </div>
           <div class="p-2 flex-shrink-1 bd-highlight">
             {%- if config.I18N_LANGUAGES %}
-              {% from "invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
+              {% from "iroko_theme/invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
               {{ language_selector_dropdown() }}
             {%- endif %}
           </div>
@@ -25,6 +18,6 @@
 <footer class="bd-footer text-muted">
   <hr>
   <div class="d-flex flex-column align-items-center container p-3 p-md-5">
-    
+    {{ _('This site is an effort between The University of Pinar del Rio and University of Havana') }}
   </div>
 </footer>

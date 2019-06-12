@@ -13,6 +13,7 @@
 {%- endblock page_header %}
 
 {%- block page_body %}
+<div class="container">
   <div class="d-flex flex-wrap justify-content-center ">    
     <!-- {{vocab_stats}} -->
       {% for stat in vocab_stats %}
@@ -35,68 +36,89 @@
                 </div>
               </div>          
             </div>
-          </a>    
+          </a>  
+          {% elif stat['sources'] %}  
+            <a href="aggr/sources">
+              <div class="row mt-3 ml-2">         
+                <div class="col my-1" >
+                  <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+                    <div class="card-body">
+                      <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Sources') }}</div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['sources'] }}</div>
+                        </div>  
+                        <div>
+                          <i class="fa fa-home fa-2x text-default"></i>                    
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>          
+              </div>
+            </a>
+            {% elif stat['authors'] %}  
+              <a href="aggr/authors">
+                <div class="row mt-3 ml-2">         
+                  <div class="col my-1" >
+                    <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Creators') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['authors'] }}</div>
+                          </div>  
+                          <div>
+                            <i class="fa fa-user fa-2x text-default"></i>                    
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>          
+                </div>
+              </a> 
+            {% elif stat['Keywords'] %}  
+              <a href="aggr/keywords">
+                <div class="row mt-3 ml-2">         
+                  <div class="col my-1" >
+                    <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+                      <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                          <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Keywords') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['Keywords'] }}</div>
+                          </div>  
+                          <div>
+                            <i class="fa fa-bookmark fa-2x text-default"></i>                    
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>          
+                </div>
+              </a>  
             {% endif %} 
-
-      {% endfor %}      
-      <a href="aggr/sources">
-          <div class="row mt-3 ml-2">         
-            <div class="col my-1" >
-              <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Sources') }}</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
-                    </div>  
-                    <div>
-                      <i class="fa fa-list fa-2x text-default"></i>                    
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>          
-          </div>
-        </a> 
-        <a href="aggr/keywords">
-          <div class="row mt-3 ml-2">         
-            <div class="col my-1" >
-              <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Keywords') }}</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
-                    </div>  
-                    <div>
-                      <i class="fa fa-list fa-2x text-default"></i>                    
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>          
-          </div>
-        </a>    
-        <a href="aggr/authors">
-          <div class="row mt-3 ml-2">         
-            <div class="col my-1" >
-              <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ _('Creators') }}</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
-                    </div>  
-                    <div>
-                      <i class="fa fa-list fa-2x text-default"></i>                    
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>          
-          </div>
-        </a>       
+      {% endfor %}        
+         
   </div>
-  <br />
+
+  {% if texts and texts['faq'] %}
+  <div class="d-flex flex-wrap text-center py-5">
+      <div class="row">
+          <div class="col-10 mx-auto">
+            <h2 class="text-default">{{ _('FAQ') }}</h2>
+          </div>
+          {% for item in texts['faq'] %}
+          <div class="col-4 mx-auto">            
+            <h5>{{ item.question }}</h5>
+            <p>
+              {{ item.answer }}
+            </p>
+          </div>         
+          {% endfor %}
+      </div>
+  </div>
+  {% endif %}
+</div>
 {%- endblock page_body %}
 

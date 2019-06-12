@@ -421,6 +421,8 @@ INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
 INIT_JOURNALS_JSON_PATH = 'data/journals.json'
 INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
 
+INIT_FAQ_JSON_PATH = 'data/texts'
+
 
 
 REST_ENABLE_CORS = True
