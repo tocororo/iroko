@@ -1,0 +1,45 @@
+{
+    "faq": [
+        {
+            "question": "¿Qué es Sceiba?",
+            "answer": "Es un repositorio de publicaciones científicas cubanas. Integra diferentes espacios de publicación científica como Revistas Científicas y Repositorios Institucionales."
+        },
+        {
+            "question": "¿Qué puedo encontrar en Sceiba?",
+            "answer": "Colectamos recursos publicados en Acceso Abierto: Artículos científicos, Ponencias, Datos de Investigación."            
+        },
+        {
+            "question": "¿Qué relación tiene con Tocororo?",
+            "answer": "Es una solución informática dentro del proyecto Tocororo, en un esfuerzo por la comunicación científica en Cuba dentro del Programa Nacional de Ciencia, Tecnología e Innovación: Informatización de la Sociedad."            
+        }           
+        
+    ],
+    "about":{
+            "institution":"Universidad de Pinar del Río",
+            "url_insitution":"http://www.upr.edu.cu",
+            "address":"Calle Martí 300 e/ González Alcorta y 27 de noviembre. Pinar del Río.  Código Postal 20100. Pinar del Río, Cuba ",
+            "author": "Centro de Recursos para el Aprendizaje y la Información (CRAI)",
+            "url_author":"http://crai.upr.edu.cu",
+            "phone":"(+53) 48755032 ",
+            "email":"biblioteca@upr.edu.cu",
+            "links":[
+                {
+                    "name":"Redalyc ",
+                    "url":"http://www.redalyc.org/home.oa"
+                },
+                {
+                    "name":"Scielo",
+                    "url":"https://www.scielo.org/es"
+                },
+                {
+                    "name":"Dialnet",
+                    "url":"https://dialnet.unirioja.es/"
+                },
+                {
+                    "name":"Latindex",
+                    "url":"https://www.latindex.org/latindex/inicio"
+                }
+            ]
+
+        }
+}

@@ -10,7 +10,7 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, current_app, render_template, url_for
+from flask import Blueprint, current_app, render_template, url_for, redirect
 from flask_menu import register_menu
 from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_full
@@ -29,6 +29,13 @@ blueprint = Blueprint(
     template_folder='templates',
     static_folder='static',
 )
+
+@blueprint.context_processor
+def get_about():
+    texts = {}
+    with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+        texts = json.load(file)
+    return dict(about=texts['about'])
 
 
 def get_record_count():
@@ -51,9 +58,9 @@ def index():
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
     texts = {}
-    with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/faq.json') as file:
+    with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
         texts = json.load(file)
-    print(texts)
+    
     keywords = IrokoAggs.getAggrs("keywords")
     vocab_stats.append({'Keywords':str(len(keywords))})
 
@@ -68,11 +75,22 @@ def index():
     )
 
 
-# @blueprint.route('/catalog')
-# @register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
-# def catalogo():
+@blueprint.route('/catalog')
+@register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
+def catalogo():
+    return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
 
-#     return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
+
+@blueprint.route('/faq')
+@register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
+def faq():
+    return redirect('/#faq')
+
+
+# @blueprint.route('/about')
+# @register_menu(blueprint, 'main.about', _('About'), order=4)
+# def about():
+#     return redirect('/#about')
 
 
 @blueprint.route('/source/<uuid>')
