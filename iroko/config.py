@@ -238,7 +238,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title": "Keywords",
+                    "title": _("Keywords"),
                     "order": 3,
                 }
             },
@@ -248,7 +248,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title":  "Creators",
+                    "title":  _("Creators"),
                     "order": 2,
                 }
             },
@@ -263,7 +263,7 @@ RECORDS_REST_FACETS = {
                     'size' : 5
                 },
                 "meta": {
-                    "title": "Sources",
+                    "title": _("Sources"),
                     "order": 1,
                 }
             },

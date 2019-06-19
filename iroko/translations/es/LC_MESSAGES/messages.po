@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-12 14:59-0400\n"
+"POT-Creation-Date: 2019-06-19 12:24-0400\n"
 "PO-Revision-Date: 2019-06-04 04:20-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -25,6 +25,24 @@ msgstr "Español"
 #: iroko/config.py:100 iroko/config.py:104
 msgid "sceiba"
 msgstr ""
+
+#: iroko/config.py:241
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:88
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:56
+msgid "Keywords"
+msgstr "Palabras clave"
+
+#: iroko/config.py:251
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:68
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:71
+msgid "Creators"
+msgstr "Creadores"
+
+#: iroko/config.py:266
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:48
+#: iroko/iroko_theme/templates/iroko_theme/records/record.html:140
+msgid "Sources"
+msgstr "Fuentes"
 
 #: iroko/config.py:328
 #, fuzzy
@@ -129,11 +147,11 @@ msgstr "Término editado"
 msgid "Source changed"
 msgstr "Fuente editada"
 
-#: iroko/curator/templates/add_source.html:26
+#: iroko/curator/templates/add_source.html:20
 msgid "Adding Source"
 msgstr "Agregando Fuente"
 
-#: iroko/curator/templates/add_source.html:71
+#: iroko/curator/templates/add_source.html:53
 msgid "Add Source"
 msgstr "Adicionar Fuente"
 
@@ -167,6 +185,7 @@ msgstr "Editando Término"
 
 #: iroko/curator/templates/edit_term.html:55
 #: iroko/curator/templates/edit_vocabulary.html:40
+#: iroko/texts/templates/texts/edit_faq.html:39
 msgid "Save Changes"
 msgstr "Salvar Cambios"
 
@@ -181,6 +200,15 @@ msgstr "Algo mal ha sucedido"
 #: iroko/iroko_theme/ext.py:65
 msgid "Home"
 msgstr "Inicio"
+
+#: iroko/iroko_theme/views.py:81
+msgid "Journal Catalog"
+msgstr "Catálogo de Revistas"
+
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
+#: iroko/iroko_theme/views.py:87
+msgid "FAQ"
+msgstr "Preguntas Frecuentes"
 
 #: iroko/iroko_theme/templates/iroko_theme/401.html:13
 msgid "Unauthorized"
@@ -218,42 +246,35 @@ msgstr "Identificador del error"
 msgid "Logout"
 msgstr "Salir"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:6
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
+msgid "Institution"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:15
+msgid "Contact"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:21
+msgid "Suggested Links"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:33
 #, fuzzy, python-format
 msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
 msgstr "Basado en <a href=\"%(link)s\">Invenio</a>"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:21
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:47
 msgid ""
 "This site is an effort between The University of Pinar del Rio and "
 "University of Havana"
 msgstr ""
-"Este sitio un esfuerzo entre la Universidad de Pinar del Río y "
-"la Universidad de la Habana"
+"Este sitio un esfuerzo entre la Universidad de Pinar del Río y la "
+"Universidad de la Habana"
 
 #: iroko/iroko_theme/templates/iroko_theme/frontpage.html:28
 #, fuzzy
 msgid "Records"
 msgstr "Palabras clave"
-
-#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:48
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:140
-msgid "Sources"
-msgstr "Fuentes"
-
-#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:68
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:71
-msgid "Creators"
-msgstr "Creadores"
-
-#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:88
-#: iroko/iroko_theme/templates/iroko_theme/records/record.html:56
-msgid "Keywords"
-msgstr "Palabras clave"
-
-#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
-msgid "FAQ"
-msgstr "Preguntas Frecuentes"
 
 #: iroko/iroko_theme/templates/iroko_theme/header.html:15
 #: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:15
@@ -551,4 +572,33 @@ msgstr "Fuente no encontrada"
 msgid "The source you are looking for could not be found."
 msgstr "La fuente que está buscando no se ha encontrado"
 
+#: iroko/texts/forms.py:15
+#, fuzzy
+msgid "Question"
+msgstr "Descripción"
+
+#: iroko/texts/forms.py:16
+msgid "Common question people can ask theirself"
+msgstr ""
+
+#: iroko/texts/forms.py:20
+msgid "Answer"
+msgstr ""
+
+#: iroko/texts/forms.py:21
+msgid "A sumarized answer for that question"
+msgstr ""
+
+#: iroko/texts/templates/texts/edit_faq.html:20
+#, fuzzy
+msgid "Editing FAQ"
+msgstr "Editando Término"
+
+#: iroko/texts/templates/texts/edit_faq.html:37
+msgid "Prev"
+msgstr ""
+
+#: iroko/texts/templates/texts/edit_faq.html:38
+msgid "Next"
+msgstr ""
 
