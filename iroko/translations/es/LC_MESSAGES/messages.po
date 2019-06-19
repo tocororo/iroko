@@ -248,15 +248,15 @@ msgstr "Salir"
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:10
 msgid "Institution"
-msgstr ""
+msgstr "Institución"
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:15
 msgid "Contact"
-msgstr ""
+msgstr "Contacto"
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:21
 msgid "Suggested Links"
-msgstr ""
+msgstr "Sugerencias"
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:33
 #, fuzzy, python-format
