@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-19 12:24-0400\n"
+"POT-Creation-Date: 2019-06-19 12:59-0400\n"
 "PO-Revision-Date: 2019-06-04 04:20-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -92,7 +92,7 @@ msgstr "Ninguno"
 
 #: iroko/curator/forms.py:90
 msgid "You must asign a MES group if database"
-msgstr ""
+msgstr "Debe asignar un grupo MES si es base de datos"
 
 #: iroko/curator/forms.py:92
 msgid "You must select a valid MES group"
@@ -208,7 +208,7 @@ msgstr "Catálogo de Revistas"
 #: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
 #: iroko/iroko_theme/views.py:87
 msgid "FAQ"
-msgstr "Preguntas Frecuentes"
+msgstr "FAQ"
 
 #: iroko/iroko_theme/templates/iroko_theme/401.html:13
 msgid "Unauthorized"
