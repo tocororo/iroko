@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-19 12:59-0400\n"
+"POT-Creation-Date: 2019-06-19 15:16-0400\n"
 "PO-Revision-Date: 2019-06-04 04:20-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -201,14 +201,14 @@ msgstr "Algo mal ha sucedido"
 msgid "Home"
 msgstr "Inicio"
 
-#: iroko/iroko_theme/views.py:81
+#: iroko/iroko_theme/views.py:85
 msgid "Journal Catalog"
 msgstr "Catálogo de Revistas"
 
 #: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
-#: iroko/iroko_theme/views.py:87
+#: iroko/iroko_theme/views.py:91
 msgid "FAQ"
-msgstr "FAQ"
+msgstr "Preguntas Frecuentes"
 
 #: iroko/iroko_theme/templates/iroko_theme/401.html:13
 msgid "Unauthorized"
@@ -258,18 +258,13 @@ msgstr "Contacto"
 msgid "Suggested Links"
 msgstr "Sugerencias"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:33
-#, fuzzy, python-format
-msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
-msgstr "Basado en <a href=\"%(link)s\">Invenio</a>"
-
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:47
-msgid ""
-"This site is an effort between The University of Pinar del Rio and "
-"University of Havana"
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:46
+msgid "Copyright Universidad de Pinar del Rio"
 msgstr ""
-"Este sitio un esfuerzo entre la Universidad de Pinar del Río y la "
-"Universidad de la Habana"
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:49
+msgid "Powered by"
+msgstr "Soportado sobre"
 
 #: iroko/iroko_theme/templates/iroko_theme/frontpage.html:28
 #, fuzzy
@@ -601,4 +596,16 @@ msgstr ""
 #: iroko/texts/templates/texts/edit_faq.html:38
 msgid "Next"
 msgstr ""
+
+#~ msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
+#~ msgstr "Basado en <a href=\"%(link)s\">Invenio</a>"
+
+#~ msgid ""
+#~ "This site is an effort between The"
+#~ " University of Pinar del Rio and "
+#~ "University of Havana"
+#~ msgstr ""
+#~ "Este sitio un esfuerzo entre la "
+#~ "Universidad de Pinar del Río y la"
+#~ " Universidad de la Habana"
 

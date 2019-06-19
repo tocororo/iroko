@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-19 12:59-0400\n"
+"POT-Creation-Date: 2019-06-19 15:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -196,12 +196,12 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: iroko/iroko_theme/views.py:81
+#: iroko/iroko_theme/views.py:85
 msgid "Journal Catalog"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
-#: iroko/iroko_theme/views.py:87
+#: iroko/iroko_theme/views.py:91
 msgid "FAQ"
 msgstr ""
 
@@ -253,15 +253,12 @@ msgstr ""
 msgid "Suggested Links"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:33
-#, python-format
-msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:46
+msgid "Copyright Universidad de Pinar del Rio"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:47
-msgid ""
-"This site is an effort between The University of Pinar del Rio and "
-"University of Havana"
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:49
+msgid "Powered by"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/frontpage.html:28

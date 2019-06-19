@@ -30,7 +30,7 @@ from elasticsearch_dsl import Search, Q
 class IrokoAggs:
 
     @staticmethod
-    def getAggrs(field):
+    def getAggrs(field, size=100):
         # Define a default Elasticsearch client
         client = connections.create_connection(hosts=SEARCH_ELASTIC_HOSTS)
         query_body = {
@@ -39,7 +39,7 @@ class IrokoAggs:
                 "sources": {
                     "terms": {
                         "field": field,
-                        'size' : 100
+                        'size' : size
                     }
                 }
             }

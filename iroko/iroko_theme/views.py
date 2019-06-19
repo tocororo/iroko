@@ -51,9 +51,12 @@ def index():
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
     vocab_stats.append({'records':str(get_record_count())})
-    vocab_stats.append({'sources':str(Source.query.count())})
 
-    authors = IrokoAggs.getAggrs("creators.name")
+    sources = IrokoAggs.getAggrs("source.name", 50000)
+    vocab_stats.append({'sources':str(len(sources))})
+
+    authors = IrokoAggs.getAggrs("creators.name",50000)
+    print('authors'+str(authors))
     vocab_stats.append({'authors':str(len(authors))})
     
     # cuando se vaya a escribir el json es agregarle la opcion w y 
@@ -63,7 +66,8 @@ def index():
     with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
         texts = json.load(file)
     
-    keywords = IrokoAggs.getAggrs("keywords")
+    keywords = IrokoAggs.getAggrs("keywords",50000)
+    print('keywords'+str(keywords))    
     vocab_stats.append({'Keywords':str(len(keywords))})
 
     for vocab in vocabularies:
@@ -81,6 +85,7 @@ def index():
 @register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
 def catalogo():
     return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
+
 
 
 @blueprint.route('/faq')
@@ -115,6 +120,14 @@ def view_aggr_keywords():
 def view_aggr_authors():
     sources = IrokoAggs.getAggrs("creators.name")
     return render_template('iroko_theme/records/aggr.html',name="Creators" ,aggrs=sources,keyword='creators')
+
+
+@blueprint.route('/page/<slug>')
+def static_page(slug):
+    # 1- load static_pages.json 
+    # 2- search the slug
+    # 3- render appropiate md file (including language....)
+    return redirect('/#faq')
 
 
 def unauthorized(e):
