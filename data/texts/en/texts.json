@@ -14,8 +14,7 @@
         }    
         
     ],
-    "about":[
-        {
+    "about":{
             "institution":"Universidad de Pinar del Río",
             "url_insitution":"http://www.upr.edu.cu",
             "address":"Calle Martí 300 e/ González Alcorta y 27 de noviembre. Pinar del Río.  Código Postal 20100. Pinar del Río, Cuba ",
@@ -42,6 +41,6 @@
                 }
             ]
 
-        }
-    ]
+    }
+    
 }

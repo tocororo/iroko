@@ -32,10 +32,12 @@ blueprint = Blueprint(
 
 @blueprint.context_processor
 def get_about():
-    texts = {}
+    about = {}
     with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
         texts = json.load(file)
-    return dict(about=texts['about'])
+        if texts and 'about' in texts.keys():
+            about = dict(about=texts['about'])
+    return about
 
 
 def get_record_count():
