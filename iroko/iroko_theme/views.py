@@ -21,6 +21,7 @@ from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
 import json
+import mistune
 
 
 blueprint = Blueprint(
@@ -62,9 +63,16 @@ def index():
     # cuando se vaya a escribir el json es agregarle la opcion w y 
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
-    texts = {}
-    with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
-        texts = json.load(file)
+    # texts = {}
+    # with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    #     texts = json.load(file)
+    
+    # texts = ''
+    # with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
+    #      texts = file.read()
+    #      file.close()
+    # markdown = mistune.Markdown()
+    # faqs = markdown(texts)
     
     keywords = IrokoAggs.getAggrs("keywords",50000)
     print('keywords'+str(keywords))    
@@ -77,7 +85,7 @@ def index():
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
         vocabularies=vocabularies,
         vocab_stats=vocab_stats,
-        texts=texts
+        faqs=''
     )
 
 
@@ -91,7 +99,7 @@ def catalogo():
 @blueprint.route('/faq')
 @register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
 def faq():
-    return redirect('/#faq')
+    return redirect('/page/faq')
 
 
 # @blueprint.route('/about')
@@ -127,7 +135,18 @@ def static_page(slug):
     # 1- load static_pages.json 
     # 2- search the slug
     # 3- render appropiate md file (including language....)
-    return redirect('/#faq')
+
+    slugs = {}
+    aux_text = ''
+    with open(current_app.config['INIT_FAQ_JSON_PATH']+ '/static_pages.json') as file:
+        slugs = json.load(file)
+    if slugs:        
+        with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug], 'r') as file:
+            aux_text = file.read()
+            file.close()
+        markdown = mistune.Markdown()
+        aux_text = markdown(aux_text)       
+    return render_template('iroko_theme/static_pages.html', title=slug, text=aux_text)
 
 
 def unauthorized(e):

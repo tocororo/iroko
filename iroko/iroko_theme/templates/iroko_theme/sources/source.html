@@ -1,4 +1,4 @@
-{%- extends "iroko_theme/page.html" %}
+{%- extends config.BASE_TEMPLATE %}
 
 {%- block page_body %}
 <div class="container show-page">
@@ -72,4 +72,4 @@
         <p>{{_('The source you are looking for could not be found.')}}</p>
     {%- endif %}
 </div>
-{%- endblock %}
+{%- endblock page_body %}
