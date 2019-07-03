@@ -141,12 +141,12 @@ def static_page(slug):
     with open(current_app.config['INIT_FAQ_JSON_PATH']+ '/static_pages.json') as file:
         slugs = json.load(file)
     if slugs:        
-        with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug], 'r') as file:
+        with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug]["url"], 'r') as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
         aux_text = markdown(aux_text)       
-    return render_template('iroko_theme/static_pages.html', title=slug, text=aux_text)
+    return render_template('iroko_theme/static_pages.html', title=slugs[slug]["title"], text=aux_text)
 
 
 def unauthorized(e):

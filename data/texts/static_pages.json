@@ -1,6 +1,18 @@
 {
-    "faq": "faqs.md",
-    "about": "about.md",
-    "colaborators": "about.md",
-    "projects": "about.md"
+    "faq": {
+        "url":"faqs.md",
+        "title":"FAQ"
+    },
+    "about": {
+        "url":"about.md",
+        "title":"FAQ"
+    },
+    "colaborators": {
+        "url":"colaborators.md",
+        "title":"FAQ"
+    },
+    "projects": {
+        "url":"projects.md",
+        "title":"FAQ"
+    }
 }
