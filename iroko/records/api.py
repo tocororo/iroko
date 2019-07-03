@@ -39,7 +39,7 @@ class IrokoAggs:
                 "sources": {
                     "terms": {
                         "field": field,
-                        'size' : size
+                        "size" : size
                     }
                 }
             }
