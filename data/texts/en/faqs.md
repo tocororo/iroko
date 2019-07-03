@@ -6,3 +6,6 @@ We collect resources published in Open Access: Scientific articles, Presentation
 
 ####What is your relationship with Tocororo?####
 It is a computer solution within the Tocororo project, in an effort for scientific communication in Cuba within the National Science, Technology and Innovation Program: Computerization of Society.
+
+
+![Imagen de faqs](images/upr-logo.png)

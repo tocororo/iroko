@@ -8,5 +8,5 @@ Colectamos recursos publicados en Acceso Abierto: Artículos científicos, Ponen
 Es una solución informática dentro del proyecto Tocororo, en un esfuerzo por la comunicación científica en Cuba dentro del Programa Nacional de Ciencia, Tecnología e Innovación: Informatización de la Sociedad.
 
 
-![Imagen de faqs](upr_logo.png)
+![Imagen de faqs](images/upr-logo.png)
 

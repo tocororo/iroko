@@ -7,7 +7,7 @@
           </div>
           <div class="col-md-4 col-xs-6 col-sm-6 col-lg-3">
             <h5>{{ _('Institution') }}</h5>
-            <a href="{{ about.url_insitution }}">{{ _('Universidad de Pinar del Río Hermanos Saíz Montes de Oca') }}</a>
+            <a href="">{{ _('Universidad de Pinar del Río Hermanos Saíz Montes de Oca') }}</a>
             <p>{{ _('Calle Martí 300 e/ González Alcorta y 27 de noviembre. Pinar del Río. Código Postal 20100. Pinar del Río, Cuba') }} </p>
           </div>
           <div class="col-md-4 col-xs-6 col-sm-6 col-lg-3 mb-3">
@@ -15,7 +15,7 @@
               <p class="d-flex align-items-center mb-0"><i class="fa fa-mobile fa-2x"></i>&nbsp;&nbsp; (+53) 48755032 </p> 
               <a href="mailto:biblioteca@upr.edu.cu" class="d-flex align-items-center"><i class="fa fa-envelope"></i>&nbsp;&nbsp;biblioteca@upr.edu.cu</a> 
           </div> 
-          {%- if about.links %}
+          {%- if about and about.links %}
           <div class="col-md-4 col-xs-6 col-sm-6 col-lg-3">
               <h5>{{ _('Suggested Links') }}</h5>
               <ul class="list-unstyled">

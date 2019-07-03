@@ -10,7 +10,9 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, current_app, render_template, url_for, redirect
+import os 
+
+from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file
 from flask_menu import register_menu
 from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_full
@@ -34,10 +36,10 @@ blueprint = Blueprint(
 @blueprint.context_processor
 def get_about():
     about = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
-        texts = json.load(file)
-        if texts and 'about' in texts.keys():
-            about = dict(about=texts['about'])
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    #     texts = json.load(file)
+    #     if texts and 'about' in texts.keys():
+    #         about = dict(about=texts['about'])
     return about
 
 
@@ -148,6 +150,14 @@ def static_page(slug):
         aux_text = markdown(aux_text)       
     return render_template('iroko_theme/static_pages.html', title=slugs[slug]["title"], text=aux_text)
 
+@blueprint.route('/page/images/<image>')
+def static_page_image(image):
+    directory = os.path.join(current_app.config['INIT_STATIC_JSON_PATH'],'images')
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(directory)
+    print(image)
+    return send_file(os.path.join(directory, image))
+    # return send_from_directory(directory, image)
 
 def unauthorized(e):
     """Error handler to show a 401.html page in case of a 401 error."""
