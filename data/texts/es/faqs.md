@@ -6,3 +6,7 @@ Colectamos recursos publicados en Acceso Abierto: Artículos científicos, Ponen
 
 ####¿Qué relación tiene con Tocororo?####
 Es una solución informática dentro del proyecto Tocororo, en un esfuerzo por la comunicación científica en Cuba dentro del Programa Nacional de Ciencia, Tecnología e Innovación: Informatización de la Sociedad.
+
+
+![Imagen de faqs](upr_logo.png)
+

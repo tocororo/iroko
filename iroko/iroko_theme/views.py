@@ -34,7 +34,7 @@ blueprint = Blueprint(
 @blueprint.context_processor
 def get_about():
     about = {}
-    with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
         texts = json.load(file)
         if texts and 'about' in texts.keys():
             about = dict(about=texts['about'])
@@ -64,11 +64,11 @@ def index():
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
     # texts = {}
-    # with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
     #     texts = json.load(file)
     
     # texts = ''
-    # with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
     #      texts = file.read()
     #      file.close()
     # markdown = mistune.Markdown()
@@ -138,10 +138,10 @@ def static_page(slug):
 
     slugs = {}
     aux_text = ''
-    with open(current_app.config['INIT_FAQ_JSON_PATH']+ '/static_pages.json') as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json') as file:
         slugs = json.load(file)
     if slugs:        
-        with open(current_app.config['INIT_FAQ_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug]["url"], 'r') as file:
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug]["url"], 'r') as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
