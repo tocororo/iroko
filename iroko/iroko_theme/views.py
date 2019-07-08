@@ -143,12 +143,12 @@ def static_page(slug):
     with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json') as file:
         slugs = json.load(file)
     if slugs:        
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug]["url"], 'r') as file:
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
         aux_text = markdown(aux_text)       
-    return render_template('iroko_theme/static_pages.html', title=slugs[slug]["title"], text=aux_text)
+    return render_template('iroko_theme/static_pages.html', title=slugs[slug][get_locale()]["title"], text=aux_text)
 
 @blueprint.route('/page/images/<image>')
 def static_page_image(image):

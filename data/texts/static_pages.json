@@ -1,18 +1,42 @@
 {
     "faq": {
-        "url":"faqs.md",
-        "title":"FAQ"
+        "en":{
+            "url":"faqs.md",
+            "title":"FAQ" 
+        },
+        "es":{
+            "url":"faqs.md",
+            "title":"Preguntas Frecuentes"
+        }        
     },
     "about": {
-        "url":"about.md",
-        "title":"FAQ"
+        "en":{
+            "url":"about.md",
+            "title":"about" 
+        },
+        "es":{
+            "url":"about.md",
+            "title":"About"
+        }
     },
     "colaborators": {
-        "url":"colaborators.md",
-        "title":"FAQ"
+        "en":{
+            "url":"colaborators.md",
+            "title":"Colaborators" 
+        },
+        "es":{
+            "url":"colaborators.md",
+            "title":"Colaborators"
+        }
     },
     "projects": {
-        "url":"projects.md",
-        "title":"FAQ"
+        "en":{
+            "url":"projects.md",
+            "title":"Projects" 
+        },
+        "es":{
+            "url":"projects.md",
+            "title":"Projects"
+        }
     }
 }
