@@ -26,17 +26,16 @@
           </div>
           {%- endif %}
       </div>
-      
       <div class="d-flex bd-highlight p-3">
-          <div class="w-100 bd-highlight">            
-          </div>
-          <div class="flex-shrink-1 bd-highlight">
-            {%- if config.I18N_LANGUAGES %}
-              {% from "iroko_theme/invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
-              {{ language_selector_dropdown() }}
-            {%- endif %}
-          </div>
-      </div>    
+        <div class="w-100 bd-highlight">            
+        </div>
+        <div class="flex-shrink-1 bd-highlight">
+          {%- if config.I18N_LANGUAGES %}
+            {% from "iroko_theme/invenio_i18n/macros/language_selector.html" import language_selector_dropdown %}
+            {{ language_selector_dropdown() }}
+          {%- endif %}
+        </div>
+    </div> 
     
   </div>
 </footer>
@@ -101,4 +100,6 @@
   <div class="text-center mb-3">
       {{ _('Powered by') }}&nbsp;<a href="{{link}}">Invenio</a>
   </div>
+        
+   
 </footer>
