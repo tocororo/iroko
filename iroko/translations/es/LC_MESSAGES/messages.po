@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-19 15:16-0400\n"
+"POT-Creation-Date: 2019-07-08 10:53-0400\n"
 "PO-Revision-Date: 2019-06-04 04:20-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -201,12 +201,13 @@ msgstr "Algo mal ha sucedido"
 msgid "Home"
 msgstr "Inicio"
 
-#: iroko/iroko_theme/views.py:85
+#: iroko/iroko_theme/views.py:95
 msgid "Journal Catalog"
 msgstr "Catálogo de Revistas"
 
-#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
-#: iroko/iroko_theme/views.py:91
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:110
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:124
+#: iroko/iroko_theme/views.py:102
 msgid "FAQ"
 msgstr "Preguntas Frecuentes"
 
@@ -246,23 +247,35 @@ msgstr "Identificador del error"
 msgid "Logout"
 msgstr "Salir"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:9
 msgid "Institution"
 msgstr "Institución"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:15
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
+msgid "University of Pinar del Río Hermanos Saíz Montes de Oca"
+msgstr "Universidad de Pinar del Río Hermanos Saíz Montes de Oca"
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:11
+msgid ""
+"Martí Street #300 between González Alcorta and 27 de noviembre. Pinar del"
+" Río. Postal Code: 20100. Pinar del Río, Cuba"
+msgstr ""
+"Calle Martí 300 e/ González Alcorta y 27 de noviembre. Pinar del"
+" Río. Código Postal: 20100. Pinar del Río, Cuba"
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:14
 msgid "Contact"
 msgstr "Contacto"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:21
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:20
 msgid "Suggested Links"
 msgstr "Sugerencias"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:46
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:99
 msgid "Copyright Universidad de Pinar del Rio"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:49
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:102
 msgid "Powered by"
 msgstr "Soportado sobre"
 
@@ -334,7 +347,7 @@ msgstr "¿Ha olvidado su contraseña?"
 #: iroko/iroko_theme/templates/iroko_theme/accounts/register_user.html:18
 #, python-format
 msgid "Sign up for a %(sitename)s account!"
-msgstr ""
+msgstr "Registrése para una cuenta en %(sitename)s"
 
 #: iroko/iroko_theme/templates/iroko_theme/invenio_i18n/macros/language_selector.html:16
 msgid "Pepe:"
@@ -360,11 +373,11 @@ msgstr "Administración de Usuario"
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:50
 #, python-format
 msgid "Required. %(username_rules)s"
-msgstr ""
+msgstr "Requerido. %(username_rules)s"
 
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:52
 msgid "Username not provided."
-msgstr ""
+msgstr "Usuario no dado"
 
 #. NOTE: Form label
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:57
@@ -384,17 +397,17 @@ msgstr "Dirección de Correo Electrónico"
 #. NOTE: Form field label
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:95
 msgid "Re-enter email address"
-msgstr ""
+msgstr "Entre nuevamente el correo electrónico"
 
 #. NOTE: Form field help text
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:97
 msgid "Please re-enter your email address."
-msgstr ""
+msgstr "Por favor, entre nuevamente el correo electrónico"
 
 #. NOTE: Form validation error.
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:102
 msgid "Email addresses do not match."
-msgstr ""
+msgstr "Los correos electrónicos no coinciden"
 
 #. NOTE: Form button label
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/forms.py:111
@@ -406,6 +419,8 @@ msgid ""
 "Username must start with a letter, be at least three characters long and "
 "only contain alphanumeric characters, dashes and underscores."
 msgstr ""
+"El usuario debe comenzar con una letra, debe tener al menos tres caracteres de largo y "
+"contener solo caracteres alfanuméricos, guiones y guiones bajos."
 
 #. NOTE: Menu item text (icon replaced by a user icon).
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/views.py:82
@@ -421,7 +436,7 @@ msgstr "Perfil"
 #. NOTE: Flash message.
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/views.py:130
 msgid "Verification email sent."
-msgstr ""
+msgstr "Verificación por correo electrónico enviado"
 
 #. NOTE: Flash message after successful update of profile.
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/views.py:157
@@ -430,6 +445,8 @@ msgid ""
 "Profile was updated. We have sent a verification email to %(email)s. "
 "Please check it."
 msgstr ""
+"Se ha actualizado el Perfil. Hemos enviado una verificación por correo electrónico a %(email)s. "
+"Por favor compruébelo."
 
 #. NOTE: Flash message after successful update of profile.
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/views.py:163
@@ -438,7 +455,7 @@ msgstr "Perfil actualizado"
 
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:21
 msgid "You have not yet verified your email address."
-msgstr ""
+msgstr "No ha verificado aún su dirección de correo electrónico"
 
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:36
 msgid "Cancel"
@@ -574,15 +591,15 @@ msgstr "Descripción"
 
 #: iroko/texts/forms.py:16
 msgid "Common question people can ask theirself"
-msgstr ""
+msgstr "Preguntas comunes que las personas pueden hacerse"
 
 #: iroko/texts/forms.py:20
 msgid "Answer"
-msgstr ""
+msgstr "Respuesta"
 
 #: iroko/texts/forms.py:21
 msgid "A sumarized answer for that question"
-msgstr ""
+msgstr "Una respuesta breve para cada pregunta"
 
 #: iroko/texts/templates/texts/edit_faq.html:20
 #, fuzzy
@@ -595,7 +612,7 @@ msgstr ""
 
 #: iroko/texts/templates/texts/edit_faq.html:38
 msgid "Next"
-msgstr ""
+msgstr "Prox"
 
 #~ msgid " Powered by&nbsp;<a href=\"%(link)s\">Invenio</a>"
 #~ msgstr "Basado en <a href=\"%(link)s\">Invenio</a>"
@@ -608,4 +625,14 @@ msgstr ""
 #~ "Este sitio un esfuerzo entre la "
 #~ "Universidad de Pinar del Río y la"
 #~ " Universidad de la Habana"
+
+#~ msgid "Universidad de Pinar del Río Hermanos Saíz Montes de Oca"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Calle Martí 300 e/ González Alcorta "
+#~ "y 27 de noviembre. Pinar del Río."
+#~ " Código Postal 20100. Pinar del Río,"
+#~ " Cuba"
+#~ msgstr ""
 

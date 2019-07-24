@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-06-19 15:16-0400\n"
+"POT-Creation-Date: 2019-07-08 10:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -196,12 +196,13 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: iroko/iroko_theme/views.py:85
+#: iroko/iroko_theme/views.py:95
 msgid "Journal Catalog"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:109
-#: iroko/iroko_theme/views.py:91
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:110
+#: iroko/iroko_theme/templates/iroko_theme/frontpage.html:124
+#: iroko/iroko_theme/views.py:102
 msgid "FAQ"
 msgstr ""
 
@@ -241,23 +242,33 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:9
 msgid "Institution"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:15
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
+msgid "University of Pinar del Río Hermanos Saíz Montes de Oca"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:11
+msgid ""
+"Martí Street #300 between González Alcorta and 27 de noviembre. Pinar del"
+" Río. Postal Code: 20100. Pinar del Río, Cuba"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:14
 msgid "Contact"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:21
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:20
 msgid "Suggested Links"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:46
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:99
 msgid "Copyright Universidad de Pinar del Rio"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:49
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:102
 msgid "Powered by"
 msgstr ""
 
