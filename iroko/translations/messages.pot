@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-07-08 10:53-0400\n"
+"POT-Creation-Date: 2019-09-02 11:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,7 +47,7 @@ msgstr ""
 msgid "Welcome to iroko!"
 msgstr ""
 
-#: iroko/curator/forms.py:23
+#: iroko/curator/forms.py:23 iroko/postulates/forms.py:24
 msgid "this element already exists"
 msgstr ""
 
@@ -242,25 +242,29 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:9
-msgid "Institution"
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:7
+msgid "I want to be part of Sceiba"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:10
-msgid "University of Pinar del Río Hermanos Saíz Montes de Oca"
+msgid "Institution"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/footer.html:11
+msgid "University of Pinar del Río Hermanos Saíz Montes de Oca"
+msgstr ""
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:12
 msgid ""
 "Martí Street #300 between González Alcorta and 27 de noviembre. Pinar del"
 " Río. Postal Code: 20100. Pinar del Río, Cuba"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:14
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:15
 msgid "Contact"
 msgstr ""
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:20
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:21
 msgid "Suggested Links"
 msgstr ""
 
@@ -282,7 +286,7 @@ msgid "Toggle navigation"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/header.html:54
-#: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:59
+#: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:60
 #: iroko/iroko_theme/templates/iroko_theme/search_ui/base_header.html:15
 #: iroko/iroko_theme/templates/iroko_theme/search_ui/header.html:14
 #: iroko/iroko_theme/templates/iroko_theme/search_ui/search.html:46
@@ -566,6 +570,58 @@ msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:72
 msgid "The source you are looking for could not be found."
+msgstr ""
+
+#: iroko/postulates/forms.py:40
+msgid "Source name"
+msgstr ""
+
+#: iroko/postulates/forms.py:41
+msgid "Name for the journal or repository postulating"
+msgstr ""
+
+#: iroko/postulates/forms.py:45
+msgid "Source OAI"
+msgstr ""
+
+#: iroko/postulates/forms.py:46
+msgid "URL of the OAI"
+msgstr ""
+
+#: iroko/postulates/forms.py:49
+msgid "Full Name"
+msgstr ""
+
+#: iroko/postulates/forms.py:50
+msgid "Your Full Name"
+msgstr ""
+
+#: iroko/postulates/forms.py:54
+msgid "Email"
+msgstr ""
+
+#: iroko/postulates/forms.py:55
+msgid "Email for contacting and processing"
+msgstr ""
+
+#: iroko/postulates/forms.py:59
+msgid "Information"
+msgstr ""
+
+#: iroko/postulates/forms.py:60
+msgid "Any other useful information we could need"
+msgstr ""
+
+#: iroko/postulates/views.py:39
+msgid "Postulations procees started"
+msgstr ""
+
+#: iroko/postulates/templates/new_postulate.html:20
+msgid "Postulating a Journal or Repository for Sceiba"
+msgstr ""
+
+#: iroko/postulates/templates/new_postulate.html:52
+msgid "Start Postulation"
 msgstr ""
 
 #: iroko/texts/forms.py:15

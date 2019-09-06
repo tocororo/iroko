@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iroko 1.0.0\n"
 "Report-Msgid-Bugs-To: info@iroko.tocororo.cu\n"
-"POT-Creation-Date: 2019-07-08 10:53-0400\n"
+"POT-Creation-Date: 2019-09-02 11:54-0400\n"
 "PO-Revision-Date: 2019-06-04 04:20-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -49,7 +49,7 @@ msgstr "Fuentes"
 msgid "Welcome to iroko!"
 msgstr "Bienvenido a Iroko"
 
-#: iroko/curator/forms.py:23
+#: iroko/curator/forms.py:23 iroko/postulates/forms.py:24
 #, fuzzy
 msgid "this element already exists"
 msgstr "El usuario ya existe "
@@ -247,27 +247,31 @@ msgstr "Identificador del error"
 msgid "Logout"
 msgstr "Salir"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:9
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:7
+msgid "I want to be part of Sceiba"
+msgstr "Quiero ser parte de Sceiba"
+
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
 msgid "Institution"
 msgstr "Institución"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:10
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:11
 msgid "University of Pinar del Río Hermanos Saíz Montes de Oca"
 msgstr "Universidad de Pinar del Río Hermanos Saíz Montes de Oca"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:11
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:12
 msgid ""
 "Martí Street #300 between González Alcorta and 27 de noviembre. Pinar del"
 " Río. Postal Code: 20100. Pinar del Río, Cuba"
 msgstr ""
-"Calle Martí 300 e/ González Alcorta y 27 de noviembre. Pinar del"
-" Río. Código Postal: 20100. Pinar del Río, Cuba"
+"Calle Martí 300 e/ González Alcorta y 27 de noviembre. Pinar del Río. "
+"Código Postal: 20100. Pinar del Río, Cuba"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:14
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:15
 msgid "Contact"
 msgstr "Contacto"
 
-#: iroko/iroko_theme/templates/iroko_theme/footer.html:20
+#: iroko/iroko_theme/templates/iroko_theme/footer.html:21
 msgid "Suggested Links"
 msgstr "Sugerencias"
 
@@ -290,7 +294,7 @@ msgid "Toggle navigation"
 msgstr ""
 
 #: iroko/iroko_theme/templates/iroko_theme/header.html:54
-#: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:59
+#: iroko/iroko_theme/templates/iroko_theme/header_frontpage.html:60
 #: iroko/iroko_theme/templates/iroko_theme/search_ui/base_header.html:15
 #: iroko/iroko_theme/templates/iroko_theme/search_ui/header.html:14
 #: iroko/iroko_theme/templates/iroko_theme/search_ui/search.html:46
@@ -419,8 +423,9 @@ msgid ""
 "Username must start with a letter, be at least three characters long and "
 "only contain alphanumeric characters, dashes and underscores."
 msgstr ""
-"El usuario debe comenzar con una letra, debe tener al menos tres caracteres de largo y "
-"contener solo caracteres alfanuméricos, guiones y guiones bajos."
+"El usuario debe comenzar con una letra, debe tener al menos tres "
+"caracteres de largo y contener solo caracteres alfanuméricos, guiones y "
+"guiones bajos."
 
 #. NOTE: Menu item text (icon replaced by a user icon).
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/views.py:82
@@ -445,8 +450,8 @@ msgid ""
 "Profile was updated. We have sent a verification email to %(email)s. "
 "Please check it."
 msgstr ""
-"Se ha actualizado el Perfil. Hemos enviado una verificación por correo electrónico a %(email)s. "
-"Por favor compruébelo."
+"Se ha actualizado el Perfil. Hemos enviado una verificación por correo "
+"electrónico a %(email)s. Por favor compruébelo."
 
 #. NOTE: Flash message after successful update of profile.
 #: iroko/iroko_theme/templates/iroko_theme/invenio_userprofiles/views.py:163
@@ -583,6 +588,62 @@ msgstr "Fuente no encontrada"
 #: iroko/iroko_theme/templates/iroko_theme/sources/source.html:72
 msgid "The source you are looking for could not be found."
 msgstr "La fuente que está buscando no se ha encontrado"
+
+#: iroko/postulates/forms.py:40
+#, fuzzy
+msgid "Source name"
+msgstr "Fuente agregada"
+
+#: iroko/postulates/forms.py:41
+msgid "Name for the journal or repository postulating"
+msgstr "Nombre de la Revista o Repositorio que se postula"
+
+#: iroko/postulates/forms.py:45
+#, fuzzy
+msgid "Source OAI"
+msgstr "Fuente agregada"
+
+#: iroko/postulates/forms.py:46
+msgid "URL of the OAI"
+msgstr "Url para el OAI"
+
+#: iroko/postulates/forms.py:49
+#, fuzzy
+msgid "Full Name"
+msgstr "Nombre completo"
+
+#: iroko/postulates/forms.py:50
+#, fuzzy
+msgid "Your Full Name"
+msgstr "Nombre completo"
+
+#: iroko/postulates/forms.py:54
+msgid "Email"
+msgstr "Correo Electrónico"
+
+#: iroko/postulates/forms.py:55
+msgid "Email for contacting and processing"
+msgstr "Correo Electrónico para contactar y Procesar"
+
+#: iroko/postulates/forms.py:59
+msgid "Information"
+msgstr "Información"
+
+#: iroko/postulates/forms.py:60
+msgid "Any other useful information we could need"
+msgstr "Cualquier otra información que pudiéramos necesitar"
+
+#: iroko/postulates/views.py:39
+msgid "Postulations procees started"
+msgstr "El proceso de postulación ha comenzado"
+
+#: iroko/postulates/templates/new_postulate.html:20
+msgid "Postulating a Journal or Repository for Sceiba"
+msgstr "Postulando una Revista o Repositorio en Sceiba"
+
+#: iroko/postulates/templates/new_postulate.html:52
+msgid "Start Postulation"
+msgstr "Iniciar Postulación"
 
 #: iroko/texts/forms.py:15
 #, fuzzy

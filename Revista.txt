@@ -1,0 +1,4 @@
+Revista ask for being part of Sceiba with OAI: http://blogcrai.upr.edu.cu/ Process started by eduardo, Email: eduardo@upr.edu.cu
+Inclusion Requeriments: 
+Mi sitio web tiene una URL separada para cada artículo, así como una interfaz de navegación para todas las URL de los artículos.
+Mi solicitud de inclusión es para un sitio web de OJS.

@@ -59,7 +59,7 @@ def index():
     vocab_stats.append({'sources':str(len(sources))})
 
     authors = IrokoAggs.getAggrs("creators.name",50000)
-    print('authors'+str(authors))
+    #print('authors'+str(authors))
     vocab_stats.append({'authors':str(len(authors))})
     
     # cuando se vaya a escribir el json es agregarle la opcion w y 
@@ -77,7 +77,7 @@ def index():
     # faqs = markdown(texts)
     
     keywords = IrokoAggs.getAggrs("keywords",50000)
-    print('keywords'+str(keywords))    
+    #print('keywords'+str(keywords))    
     vocab_stats.append({'Keywords':str(len(keywords))})
 
     for vocab in vocabularies:

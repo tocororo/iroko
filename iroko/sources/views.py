@@ -3,20 +3,30 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, jsonify, request, json, render_template
-
+from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
+from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-
 from iroko.sources.marshmallow import sources_schema_full, source_schema_full
-
 from iroko.sources.api import Sources
+from invenio_i18n.selectors import get_locale
+from .forms import InclusionForm
+from flask_babelex import lazy_gettext as _
+import json
+#from iroko.utils import mail
+from flask_mail import Message
+import unicodedata
+import re
+import random
+from datetime import datetime
 
-# blueprint = Blueprint(
-#     'iroko_sources',
-#     __name__,
-#     template_folder='templates',
-#     static_folder='static',
-# )
+
+blueprint = Blueprint(
+    'iroko_sources',
+    __name__,
+    url_prefix='/iroko-sources',
+    template_folder='templates',
+    static_folder='static',
+)
 
 
 api_blueprint = Blueprint(
@@ -93,4 +103,122 @@ def jsonify_source(src):
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 
 
+@blueprint.route('/inclusions', methods=['GET', 'POST'])
+@login_required
+def inclusions():
+    inclusions = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
+        inclusions = json.load(file) 
+    rejections = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json') as file:
+        rejections = json.load(file)  
+    accepted = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json') as file:
+        accepted = json.load(file)  
 
+    return render_template('inclusions.html', 
+                            inclusions=inclusions, 
+                            rejections=rejections,
+                            accepted=accepted)
+
+
+@blueprint.route('/inclusions/del/<string:key>', methods=['GET', 'POST'])
+@login_required
+def delete_inclusion(key):
+    inclusions = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
+        inclusions = json.load(file)  
+    
+    rejections = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json') as file:
+        rejections = json.load(file)     
+    
+    rejections[key] = inclusions[key]
+    del inclusions[key]
+    
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
+        json.dump(inclusions, file, indent=4)
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json', 'w') as file:
+        json.dump(rejections, file, indent=4)
+
+    return redirect(url_for('iroko_sources.inclusions'))
+
+
+
+@blueprint.route('/inclusions/acept/<string:key>', methods=['GET', 'POST'])
+@login_required
+def acept_inclusion(key):
+    inclusions = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
+        inclusions = json.load(file)  
+    
+    accepted = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json') as file:
+        accepted = json.load(file)     
+    
+    accepted[key] = inclusions[key]
+    del inclusions[key]
+    
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
+        json.dump(inclusions, file, indent=4)
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json', 'w') as file:
+        json.dump(accepted, file, indent=4)
+
+    return redirect(url_for('iroko_sources.inclusions'))
+
+
+@blueprint.route('/inclusions/new', methods=['GET', 'POST'])
+@login_required
+def new_inclusion():
+    """The create view."""
+    form = InclusionForm()
+    # if the form is submitted and valid
+    if form.validate_on_submit(): 
+        body_text = form.source.data + ' ask for being part of Sceiba with OAI: ' + form.homepage_url.data
+        body_text += ' Process started by ' + form.contact_name.data + ', Email: ' + form.contact_email.data
+        
+        # fichero=open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions/'+form.source.data+'.txt','w')
+        # fichero.write(body_text) 
+        # fichero.close()
+
+        inclusions = {}
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
+            inclusions = json.load(file)   
+
+        if form.source.data in inclusions:       
+            raise Exception(_('That source already have an entry for a new inclusion in Sceiba'))    
+
+        requeriments = {}
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+ '/inclusion_requeriments.json') as file:
+            requeriments = json.load(file)        
+
+        data = {}
+        data["source"] = form.source.data
+        data["url"] = form.homepage_url.data
+        data["contact"] = form.contact_name.data
+        data["email"] = form.contact_email.data
+        data["date"] = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")        
+        data["requeriments"] = [] 
+        for item in form.requeriments.data:
+            data["requeriments"].append(requeriments[item])
+        
+        inclusions[form.source.data] = data
+
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
+            json.dump(inclusions, file, indent=4)
+
+        # body_text += '\n' + _("Inclusion Requeriments: ") + '\n'
+        # for item in form.requeriments.data:
+        #     body_text += requeriments[item] + '\n' 
+        # print(body_text)
+
+        # msg = Message(_("Inclusion message"),
+        #           sender=current_app.config["MAIL_DEFAULT_SENDER"],
+        #           recipients=["eduardo.arencibia@upr.edu.cu", current_app.config["MAIL_DEFAULT_SENDER"]], 
+        #           body=body_text)
+        # current_app.extensions['mail'].send(msg)
+        
+        flash(_('Inclusion procees started'), 'info')
+        return redirect(url_for('iroko_theme.index'))
+
+    return render_template('new_inclusion.html', form=form)
