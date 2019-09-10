@@ -11,5 +11,19 @@
             "El archivo robots.txt en mi sitio web, si mi sitio web tiene uno, permite que Googlebot rastree todas las URL de los art\u00edculos, as\u00ed como la interfaz de navegaci\u00f3n.",
             "Mi solicitud de inclusi\u00f3n es para un sitio web de OJS."
         ]
+    },
+    "sdafas": {
+        "source": "sdafas",
+        "url": "http://c.com",
+        "contact": "asdasd",
+        "email": "asdasd@c.com",
+        "date": "10/09/2019, 11:43:56",
+        "requeriments": [
+            "Mi sitio web tiene una URL separada para cada art\u00edculo, as\u00ed como una interfaz de navegaci\u00f3n para todas las URL de los art\u00edculos.",
+            "Cada URL del art\u00edculo contiene el resumen completo escrito por el autor o el texto completo del art\u00edculo.",
+            "Todos los usuarios pueden leer todas las URL de los art\u00edculos sin necesidad de iniciar sesi\u00f3n o pagar.",
+            "El archivo robots.txt en mi sitio web, si mi sitio web tiene uno, permite que Googlebot rastree todas las URL de los art\u00edculos, as\u00ed como la interfaz de navegaci\u00f3n.",
+            "Mi solicitud de inclusi\u00f3n es para un sitio web de OJS."
+        ]
     }
 }
