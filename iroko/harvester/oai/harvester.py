@@ -30,9 +30,9 @@ import iroko.harvester.utils as utils
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
 class OaiHarvester(SourceHarvester):
-    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los records, al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar 
-    dentro de current_app.config['HARVESTER_DATA_DIRECTORY'] crea una carpeta con el Id del source. 
-     con la siguiente forma: 
+    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los records, al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar
+    dentro de current_app.config['HARVESTER_DATA_DIRECTORY'] crea una carpeta con el Id del source.
+     con la siguiente forma:
      [source_id]
         - identify.xml
         - metadata_formats.xml
@@ -43,7 +43,7 @@ class OaiHarvester(SourceHarvester):
             - metadata_format_2.xml
             - fulltext_1.ext
             - fulltext_2.ext
-    Cuando se cosecha una fuente por primera vez se crea la estructura de carpetas y se almacena en la base de datos lo necesario. 
+    Cuando se cosecha una fuente por primera vez se crea la estructura de carpetas y se almacena en la base de datos lo necesario.
     Cuando actualiza la cosecha una fuente, o sea cuando ya se ha cosechado otras veces, se modifica la estructura de carpetas si es necesario, si hay que adicionar items, o si cambiaron algunos,etc
     """
 
@@ -56,7 +56,7 @@ class OaiHarvester(SourceHarvester):
         self.source = source
         self.work_remote = work_remote
         self.request_wait_time = request_wait_time
-        
+
         p = current_app.config['HARVESTER_DATA_DIRECTORY']
         # p = 'data/sceiba-data'
         self.harvest_dir = path.join(p, str(self.source.id))
@@ -139,10 +139,10 @@ class OaiHarvester(SourceHarvester):
         else:
             xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier').text
-        
+
         if self.source.repo_identifier is not None and self.source.repo_identifier != identifier:
             raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.source.repo_identifier, identifier, self.source.id, self.work_remote))
-            
+
         self.source.repo_identifier = identifier
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
@@ -161,7 +161,7 @@ class OaiHarvester(SourceHarvester):
             xml = self._get_xml_from_file("metadata_formats.xml")
             self.formats = utils.get_multiple_elements(xml, 'metadataPrefix', xmlns=utils.xmlns.oai())
             print(self.formats)
-            
+
         self.source.repo_metadata_formats = self.formats
 
         # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
@@ -198,7 +198,7 @@ class OaiHarvester(SourceHarvester):
                     rset.setSpec = setSpec.text
                     rset.setName = setName.text
                     db.session.add(rset)
-                
+
 
 
     def get_items(self):
@@ -234,6 +234,7 @@ class OaiHarvester(SourceHarvester):
                         shutil.move(itempath, path.join(self.harvest_dir, str(harvest_item.id)))
         else:
             iterator = self.sickle.ListIdentifiers(metadataPrefix=self.oai_dc.metadataPrefix)
+            count = 0
             for item in iterator:
                 harvest_item = HarvestedItem.query.filter_by(repository_id=self.source.id,\
                                     identifier=item.identifier).first()
@@ -254,9 +255,9 @@ class OaiHarvester(SourceHarvester):
 
                     if not path.exists(p):
                         mkdir(p)
-                    
+
                     self._write_file("id.xml", item.raw, str(harvest_item.id))
-                    
+
                     if harvest_item.status != HarvestedItemStatus.DELETED:
                         self._get_all_formats(harvest_item)
                         harvest_item.status = HarvestedItemStatus.HARVESTED
@@ -266,6 +267,8 @@ class OaiHarvester(SourceHarvester):
                     harvest_item.error_log = traceback.format_exc()
                 finally:
                     db.session.commit()
+                    count = count + 1
+            print("--- {0} harvested".format(count))
 
 
     def _get_all_formats(self, item:HarvestedItem):
@@ -287,7 +290,7 @@ class OaiHarvester(SourceHarvester):
 
     def record_items(self):
         """ process all item, create an IrokoRecord and save/update it"""
-        
+
         items = HarvestedItem.query.filter_by(repository_id=self.source.id).all()
         for item in items:
             # if item.status == HarvestedItemStatus.HARVESTED:
@@ -301,8 +304,8 @@ class OaiHarvester(SourceHarvester):
                     nlm = self._process_format(item, self.nlm)
                     # print(str(nlm))
                 data = self._crate_iroko_dict(item, dc, nlm)
-                
-                
+
+
                 record, status = IrokoRecord.create_or_update(data, dbcommit=True, reindex=True)
                 item.status = HarvestedItemStatus.RECORDED
                 item.record = record.id
@@ -317,10 +320,10 @@ class OaiHarvester(SourceHarvester):
         #TODO change xml to .xml esto esta asi por un error en los datos que tengo en la casa...
         xmlpath = path.join(self.harvest_dir, str(item.id), formater.getMetadataPrefix()+".xml")
         if not path.exists(xmlpath):
-            
+
             # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
             return None
-        # TODO: si llego hasta aqui y es none, habria que intentar harvestear de nuevo... 
+        # TODO: si llego hasta aqui y es none, habria que intentar harvestear de nuevo...
         # print(xmlpath)
         xml = etree.parse(xmlpath, parser=XMLParser)
         return formater.ProcessItem(xml)
@@ -333,7 +336,7 @@ class OaiHarvester(SourceHarvester):
         if nlm is not None:
             data['creators'] = nlm['creators']
             data['contributors'] = nlm['contributors']
-        
+
         data['source'] = {
             "uuid": str(self.source.uuid),
             "name": str(self.source.name)
@@ -348,4 +351,3 @@ class OaiHarvester(SourceHarvester):
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations
         return data
-  

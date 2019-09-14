@@ -32,7 +32,7 @@ from flask.cli import with_appcontext
 import traceback
 
 # from iroko.documents.api import Document
-from iroko.sources.models import Source, HarvestType
+from iroko.sources.models import Source, HarvestType, RepositoryStatus
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
@@ -44,9 +44,13 @@ from iroko.sources.models import Source, HarvestType
 # from iroko.harvester.processors.oai.iterator import OaiIterator
 # from iroko.harvester.processors.oai.formaters import DubliCoreElements
 
+from iroko.harvester.oai.harvester import OaiHarvester
+
 from iroko.harvester.api import Harvester
-from iroko.sources.models import Source
 from iroko.harvester.tasks import harvest_source
+
+from invenio_db import db
+
 @click.group()
 def harvester():
     """Command related to harevest iroko data."""
@@ -81,7 +85,7 @@ def harvest_source(source_id, step=0):
         Harvester.harvest_pipeline(sid, work_remote=True, step=st)
     except Exception:
         traceback.format_exc()
-    
+
 
 
 @harvester.command()
@@ -91,7 +95,7 @@ def testcelery():
     for source in sources:
         job = harvest_source.delay(source.id, work_remote=True, request_wait_time=3)
         print("Scheduled job {0}".format(job.id))
-    
+
 
 
 
@@ -99,7 +103,26 @@ def testcelery():
 @with_appcontext
 def harvestall():
     """harvest all sources with oai"""
-    sources = Source.query.filter_by(harvest_type=HarvestType.OAI).all()
+    sources = Source.query.filter_by(repo_harvest_type=HarvestType.OAI).all()
+    count = 0
+    for source in sources:
+        if source is not None and source.repo_status is None or source.repo_status == RepositoryStatus.ERROR:
+            print("{0} - {1} : {2} : {3}".format(count, source.id, source.name, source.repo_status))
+            count = count + 1
+            try:
+                print('###########################')
+                print("{0} - {1} - {2}".format(source.id, source.name, source.repo_status))
+                print("{0} - {1} - {2}".format(source.id, source.name, source.repo_harvest_endpoint))
+                harvester = OaiHarvester(source, work_remote=True, request_wait_time=0)
+                harvester.identity_source()
+                harvester.discover_items()
+            except Exception as e:
+                print (e.__doc__)
+            finally:
+                print("{0} - {1} - {2}".format(source.id, source.name, source.repo_status))
+                print('###########################')
+
+            # harvester.process_items()
     # count = 1
     # for source in sources:
     #     print(source.harvest_endpoint)
@@ -139,7 +162,7 @@ def preprocess_items():
 #         # )
 #         # click.echo('record uuid: ' + str(record.id) + ' | ' + status)
 
-# def some():    
+# def some():
 #     count = 0
 #     sources = Source.query.all()
     # for source in sources:
@@ -170,7 +193,7 @@ def preprocess_items():
     # sets = get_sets(url)
     # sickle = Sickle(url)
     # iterator = sickle.ListRecords(metadataPrefix='oai_dc')
-    
+
     # for record_set in iterator:
     #     count += 1
     #     print(iterator.resumption_token)

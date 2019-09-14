@@ -13,6 +13,7 @@ uwsgi-tools = ">=1.1.1"
 lxml = ">=3.5.0,<4.2.6"
 sickle = ">=0.6.4"
 mistune = "*"
+bokeh = "*"
 
 [dev-packages]
 Flask-Debugtoolbar = ">=0.10.1"
