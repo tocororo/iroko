@@ -106,7 +106,7 @@ def harvestall():
     sources = Source.query.filter_by(repo_harvest_type=HarvestType.OAI).all()
     count = 0
     for source in sources:
-        if source is not None and source.repo_status is None or source.repo_status == RepositoryStatus.ERROR:
+        if source is not None and source.repo_status is None  or source.repo_status == RepositoryStatus.ERROR:
             print("{0} - {1} : {2} : {3}".format(count, source.id, source.name, source.repo_status))
             count = count + 1
             try:
