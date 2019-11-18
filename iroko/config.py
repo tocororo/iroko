@@ -26,6 +26,8 @@ from invenio_search import RecordsSearch
 from flask_babelex import lazy_gettext as _
 
 
+from invenio_oauthclient.contrib import orcid
+
 
 def _(x):
     """Identity function used to trigger string extraction."""
@@ -423,6 +425,16 @@ JSONSCHEMAS_HOST = os.environ.get('JSONSCHEMAS_HOST', 'localhost:5000')
 JSONSCHEMAS_URL_SCHEME = 'https'
 
 
+# ORCID Login
+
+OAUTHCLIENT_REMOTE_APPS = dict(
+        orcid=orcid.REMOTE_SANDBOX_APP,
+)
+
+ORCID_APP_CREDENTIALS = dict(
+        consumer_key="APP-7E598LCJRMFM5UPW",
+        consumer_secret="41629dee-dbf5-42a5-a806-79a39d02c50b",
+)
 
 
 # Others iroko configuration

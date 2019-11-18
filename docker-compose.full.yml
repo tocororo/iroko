@@ -84,7 +84,7 @@ services:
       - es
       - mq
       - db
-  # Worker
+  # Worker 
   worker:
     extends:
       file: docker-services.yml
