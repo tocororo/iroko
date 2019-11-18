@@ -428,7 +428,7 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 # ORCID Login
 
 OAUTHCLIENT_REMOTE_APPS = dict(
-        orcid=orcid.REMOTE_SANDBOX_APP,
+        orcid=orcid.REMOTE_APP,
 )
 
 ORCID_APP_CREDENTIALS = dict(
