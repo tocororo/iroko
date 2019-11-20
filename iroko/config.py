@@ -444,26 +444,3 @@ HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
 
 
-# TODO  resolver esto...en ansible?
-# ORCID Login
-# para publicar el codigo, la conf de orcid, el secreto etc se pone en dev_ip.py
-# Proxy
-# esto tambien va en dev_ip.py porque es especifico del server en que esta corriendo...
-
-
-# ORCID Login
-
-OAUTHCLIENT_REMOTE_APPS = dict(
-        orcid=orcid.REMOTE_APP,
-)
-
-ORCID_APP_CREDENTIALS = dict(
-        consumer_key="APP-7E598LCJRMFM5UPW",
-        consumer_secret="41629dee-dbf5-42a5-a806-79a39d02c50b",
-)
-
-
-# PROXY
-os.environ['http_proxy'] = 'http://servers-proxy.upr.edu.cu:8080/'
-os.environ['https_proxy'] = 'http://servers-proxy.upr.edu.cu:8080/'
-os.environ['no_proxy'] = '10.2.0.0/15'
