@@ -466,4 +466,4 @@ ORCID_APP_CREDENTIALS = dict(
 # PROXY
 os.environ['http_proxy'] = 'http://servers-proxy.upr.edu.cu:8080/'
 os.environ['https_proxy'] = 'http://servers-proxy.upr.edu.cu:8080/'
-os.environ['no_proxy'] = '10.2.4.0/24'
+os.environ['no_proxy'] = '10.2.0.0/15'

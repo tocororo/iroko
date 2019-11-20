@@ -44,6 +44,8 @@ class Vocabulary(db.Model):
     
     # terms = db.relationship("Term")
 
+    # TODO: Add source of the vocabulary (a name and url) and the class/function to parse automatically the source
+
     def __str__(self):
         """Representation."""
         return self.name

@@ -38,10 +38,13 @@ api_blueprint = Blueprint(
     __name__,
 )
 
+# TODO: Add POST/PUT vocabulary 
 
 @api_blueprint.route('/vocabularies')
 def get_vocabularies():
-
+    """ 
+    List all vocabularies
+    """
     result = Vocabulary.query.all()
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -53,7 +56,7 @@ def get_vocabularies():
 
 @api_blueprint.route('/terms')
 def get_terms_list():
-
+    """List all terms """
     result = Term.query.all()
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -64,6 +67,8 @@ def get_terms_list():
 
 @api_blueprint.route('/terms/<vocabulary>')
 def get_terms(vocabulary):
+    """List the first level o the terms in a vocabulary """
+
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
     if vocab:
         
@@ -75,6 +80,8 @@ def get_terms(vocabulary):
 
 @api_blueprint.route('/terms/<vocabulary>/any')
 def get_terms_any(vocabulary):
+    """List the first level o the terms in a vocabulary """
+
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
     if vocab:
         
@@ -87,6 +94,8 @@ def get_terms_any(vocabulary):
 
 @api_blueprint.route('/terms/<vocabulary>/tree')
 def get_terms_tree(vocabulary):
+    """List all the terms in a vocabulary, in a tree """
+
     vocab = Vocabulary.query.filter_by(name=vocabulary).first()
     if vocab:
         terms = vocab.terms.filter_by(parent_id=None).all()
@@ -102,16 +111,24 @@ def get_terms_tree(vocabulary):
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
 
+# TODO: Add POST/PUT for term
+
 @api_blueprint.route('/term/<uuid>')
 def get_term(uuid):
+    """Get a term given the uuid """
+
     term = Term.query.filter_by(uuid=uuid).first()
     if term:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms', load_term(term))
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no term', None, None)        
 
+# TODO: Add /term/<uuid>/tree to get the term with its children, in deep
+
 
 def load_term(term):
+    """ helper function to load terms children"""
+
     children = []
     for child in term.children:
         children.append(load_term(child))

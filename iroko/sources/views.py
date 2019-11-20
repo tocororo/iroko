@@ -36,7 +36,9 @@ api_blueprint = Blueprint(
 
 @api_blueprint.route('/sources')
 def get_sources():
-
+    """List all sources with filters in parameters"""
+    # TODO: document this!!!
+    
     and_op = True if request.args.get('op') and request.args.get('op') == 'and' else False
 
     count = int(request.args.get('count')) if request.args.get('count') else 10
@@ -80,17 +82,22 @@ def get_sources():
 
 @api_blueprint.route('/sources/count')
 def get_sources_count():
-    """retorna la cantidad de sources"""
+    """return sources count"""
+
     result = Sources.count_sources()
     return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
 
 @api_blueprint.route('/source/id/<id>')
 def get_source_by_id(id):
+    """Get a source by ID"""
+
     src = Sources.get_source_by_id(id=id)
     return jsonify_source(src)
 
 @api_blueprint.route('/source/uuid/<uuid>')
 def get_source_by_uuid(uuid):
+    """Get a source by UUID"""
+
     src = Sources.get_source_by_id(uuid=uuid)
     return jsonify_source(src)
 
