@@ -7,18 +7,12 @@
 =======
  iroko
 =======
+Iroko is the source code of SCEIBA
 
-.. image:: https://img.shields.io/travis/tocororo/iroko.svg
-        :target: https://travis-ci.org/tocororo/iroko
+.. image:: https://sceiba-lab.upr.edu.cu/static/images/sceiba-logo.png
+        :target: https://sceiba-lab.upr.edu.cu
 
-.. image:: https://img.shields.io/coveralls/tocororo/iroko.svg
-        :target: https://coveralls.io/r/tocororo/iroko
+sceiba project, iroko software, invenio repository software
 
-.. image:: https://img.shields.io/github/license/tocororo/iroko.svg
-        :target: https://github.com/tocororo/iroko/blob/master/LICENSE
 
-sceiba project, iroko software, invenio repository softwar
-
-Further documentation is available on
-https://iroko.readthedocs.io/
 
