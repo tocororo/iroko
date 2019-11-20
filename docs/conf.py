@@ -117,15 +117,14 @@ todo_include_todos = False
 html_theme = 'alabaster'
 
 html_theme_options = {
-    'description': 'sceiba project, iroko software, invenio repository softwar',
-    'github_user': 'inveniosoftware',
+    'description': 'sceiba project, iroko software, invenio repository software',
+    'github_user': 'malayibiri',
     'github_repo': 'iroko',
     'github_button': False,
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'iroko@GitHub': 'https://github.com/tocororo/iroko',
-        'iroko@PyPI': 'https://pypi.python.org/pypi/iroko/',
+        'iroko@GitHub': 'https://github.com/tocororo/iroko'
     }
 }
 
