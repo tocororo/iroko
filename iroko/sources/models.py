@@ -10,6 +10,8 @@ import uuid
 import enum
 from invenio_db import db
 
+from invenio_accounts.models import User
+
 from iroko.taxonomy.models import Term
 
 class RepositoryStatus(enum.Enum):
@@ -62,6 +64,25 @@ class Source(db.Model):
         """Representation."""
         return self.name
 
+class SourceInclusion(db.Model):
+    """Inclusion de una fuente. Se supone que una inclusion lo haga un usuario, luego otro puede validarla, lo cual crea una nueva inclusion, etc..."""
+    
+    __tablename__ = 'iroko_source_inclusions'
+    id = db.Column( db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        User.id, name='fk_iroko_source_inclusions_user_id'))
+    """ID of user to whom this inclusion belongs."""
+
+    user = db.relationship(User, backref='iroko_source_inclusions')
+
+    source_id = db.Column(db.Integer, db.ForeignKey(
+        Source.id, name='fk_iroko_source_inclusions_source_id'))
+    """ID of Source for this inclusion."""
+
+    source = db.relationship(Source, backref='iroko_source_inclusions')
+
+
 class RepositorySet(db.Model):
     """ Para el campo spec en el Dublin Core
     cada repositorio define sus sets, la idea con esta tabla es tener
@@ -91,3 +112,5 @@ class TermSources(db.Model):
 
     source = db.relationship("Source", backref=db.backref("terms")) 
     term = db.relationship("Term", backref=db.backref("sources"))
+
+

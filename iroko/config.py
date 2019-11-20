@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS, IROKO_HOST
+from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS, IROKO_HOST, ORCID_APP_CREDENTIALS
 
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
@@ -443,4 +443,7 @@ REST_ENABLE_CORS = True
 HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
 
+OAUTHCLIENT_REMOTE_APPS = dict(
+        orcid=orcid.REMOTE_APP,
+)
 
