@@ -3,7 +3,7 @@
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import sources_schema, sources_schema_full, journal_schema, SourceSchema
+from iroko.sources.marshmallow import sources_schema, sources_schema_full, SourceSchema
 from invenio_db import db
 
 def _no_params(param_data):
@@ -84,8 +84,13 @@ def _filter_repo_args(source:Source, repo_args, and_op):
 
 
 class Sources:
-    """API for manipulation of Sources"""
+    """API for manipulation of Sources
+    Considering SourceVersion: meanining this class use Source and SourceVersion model. 
+    """
 
+    # Listar todas las fuentes dado un status...
+    # Listar una fuente con sus versiones
+    # saber si de una version con un status determinado tiene una nueva version que no es "current"
 
     @classmethod
     def get_sources(cls, and_op, terms, data_args, repo_args):
@@ -121,5 +126,4 @@ class Sources:
     @classmethod
     def count_sources(cls):
         return Source.query.count()
-
 

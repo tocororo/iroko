@@ -101,6 +101,39 @@ def get_source_by_uuid(uuid):
     src = Sources.get_source_by_id(uuid=uuid)
     return jsonify_source(src)
 
+#TODO: Necesita autenticacion.
+@api_blueprint.route('/source/new', methods=['GET', 'POST'])
+def insert_new_version(id):
+
+    created_at = datetime.now()
+    # Crear un Source y un SourceVersion que tienen el mismo Data. 
+    # comprobar que no exista otro ISSN, RNPS o URL igual, sino da error
+    # source_status = REview
+    # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
+    # Aqui no se trata la parte que tiene en ver con repo!!!!
+
+
+#TODO: Necesita autenticacion.
+@api_blueprint.route('/source/<id>/new-version', methods=['GET', 'POST'])
+def insert_new_version(id):
+    
+    # inserta un nuevo sourceVersion de un source que ya existe
+    # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
+    src = Sources.get_source_by_id(id=id)
+    created_at = datetime.now()
+
+
+#TODO: Necesita autenticacion.
+@api_blueprint.route('/source/<id>/current', methods=['GET', 'POST'])
+def insert_new_version(id):
+
+    # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
+    # comprobar que el usuario tiene el role para hacer esto. 
+
+    src = Sources.get_source_by_id(id=id)
+
+
+
 def jsonify_source(src):
     if src:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
