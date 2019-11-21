@@ -6,7 +6,7 @@
 
 
 .. include:: ../README.rst
-
+TODO mejorar la documentacion
 User's Guide
 ------------
 
