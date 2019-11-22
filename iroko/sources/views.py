@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import sources_schema_full, source_schema_full
+from iroko.sources.marshmallow import source_schema_full_many, source_schema_full
 from iroko.sources.api import Sources
 from invenio_i18n.selectors import get_locale
 from .forms import InclusionForm
@@ -76,7 +76,7 @@ def get_sources():
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': sources_schema_full.dump(result[offset:offset+limit]).data,\
+                        {'data': source_schema_full_many.dump(result[offset:offset+limit]).data,\
                          'count': len(result)})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 

@@ -3,7 +3,7 @@
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import sources_schema, sources_schema_full, SourceSchema
+from iroko.sources.marshmallow import source_schema_many, source_schema_full_many, SourceSchema
 from invenio_db import db
 
 def _no_params(param_data):
