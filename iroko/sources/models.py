@@ -39,6 +39,7 @@ class SourcesType(enum.Enum):
 class SourceStatus(enum.Enum):
     APPROVED = "APPROVED"
     TO_REVIEW = "TO_REVIEW"
+    UNOFFICIAL = 'UNOFFICIAL'
 
 
 class HarvestType(enum.Enum):

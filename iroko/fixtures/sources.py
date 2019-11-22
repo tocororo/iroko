@@ -30,7 +30,7 @@ import json
 from invenio_db import db
 
 from ..taxonomy.models import Term
-from ..sources.models import Source, SourcesType, TermSources, HarvestType
+from ..sources.models import Source, SourcesType, TermSources, HarvestType, SourceStatus
 
 def init_journals():
     # sources_path = '../../data/journals.json' 
@@ -61,6 +61,7 @@ def init_journals():
                     _assing_if_exist(issn, record['issn'], 'l')
                     data['issn']= issn
                     source.data = data
+                    source.source_status = SourceStatus.UNOFFICIAL
                     db.session.add(source)
         db.session.commit()
     init_term_sources()
