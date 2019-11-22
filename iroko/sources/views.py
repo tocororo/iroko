@@ -6,7 +6,9 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema_full_many, source_schema_full
+from iroko.sources.marshmallow import source_schema_full_many, source_schema_full, journal_schema, JournalSchema
+from iroko.sources.models import Source, SourceVersion, SourcesType, SourceStatus
+from marshmallow import ValidationError
 from iroko.sources.api import Sources
 from invenio_i18n.selectors import get_locale
 from .forms import InclusionForm
@@ -114,14 +116,56 @@ def source_new(id):
     if not json_data:
         return {"message": "No input data provided"}, 400
     # Validate and deserialize input
-    try:
-        data = quote_schema.loads(json_data)
-    except ValidationError as err:
-        return err.messages, 422
-    
-    new_source = SourceSchema(request.json["source"])
-    
-    print(data)
+    # json_data has several key: 
+    #       token for user accounts managment, 
+    #       data with field of the new source version
+    #       type for the type of source: journal, repository
+    #       comment for the version of the source
+    # 
+    if "type" not in json_data:
+        return {"message": "Not source type provided"}, 412    
+
+    if json_data["type"] is SourcesType.JOURNAL:
+        try:
+            data = journal_schema.loads(json_data["data"])
+        except ValidationError as err:
+            return err.messages, 422
+        issn = rnps = url = None
+        if "issn" in data: 
+            issn = data["issn"]
+        if "rnps" in data:
+            rnps = data["rnps"]
+        if "url" in data:
+            url = data["url"]
+        if not issn and not rnps and not url:
+            return {"message": "Source need issn, or rnps, or url in order to identify it self"}, 412
+
+        if len(Sources.sources_existences(issn, rnps, url)) > 0:
+            return {"message": "Source already exist"}, 412  
+
+        new_source = Source()
+        new_source.name = data["title"] if "title" in data else ""
+        new_source.source_type = SourcesType.JOURNAL
+        new_source.source_status = SourceStatus.TO_REVIEW
+        new_source.data = data
+        #print(new_source)
+        db.session.add(new_source)
+        db.session.flush()
+
+        # user_id, source_id, comment, data, created_at, is_current
+        new_source_version = SourceVersion()
+        new_source_version.data = data
+        new_source_version.created_at = created_at
+        new_source_version.is_current = True
+        new_source_version.source_id = new_source.id
+        new_source_version.comment = json_data["comment"] if "comment" in json_data else ""
+
+        db.session.add(new_source_version)
+        db.session.commit()
+
+        return {"message": "Created source and sourve version"}, 201
+    else:
+        return {"message": "No journal type provided, other types are not implemented yet"}, 501
 
     # Crear un Source y un SourceVersion que tienen el mismo Data. 
     # comprobar que no exista otro ISSN, RNPS o URL igual, sino da error
