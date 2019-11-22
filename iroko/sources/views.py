@@ -34,6 +34,7 @@ api_blueprint = Blueprint(
     __name__,
 )
 
+
 @api_blueprint.route('/sources')
 def get_sources():
     """List all sources with filters in parameters"""
@@ -87,6 +88,7 @@ def get_sources_count():
     result = Sources.count_sources()
     return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
 
+
 @api_blueprint.route('/source/id/<id>')
 def get_source_by_id(id):
     """Get a source by ID"""
@@ -94,12 +96,14 @@ def get_source_by_id(id):
     src = Sources.get_source_by_id(id=id)
     return jsonify_source(src)
 
+
 @api_blueprint.route('/source/uuid/<uuid>')
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
 
     src = Sources.get_source_by_id(uuid=uuid)
     return jsonify_source(src)
+
 
 #TODO: Necesita autenticacion.
 @api_blueprint.route('/source/new', methods=['GET', 'POST'])
@@ -111,6 +115,7 @@ def insert_new_version(id):
     # source_status = REview
     # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
     # Aqui no se trata la parte que tiene en ver con repo!!!!
+
 
 
 #TODO: Necesita autenticacion.
