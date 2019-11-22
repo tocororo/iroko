@@ -102,10 +102,23 @@ def get_source_by_uuid(uuid):
     return jsonify_source(src)
 
 #TODO: Necesita autenticacion.
-@api_blueprint.route('/source/new', methods=['GET', 'POST'])
-def insert_new_version(id):
+@api_blueprint.route('/source/new', methods=['POST'])
+def source_new(id):
 
     created_at = datetime.now()
+    json_data = request.get_json()
+    if not json_data:
+        return {"message": "No input data provided"}, 400
+    # Validate and deserialize input
+    try:
+        data = quote_schema.loads(json_data)
+    except ValidationError as err:
+        return err.messages, 422
+    
+    new_source = SourceSchema(request.json["source"])
+    
+    print(data)
+
     # Crear un Source y un SourceVersion que tienen el mismo Data. 
     # comprobar que no exista otro ISSN, RNPS o URL igual, sino da error
     # source_status = REview
@@ -115,7 +128,7 @@ def insert_new_version(id):
 
 #TODO: Necesita autenticacion.
 @api_blueprint.route('/source/<id>/new-version', methods=['GET', 'POST'])
-def insert_new_version(id):
+def source_new_version(id):
     
     # inserta un nuevo sourceVersion de un source que ya existe
     # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
@@ -125,7 +138,7 @@ def insert_new_version(id):
 
 #TODO: Necesita autenticacion.
 @api_blueprint.route('/source/<id>/current', methods=['GET', 'POST'])
-def insert_new_version(id):
+def source_version_set_current(id):
 
     # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
     # comprobar que el usuario tiene el role para hacer esto. 
