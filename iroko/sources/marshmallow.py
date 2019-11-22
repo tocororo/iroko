@@ -92,3 +92,5 @@ source_version_squema_full_many = SourceVersionSchema(many=True)
 source_version_squema_full = SourceVersionSchema()
 
 term_source_schema = TermSourcesSchema()
+
+journal_schema = JournalSchema()
