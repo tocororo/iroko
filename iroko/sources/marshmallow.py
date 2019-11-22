@@ -25,25 +25,7 @@ class SourcesDataSchema(Schema):
     url = fields.Url()
     terms = fields.List(fields.Int)
 
-
-
-
-def get_source_schema(schema_type):
-
-    class RepositorySchema(SourcesDataSchema):
-
-        email = fields.Str()
-        logo = fields.Str()
-
-    print(schema_type)
-    if schema_type == SourcesType.JOURNAL:
-        return JournalSchema
-    if schema_type == SourcesType.REPOSITORY:
-            return RepositorySchema
-    return SourcesDataSchema
-
 class JournalSchema(SourcesDataSchema):
-
     issn = fields.Nested(ISSNSchema, many=False)
     rnps = fields.Str()
     email = fields.Str()
@@ -51,6 +33,11 @@ class JournalSchema(SourcesDataSchema):
     seriadas_cubanas = fields.Url()
     year_start = fields.DateTime()
     year_end = fields.DateTime()
+
+class RepositorySchema(SourcesDataSchema):
+    email = fields.Str()
+    logo = fields.Str()
+
 
 class SourceVersionSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -63,12 +50,14 @@ class SourceVersionSchema(Schema):
 
 
 class SourceSchema(Schema):
+   
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str()
     source_type = fields.Str()
     source_status = fields.Str()
-    data = fields.Nested(JournalSchema, many=False)
+    
+    data = fields.Nested(SourcesDataSchema, many=False)
 
     versions = fields.Nested(SourceVersionSchema, many=True)
 
@@ -80,6 +69,26 @@ class SourceSchema(Schema):
     repo_status = fields.Str()
     repo_error_log = fields.Str()
 
+    # @pre_load
+    # def get_source_data(self, in_data, **kwargs):
+
+    #     print(in_data)
+    #     if in_data['source_status'] == SourcesType.JOURNAL:
+    #         return JournalSchema
+    #     if in_data['source_status'] == SourcesType.REPOSITORY:
+    #             return RepositorySchema
+    #     return SourcesDataSchema
+
+
+def get_source_data_schema(source_type, *args, **kwargs):
+
+    if source_type == SourcesType.JOURNAL:
+        return JournalSchema(*args, **kwargs)
+    elif source_type == SourcesType.REPOSITORY:
+      return RepositorySchema(*args, **kwargs)
+    else:
+      return SourcesDataSchema(*args, **kwargs)
+    
 
 
 source_schema_many = SourceSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'source_status','harvest_endpoint'))

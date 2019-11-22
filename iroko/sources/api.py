@@ -72,7 +72,10 @@ def _filter_data_args(source:Source, data, and_op):
 def _filter_repo_args(source:Source, repo_args, and_op):
     """ aux func.
     esto es ineficiente...lo mismo que _filter_data_args"""
-
+    
+    if repo_args is None: 
+        return True
+    
     harvest_type = source.repo_harvest_type == repo_args['harvest_type']
     harvest_status = source.repo_status == repo_args['harvest_status']
     has_harvest_endpoint = source.repo_harvest_endpoint is not None
