@@ -72,10 +72,8 @@ data/images
 
 node_modules
 
-data/harvester
+data/
 
 dev_ip.py
 
 Pipfile.lock
-
-data/sceiba-data
