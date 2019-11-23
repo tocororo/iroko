@@ -3,7 +3,7 @@
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import sources_schema, sources_schema_full, journal_schema, SourceSchema
+from iroko.sources.marshmallow import sources_schema, sources_schema_full, SourceSchema
 from invenio_db import db
 
 def _no_params(param_data):
@@ -72,7 +72,10 @@ def _filter_data_args(source:Source, data, and_op):
 def _filter_repo_args(source:Source, repo_args, and_op):
     """ aux func.
     esto es ineficiente...lo mismo que _filter_data_args"""
-
+    
+    if repo_args is None: 
+        return True
+    
     harvest_type = source.repo_harvest_type == repo_args['harvest_type']
     harvest_status = source.repo_status == repo_args['harvest_status']
     has_harvest_endpoint = source.repo_harvest_endpoint is not None
@@ -84,8 +87,13 @@ def _filter_repo_args(source:Source, repo_args, and_op):
 
 
 class Sources:
-    """API for manipulation of Sources"""
+    """API for manipulation of Sources
+    Considering SourceVersion: meanining this class use Source and SourceVersion model. 
+    """
 
+    # Listar todas las fuentes dado un status...
+    # Listar una fuente con sus versiones
+    # saber si de una version con un status determinado tiene una nueva version que no es "current"
 
     @classmethod
     def get_sources(cls, and_op, terms, data_args, repo_args):
@@ -121,5 +129,29 @@ class Sources:
     @classmethod
     def count_sources(cls):
         return Source.query.count()
+        
+    @classmethod    
+    def sources_existences(cls, issn=None, rnps=None, url=None):
+        """ comprobar que no exista otro ISSN, RNPS o URL igual, sino da error"""
 
+        result = []
+        sources = Source.query.order_by('name').all()
 
+        for item in sources:
+            source = item.source            
+            exist= False
+            if issn and 'issn' in source.data:
+                issn_p = issn.lower() in source.data['issn']['p'].lower() if 'p' in source.data['issn'] else False
+                issn_e = issn.lower() in source.data['issn']['e'].lower() if 'e' in source.data['issn'] else False
+                issn_l = issn.lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn'] else False
+                exist = issn_p or issn_e or issn_l
+
+            if rnps and not exist:
+                exist = rnps.lower() in source.data['rnps'].lower() if 'rnps' in source.data else False
+            
+            if url and not exist:
+                exist = url.lower() in source.data['seriadas_cubanas'].lower() if 'seriadas_cubanas' in source.data else False               
+            
+            if exist:
+                result.append(source)
+        return result

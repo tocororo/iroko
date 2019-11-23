@@ -11,5 +11,7 @@ API Docs
 Views
 -----
 
-.. automodule:: iroko.theme.views
+.. automodule:: iroko.sources.views
    :members:
+
+.. automodule:: iroko.taxonomy.views

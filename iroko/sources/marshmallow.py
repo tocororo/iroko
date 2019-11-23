@@ -1,6 +1,6 @@
 
 from marshmallow import Schema, fields, ValidationError, pre_load
-from iroko.sources.models import Source, SourcesType, TermSources
+from iroko.sources.models import Source, SourcesType, TermSources, SourcesType
 from invenio_records_rest.schemas.fields import DateString
 
 # class TermSourcesMetadataSchema(Schema):
@@ -20,11 +20,12 @@ class ISSNSchema(Schema):
 
 
 class SourcesDataSchema(Schema):
+    title = fields.Str()
     description = fields.Str()
     url = fields.Url()
+    terms = fields.List(fields.Int)
 
 class JournalSchema(SourcesDataSchema):
-
     issn = fields.Nested(ISSNSchema, many=False)
     rnps = fields.Str()
     email = fields.Str()
@@ -33,13 +34,32 @@ class JournalSchema(SourcesDataSchema):
     year_start = fields.DateTime()
     year_end = fields.DateTime()
 
+class RepositorySchema(SourcesDataSchema):
+    email = fields.Str()
+    logo = fields.Str()
+
+
+class SourceVersionSchema(Schema):
+    id = fields.Int(dump_only=True)
+    user_id = fields.Int()
+    source_id = fields.Int()
+    comment = fields.Str()
+    created_at = fields.DateTime()
+    is_current = fields.Boolean()
+    data = fields.Nested(JournalSchema, many=False)
+
 
 class SourceSchema(Schema):
+   
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str()
     source_type = fields.Str()
-    data = fields.Nested(JournalSchema, many=False)
+    source_status = fields.Str()
+    
+    data = fields.Nested(SourcesDataSchema, many=False)
+
+    versions = fields.Nested(SourceVersionSchema, many=True)
 
     repo_harvest_type = fields.Str()
     repo_harvest_endpoint = fields.Str()
@@ -49,13 +69,37 @@ class SourceSchema(Schema):
     repo_status = fields.Str()
     repo_error_log = fields.Str()
 
+    # @pre_load
+    # def get_source_data(self, in_data, **kwargs):
+
+    #     print(in_data)
+    #     if in_data['source_status'] == SourcesType.JOURNAL:
+    #         return JournalSchema
+    #     if in_data['source_status'] == SourcesType.REPOSITORY:
+    #             return RepositorySchema
+    #     return SourcesDataSchema
 
 
-sources_schema = SourceSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'harvest_type','harvest_endpoint'))
+def get_source_data_schema(source_type, *args, **kwargs):
 
-sources_schema_full = SourceSchema(many=True)
+    if source_type == SourcesType.JOURNAL:
+        return JournalSchema(*args, **kwargs)
+    elif source_type == SourcesType.REPOSITORY:
+      return RepositorySchema(*args, **kwargs)
+    else:
+      return SourcesDataSchema(*args, **kwargs)
+    
+
+
+source_schema_many = SourceSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'source_status','harvest_endpoint'))
+source_schema = SourceSchema(only=('id', 'uuid', 'name', 'source_type', 'source_status','harvest_endpoint'))
+
+source_schema_full_many = SourceSchema(many=True)
 source_schema_full = SourceSchema()
 
-journal_schema = JournalSchema()
+source_version_squema_full_many = SourceVersionSchema(many=True)
+source_version_squema_full = SourceVersionSchema()
 
 term_source_schema = TermSourcesSchema()
+
+journal_schema = JournalSchema()

@@ -80,6 +80,7 @@ setup(
             'vocabulary_admin = iroko.taxonomy.admin:vocabularies_adminview',
             'term_admin = iroko.taxonomy.admin:terms_adminview',
             'source_admin = iroko.sources.admin:sources_adminview',
+            'source_version_admin = iroko.sources.admin:sources_version_adminview',
             'term_source_admin = iroko.sources.admin:term_sources_adminview',
             'harvester_items_adminview = '
             'iroko.harvester.admin:harvester_items_adminview',
