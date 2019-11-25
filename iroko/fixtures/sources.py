@@ -128,6 +128,7 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
     ts.data = data
     db.session.add(ts)
 
+
 def remove_nulls(d):
     return {k: v for k, v in d.items() if v is not None}
 
@@ -153,3 +154,11 @@ def add_oaiurls():
                             print(src)
                     db.session.commit()
 
+def add_terms_to_data(source):
+    terms = []
+    for ts in source.terms:
+        terms.append(ts.term_id)
+    data = source.data
+    data['terms'] = terms
+    source.data = data
+    db.session.commit()

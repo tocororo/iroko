@@ -117,24 +117,18 @@ def source_new(id):
     json_data = request.get_json()
     if not json_data:
         return {"message": "No input data provided"}, 400
-    # Validate and deserialize input
-    # json_data has several key:
-    #       token for user accounts managment,
-    #       data with field of the new source version
-    #       type for the type of source: journal, repository
-    #       comment for the version of the source
-    #
-
+    #_filter_data_args
+    
     try:
         source_type = SourceType(json_data["type"])
         try:
             data = source_data_schema.loads(json_data["data"])
-        except: ValidationError as err:
+        except ValidationError as err:
             return err.messages, 422
         else:
             msg, source = Sources.insert_new_source(user, json_data, source_type)
             return {"message": msg}, 201
-    except expression as identifier:
+    except Exception as exc:
         return {"message": "Not source type provided"}, 412
 
 

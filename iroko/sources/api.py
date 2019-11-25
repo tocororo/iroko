@@ -7,7 +7,7 @@ from iroko.sources.marshmallow import source_schema_many, source_schema_full_man
 from invenio_db import db
 from datetime import datetime
 
-from iroko.sources.utils import issn_is_in_data, field_is_in_data, _no_params, _load_terms_tree, __load_term_children_id, _filter_data_args, _filter_repo_args
+from iroko.sources.utils import issn_is_in_data, field_is_in_data, _no_params, _load_terms_tree, _filter_data_args, _filter_repo_args
 
 
 class Sources:
@@ -60,10 +60,11 @@ class Sources:
 
             :returns: boolean, Source
         """
-        title = data['title'] if 'title' is in data else ''
-        issn = data['issn'] if 'issn' is in data else ''
-        rnps = data['rnps'] if 'rnps' is in data else ''
-        url = data['url'] if 'url' is in data else ''
+
+        title = data['title'] if 'title' in data else ''
+        issn = data['issn'] if 'issn' in data else ''
+        rnps = data['rnps'] if 'rnps' in data else ''
+        url = data['url'] if 'url' in data else ''
 
         source = Source.query.filter_by(name=title).first()
         if source:

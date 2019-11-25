@@ -62,8 +62,8 @@ def index():
     #print('authors'+str(authors))
     vocab_stats.append({'authors':str(len(authors))})
 
-    cuando se vaya a escribir el json es agregarle la opcion w y
-    ensure_ascii=False para que las tildes y demas se pongan bien
+    # TODO: cuando se vaya a escribir el json es agregarle la opcion w y
+    # ensure_ascii=False para que las tildes y demas se pongan bien
 
     texts = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
