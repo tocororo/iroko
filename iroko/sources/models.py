@@ -15,12 +15,12 @@ from invenio_accounts.models import User
 from iroko.taxonomy.models import Term
 
 class RepositoryStatus(enum.Enum):
-    
+
     # algun error en alguna de las fases
     ERROR = "ERROR"
-    # el harvester se conecto al repo y obtuvo su identificacion 
+    # el harvester se conecto al repo y obtuvo su identificacion
     IDENTIFIED = "IDENTIFIED"
-    # se recolectaron los items de 
+    # se recolectaron los items de
     HARVESTED = "HARVESTED"
     # parsearon los items y se insertaron IrokoRecors
     RECORDED = "RECORDED"
@@ -28,12 +28,12 @@ class RepositoryStatus(enum.Enum):
     ENRICHED = "ENRICHED"
 
 
-class SourcesType(enum.Enum):
-    JOURNAL = "Journal"
-    STUDENT = "Student"
-    POPULARIZATION = "Popularization"
-    REPOSITORY = "Repository"
-    WEBSITE = "Website"
+class SourceType(enum.Enum):
+    JOURNAL = "journal"
+    STUDENT = "student"
+    POPULARIZATION = "popularization"
+    REPOSITORY = "repository"
+    WEBSITE = "website"
 
 
 class SourceStatus(enum.Enum):
@@ -56,7 +56,7 @@ class Source(db.Model):
     id = db.Column( db.Integer, primary_key=True)
     uuid = db.Column(UUIDType, default=uuid.uuid4)
     name = db.Column( db.String, nullable=False, unique=True)
-    source_type = db.Column( db.Enum(SourcesType))
+    source_type = db.Column( db.Enum(SourceType))
     source_status = db.Column( db.Enum(SourceStatus))
 
     # TODO: decidir sobre esto:  Aunque este repetido, creo que es conveniente poner aqui (y manejar en las apps, en consecuencia), las relaciones con los terminos. En las tablas se pone por facilidad, pero aunque este repetido, a la hora de "editar" un Source, me parece que es mas facil asi..
@@ -80,7 +80,7 @@ class Source(db.Model):
 
 class SourceVersion(db.Model):
     """Version de una fuente. Se utiliza para el proceso de inclusion y modificacion de los datos de una fuente. Al solicitar la inclusion de una nueva fuente, un usuario crea una version, posteriormente un editor valida esta version. En otro momento el usuario puede modificar los datos, que deberan ser validados, en todos los casos se crean versiones del source.  Un SourceVersion, no se puede modificar."""
-    
+
     __tablename__ = 'iroko_source_versions'
 
     id = db.Column( db.Integer, primary_key=True)
@@ -99,7 +99,7 @@ class SourceVersion(db.Model):
 
     comment = db.Column(db.String)
 
-    # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en las bases de datos. 
+    # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en las bases de datos.
     data = db.Column( JSONType )
     """The data of the Source, include the relationships with Terms"""
 
@@ -107,7 +107,7 @@ class SourceVersion(db.Model):
 
     is_current = db.Column(db.Boolean)
     """If is the current active version of Source"""
-    
+
     def __str__(self):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
@@ -116,9 +116,9 @@ class SourceVersion(db.Model):
 class RepositorySet(db.Model):
     """ Para el campo spec en el Dublin Core
     cada repositorio define sus sets, la idea con esta tabla es tener
-    los nombres de cada set, de manera que despues se pueda enrriquecer 
+    los nombres de cada set, de manera que despues se pueda enrriquecer
     los items con un vocabulario unico e.g: el tipo de articulo(original, revision, editorial, etc.. )"""
-    
+
     __tablename__ = 'iroko_repository_sets'
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer(),
@@ -140,7 +140,7 @@ class TermSources(db.Model):
     sources_id = db.Column(db.Integer, db.ForeignKey('iroko_sources.id'), primary_key=True)
     data = db.Column(JSONType)
 
-    source = db.relationship("Source", backref=db.backref("terms")) 
+    source = db.relationship("Source", backref=db.backref("terms"))
     term = db.relationship("Term", backref=db.backref("sources"))
 
 

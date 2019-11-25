@@ -6,8 +6,8 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema_full_many, source_schema_full, journal_schema, JournalSchema
-from iroko.sources.models import Source, SourceVersion, SourcesType, SourceStatus
+from iroko.sources.marshmallow import source_schema_full_many, source_schema_full, source_data_schema
+from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources
 from invenio_i18n.selectors import get_locale
@@ -41,7 +41,7 @@ api_blueprint = Blueprint(
 def get_sources():
     """List all sources with filters in parameters"""
     # TODO: document this!!!
-    
+
     and_op = True if request.args.get('op') and request.args.get('op') == 'and' else False
 
     count = int(request.args.get('count')) if request.args.get('count') else 10
@@ -111,63 +111,34 @@ def get_source_by_uuid(uuid):
 @api_blueprint.route('/source/new', methods=['POST'])
 def source_new(id):
 
-    created_at = datetime.now()
+    # FIXME: fix this!!!!
+    user = None
+
     json_data = request.get_json()
     if not json_data:
         return {"message": "No input data provided"}, 400
     # Validate and deserialize input
-    # json_data has several key: 
-    #       token for user accounts managment, 
+    # json_data has several key:
+    #       token for user accounts managment,
     #       data with field of the new source version
     #       type for the type of source: journal, repository
     #       comment for the version of the source
-    # 
-    if "type" not in json_data:
-        return {"message": "Not source type provided"}, 412    
+    #
 
-    if json_data["type"] is SourcesType.JOURNAL:
+    try:
+        source_type = SourceType(json_data["type"])
         try:
-            data = journal_schema.loads(json_data["data"])
-        except ValidationError as err:
+            data = source_data_schema.loads(json_data["data"])
+        except: ValidationError as err:
             return err.messages, 422
-        issn = rnps = url = None
-        if "issn" in data: 
-            issn = data["issn"]
-        if "rnps" in data:
-            rnps = data["rnps"]
-        if "url" in data:
-            url = data["url"]
-        if not issn and not rnps and not url:
-            return {"message": "Source need issn, or rnps, or url in order to identify it self"}, 412
+        else:
+            msg, source = Sources.insert_new_source(user, json_data, source_type)
+            return {"message": msg}, 201
+    except expression as identifier:
+        return {"message": "Not source type provided"}, 412
 
-        if len(Sources.sources_existences(issn, rnps, url)) > 0:
-            return {"message": "Source already exist"}, 412  
 
-        new_source = Source()
-        new_source.name = data["title"] if "title" in data else ""
-        new_source.source_type = SourcesType.JOURNAL
-        new_source.source_status = SourceStatus.TO_REVIEW
-        new_source.data = data
-        #print(new_source)
-        db.session.add(new_source)
-        db.session.flush()
-
-        # user_id, source_id, comment, data, created_at, is_current
-        new_source_version = SourceVersion()
-        new_source_version.data = data
-        new_source_version.created_at = created_at
-        new_source_version.is_current = True
-        new_source_version.source_id = new_source.id
-        new_source_version.comment = json_data["comment"] if "comment" in json_data else ""
-
-        db.session.add(new_source_version)
-        db.session.commit()
-
-        return {"message": "Created source and sourve version"}, 201
-    else:
-        return {"message": "No journal type provided, other types are not implemented yet"}, 501
-
-    # Crear un Source y un SourceVersion que tienen el mismo Data. 
+    # Crear un Source y un SourceVersion que tienen el mismo Data.
     # comprobar que no exista otro ISSN, RNPS o URL igual, sino da error
     # source_status = REview
     # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
@@ -178,7 +149,7 @@ def source_new(id):
 #TODO: Necesita autenticacion.
 @api_blueprint.route('/source/<id>/new-version', methods=['GET', 'POST'])
 def source_new_version(id):
-    
+
     # inserta un nuevo sourceVersion de un source que ya existe
     # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
     src = Sources.get_source_by_id(id=id)
@@ -190,7 +161,7 @@ def source_new_version(id):
 def source_version_set_current(id):
 
     # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
-    # comprobar que el usuario tiene el role para hacer esto. 
+    # comprobar que el usuario tiene el role para hacer esto.
 
     src = Sources.get_source_by_id(id=id)
 
@@ -210,16 +181,16 @@ def jsonify_source(src):
 def inclusions():
     inclusions = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-        inclusions = json.load(file) 
+        inclusions = json.load(file)
     rejections = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json') as file:
-        rejections = json.load(file)  
+        rejections = json.load(file)
     accepted = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json') as file:
-        accepted = json.load(file)  
+        accepted = json.load(file)
 
-    return render_template('inclusions.html', 
-                            inclusions=inclusions, 
+    return render_template('inclusions.html',
+                            inclusions=inclusions,
                             rejections=rejections,
                             accepted=accepted)
 
@@ -229,15 +200,15 @@ def inclusions():
 def delete_inclusion(key):
     inclusions = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-        inclusions = json.load(file)  
-    
+        inclusions = json.load(file)
+
     rejections = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json') as file:
-        rejections = json.load(file)     
-    
+        rejections = json.load(file)
+
     rejections[key] = inclusions[key]
     del inclusions[key]
-    
+
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
         json.dump(inclusions, file, indent=4)
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json', 'w') as file:
@@ -252,15 +223,15 @@ def delete_inclusion(key):
 def acept_inclusion(key):
     inclusions = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-        inclusions = json.load(file)  
-    
+        inclusions = json.load(file)
+
     accepted = {}
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json') as file:
-        accepted = json.load(file)     
-    
+        accepted = json.load(file)
+
     accepted[key] = inclusions[key]
     del inclusions[key]
-    
+
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
         json.dump(inclusions, file, indent=4)
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json', 'w') as file:
@@ -275,35 +246,35 @@ def new_inclusion():
     """The create view."""
     form = InclusionForm()
     # if the form is submitted and valid
-    if form.validate_on_submit(): 
+    if form.validate_on_submit():
         body_text = form.source.data + ' ask for being part of Sceiba with OAI: ' + form.homepage_url.data
         body_text += ' Process started by ' + form.contact_name.data + ', Email: ' + form.contact_email.data
-        
+
         # fichero=open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions/'+form.source.data+'.txt','w')
-        # fichero.write(body_text) 
+        # fichero.write(body_text)
         # fichero.close()
 
         inclusions = {}
         with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-            inclusions = json.load(file)   
+            inclusions = json.load(file)
 
-        if form.source.data in inclusions:       
-            raise Exception(_('That source already have an entry for a new inclusion in Sceiba'))    
+        if form.source.data in inclusions:
+            raise Exception(_('That source already have an entry for a new inclusion in Sceiba'))
 
         requeriments = {}
         with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+ '/inclusion_requeriments.json') as file:
-            requeriments = json.load(file)        
+            requeriments = json.load(file)
 
         data = {}
         data["source"] = form.source.data
         data["url"] = form.homepage_url.data
         data["contact"] = form.contact_name.data
         data["email"] = form.contact_email.data
-        data["date"] = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")        
-        data["requeriments"] = [] 
+        data["date"] = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
+        data["requeriments"] = []
         for item in form.requeriments.data:
             data["requeriments"].append(requeriments[item])
-        
+
         inclusions[form.source.data] = data
 
         with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
@@ -311,15 +282,15 @@ def new_inclusion():
 
         # body_text += '\n' + _("Inclusion Requeriments: ") + '\n'
         # for item in form.requeriments.data:
-        #     body_text += requeriments[item] + '\n' 
+        #     body_text += requeriments[item] + '\n'
         # print(body_text)
 
         # msg = Message(_("Inclusion message"),
         #           sender=current_app.config["MAIL_DEFAULT_SENDER"],
-        #           recipients=["eduardo.arencibia@upr.edu.cu", current_app.config["MAIL_DEFAULT_SENDER"]], 
+        #           recipients=["eduardo.arencibia@upr.edu.cu", current_app.config["MAIL_DEFAULT_SENDER"]],
         #           body=body_text)
         # current_app.extensions['mail'].send(msg)
-        
+
         flash(_('Inclusion procees started'), 'info')
         return redirect(url_for('iroko_theme.index'))
 

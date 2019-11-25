@@ -30,10 +30,10 @@ import json
 from invenio_db import db
 
 from ..taxonomy.models import Term
-from ..sources.models import Source, SourcesType, TermSources, HarvestType, SourceStatus
+from ..sources.models import Source, SourceType, TermSources, HarvestType, SourceStatus
 
 def init_journals():
-    # sources_path = '../../data/journals.json' 
+    # sources_path = '../../data/journals.json'
     delete_all_sources()
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
@@ -46,7 +46,7 @@ def init_journals():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
                     source = Source()
-                    source.source_type = SourcesType.JOURNAL
+                    source.source_type = SourceType.JOURNAL
                     source.name = record['title']
                     data = {}
                     _assing_if_exist(data, record, 'description')
@@ -65,7 +65,7 @@ def init_journals():
                     db.session.add(source)
         db.session.commit()
     init_term_sources()
-    
+
 
 def init_term_sources():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -79,7 +79,7 @@ def init_term_sources():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
                     source = Source.query.filter_by(name=record['title']).first()
-                    
+
                     if record.__contains__('institution'):
                         add_term_source(source, record, record['institution'], tax, 'institutions')
                     if record.__contains__('licence'):
@@ -89,7 +89,7 @@ def init_term_sources():
 
                     for subid in record["subjects"]:
                         add_term_source(source, record, subid, tax, 'subjects')
-                    
+
                     for ref in record["referecences"]:
                         if ref.__contains__('url'):
                             add_term_source(source, record, ref['name'], tax, 'data_bases', {'url': ref['url']})
@@ -129,7 +129,7 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
     db.session.add(ts)
 
 def remove_nulls(d):
-    return {k: v for k, v in d.items() if v is not None}   
+    return {k: v for k, v in d.items() if v is not None}
 
 def add_oaiurls():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -152,4 +152,4 @@ def add_oaiurls():
                             src.repo_harvest_type = HarvestType.OAI
                             print(src)
                     db.session.commit()
-                            
+

@@ -42,7 +42,7 @@ CACHE_TYPE='redis'
 
 # SEARCH_ELASTIC_HOSTS='["http://"]'
 params = dict(
-#    http_auth=('admin', 'malayibiri'),
+#    http_auth=('user', 'uRTbYRZH268G'),
 )
 SEARCH_ELASTIC_HOSTS = [
     dict(host=IP_ELASTIC, **params)

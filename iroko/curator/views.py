@@ -5,7 +5,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import login_required
 from flask_babelex import lazy_gettext as _
-from iroko.sources.models import Source, HarvestType, SourcesType
+from iroko.sources.models import Source, HarvestType, SourceType
 from iroko.taxonomy.models import Vocabulary, Term, BasesxGroup
 from iroko.sources.marshmallow import source_schema_many, source_schema_full_many, source_schema_full
 from os import listdir, path
@@ -21,7 +21,7 @@ blueprint = Blueprint(
     'iroko_curator',
     __name__,
     url_prefix='/curator',
-    
+
     template_folder='templates',
     static_folder='static'
 )
@@ -33,13 +33,13 @@ def add_vocabulary():
     """The create view."""
     form = VocabularyForm()
     # if the form is submitted and valid
-    if form.validate_on_submit():       
+    if form.validate_on_submit():
         new_vocab = Vocabulary()
         if form.name.data:
             new_vocab.name = form.name.data
         if form.description.data:
             new_vocab.description = form.description.data
-        
+
         db.session.add(new_vocab)
         db.session.commit()
 
@@ -53,10 +53,10 @@ def add_vocabulary():
 @login_required
 def add_term():
     """The create view."""
-    form = TermForm()       
+    form = TermForm()
 
     # if the form is submitted and valid
-    if form.validate_on_submit():        
+    if form.validate_on_submit():
         new_term = Term()
         form.parent.data
         if form.name.data:
@@ -64,10 +64,10 @@ def add_term():
         if form.description.data:
             new_term.description = form.description.data
         if form.vocabulary.data:
-            new_term.vocabulary_id = form.vocabulary.data           
+            new_term.vocabulary_id = form.vocabulary.data
         if form.parent.data and form.parent.data != 0:
-            new_term.parent_id = form.parent.data                         
-        
+            new_term.parent_id = form.parent.data
+
         db.session.add(new_term)
         db.session.flush()
 
@@ -76,7 +76,7 @@ def add_term():
             new_group.term_base_id = new_term.id #id del termino que es base de datos
             new_group.term_group_id = form.group.data # id del termino del combo que dice el grupo mes
             db.session.add(new_group)
-        
+
         db.session.commit()
 
         flash(_('Term added'), 'info')
@@ -89,20 +89,20 @@ def add_term():
 @login_required
 def add_source():
     """The create view."""
-    form = SourceForm()    
+    form = SourceForm()
 
     # if the form is submitted and valid
-    if form.validate_on_submit():        
+    if form.validate_on_submit():
         new_source = Source()
-        
+
         if form.name.data:
             new_source.name = form.name.data
         if form.source_type.data:
-            new_source.source_type = SourcesType[form.source_type.data]
+            new_source.source_type = SourceType[form.source_type.data]
         if form.repo_harvest_type.data:
             new_source.repo_harvest_type = HarvestType[form.repo_harvest_type.data]
         if form.repo_harvest_endpoint.data:
-            new_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data 
+            new_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data
         print(form.terms.data)
 
         # for term in form.terms.data:
@@ -119,14 +119,14 @@ def add_source():
 
 @blueprint.route('/edit/vocabulary/<id>', methods=['GET', 'POST'])
 @login_required
-def edit_vocabulary(id=None):    
+def edit_vocabulary(id=None):
     #security questiong here
     print(current_user.has_role('curator'))
 
     vocab = Vocabulary.query.get_or_404(id)
     form = VocabularyForm()
 
-    if request.method == 'GET':        
+    if request.method == 'GET':
         form.id.data = vocab.id
         form.name.data = vocab.name
         form.description.data = vocab.description
@@ -136,17 +136,17 @@ def edit_vocabulary(id=None):
         # if form.name.data and form.name.data != vocab.name:
         #     changes['name'] = form.name.data
         # if form.description.data and form.description.data != vocab.description:
-        #     changes['description'] = form.description.data        
+        #     changes['description'] = form.description.data
         #db.session.query(Vocabulary).filter(Vocabulary.id == id).update(changes)
-        
+
         vocab.name = form.name.data
         vocab.description = form.description.data
-        
+
         db.session.commit()
 
         flash(_('Vocabulary changed'), 'info')
-        return redirect(url_for('iroko_curator.add_vocabulary'))    
-        
+        return redirect(url_for('iroko_curator.add_vocabulary'))
+
     return render_template('edit_vocabulary.html', id=id, form=form)
 
 
@@ -158,21 +158,21 @@ def edit_term(id=None):
     aux_term = Term.query.get_or_404(id)
     form = TermForm()
 
-    if request.method == 'GET':        
+    if request.method == 'GET':
         form.id.data = aux_term.id
         form.name.data = aux_term.name
         form.description.data = aux_term.description
-        form.vocabulary.data = aux_term.vocabulary_id        
+        form.vocabulary.data = aux_term.vocabulary_id
         form.parent.data = aux_term.parent_id
 
         group = BasesxGroup.query.filter_by(term_base_id=aux_term.id).first()
         if group:
             form.group.data = group.term_group_id
 
-    if form.validate_on_submit():        
+    if form.validate_on_submit():
         aux_term.name = form.name.data
         aux_term.description = form.description.data
-        
+
         data_base_vocab = Vocabulary.query.filter_by(name='data_bases').first()
         if aux_term.vocabulary_id == data_base_vocab.id:
             group = BasesxGroup.query.filter_by(term_base_id=aux_term.id).first()
@@ -181,23 +181,23 @@ def edit_term(id=None):
                     #delete the Mes group previously associated
                     db.session.delete(group)
                     db.session.commit()
-                else:                
-                    #cahnge if needed the MES group     
+                else:
+                    #cahnge if needed the MES group
                     if group.term_group_id != form.group.data:
                         group.term_group_id = form.group.data
                         db.session.commit()
-        aux_term.vocabulary_id = form.vocabulary.data       
-        
+        aux_term.vocabulary_id = form.vocabulary.data
+
         if form.parent.data and form.parent.data != 0:
             aux_term.parent_id = form.parent.data
         else:
             aux_term.parent_id = None
-        
+
         db.session.commit()
 
         flash(_('Term changed'), 'info')
-        return redirect(url_for('iroko_curator.add_term'))    
-        
+        return redirect(url_for('iroko_curator.add_term'))
+
     return render_template('edit_term.html', id=id, form=form)
 
 
@@ -209,7 +209,7 @@ def edit_source(id=None):
     aux_source = Source.query.get_or_404(id)
     form = SourceForm()
 
-    if request.method == 'GET':        
+    if request.method == 'GET':
         # form.id.data = aux_term.id
         form.name.data = aux_source.name
         form.source_type.data = aux_source.source_type
@@ -218,19 +218,19 @@ def edit_source(id=None):
         #form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
         print(aux_source.source_type)
 
-    if form.validate_on_submit():        
+    if form.validate_on_submit():
         aux_source.name = form.name.data
         aux_source.source_type = form.source_type.data
         aux_source.repo_harvest_type = form.repo_harvest_type.data
-        aux_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data    
+        aux_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data
         print(aux_source.source_type)
-                    
+
         db.session.commit()
 
         flash(_('Source changed'), 'info')
-        return redirect(url_for('iroko_curator.add_source'))    
-        
+        return redirect(url_for('iroko_curator.add_source'))
+
     return render_template('edit_source.html', id=id, form=form)
 
-    
+
 

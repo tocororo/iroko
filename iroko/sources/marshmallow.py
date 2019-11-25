@@ -1,6 +1,6 @@
 
 from marshmallow import Schema, fields, ValidationError, pre_load
-from iroko.sources.models import Source, SourcesType, TermSources, SourcesType
+from iroko.sources.models import Source, SourceType, TermSources, SourceType
 from invenio_records_rest.schemas.fields import DateString
 
 # class TermSourcesMetadataSchema(Schema):
@@ -19,13 +19,13 @@ class ISSNSchema(Schema):
     l = fields.Str()
 
 
-class SourcesDataSchema(Schema):
+class SourceDataSchema(Schema):
+    """SourceData Schema, independently of SourceType, this means that in the JSON in the database anything can be put, and in case of different source types different data fields will be in. Eg, issn is for journals but not for repositories, this means that in the repository tuple the json data will not have the issn, same for other fields. The idea to put all here is because marshmallow will parse data if the data exist. """
+
     title = fields.Str()
     description = fields.Str()
     url = fields.Url()
     terms = fields.List(fields.Int)
-
-class JournalSchema(SourcesDataSchema):
     issn = fields.Nested(ISSNSchema, many=False)
     rnps = fields.Str()
     email = fields.Str()
@@ -33,10 +33,6 @@ class JournalSchema(SourcesDataSchema):
     seriadas_cubanas = fields.Url()
     year_start = fields.DateTime()
     year_end = fields.DateTime()
-
-class RepositorySchema(SourcesDataSchema):
-    email = fields.Str()
-    logo = fields.Str()
 
 
 class SourceVersionSchema(Schema):
@@ -46,18 +42,18 @@ class SourceVersionSchema(Schema):
     comment = fields.Str()
     created_at = fields.DateTime()
     is_current = fields.Boolean()
-    data = fields.Nested(JournalSchema, many=False)
+    data = fields.Nested(SourceDataSchema, many=False)
 
 
 class SourceSchema(Schema):
-   
+
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str()
     source_type = fields.Str()
     source_status = fields.Str()
-    
-    data = fields.Nested(SourcesDataSchema, many=False)
+
+    data = fields.Nested(SourceDataSchema, many=False)
 
     versions = fields.Nested(SourceVersionSchema, many=True)
 
@@ -69,26 +65,6 @@ class SourceSchema(Schema):
     repo_status = fields.Str()
     repo_error_log = fields.Str()
 
-    # @pre_load
-    # def get_source_data(self, in_data, **kwargs):
-
-    #     print(in_data)
-    #     if in_data['source_status'] == SourcesType.JOURNAL:
-    #         return JournalSchema
-    #     if in_data['source_status'] == SourcesType.REPOSITORY:
-    #             return RepositorySchema
-    #     return SourcesDataSchema
-
-
-def get_source_data_schema(source_type, *args, **kwargs):
-
-    if source_type == SourcesType.JOURNAL:
-        return JournalSchema(*args, **kwargs)
-    elif source_type == SourcesType.REPOSITORY:
-      return RepositorySchema(*args, **kwargs)
-    else:
-      return SourcesDataSchema(*args, **kwargs)
-    
 
 
 source_schema_many = SourceSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'source_status','harvest_endpoint'))
@@ -100,6 +76,6 @@ source_schema_full = SourceSchema()
 source_version_squema_full_many = SourceVersionSchema(many=True)
 source_version_squema_full = SourceVersionSchema()
 
-term_source_schema = TermSourcesSchema()
+source_data_schema = SourceDataSchema()
 
-journal_schema = JournalSchema()
+term_source_schema = TermSourcesSchema()
