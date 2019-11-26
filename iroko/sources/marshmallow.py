@@ -70,11 +70,8 @@ class SourceSchema(Schema):
 source_schema_many = SourceSchema(many=True, only=('id', 'uuid', 'name', 'source_type', 'source_status','harvest_endpoint'))
 source_schema = SourceSchema(only=('id', 'uuid', 'name', 'source_type', 'source_status','harvest_endpoint'))
 
-source_schema_full_many = SourceSchema(many=True)
+source_schema_full_many_no_versions = SourceSchema(many=True, exclude=('versions'))
 source_schema_full = SourceSchema()
-
-source_version_squema_full_many = SourceVersionSchema(many=True)
-source_version_squema_full = SourceVersionSchema()
 
 source_data_schema = SourceDataSchema()
 

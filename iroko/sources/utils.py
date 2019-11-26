@@ -3,6 +3,7 @@ Helper function to several task related to Sources, sources types,
  sources fields, etc..
 """
 
+from invenio_db import db
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
 
@@ -139,4 +140,30 @@ def field_is_in_data(data, field_name:str, field_value:str, equal:bool):
         else:
             result = field_value.lower() in data[field_name].lower() if field_name in data else False
     return result
+
+
+def sync_term_source_with_data(source:Source):
+    """The model TermSources map the relations of Source with any term. In source.data[terms] are all the term ids related to the source, this is done this way to simplify the consumer apps and version handling. This function use source.data to sync term-source relations, meaning that new relations in source.data will be included in TermSource table, and relations in TermSource not present in source.data will be removed."""
+    # print("not implemented")
+
+    db.session.query(TermSources).filter(sources_id=source.id).delete()
+    db.session.commit()
+
+    data = dict(source.data)
+
+    if "terms" in data:
+        new_terms = []
+        for tid in data["terms"]:
+            t=Term.query.filter_by(id=tid['id']).first()
+            if t is not None:
+                ts = TermSources()
+                ts.sources_id = source.id
+                ts.term_id = tid['id']
+                ts.data = tid['data']
+                db.session.add(ts)
+                new_terms.append(tid)
+        data["terms"] = new_terms
+        source.data = data
+        db.session.commit()
+
 

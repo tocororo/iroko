@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema_full_many, source_schema_full, source_data_schema
+from iroko.sources.marshmallow import source_schema_full_many_no_versions, source_schema_full, source_data_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources
@@ -78,7 +78,7 @@ def get_sources():
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': source_schema_full_many.dump(result[offset:offset+limit]).data,\
+                        {'data': source_schema_full_many_no_versions.dump(result[offset:offset+limit]).data,\
                          'count': len(result)})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 
@@ -107,17 +107,16 @@ def get_source_by_uuid(uuid):
     return jsonify_source(src)
 
 
-#TODO: Necesita autenticacion.
+#TODO: Need authentication
 @api_blueprint.route('/source/new', methods=['POST'])
 def source_new(id):
 
-    # FIXME: fix this!!!!
+    # FIXME: get current user!!!!
     user = None
 
     json_data = request.get_json()
     if not json_data:
         return {"message": "No input data provided"}, 400
-    #_filter_data_args
     
     try:
         source_type = SourceType(json_data["type"])
@@ -140,14 +139,36 @@ def source_new(id):
 
 
 
-#TODO: Necesita autenticacion.
+#TODO: Need authentication
 @api_blueprint.route('/source/<id>/new-version', methods=['GET', 'POST'])
 def source_new_version(id):
 
     # inserta un nuevo sourceVersion de un source que ya existe
     # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
-    src = Sources.get_source_by_id(id=id)
-    created_at = datetime.now()
+    # FIXME: get current user!!!!
+    user = None
+
+    json_data = request.get_json()
+    if not json_data:
+        return {"message": "No input data provided"}, 400
+    
+    # FIXME: Check if user have permission to do this, if not, just add the version!!!
+    is_current = if "is_current" in json_data else False
+
+    insert_new_source_version(user, json_data, id, is_current)
+
+    try:
+        source_type = SourceType(json_data["type"])
+        try:
+            data = source_data_schema.loads(json_data["data"])
+        except ValidationError as err:
+            return err.messages, 422
+        else:
+            msg, source = Sources.insert_new_source(user, json_data, source_type)
+            return {"message": msg}, 201
+    except Exception as exc:
+        return {"message": "Not source type provided"}, 412
+
 
 
 #TODO: Necesita autenticacion.

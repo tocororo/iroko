@@ -3,11 +3,11 @@
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import source_schema_many, source_schema_full_many, SourceSchema
+from iroko.sources.marshmallow import source_schema_many, source_schema_full_many_no_versions, SourceSchema
 from invenio_db import db
 from datetime import datetime
 
-from iroko.sources.utils import issn_is_in_data, field_is_in_data, _no_params, _load_terms_tree, _filter_data_args, _filter_repo_args
+from iroko.sources.utils import issn_is_in_data, field_is_in_data, _no_params, _load_terms_tree, _filter_data_args, _filter_repo_args, sync_term_source_with_data
 
 
 class Sources:
@@ -108,19 +108,9 @@ class Sources:
             new_source.data = json_data
             #print(new_source)
             db.session.add(new_source)
-            db.session.flush()
-
-            # user_id, source_id, comment, data, created_at, is_current
-            new_source_version = SourceVersion()
-            new_source_version.data = json_data
-            new_source_version.created_at = datetime.now()
-            new_source_version.is_current = True
-            new_source_version.source_id = new_source.id
-            new_source_version.comment = json_data["comment"] if "comment" in json_data else ""
-            new_source_version.user_id = user_id
-
-            db.session.add(new_source_version)
             db.session.commit()
+
+            cls.insert_new_source_version(user, new_source.data, new_source.id, True)
 
             msg = 'New Source created id={0}'.format(new_source.id)
             return msg, new_source
@@ -128,7 +118,7 @@ class Sources:
 
     @classmethod
     def insert_new_source_version(cls, user, json_data, source_id, is_current:bool):
-        """Insert new Source and an associated SourceVersion
+        """Insert new SourceVersion to an existing Source
         """
 
         #FIXME
@@ -139,7 +129,7 @@ class Sources:
         source = Source.query.filter_by(id=source_id).first()
 
         if not source:
-            msg = 'Source not exist'
+            msg = 'Source not exist: id={0}'
             return msg, None
         else:
             # user_id, source_id, comment, data, created_at, is_current
@@ -150,14 +140,14 @@ class Sources:
             new_source_version.source_id = source.id
             new_source_version.comment = json_data["comment"] if "comment" in json_data else ""
             new_source_version.user_id = user_id
+            
+            if is_current:
+                source.data = json_data
+                sync_term_source_with_data(source)
 
             db.session.add(new_source_version)
             db.session.commit()
 
             msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
             return msg, new_source_version
-
-
-
-
 

@@ -1,24 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# This file is part of INSPIRE.
-# Copyright (C) 2014-2017 CERN.
-#
-# INSPIRE is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# INSPIRE is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with INSPIRE. If not, see <http://www.gnu.org/licenses/>.
-#
-# In applying this license, CERN does not waive the privileges and immunities
-# granted to it by virtue of its status as an Intergovernmental Organization
-# or submit itself to any jurisdiction.
+
 
 """Fixtures for users, roles and actions."""
 
@@ -65,6 +45,7 @@ def init_journals():
                     db.session.add(source)
         db.session.commit()
     init_term_sources()
+    add_terms_to_data()
 
 
 def init_term_sources():
@@ -154,11 +135,13 @@ def add_oaiurls():
                             print(src)
                     db.session.commit()
 
-def add_terms_to_data(source):
-    terms = []
-    for ts in source.terms:
-        terms.append(ts.term_id)
-    data = source.data
-    data['terms'] = terms
-    source.data = data
+def add_terms_to_data():
+    sources = Source.query.order_by('name').all()
+    for source in sources:
+        terms = []
+        for ts in source.terms:
+            terms.append({'id': ts.term_id, 'data': ts.data})
+        data = dict(source.data)
+        data['terms'] = terms
+        source.data = data
     db.session.commit()
