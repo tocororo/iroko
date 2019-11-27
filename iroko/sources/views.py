@@ -96,6 +96,7 @@ def get_source_by_id(id):
     """Get a source by ID"""
 
     src = Sources.get_source_by_id(id=id)
+    print(src.data)
     return jsonify_source(src)
 
 
@@ -117,7 +118,7 @@ def source_new(id):
     json_data = request.get_json()
     if not json_data:
         return {"message": "No input data provided"}, 400
-    
+
     try:
         source_type = SourceType(json_data["type"])
         try:
@@ -151,9 +152,9 @@ def source_new_version(id):
     json_data = request.get_json()
     if not json_data:
         return {"message": "No input data provided"}, 400
-    
+
     # FIXME: Check if user have permission to do this, if not, just add the version!!!
-    is_current = if "is_current" in json_data else False
+    is_current = True if "is_current" in json_data else False
 
     insert_new_source_version(user, json_data, id, is_current)
 
@@ -186,7 +187,7 @@ def jsonify_source(src):
     if src:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
-                            {'data': source_schema_full.dump(src).data,\
+                            {'data': source_schema_full.dump(src),\
                              'count': 1})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 

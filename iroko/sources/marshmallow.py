@@ -9,9 +9,8 @@ class ReferenceSchema(Schema):
     url = fields.Url()
 
 class TermSourcesSchema(Schema):
-    term_id = fields.Int(dump_only=True)
-    sources_id = fields.Int(dump_only=True)
-    # data = fields.Nested(TermSourcesMetadataSchema)
+    id = fields.Int()
+    data = fields.Str()
 
 class ISSNSchema(Schema):
     p = fields.Str()
@@ -25,7 +24,7 @@ class SourceDataSchema(Schema):
     title = fields.Str()
     description = fields.Str()
     url = fields.Url()
-    terms = fields.List(fields.Int)
+    terms = fields.List(fields.Nested(TermSourcesSchema))
     issn = fields.Nested(ISSNSchema, many=False)
     rnps = fields.Str()
     email = fields.Str()
