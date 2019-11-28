@@ -6,7 +6,7 @@ from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import login_required
 from flask_babelex import lazy_gettext as _
 from iroko.sources.models import Source, HarvestType, SourceType
-from iroko.taxonomy.models import Vocabulary, Term, BasesxGroup
+from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.marshmallow import source_schema_many, source_schema_full_many_no_versions, source_schema_full
 from os import listdir, path
 from .forms import VocabularyForm, TermForm, SourceForm
@@ -72,7 +72,7 @@ def add_term():
         db.session.flush()
 
         if new_term.vocabulary.name == 'data_bases' and form.group.data != 0:
-            new_group = BasesxGroup()
+            new_group = TermClasification()
             new_group.term_base_id = new_term.id #id del termino que es base de datos
             new_group.term_group_id = form.group.data # id del termino del combo que dice el grupo mes
             db.session.add(new_group)
@@ -165,7 +165,7 @@ def edit_term(id=None):
         form.vocabulary.data = aux_term.vocabulary_id
         form.parent.data = aux_term.parent_id
 
-        group = BasesxGroup.query.filter_by(term_base_id=aux_term.id).first()
+        group = TermClasification.query.filter_by(term_base_id=aux_term.id).first()
         if group:
             form.group.data = group.term_group_id
 
@@ -175,7 +175,7 @@ def edit_term(id=None):
 
         data_base_vocab = Vocabulary.query.filter_by(name='data_bases').first()
         if aux_term.vocabulary_id == data_base_vocab.id:
-            group = BasesxGroup.query.filter_by(term_base_id=aux_term.id).first()
+            group = TermClasification.query.filter_by(term_base_id=aux_term.id).first()
             if group:
                 if form.vocabulary.data != data_base_vocab.id:
                     #delete the Mes group previously associated

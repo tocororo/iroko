@@ -3,6 +3,14 @@ from marshmallow import Schema, fields, ValidationError, pre_load
 from iroko.taxonomy.models import Vocabulary, Term
 
 
+class VocabularySchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    description = fields.Str()
+    
+    # in case to put anything in the future
+    data = fields.Raw()
+
 
 class TermSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -10,16 +18,13 @@ class TermSchema(Schema):
     name = fields.Str()
     description = fields.Str()
     parent_id = fields.Int()
-    # vocabulary = fields.Nested()
-    # children = fields.Nested('TermSchema')
+    
+    # this field depend on the vocabulary of the term, can be anything
+    data = fields.Raw()
+    vocabulary = fields.Nested(VocabularySchema, many=False)
 
-class VocabularySchema(Schema):
-    id = fields.Int(dump_only=True)
-    name = fields.Str()
-    description = fields.Str()
-    # terms = fields.Nested(TermSchema)
 
-terms_schema = TermSchema(many=True, only=('id', 'uuid', 'name'))
+term_schema_many = TermSchema(many=True, only=('id', 'uuid', 'name'))
 term_schema = TermSchema()
-vocabularies_schema = VocabularySchema(many=True, only=('id', 'name', 'description'))
+vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'name', 'description'))
 vocabulary_schema = VocabularySchema()

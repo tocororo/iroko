@@ -29,16 +29,69 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, jsonify, request, json
 
 from iroko.taxonomy.models import Vocabulary, Term
-from iroko.taxonomy.marshmallow import vocabularies_schema, vocabulary_schema, terms_schema, term_schema
+from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
 
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
+from iroko.taxonomy.api import Vocabularies, Terms
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
     __name__,
 )
 
-# TODO: Add POST/PUT vocabulary 
+
+#TODO: Need authentication
+@api_blueprint.route('/vocabulary/<id>', methods=['GET'])
+def vocabulary_get(id):
+
+    # FIXME: get current user!!!!
+    user = None
+
+    msg, vocab = Vocabularies.get_vocabulary(id)
+    if vocab:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'vocabulary', \
+                            vocabulary_schema_many.dump(vocab).data)
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+#TODO: Need authentication
+@api_blueprint.route('/vocabulary/<id>/edit', methods=['POST'])
+def vocabulary_edit(id):
+
+    # FIXME: get current user!!!!
+    user = None
+    
+    input_data = request.get_json()
+    if not input_data:
+        return {"message": "No input data provided"}, 400
+    msg, vocab = Vocabularies.edit_vocabulary(id, data)
+    if vocab:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        msg,'vocabulary', \
+                        vocabulary_schema_many.dump(vocab).data)
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+#TODO: Need authentication
+@api_blueprint.route('/vocabulary/new', methods=['POST'])
+def vocabulary_new():
+
+    # FIXME: get current user!!!!
+    user = None
+    if not request.is_json:
+        return {"message": "No input data provided"}, 400
+    
+    input_data = request.json
+    
+    msg, vocab = Vocabularies.new_vocabulary(input_data)
+    if vocab:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        msg,'vocabulary', \
+                        vocabulary_schema.dump(vocab).data)
+    
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 @api_blueprint.route('/vocabularies')
 def get_vocabularies():
@@ -49,9 +102,8 @@ def get_vocabularies():
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','vocabularies', \
-                            vocabularies_schema.dump(result).data)
+                            vocabulary_schema_many.dump(result).data)
     return iroko_json_response(IrokoResponseStatus.ERROR, 'vocabularies not found', None, None)
-
 
 
 @api_blueprint.route('/terms')
@@ -61,7 +113,7 @@ def get_terms_list():
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms', \
-                            terms_schema.dump(result).data)
+                            term_schema_many.dump(result).data)
     return iroko_json_response(IrokoResponseStatus.ERROR, 'terms not found', None, None)
 
 
@@ -74,9 +126,10 @@ def get_terms(vocabulary):
         
         terms = vocab.terms.filter_by(parent_id=None).all()
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms',terms_schema.dump(terms).data)
+                            'ok','terms',term_schema_many.dump(terms).data)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
+
 
 @api_blueprint.route('/terms/<vocabulary>/any')
 def get_terms_any(vocabulary):
@@ -87,7 +140,7 @@ def get_terms_any(vocabulary):
         
         terms = vocab.terms.all()
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms',terms_schema.dump(terms).data)
+                            'ok','terms',term_schema_many.dump(terms).data)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
@@ -101,7 +154,7 @@ def get_terms_tree(vocabulary):
         terms = vocab.terms.filter_by(parent_id=None).all()
         terms_full = []
         for term in terms:
-            terms_full.append(load_term(term))
+            terms_full.append(dump_term(term))
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms', \
@@ -111,25 +164,45 @@ def get_terms_tree(vocabulary):
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
 
-# TODO: Add POST/PUT for term
+# TODO: Need authentication
+@api_blueprint.route('/term/new')
+def term_new(uuid):
+    """Create a new term"""
 
+    # FIXME: get current user!!!!
+    user = None
+    
+    input_data = request.get_json()
+    if not input_data:
+        return {"message": "No input data provided"}, 400
+    
+    msg, vocab = Terms.new_vocabulary(data)
+    if vocab:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        msg,'vocabulary', \
+                        vocabulary_schema.dump(vocab).data)
+    
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+# TODO: Add POST/PUT for term
 @api_blueprint.route('/term/<uuid>')
-def get_term(uuid):
+def term_get(uuid):
     """Get a term given the uuid """
 
     term = Term.query.filter_by(uuid=uuid).first()
     if term:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms', load_term(term))
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'no term', None, None)        
-
-# TODO: Add /term/<uuid>/tree to get the term with its children, in deep
+                            'ok','terms', dump_term(term))
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'no term', None, None)
 
 
-def load_term(term):
+def dump_term(term):
     """ helper function to load terms children"""
 
     children = []
     for child in term.children:
-        children.append(load_term(child))
+        children.append(dump_term(child))
     return {'term': term_schema.dump(term).data, 'children':children}
+
+

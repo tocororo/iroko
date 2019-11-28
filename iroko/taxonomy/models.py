@@ -28,10 +28,12 @@ from datetime import datetime
 
 from sqlalchemy import and_, or_
 from sqlalchemy_utils.models import Timestamp
-from sqlalchemy_utils.types import UUIDType
+from sqlalchemy_utils.types import UUIDType, JSONType
 import uuid
 
 from invenio_db import db
+
+# TODO: add data field to Vocabulary and Term
 
 class Vocabulary(db.Model):
     """Define a Vocabulary"""
@@ -41,10 +43,10 @@ class Vocabulary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String)
-    
-    # terms = db.relationship("Term")
 
-    # TODO: Add source of the vocabulary (a name and url) and the class/function to parse automatically the source
+    # any data related to the vocabulary
+    data = db.Column( JSONType )
+
 
     def __str__(self):
         """Representation."""
@@ -68,19 +70,23 @@ class Term(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'))
     children = db.relationship("Term", lazy="joined",join_depth=2)
 
+    # any data related to the term
+    data = db.Column( JSONType )
+
     def __str__(self):
         """Representation."""
         return self.name
 
 
-class BasesxGroup(db.Model):
-    __tablename__ = 'iroko_bases_groups'
+class TermClasification(db.Model):
+    __tablename__ = 'iroko_term_term'
     id = db.Column(db.Integer, primary_key=True)
-    term_group_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
-    term_base_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))    
 
-    group = db.relationship("Term", foreign_keys='BasesxGroup.term_group_id') 
-    data_base = db.relationship("Term", foreign_keys='BasesxGroup.term_base_id') 
+    # term_class es como el termino <Grupo 1 del MES>
+    term_class_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
+
+    # term_object es como el termino <Web of Science>
+    term_object_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))    
 
     def __str__(self):
         """Representation."""

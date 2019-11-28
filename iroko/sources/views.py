@@ -110,7 +110,7 @@ def get_source_by_uuid(uuid):
 
 #TODO: Need authentication
 @api_blueprint.route('/source/new', methods=['POST'])
-def source_new(id):
+def source_new():
 
     # FIXME: get current user!!!!
     user = None
