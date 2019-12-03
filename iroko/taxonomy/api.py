@@ -2,8 +2,10 @@ from typing import Dict
 
 from invenio_db import db
 
-from iroko.taxonomy.models import Vocabulary, Term
+from iroko.taxonomy.models import Vocabulary, Term, TermClasification
+from iroko.sources.models import TermSources
 from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
+from flask_babelex import lazy_gettext as _
 
 
 class Vocabularies:
@@ -56,12 +58,12 @@ class Terms:
 
 
     @classmethod
-    def get_term(cls, id) -> Dict[str, Term]:
-        term = Term.query.filter_by(uuid=id).first()
+    def get_term(cls, uuid) -> Dict[str, Term]:
+        term = Term.query.filter_by(uuid=uuid).first()
         if term:
             return 'ok', term
         else:
-            msg = 'Term not exist id={0}'.format(id)
+            msg = 'Term not exist uuid={0}'.format(uuid)
             return msg, None
 
     @classmethod
@@ -94,3 +96,28 @@ class Terms:
         else:
             msg = 'Term already exist name={0}'.format(data['name'])
             return msg, None
+
+    @classmethod
+    def delete_term(cls, uuid) -> Dict[str, bool]:
+        try:
+            term = Term.query.filter_by(uuid=uuid).first()
+            if term:
+                if len(term.children) > 0:
+                    return _('No se puede eliminar el término cuando otros términos dependen de él'), False
+                
+                in_clasification = TermClasification.query.filter_by(term_class_id=term.id).first()
+                if in_clasification:
+                    return _('No se puede eliminar el término si clasificaciones dependen de él'), False
+
+                in_source = TermSources.query.filter_by(term_id=term.id).first()
+                if in_source:
+                    return _('No se puede eliminar el término si fuentes dependen de él'), False
+
+                db.session.query(TermClasification).filter_by(term_object_id=term.id).delete()
+                db.session.delete(term)
+                db.session.commit()
+                return 'Término: {0}, eliminado satisfactoriamente'.format(term.name), True
+                
+        except Exception as e:
+            return str(e), False
+

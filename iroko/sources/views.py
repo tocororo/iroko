@@ -156,7 +156,7 @@ def source_new_version(id):
     # FIXME: Check if user have permission to do this, if not, just add the version!!!
     is_current = True if "is_current" in json_data else False
 
-    insert_new_source_version(user, json_data, id, is_current)
+    Sources.insert_new_source_version(user, json_data, id, is_current)
 
     try:
         source_type = SourceType(json_data["type"])
@@ -187,8 +187,7 @@ def jsonify_source(src):
     if src:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
-                            {'data': source_schema_full.dump(src),\
-                             'count': 1})
+                            {'data': source_schema_full.dump(src), 'count': 1})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 
 

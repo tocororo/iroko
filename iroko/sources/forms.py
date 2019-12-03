@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 from flask_wtf import FlaskForm
-from flask_wtf.html5 import URLField, EmailField
+from wtforms.fields.html5 import URLField, EmailField
+#from flask_wtf.html5 import URLField, EmailField
 from flask_babelex import lazy_gettext as _
 from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, BooleanField, validators
 from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput, HTMLString, html_params
@@ -52,7 +53,7 @@ class InclusionForm(FlaskForm):
     )
     requeriments = MultiCheckboxField(
         _('Inclusion checklist'),
-        validators=[validators.Required(message=_('Please tick those who you fullfill'))],
+        validators=[validators.DataRequired(message=_('Please tick those who you fullfill'))],
     )
 
     def __init__(self, *args, **kwargs):

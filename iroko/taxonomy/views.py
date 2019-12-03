@@ -214,6 +214,22 @@ def term_get(uuid):
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
+#TODO: Need authentication
+@api_blueprint.route('/term/<uuid>/delete', methods=['DELETE'])
+def term_delete(uuid):
+
+    # FIXME: get current user!!!!
+    user = None
+        
+    try:
+        msg, deleted = Terms.delete_term(uuid)
+        if deleted:
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
+    except Exception as e:
+        msg = str(e)
+    
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 def dump_term(term):
     """ helper function to load terms children"""
