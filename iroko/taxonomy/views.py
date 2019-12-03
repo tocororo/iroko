@@ -210,7 +210,7 @@ def term_get(uuid):
     if term:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'term', \
-                            term_schema.dump(term).data)
+                            term_schema.dump(dump_term(term)).data)
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
