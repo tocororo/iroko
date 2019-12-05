@@ -73,6 +73,10 @@ class Terms:
         if term:
             term.name = data['name']
             term.description = data['description']
+            if 'parent_id' in data:
+                term.parent_id = data['parent_id']
+            else:
+                term.parent_id = None
             if 'data' in data:
                 term.data = data['data']
             db.session.commit()
@@ -104,7 +108,7 @@ class Terms:
             if term:
                 if len(term.children) > 0:
                     return _('No se puede eliminar el término cuando otros términos dependen de él'), False
-                
+
                 in_clasification = TermClasification.query.filter_by(term_class_id=term.id).first()
                 if in_clasification:
                     return _('No se puede eliminar el término si clasificaciones dependen de él'), False
@@ -117,7 +121,7 @@ class Terms:
                 db.session.delete(term)
                 db.session.commit()
                 return 'Término: {0}, eliminado satisfactoriamente'.format(term.name), True
-                
+
         except Exception as e:
             return str(e), False
 
