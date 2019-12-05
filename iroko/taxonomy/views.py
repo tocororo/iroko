@@ -62,9 +62,11 @@ def vocabulary_edit(id):
     # FIXME: get current user!!!!
     user = None
     
-    input_data = request.get_json()
-    if not input_data:
+    if not request.is_json:
         return {"message": "No input data provided"}, 400
+
+    input_data = request.json
+
     msg, vocab = Vocabularies.edit_vocabulary(id, data)
     if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -79,11 +81,12 @@ def vocabulary_new():
 
     # FIXME: get current user!!!!
     user = None
+
     if not request.is_json:
         return {"message": "No input data provided"}, 400
     
     input_data = request.json
-    
+
     msg, vocab = Vocabularies.new_vocabulary(input_data)
     if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \

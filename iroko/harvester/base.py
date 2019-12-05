@@ -48,3 +48,5 @@ class Formater(object):
     def ProcessItem(self, item):
         """given an item return a dict given an item"""
         raise NotImplementedError
+
+
