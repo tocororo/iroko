@@ -22,7 +22,7 @@ class DubliCoreElements(Formater):
 
 
     def ProcessItem(self, xml:etree._Element):
-        """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid """
+        """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid and return the data"""
 
         data = {}
         header = xml.find('.//{' + nsmap['oai'] + '}header')
