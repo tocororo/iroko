@@ -115,7 +115,7 @@ class SourceForm(FlaskForm):
     )
     terms = MultiCheckboxField(
         _('Terms'),
-        validators=[validators.Required(message=_('Please tick at least a term'))],
+        validators=[validators.DataRequired(message=_('Please tick at least a term'))],
         coerce=int
     )
 
