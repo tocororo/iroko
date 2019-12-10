@@ -40,11 +40,22 @@ api_blueprint = Blueprint(
 )
 
 
-#TODO: Need authentication
+@api_blueprint.route('/vocabularies')
+def get_vocabularies():
+    """
+    List all vocabularies
+    """
+    result = Vocabulary.query.all()
+    if result:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','vocabularies', \
+                            vocabulary_schema_many.dump(result).data)
+    return iroko_json_response(IrokoResponseStatus.ERROR, 'vocabularies not found', None, None)
+
+
 @api_blueprint.route('/vocabulary/<id>', methods=['GET'])
 def vocabulary_get(id):
 
-    # FIXME: get current user!!!!
     user = None
 
     msg, vocab = Vocabularies.get_vocabulary(id)
@@ -59,7 +70,7 @@ def vocabulary_get(id):
 @api_blueprint.route('/vocabulary/<id>/edit', methods=['POST'])
 def vocabulary_edit(id):
 
-    # FIXME: get current user!!!!
+    # FIXME: get the user is trying to perform this action!!!!
     user = None
     if not request.is_json:
         return {"message": "No JSON data provided"}, 400
@@ -77,7 +88,7 @@ def vocabulary_edit(id):
 @api_blueprint.route('/vocabulary/new', methods=['POST'])
 def vocabulary_new():
 
-    # FIXME: get current user!!!!
+    # FIXME: get the user is trying to perform this action!!!!
     user = None
 
     if not request.is_json:
@@ -92,19 +103,6 @@ def vocabulary_new():
                         vocabulary_schema.dump(vocab).data)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-
-@api_blueprint.route('/vocabularies')
-def get_vocabularies():
-    """
-    List all vocabularies
-    """
-    result = Vocabulary.query.all()
-    if result:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','vocabularies', \
-                            vocabulary_schema_many.dump(result).data)
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'vocabularies not found', None, None)
 
 
 @api_blueprint.route('/terms')
@@ -124,7 +122,6 @@ def get_terms(vocabulary):
 
     vocab = Vocabulary.query.filter_by(id=vocabulary).first()
     if vocab:
-
         terms = vocab.terms.filter_by(parent_id=None).all()
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms',term_schema_many.dump(terms).data)
@@ -138,7 +135,6 @@ def get_terms_any(vocabulary):
 
     vocab = Vocabulary.query.filter_by(id=vocabulary).first()
     if vocab:
-
         terms = vocab.terms.all()
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms',term_schema_many.dump(terms).data)
@@ -169,12 +165,11 @@ def get_terms_tree(vocabulary):
 @api_blueprint.route('/term/<id>/edit', methods=['POST'])
 def term_edit(id):
 
-    # FIXME: get current user!!!!
+    # FIXME: get the user is trying to perform this action!!!!
     user = None
     if not request.is_json:
         return {"message": "No JSON data provided"}, 400
     input_data = request.json
-    print(input_data)
     msg, term = Terms.edit_term(id, input_data)
     if term:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -187,22 +182,19 @@ def term_edit(id):
 @api_blueprint.route('/term/new', methods=['POST'])
 def term_new():
 
-    # FIXME: get current user!!!!
+    # FIXME: get the user is trying to perform this action!!!!
     user = None
     if not request.is_json:
         return {"message": "No JSON data provided"}, 400
-
     input_data = request.json
-
     msg, term = Terms.new_term(input_data)
     if term:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'term', \
                         term_schema.dump(term).data)
-
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-# TODO: Add POST/PUT for term
+
 @api_blueprint.route('/term/<uuid>')
 def term_get(uuid):
     """Get a term given the uuid """
@@ -219,16 +211,16 @@ def term_get(uuid):
 @api_blueprint.route('/term/<uuid>/delete', methods=['DELETE'])
 def term_delete(uuid):
 
-    # FIXME: get current user!!!!
+    # FIXME: get the user is trying to perform this action!!!!
     user = None
-        
+
     try:
         msg, deleted = Terms.delete_term(uuid)
         if deleted:
             return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
     except Exception as e:
         msg = str(e)
-    
+
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
