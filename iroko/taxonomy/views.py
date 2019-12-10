@@ -80,6 +80,7 @@ def vocabulary_new():
 
     # FIXME: get current user!!!!
     user = None
+
     if not request.is_json:
         return {"message": "No JSON data provided"}, 400
 

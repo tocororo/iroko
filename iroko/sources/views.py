@@ -115,18 +115,19 @@ def source_new():
     # FIXME: get current user!!!!
     user = None
 
-    json_data = request.get_json()
-    if not json_data:
+    if not request.is_json:
         return {"message": "No input data provided"}, 400
 
+    input_data = request.json
+
     try:
-        source_type = SourceType(json_data["type"])
+        source_type = SourceType(input_data["type"])
         try:
-            data = source_data_schema.loads(json_data["data"])
+            data = source_data_schema.loads(input_data["data"])
         except ValidationError as err:
             return err.messages, 422
         else:
-            msg, source = Sources.insert_new_source(user, json_data, source_type)
+            msg, source = Sources.insert_new_source(user, input_data, source_type)
             return {"message": msg}, 201
     except Exception as exc:
         return {"message": "Not source type provided"}, 412
@@ -149,23 +150,24 @@ def source_new_version(id):
     # FIXME: get current user!!!!
     user = None
 
-    json_data = request.get_json()
-    if not json_data:
+    if not request.is_json:
         return {"message": "No input data provided"}, 400
 
+    input_data = request.json
+
     # FIXME: Check if user have permission to do this, if not, just add the version!!!
-    is_current = True if "is_current" in json_data else False
+    is_current = True if "is_current" in input_data else False
 
     Sources.insert_new_source_version(user, json_data, id, is_current)
 
     try:
-        source_type = SourceType(json_data["type"])
+        source_type = SourceType(input_data["type"])
         try:
-            data = source_data_schema.loads(json_data["data"])
+            data = source_data_schema.loads(input_data["data"])
         except ValidationError as err:
             return err.messages, 422
         else:
-            msg, source = Sources.insert_new_source(user, json_data, source_type)
+            msg, source = Sources.insert_new_source(user, input_data, source_type)
             return {"message": msg}, 201
     except Exception as exc:
         return {"message": "Not source type provided"}, 412
@@ -190,123 +192,3 @@ def jsonify_source(src):
                             {'data': source_schema_full.dump(src), 'count': 1})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 
-
-@blueprint.route('/inclusions', methods=['GET', 'POST'])
-@login_required
-def inclusions():
-    inclusions = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-        inclusions = json.load(file)
-    rejections = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json') as file:
-        rejections = json.load(file)
-    accepted = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json') as file:
-        accepted = json.load(file)
-
-    return render_template('inclusions.html',
-                            inclusions=inclusions,
-                            rejections=rejections,
-                            accepted=accepted)
-
-
-@blueprint.route('/inclusions/del/<string:key>', methods=['GET', 'POST'])
-@login_required
-def delete_inclusion(key):
-    inclusions = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-        inclusions = json.load(file)
-
-    rejections = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json') as file:
-        rejections = json.load(file)
-
-    rejections[key] = inclusions[key]
-    del inclusions[key]
-
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
-        json.dump(inclusions, file, indent=4)
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/rejected_inclusions.json', 'w') as file:
-        json.dump(rejections, file, indent=4)
-
-    return redirect(url_for('iroko_sources.inclusions'))
-
-
-
-@blueprint.route('/inclusions/acept/<string:key>', methods=['GET', 'POST'])
-@login_required
-def acept_inclusion(key):
-    inclusions = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-        inclusions = json.load(file)
-
-    accepted = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json') as file:
-        accepted = json.load(file)
-
-    accepted[key] = inclusions[key]
-    del inclusions[key]
-
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
-        json.dump(inclusions, file, indent=4)
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/accepted_inclusions.json', 'w') as file:
-        json.dump(accepted, file, indent=4)
-
-    return redirect(url_for('iroko_sources.inclusions'))
-
-
-@blueprint.route('/inclusions/new', methods=['GET', 'POST'])
-@login_required
-def new_inclusion():
-    """The create view."""
-    form = InclusionForm()
-    # if the form is submitted and valid
-    if form.validate_on_submit():
-        body_text = form.source.data + ' ask for being part of Sceiba with OAI: ' + form.homepage_url.data
-        body_text += ' Process started by ' + form.contact_name.data + ', Email: ' + form.contact_email.data
-
-        # fichero=open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions/'+form.source.data+'.txt','w')
-        # fichero.write(body_text)
-        # fichero.close()
-
-        inclusions = {}
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json') as file:
-            inclusions = json.load(file)
-
-        if form.source.data in inclusions:
-            raise Exception(_('That source already have an entry for a new inclusion in Sceiba'))
-
-        requeriments = {}
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+ '/inclusion_requeriments.json') as file:
-            requeriments = json.load(file)
-
-        data = {}
-        data["source"] = form.source.data
-        data["url"] = form.homepage_url.data
-        data["contact"] = form.contact_name.data
-        data["email"] = form.contact_email.data
-        data["date"] = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
-        data["requeriments"] = []
-        for item in form.requeriments.data:
-            data["requeriments"].append(requeriments[item])
-
-        inclusions[form.source.data] = data
-
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/inclusions.json', 'w') as file:
-            json.dump(inclusions, file, indent=4)
-
-        # body_text += '\n' + _("Inclusion Requeriments: ") + '\n'
-        # for item in form.requeriments.data:
-        #     body_text += requeriments[item] + '\n'
-        # print(body_text)
-
-        # msg = Message(_("Inclusion message"),
-        #           sender=current_app.config["MAIL_DEFAULT_SENDER"],
-        #           recipients=["eduardo.arencibia@upr.edu.cu", current_app.config["MAIL_DEFAULT_SENDER"]],
-        #           body=body_text)
-        # current_app.extensions['mail'].send(msg)
-
-        flash(_('Inclusion procees started'), 'info')
-        return redirect(url_for('iroko_theme.index'))
-
-    return render_template('new_inclusion.html', form=form)
