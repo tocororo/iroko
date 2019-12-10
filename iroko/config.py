@@ -25,7 +25,6 @@ from invenio_records_rest.utils import allow_all, check_elasticsearch
 from invenio_search import RecordsSearch
 from flask_babelex import lazy_gettext as _
 
-
 from invenio_oauthclient.contrib import orcid
 
 

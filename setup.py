@@ -42,14 +42,16 @@ setup(
         'invenio_base.apps': [
             'iroko_records = iroko.records:iroko',
             'iroko_fixtures = iroko.fixtures.ext:IrokoFixtures',
-            'iroko_harvester = iroko.harvester.ext:IrokoHarvester'
+            'iroko_harvester = iroko.harvester.ext:IrokoHarvester', 
+            
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.iroko_theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_texts = iroko.texts.views:blueprint',            
-            'iroko_sources = iroko.sources.views:blueprint',            
+            'iroko_sources = iroko.sources.views:blueprint',   
+            
         ],
         'invenio_assets.bundles': [
             'iroko_theme_css = iroko.iroko_theme.bundles:css',
@@ -68,7 +70,8 @@ setup(
             'messages = iroko',
         ],
         'invenio_base.api_apps': [
-            'iroko = iroko.records:iroko',
+            'iroko = iroko.records:iroko',           
+            
          ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas'
@@ -88,7 +91,7 @@ setup(
         'invenio_db.models': [
             'iroko_taxonomy = iroko.taxonomy.models',
             'iroko_sources = iroko.sources.models',
-            'iroko_harvester = iroko.harvester.models',
+            'iroko_harvester = iroko.harvester.models',                        
         ],
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',

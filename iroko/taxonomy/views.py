@@ -34,6 +34,7 @@ from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 from iroko.taxonomy.api import Vocabularies, Terms
+
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
     __name__,
