@@ -99,7 +99,7 @@ class Terms:
     @classmethod
     def new_term(cls, data) -> Dict[str, Term]:
 
-        valid_data, errors = term_schema.loads(data)
+        valid_data, errors = term_schema.load(data)
         if not errors:
             term = Term.query.filter_by(name=valid_data['name']).first()
             if not term:
