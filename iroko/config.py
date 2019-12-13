@@ -429,18 +429,9 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 # Others iroko configuration
 # =======
 
-INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
-INIT_JOURNALS_JSON_PATH = 'data/journals.json'
-INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
-
-INIT_STATIC_JSON_PATH = 'data/texts'
-
 
 
 REST_ENABLE_CORS = True
-
-HARVESTER_DATA_DIRECTORY='data/sceiba-data'
-# HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
 
 OAUTHCLIENT_REMOTE_APPS = dict(
