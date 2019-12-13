@@ -29,7 +29,7 @@ class Vocabularies:
         msg, vocab = cls.get_vocabulary(id)
         if vocab:
             try:
-                valid_data = vocabulary_schema.loads(data)
+                valid_data, errors = vocabulary_schema.load(data)
                 vocab.human_name = valid_data['human_name']
                 vocab.description = valid_data['description']
                 vocab.data = valid_data['data']
@@ -45,7 +45,7 @@ class Vocabularies:
     def new_vocabulary(cls, data) -> Dict[str, Vocabulary]:
 
         try:
-            valid_data = vocabulary_schema.loads(data)
+            valid_data, errors = vocabulary_schema.load(data)
             vocab = Vocabulary.query.filter_by(name=valid_data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
@@ -114,9 +114,8 @@ class Terms:
                 msg = 'Term already exist name={0}'.format(valid_data['name'])
                 term = None
         else:
-            msg = str(errors)
+            msg = str(data) + str(valid_data)
             term = None
-
         return msg, term
 
 

@@ -7,25 +7,16 @@ class VocabularySchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     human_name = fields.Str(required=True)
-    description = fields.Str()
+    description = fields.Str(allow_none=True)
 
     # in case to put anything in the future
-    data = fields.Raw()
-
-    @pre_dump
-    def vocab_data_pre_dump(self, vocab:Vocabulary):
-        return vocab
-
-
-    @post_dump
-    def vocab_data_dump(self, item):
-        return item
+    data = fields.Raw(allow_none=True)
 
     @post_load
     def vocabulary_load(self, item):
         # TODO: Add here fix to the name (no spaces, not capitals... etc...)
-        if not 'data' in item:
-            item['data'] = {}
+        item['description'] = item['description'] if 'description' in item else ''
+        item['data'] = item['data'] if 'data' in item else {}
         return item
 
 
@@ -33,11 +24,11 @@ class TermSchema(Schema):
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str(required=True)
-    description = fields.Str()
+    description = fields.Str(allow_none=True)
     parent_id = fields.Int(allow_none=True)
 
     # this field depend on the vocabulary of the term, can be anything
-    data = fields.Raw()
+    data = fields.Raw(allow_none=True)
 
     vocabulary_id = fields.Int(required=True)
 
