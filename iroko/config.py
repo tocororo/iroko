@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS, IROKO_HOST, ORCID_APP_CREDENTIALS
+import .dev_ip
 
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
