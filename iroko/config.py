@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-import dev_ip
+from iroko.deployment import *
 
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
