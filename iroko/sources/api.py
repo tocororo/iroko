@@ -102,7 +102,7 @@ class Sources:
 
 
     @classmethod
-    def insert_new_source_version(cls, user, data, source_id, is_current:bool):
+    def insert_new_source_version(cls, user, data, source_uuid, is_current:bool):
         """Insert new SourceVersion to an existing Source
         """
 
@@ -111,10 +111,10 @@ class Sources:
 
         msg = ''
 
-        source = Source.query.filter_by(id=source_id).first()
+        source = Source.query.filter_by(uuid=source_uuid).first()
 
         if not source:
-            msg = 'Source not exist: id={0}'
+            msg = 'Source not exist: uuid={0}'
             return msg, None
         else:
             # user_id, source_id, comment, data, created_at, is_current

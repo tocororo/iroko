@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema_full_many_no_versions, source_schema_full, source_data_schema
+from iroko.sources.marshmallow import source_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources
@@ -36,7 +36,7 @@ def get_source_by_uuid(uuid):
     if source:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': source_schema_full.dump(source), 'count': 1})
+                        {'data': source_schema.dump(source), 'count': 1})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
 
 
@@ -55,7 +55,7 @@ def source_new():
     if source:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': source_schema_full.dump(source), 'count': 1})
+                        {'data': source_schema.dump(source), 'count': 1})
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
@@ -70,7 +70,7 @@ def source_new():
 
 #TODO: Need authentication
 @api_blueprint.route('/source/<uuid>/new-version', methods=['POST'])
-def source_new_version(id):
+def source_new_version(uuid):
 
     # inserta un nuevo sourceVersion de un source que ya existe
     # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
@@ -85,19 +85,15 @@ def source_new_version(id):
     # FIXME: Check if user have permission to do this, if not, just add the version!!!
     is_current = True if "is_current" in input_data else False
 
-    Sources.insert_new_source_version(user, json_data, id, is_current)
+    msg, source_version = Sources.insert_new_source_version(user, json_data, uuid, is_current)
+    if source_version:
+        source = Source.query.filter_by(uuid=source_uuid).first()
+        if source:
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','sources', \
+                        {'data': source_schema.dump(source), 'count': 1})
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-    try:
-        source_type = SourceType(input_data["type"])
-        try:
-            data = source_data_schema.loads(input_data["data"])
-        except ValidationError as err:
-            return err.messages, 422
-        else:
-            msg, source = Sources.insert_new_source(user, input_data, source_type)
-            return {"message": msg}, 201
-    except Exception as exc:
-        return {"message": "Not source type provided"}, 412
 
 
 

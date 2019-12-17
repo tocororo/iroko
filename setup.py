@@ -11,7 +11,10 @@ import os
 
 from setuptools import find_packages, setup
 
+
 readme = open('README.rst').read()
+
+# TODO: Supuestamente si quitamos el bundle auth del Pipfile y se lo agregamos aqui sin invenio-userprofiles deberia funcionar, lo hice pero instalo de todos modos userprofiles, quizas es necesario crear un nuevo enviroment..
 extras_require = {
     # Bundles
     'auth': [
