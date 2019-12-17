@@ -32,7 +32,8 @@ from flask.cli import with_appcontext
 import traceback
 
 # from iroko.documents.api import Document
-from iroko.sources.models import Source, HarvestType, RepositoryStatus
+from iroko.sources.models import Source
+from iroko.harvester.models import HarvestType
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 

@@ -1,9 +1,8 @@
 
 import enum
-from sqlalchemy_utils.types import UUIDType
-
+from sqlalchemy_utils.types import UUIDType, JSONType
 from invenio_db import db
-
+from iroko.sources.models import Source
 
 class HarvestType(enum.Enum):
     OAI = "OAI-PMH"
@@ -39,7 +38,7 @@ class Repository(db.Model):
 
     harvest_type = db.Column(db.Enum(HarvestType))
     harvest_endpoint = db.Column(db.String)
-    last_harvest_run = db.Column(db.DateTime, default=datetime(year=1900, month=1, day=1), nullable=True)
+    last_harvest_run = db.Column(db.DateTime, nullable=True)
     identifier = db.Column(db.String)
     status = db.Column(db.Enum(HarvestedItemStatus))
     error_log = db.Column(db.String)

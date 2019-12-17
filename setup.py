@@ -12,7 +12,15 @@ import os
 from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
-
+extras_require = {
+    # Bundles
+    'auth': [
+        'invenio-access>=1.3.0,<1.4.0',
+        'invenio-accounts>=1.1.1,<1.2.0',
+        'invenio-oauth2server>=1.0.3,<1.1.0',
+        'invenio-oauthclient>=1.1.3,<1.2.0',
+    ],
+}
 packages = find_packages()
 
 # Get the version string. Cannot be done with import!
@@ -50,7 +58,6 @@ setup(
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_texts = iroko.texts.views:blueprint',
-            'iroko_sources = iroko.sources.views:blueprint',
 
         ],
         'invenio_assets.bundles': [
@@ -96,7 +103,7 @@ setup(
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.rest:api_blueprint',
             'iroko_sources = iroko.sources.rest:api_blueprint',
-            'iroko_sources = iroko.sources.journals.rest:api_blueprint'
+            'iroko_sources_journals = iroko.sources.journals.rest:api_blueprint'
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -110,6 +117,7 @@ setup(
             '= iroko.pidstore.minters:iroko_uuid_minter',
         ],
     },
+    extras_require=extras_require,
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

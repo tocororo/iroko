@@ -9,8 +9,9 @@ import json
 
 from invenio_db import db
 
-from ..taxonomy.models import Term
-from ..sources.models import Source, SourceType, TermSources, HarvestType, SourceStatus
+from iroko.taxonomy.models import Term
+from iroko.sources.models import Source, SourceType, TermSources, SourceStatus
+from iroko.harvester.models import HarvestType
 
 def init_journals():
     # sources_path = '../../data/journals.json'

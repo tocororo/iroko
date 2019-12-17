@@ -29,6 +29,32 @@ class SourceStatus(enum.Enum):
     UNOFFICIAL = 'UNOFFICIAL'
 
 
+class Source(db.Model):
+    """Source, fuente, es define una fuente primaria de datos, eg: las revistas. Aqui se tiene la informacion basica de la fuente, su relacion con la taxonomia y la informacion de la fuente en tanto repositorio de documentos """
+
+    __tablename__ = 'iroko_sources'
+
+    id = db.Column( db.Integer, primary_key=True)
+    uuid = db.Column(UUIDType, default=uuid.uuid4)
+    name = db.Column( db.String, nullable=False, unique=True)
+    source_type = db.Column( db.Enum(SourceType))
+    source_status = db.Column( db.Enum(SourceStatus))
+
+    # TODO: decidir sobre esto:  Aunque este repetido, creo que es conveniente poner aqui (y manejar en las apps, en consecuencia), las relaciones con los terminos. En las tablas se pone por facilidad, pero aunque este repetido, a la hora de "editar" un Source, me parece que es mas facil asi..
+    data = db.Column( JSONType )
+    """The data of the Source, dependent on the source type, including the relationships with Terms"""
+
+    #term_sources = db.relationship("Term_sources", back_populates="sources")
+
+
+
+    def __str__(self):
+        """Representation."""
+        return self.name
+
+
+
+
 class TermSources(db.Model):
     __tablename__ = 'iroko_terms_sources'
 
@@ -73,29 +99,4 @@ class SourceVersion(db.Model):
     def __str__(self):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
-
-
-class Source(db.Model):
-    """Source, fuente, es define una fuente primaria de datos, eg: las revistas. Aqui se tiene la informacion basica de la fuente, su relacion con la taxonomia y la informacion de la fuente en tanto repositorio de documentos """
-
-    __tablename__ = 'iroko_sources'
-
-    id = db.Column( db.Integer, primary_key=True)
-    uuid = db.Column(UUIDType, default=uuid.uuid4)
-    name = db.Column( db.String, nullable=False, unique=True)
-    source_type = db.Column( db.Enum(SourceType))
-    source_status = db.Column( db.Enum(SourceStatus))
-
-    # TODO: decidir sobre esto:  Aunque este repetido, creo que es conveniente poner aqui (y manejar en las apps, en consecuencia), las relaciones con los terminos. En las tablas se pone por facilidad, pero aunque este repetido, a la hora de "editar" un Source, me parece que es mas facil asi..
-    data = db.Column( JSONType )
-    """The data of the Source, dependent on the source type, including the relationships with Terms"""
-
-    #term_sources = db.relationship("Term_sources", back_populates="sources")
-
-
-
-    def __str__(self):
-        """Representation."""
-        return self.name
-
 

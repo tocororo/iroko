@@ -1,7 +1,7 @@
 
 from marshmallow import Schema, fields
 
-from iroko.sources.marshmallow import BaseSourceSchema, ISSNSchema
+from iroko.sources.marshmallow import BaseSourceSchema
 
 class ISSNSchema(Schema):
     p = fields.Str()

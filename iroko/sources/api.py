@@ -1,4 +1,5 @@
 
+from typing import Dict
 
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
@@ -61,7 +62,7 @@ class Sources:
         return False, None
 
     @classmethod
-    def insert_new_source(cls, user, json_data) -> Dict[bool, str, Source]:
+    def insert_new_source(cls, user, json_data) -> Dict[Dict[bool, str], Source]:
         """Insert new Source and an associated SourceVersion
             return [success, message, source]
         """
@@ -76,7 +77,7 @@ class Sources:
 
         if exist:
             msg = 'Source already exist id={0}. Call insert_new_source_version'.format(source.id)
-            return False, msg, None
+            return dict(False, msg), None
         else:
 
             valid_data, errors = source_schema.load(json_data)
@@ -93,10 +94,10 @@ class Sources:
                 cls.insert_new_source_version(user, new_source.data, new_source.id, True)
 
                 msg = 'New Source created id={0}'.format(new_source.id)
-                return True, msg, new_source
+                return dict(True, msg), new_source
             else:
                 msg = str(errors)
-                return False, msg, None
+                return dict(False, msg), None
 
 
 

@@ -14,7 +14,7 @@ from flask import current_app
 
 from iroko.harvester.base import SourceHarvester, Formater
 
-from iroko.sources.models import Source, RepositoryStatus, RepositorySet
+from iroko.sources.models import Source
 
 from iroko.records.api import IrokoRecord
 
