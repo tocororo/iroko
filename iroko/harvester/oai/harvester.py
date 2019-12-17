@@ -71,7 +71,7 @@ class OaiHarvester(SourceHarvester):
 
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
         args = {'headers':request_headers,'timeout':15, 'verify':False}
-        self.sickle = Sickle(self.source.repo_harvest_endpoint, encoding=None,max_retries=max_retries, **args)
+        self.sickle = Sickle(self.source.repository.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
 
 
     def identity_source(self):
@@ -79,38 +79,38 @@ class OaiHarvester(SourceHarvester):
             self.get_identify()
             self.get_formats()
             self.get_sets()
-            self.source.repo_status = RepositoryStatus.IDENTIFIED
+            self.source.repository.status = RepositoryStatus.IDENTIFIED
         except Exception as e:
-            self.source.repo_status = RepositoryStatus.ERROR
-            self.source.repo_error_log = traceback.format_exc()
+            self.source.repository.status = RepositoryStatus.ERROR
+            self.source.repository.error_log = traceback.format_exc()
             print('error: identity_source(self):')
         finally:
             db.session.commit()
 
 
     def discover_items(self):
-        if self.source.repo_status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError('calling discover_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repo_status))
+        if self.source.repository.status == RepositoryStatus.ERROR:
+            raise IrokoHarvesterError('calling discover_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repository.status))
         try:
             self.get_items()
-            self.source.repo_status = RepositoryStatus.HARVESTED
+            self.source.repository.status = RepositoryStatus.HARVESTED
         except Exception as e:
-            self.source.repo_status = RepositoryStatus.ERROR
-            self.source.repo_error_log = traceback.format_exc()
+            self.source.repository.status = RepositoryStatus.ERROR
+            self.source.repository.error_log = traceback.format_exc()
             print('error: discover_items(self):')
         finally:
             db.session.commit()
 
 
     def process_items(self):
-        if self.source.repo_status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError('calling process_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repo_status))
+        if self.source.repository.status == RepositoryStatus.ERROR:
+            raise IrokoHarvesterError('calling process_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repository.status))
         try:
             self.record_items()
-            self.source.repo_status = RepositoryStatus.RECORDED
+            self.source.repository.status = RepositoryStatus.RECORDED
         except Exception as e:
-            self.source.repo_status = RepositoryStatus.ERROR
-            self.source.repo_error_log = traceback.format_exc()
+            self.source.repository.status = RepositoryStatus.ERROR
+            self.source.repository.error_log = traceback.format_exc()
             print('error: process_items(self):')
         finally:
             db.session.commit()
@@ -140,10 +140,10 @@ class OaiHarvester(SourceHarvester):
             xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier').text
 
-        if self.source.repo_identifier is not None and self.source.repo_identifier != identifier:
-            raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.source.repo_identifier, identifier, self.source.id, self.work_remote))
+        if self.source.repository.identifier is not None and self.source.repository.identifier != identifier:
+            raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.source.repository.identifier, identifier, self.source.id, self.work_remote))
 
-        self.source.repo_identifier = identifier
+        self.source.repository.identifier = identifier
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
 
@@ -162,7 +162,7 @@ class OaiHarvester(SourceHarvester):
             self.formats = utils.get_multiple_elements(xml, 'metadataPrefix', xmlns=utils.xmlns.oai())
             print(self.formats)
 
-        self.source.repo_metadata_formats = self.formats
+        self.source.repository.data = str(self.formats)
 
         # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
         if 'oai_dc' not in self.formats:
@@ -206,10 +206,10 @@ class OaiHarvester(SourceHarvester):
 
         xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier')
-        if self.source.repo_identifier is not None and self.source.repo_identifier != identifier.text:
-            # print(self.source.repo_identifier)
+        if self.source.repository.identifier is not None and self.source.repository.identifier != identifier.text:
+            # print(self.source.repository.identifier)
             # print(identifier.text)
-            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repo_identifier, identifier.text, self.source.id))
+            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repository.identifier, identifier.text, self.source.id))
 
         if not self.work_remote:
             # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
@@ -277,7 +277,7 @@ class OaiHarvester(SourceHarvester):
         if not self.work_remote:
             return
 
-        for f in self.source.repo_metadata_formats:
+        for f in self.formats:
             try:
                 arguments ={'metadataPrefix':f,'identifier': item.identifier}
                 record = self.sickle.GetRecord(**arguments)
@@ -298,9 +298,9 @@ class OaiHarvester(SourceHarvester):
                 # print('--------------------')
                 # print(item.identifier)
                 dc = self._process_format(item, self.oai_dc)
-                # print(str(self.source.repo_metadata_formats))
+                # print(str(self.source.repository.metadata_formats))
                 nlm = None
-                if 'nlm' in self.source.repo_metadata_formats:
+                if 'nlm' in self.formats:
                     nlm = self._process_format(item, self.nlm)
                     # print(str(nlm))
                 data = self._crate_iroko_dict(item, dc, nlm)

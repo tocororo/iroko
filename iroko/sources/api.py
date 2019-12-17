@@ -3,45 +3,19 @@
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import source_schema_many, source_schema_full_many_no_versions, SourceSchema
+from iroko.sources.marshmallow import source_schema
+from iroko.sources.journals.marshmallow import journal_schema
 from invenio_db import db
 from datetime import datetime
 
-from iroko.sources.utils import issn_is_in_data, field_is_in_data, _no_params, _load_terms_tree, _filter_data_args, _filter_repo_args, sync_term_source_with_data
+from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 
+from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 
 class Sources:
     """API for manipulation of Sources
     Considering SourceVersion: meanining this class use Source and SourceVersion model.
     """
-
-    # Listar todas las fuentes dado un status...
-    # Listar una fuente con sus versiones
-    # saber si de una version con un status determinado tiene una nueva version que no es "current"
-
-    @classmethod
-    def get_sources(cls, and_op, terms, data_args, repo_args):
-        """return Source array"""
-
-        result = []
-        all_terms = _load_terms_tree(terms)
-        filter_terms = len(all_terms) > 0
-        if filter_terms:
-            sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
-        else:
-            sources = Source.query.order_by('name').all()
-
-        # TODO: esto se puede hacer mas eficientemente...
-        for item in sources:
-            source = item.source if filter_terms else item
-            in_data = _filter_data_args(source, data_args, and_op)
-            in_repo = _filter_repo_args(source, repo_args, and_op)
-            if and_op and in_data and in_repo:
-                result.append(source)
-            else:
-                if in_data or in_repo:
-                    result.append(source)
-        return result
 
     @classmethod
     def get_source_by_id(cls, id=None, uuid= None):
@@ -55,12 +29,13 @@ class Sources:
         return Source.query.count()
 
     @classmethod
-    def check_source_exist(cls, data):
+    def _check_source_exist(cls, data):
         """ comprobar que no exista otro Title,ISSN, RNPS o URL igual
 
             :returns: boolean, Source
         """
-
+        # TODO: Replace this function by Pidstore for sources.
+        # esto cambiaria la filosofia un poco, hay que definir diferentes PIDs para los sources, y eso depende del tipo de source, aqui nada mas se estan reflejando los de revistas y lo hace mirando en el data, lo que no es la mejor manera.
         title = data['title'] if 'title' in data else ''
         issn = data['issn'] if 'issn' in data else ''
         rnps = data['rnps'] if 'rnps' in data else ''
@@ -86,8 +61,9 @@ class Sources:
         return False, None
 
     @classmethod
-    def insert_new_source(cls, user, json_data, source_type=SourceType.JOURNAL, source_status=SourceStatus.TO_REVIEW):
+    def insert_new_source(cls, user, json_data) -> Dict[bool, str, Source]:
         """Insert new Source and an associated SourceVersion
+            return [success, message, source]
         """
 
         #FIXME
@@ -95,29 +71,37 @@ class Sources:
 
         msg = ''
 
-        exist, source = cls.check_source_exist(json_data)
+
+        exist, source = cls._check_source_exist(json_data['data'])
 
         if exist:
-            msg = 'Source already exist id={0}'.format(source.id)
-            return msg, None
+            msg = 'Source already exist id={0}. Call insert_new_source_version'.format(source.id)
+            return False, msg, None
         else:
-            new_source = Source()
-            new_source.name = json_data["title"] if "title" in json_data else ""
-            new_source.source_type = source_type
-            new_source.source_status = source_status
-            new_source.data = json_data
-            #print(new_source)
-            db.session.add(new_source)
-            db.session.commit()
 
-            cls.insert_new_source_version(user, new_source.data, new_source.id, True)
+            valid_data, errors = source_schema.load(json_data)
+            if not errors:
+                new_source = Source()
+                new_source.name = valid_data['name']
+                new_source.source_type = valid_data['source_type']
+                new_source.source_status = SourceStatus.TO_REVIEW
+                new_source.data = valid_data['data']
+                # print(new_source)
+                db.session.add(new_source)
+                db.session.commit()
 
-            msg = 'New Source created id={0}'.format(new_source.id)
-            return msg, new_source
+                cls.insert_new_source_version(user, new_source.data, new_source.id, True)
+
+                msg = 'New Source created id={0}'.format(new_source.id)
+                return True, msg, new_source
+            else:
+                msg = str(errors)
+                return False, msg, None
+
 
 
     @classmethod
-    def insert_new_source_version(cls, user, json_data, source_id, is_current:bool):
+    def insert_new_source_version(cls, user, data, source_id, is_current:bool):
         """Insert new SourceVersion to an existing Source
         """
 
@@ -134,15 +118,15 @@ class Sources:
         else:
             # user_id, source_id, comment, data, created_at, is_current
             new_source_version = SourceVersion()
-            new_source_version.data = json_data
+            new_source_version.data = data
             new_source_version.created_at = datetime.now()
             new_source_version.is_current = is_current
             new_source_version.source_id = source.id
-            new_source_version.comment = json_data["comment"] if "comment" in json_data else ""
+            new_source_version.comment = data["comment"] if "comment" in data else ""
             new_source_version.user_id = user_id
-            
+
             if is_current:
-                source.data = json_data
+                source.data = data
                 sync_term_source_with_data(source)
 
             db.session.add(new_source_version)

@@ -33,15 +33,15 @@ class SourcesModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'uuid', 'source_type', 'repo_harvest_type', 'repo_harvest_endpoint', 'repo_status', 'source_status')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'source_status')
 
     column_list = list_all
 
     column_default_sort = ('name', True)
 
-    column_filters = ('name', 'source_type', 'repo_harvest_type','repo_status', 'source_status')
+    column_filters = ('name', 'source_type', 'source_status')
 
-    form_columns = ('name', 'source_type', 'repo_harvest_type', 'repo_harvest_endpoint', 'repo_last_harvest_run', 'repo_identifier', 'repo_metadata_formats', 'repo_status', 'repo_error_log', 'source_status')
+    form_columns = ('name', 'source_type', 'source_status')
 
 
 class SourcesVersionModelView(ModelView):

@@ -17,8 +17,6 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from iroko.deployment import *
-
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch
@@ -27,6 +25,7 @@ from flask_babelex import lazy_gettext as _
 
 from invenio_oauthclient.contrib import orcid
 
+from iroko.deployment import *
 
 def _(x):
     """Identity function used to trigger string extraction."""

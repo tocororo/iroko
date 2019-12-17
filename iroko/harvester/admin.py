@@ -26,7 +26,23 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import HarvestedItem
+from .models import HarvestedItem, Repository
+
+
+class RepositoryModelView(ModelView):
+    """View for managing vocabularies."""
+
+    # can_view_details = True
+
+    list_all = ('id', 'source', 'harvest_type', 'identifier', 'harvest_endpoint', 'status')
+
+    column_list = list_all
+
+    column_default_sort = ('status', True)
+
+    column_filters = ('source_type', 'harvest_type','status')
+
+    form_columns = ('source', 'harvest_type', 'identifier', 'harvest_endpoint', 'last_harvest_run', 'status', 'error_log')
 
 
 class HarvestedItemModelView(ModelView):
@@ -39,7 +55,7 @@ class HarvestedItemModelView(ModelView):
     column_default_sort = ('repository_id', True)
 
     column_filters = ('id', 'repository_id', 'status')
-    
+
     form_columns = ('identifier', 'status','error_log')
 
 
