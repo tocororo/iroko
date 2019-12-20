@@ -6,6 +6,7 @@ from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.models import TermSources
 from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
 from flask_babelex import lazy_gettext as _
+from marshmallow import ValidationError
 
 
 class Vocabularies:
@@ -13,6 +14,7 @@ class Vocabularies:
 
     @classmethod
     def get_vocabulary(cls, id) -> Dict[str, Vocabulary]:
+
         vocab = Vocabulary.query.filter_by(id=id).first()
         if vocab:
             return 'ok', vocab
@@ -20,37 +22,47 @@ class Vocabularies:
             msg = 'Vocabulary not exist id={0}'.format(id)
             return msg, None
 
+
     @classmethod
     def edit_vocabulary(cls, id ,data) -> Dict[str, Vocabulary]:
 
         msg, vocab = cls.get_vocabulary(id)
         if vocab:
-            vocab.name = data['name']
-            vocab.description = data['description']
-            if 'data' in data:
-                vocab.data = data['data']
-            db.session.commit()
-            msg = 'New Vocabulary UPDATED name={0}'.format(vocab.name)
+            try:
+                valid_data, errors = vocabulary_schema.load(data)
+                vocab.human_name = valid_data['human_name']
+                vocab.description = valid_data['description']
+                vocab.data = valid_data['data']
+                db.session.commit()
+                msg = 'New Vocabulary UPDATED name={0}'.format(vocab.name)
+            except ValidationError as err:
+                msg = err.messages
+                vocab = None
         return msg, vocab
+
 
     @classmethod
     def new_vocabulary(cls, data) -> Dict[str, Vocabulary]:
 
-        vocab = Vocabulary.query.filter_by(name=data['name']).first()
-        if not vocab:
-            vocab = Vocabulary()
-            vocab.name = data['name']
-            vocab.description = data['description']
-            if 'data' in data:
-                vocab.data = data['data']
-            db.session.add(vocab)
-            db.session.commit()
-            msg = 'New Vocabulary CREATED name={0}'.format(vocab.name)
-            return msg, vocab
-        else:
-            msg = 'Vocabulary already exist name={0}'.format(data['name'])
-            return msg, None
-
+        try:
+            valid_data, errors = vocabulary_schema.load(data)
+            vocab = Vocabulary.query.filter_by(name=valid_data['name']).first()
+            if not vocab:
+                vocab = Vocabulary()
+                vocab.name = valid_data['name']
+                vocab.human_name = valid_data['human_name']
+                vocab.description = valid_data['description']
+                vocab.data = valid_data['data']
+                db.session.add(vocab)
+                db.session.commit()
+                msg = 'New Vocabulary CREATED name={0}'.format(vocab.name)
+            else:
+                msg = 'Vocabulary already exist name={0}'.format(vocab.name)
+                vocab = None
+        except ValidationError as err:
+                msg = err.messages
+                vocab = None
+        return msg, vocab
 
 
 class Terms:
@@ -71,35 +83,86 @@ class Terms:
 
         msg, term = cls.get_term(id)
         if term:
-            term.name = data['name']
-            term.description = data['description']
-            if 'parent_id' in data:
-                term.parent_id = data['parent_id']
+            valid_data, errors = term_schema.load(data)
+            if not errors:
+                cls._update_term_data(term, valid_data)
+                db.session.commit()
+                cls._update_term_clasification(term, valid_data)
+                db.session.commit()
+                msg = 'New Term UPDATED name={0}'.format(term.name)
             else:
-                term.parent_id = None
-            if 'data' in data:
-                term.data = data['data']
-            db.session.commit()
-            msg = 'New Term UPDATED name={0}'.format(term.name)
+                msg = str(errors)
+                term = None
         return msg, term
+
 
     @classmethod
     def new_term(cls, data) -> Dict[str, Term]:
 
-        term = Term.query.filter_by(name=data['name']).first()
-        if not term:
-            term = Term()
-            term.name = data['name']
-            term.description = data['description']
-            if 'data' in data:
-                term.data = data['data']
-            db.session.add(term)
-            db.session.commit()
-            msg = 'New Term CREATED id={0}'.format(term.id)
-            return msg, term
+        valid_data, errors = term_schema.load(data)
+        if not errors:
+            term = Term.query.filter_by(name=valid_data['name']).first()
+            if not term:
+                term = Term()
+                cls._update_term_data(term, valid_data)
+                db.session.add(term)
+                db.session.commit()
+                cls._update_term_clasification(term, valid_data)
+                db.session.commit()
+                msg = 'New Term CREATED id={0}'.format(term.id)
+            else:
+                msg = 'Term already exist name={0}'.format(valid_data['name'])
+                term = None
         else:
-            msg = 'Term already exist name={0}'.format(data['name'])
-            return msg, None
+            msg = str(data) + str(valid_data)
+            term = None
+        return msg, term
+
+
+
+    @classmethod
+    def _update_term_data(cls, term: Term, data):
+        term.vocabulary_id = data['vocabulary_id']
+        term.name = data['name']
+        term.description = data['description']
+        term.parent_id = data['parent_id']
+        term.data = data['data']
+
+    @classmethod
+    def _update_term_clasification(cls, term: Term, data):
+        '''
+        this search all clasification of the term, delete it, and then create new clasification based on params
+
+        # TODO: This will be replaced by the graph database, when done....
+
+        in data:
+        class_ids: IDs of Terms that clasifies this term
+        clasified_ids: IDs of Terms clasified by this term
+        '''
+
+        # delete all Clasifications in wich this term is envolved
+        TermClasification.query.filter_by(term_class_id=term.id).delete()
+        TermClasification.query.filter_by(term_clasified_id=term.id).delete()
+        db.session.commit()
+
+        # Terms clasified by this term
+        for clasified_ids in data['clasified_ids']:
+            clasified = Term.query.filter_by(id=clasified_ids).first()
+            if clasified:
+                clasification = TermClasification()
+                clasification.term_class_id = term.id
+                clasification.term_clasified_id = clasified.id
+                db.session.add(clasification)
+
+        # Terms that clasifies this term
+        for class_id in data['class_ids']:
+            t_class = Term.query.filter_by(id=class_id).first()
+            if t_class:
+                clasification = TermClasification()
+                clasification.term_class_id = t_class.id
+                clasification.term_clasified_id = term.id
+                db.session.add(clasification)
+
 
     @classmethod
     def delete_term(cls, uuid) -> Dict[str, bool]:

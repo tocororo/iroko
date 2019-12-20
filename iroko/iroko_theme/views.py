@@ -24,6 +24,7 @@ from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
 import json
 import mistune
+from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
 
 
 blueprint = Blueprint(
@@ -50,6 +51,7 @@ def get_record_count():
 
 @blueprint.route('/')
 def index():
+    print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
@@ -65,9 +67,9 @@ def index():
     # TODO: cuando se vaya a escribir el json es agregarle la opcion w y
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
-    texts = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
-        texts = json.load(file)
+    # texts = {}
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    #     texts = json.load(file)
 
     texts = ''
     with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
