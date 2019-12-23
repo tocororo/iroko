@@ -42,6 +42,7 @@ class Vocabulary(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
+    human_name = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String)
 
     # any data related to the vocabulary
@@ -64,7 +65,7 @@ class Term(db.Model):
     vocabulary_id = db.Column(db.Integer(),
                         db.ForeignKey('iroko_vocab.id', ondelete='CASCADE'),
                         nullable=False, index=True)
-    vocabulary = db.relationship("Vocabulary", 
+    vocabulary = db.relationship("Vocabulary",
                             backref=db.backref("terms",cascade="all, delete-orphan", lazy='dynamic'))
 
     parent_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'))
@@ -78,6 +79,8 @@ class Term(db.Model):
         return self.name
 
 
+
+# TODO: This will be replaced by the graph database, when done....
 class TermClasification(db.Model):
     __tablename__ = 'iroko_term_term'
     id = db.Column(db.Integer, primary_key=True)
@@ -86,9 +89,9 @@ class TermClasification(db.Model):
     term_class_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
 
     # term_object es como el termino <Web of Science>
-    term_object_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))    
+    term_clasified_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
 
     def __str__(self):
         """Representation."""
         return self.data_base.name + ' de '+ self.group.name
-    
+

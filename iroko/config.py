@@ -17,7 +17,7 @@ from __future__ import absolute_import, print_function
 import os
 from datetime import timedelta
 
-from .dev_ip import IP_ELASTIC, IP_POSGRE, IP_RABBIT, IP_REDIS, APP_ALLOWED_HOSTS, IROKO_HOST, ORCID_APP_CREDENTIALS
+from iroko.deployment import *
 
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter, range_filter
@@ -368,7 +368,8 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(minutes=60),
     },
 }
-
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 # Database
 # ========
 #: Database URI including user and password
@@ -428,18 +429,9 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 # Others iroko configuration
 # =======
 
-INIT_TAXONOMY_JSON_PATH = 'data/taxonomy.json'
-INIT_JOURNALS_JSON_PATH = 'data/journals.json'
-INIT_OAIURL_JSON_PATH = 'data/oaisources.json'
-
-INIT_STATIC_JSON_PATH = 'data/texts'
-
 
 
 REST_ENABLE_CORS = True
-
-HARVESTER_DATA_DIRECTORY='data/sceiba-data'
-# HARVESTER_DATA_DIRECTORY='/mnt/sceiba/sceiba-data'
 
 
 OAUTHCLIENT_REMOTE_APPS = dict(

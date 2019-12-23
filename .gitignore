@@ -76,4 +76,6 @@ data/
 
 dev_ip.py
 
+deployment.py
+
 Pipfile.lock
