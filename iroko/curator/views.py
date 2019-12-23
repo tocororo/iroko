@@ -15,6 +15,7 @@ from invenio_db import db
 import uuid
 from flask_admin.contrib.sqla import ModelView
 from flask_security import current_user
+from iroko.curator.permissions import vocabulary_create_permission, source_create_permission
 
 
 blueprint = Blueprint(
@@ -29,6 +30,7 @@ blueprint = Blueprint(
 
 @blueprint.route('/add/vocabulary', methods=['GET', 'POST'])
 @login_required
+@vocabulary_create_permission.require(http_exception=403)
 def add_vocabulary():
     """The create view."""
     form = VocabularyForm()
@@ -87,6 +89,7 @@ def add_term():
 
 @blueprint.route('/add/source', methods=['GET', 'POST'])
 @login_required
+@source_create_permission.require(http_exception=403)
 def add_source():
     """The create view."""
     form = SourceForm()

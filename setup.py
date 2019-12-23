@@ -109,6 +109,10 @@ setup(
              'irouid'
             '= iroko.pidstore.minters:iroko_uuid_minter',
         ],
+        'invenio_access.actions': [
+            'create_source_curator = curator.permissions:create_source_curator',    
+            'create_vocabulary_curator = curator.permissions:create_vocabulary_curator',    
+        ],
     },
     classifiers=[
         'Environment :: Web Environment',
