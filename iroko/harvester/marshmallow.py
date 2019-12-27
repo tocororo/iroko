@@ -1,9 +1,12 @@
 
 from marshmallow import Schema, fields
 from iroko.harvester.models import HarvestedItem, HarvestType
+from invenio_records_rest.schemas.fields import DateString
 
 
 class RepositorySchema(Schema):
+    id = fields.Int(dump_only=True)
+    source_id = fields.Int(dump_only=True)
     harvest_type = fields.Str()
     harvest_endpoint = fields.Str()
     last_harvest_run = DateString()

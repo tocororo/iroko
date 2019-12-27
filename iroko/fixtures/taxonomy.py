@@ -70,6 +70,11 @@ def init_taxonomy():
         licences.human_name = 'Licencias'
         db.session.add(licences)
 
+        miar_types = Vocabulary()
+        miar_types.name = 'miar_types'
+        miar_types.human_name = 'MIAR'
+        db.session.add(miar_types)
+
 
         db.session.commit()
         init_vocabulary(tax, institutions)
@@ -78,6 +83,7 @@ def init_taxonomy():
         init_vocabulary(tax, data_bases)
         init_vocabulary(tax, grupo_mes)
         init_vocabulary(tax, licences)
+        init_vocabulary(tax, miar_types)
 
         # db.session.commit()
 

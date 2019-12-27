@@ -2,10 +2,7 @@
 from marshmallow import Schema, fields, ValidationError, pre_load
 from iroko.sources.models import Source, SourceType, TermSources, SourceType
 from invenio_records_rest.schemas.fields import DateString
-
-
-class SourceSchema(Schema):
-    data = fields.Raw(many=False, allow_none=False)
+from iroko.harvester.marshmallow import RepositorySchema
 
 class TermSourcesSchema(Schema):
     term_id = fields.Int()
@@ -31,7 +28,11 @@ class BaseSourceSchema(Schema):
 
     terms = fields.List(fields.Nested(TermSourcesSchema))
     versions = fields.Nested(SourceVersionSchema, many=True)
+    repository = fields.Nested(RepositorySchema)
 
+
+class SourceSchema(BaseSourceSchema):
+    data = fields.Raw(many=False, allow_none=False)
 
 
 source_schema_many = SourceSchema(many=True)

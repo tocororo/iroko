@@ -130,7 +130,7 @@ def get_terms(vocabulary):
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
 
 
-@api_blueprint.route('/vocabulary/<vocabulary>/terms/any')
+@api_blueprint.route('/vocabulary/<vocabulary>/terms')
 def get_terms_any(vocabulary):
     """List the first level o the terms in a vocabulary """
 
@@ -204,7 +204,7 @@ def term_get(uuid):
     if term:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'term', \
-                            term_schema.dump(dump_term(term)).data)
+                            dump_term(term))
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 

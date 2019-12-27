@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint
+from flask import Blueprint, request
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 from iroko.sources.journals.marshmallow import journal_schema, journal_schema_many
 from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
@@ -17,7 +17,7 @@ from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
 api_blueprint = Blueprint(
     'iroko_api_sources_journals',
     __name__,
-    url_prefix='/sources'
+    url_prefix='/source'
 )
 
 

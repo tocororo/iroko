@@ -17,10 +17,11 @@ from invenio_i18n.selectors import get_locale
 api_blueprint = Blueprint(
     'iroko_api_sources',
     __name__,
+    url_prefix='/source'
 )
 
 
-@api_blueprint.route('/sources/count')
+@api_blueprint.route('/count')
 def get_sources_count():
     """return sources count"""
 
@@ -28,7 +29,7 @@ def get_sources_count():
     return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
 
 
-@api_blueprint.route('/source/<uuid>')
+@api_blueprint.route('/<uuid>')
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
 
@@ -41,7 +42,7 @@ def get_source_by_uuid(uuid):
 
 
 #TODO: Need authentication
-@api_blueprint.route('/source/new', methods=['POST'])
+@api_blueprint.route('/new', methods=['POST'])
 def source_new():
 
     # FIXME: get current user!!!!
@@ -69,7 +70,7 @@ def source_new():
 
 
 #TODO: Need authentication
-@api_blueprint.route('/source/<uuid>/new-version', methods=['POST'])
+@api_blueprint.route('/<uuid>/new-version', methods=['POST'])
 def source_new_version(uuid):
 
     # inserta un nuevo sourceVersion de un source que ya existe
@@ -98,7 +99,7 @@ def source_new_version(uuid):
 
 
 #TODO: Necesita autenticacion.
-@api_blueprint.route('/source/<id>/current', methods=['GET', 'POST'])
+@api_blueprint.route('/<id>/current', methods=['GET', 'POST'])
 def source_version_set_current(id):
 
     # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
