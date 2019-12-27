@@ -149,6 +149,7 @@ setup(
             'iroko_records = iroko.records:iroko',
             'iroko_fixtures = iroko.fixtures.ext:IrokoFixtures',
             'iroko_harvester = iroko.harvester.ext:IrokoHarvester', 
+            'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
             
         ],
         'invenio_base.blueprints': [
@@ -156,7 +157,9 @@ setup(
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_texts = iroko.texts.views:blueprint',            
-            'iroko_sources = iroko.sources.views:blueprint',   
+            'iroko_sources = iroko.sources.views:blueprint',
+            'invenio_userprofiles'
+            ' = iroko.userprofiles.views:blueprint_ui_init',
             
         ],
         'invenio_assets.bundles': [
@@ -174,10 +177,11 @@ setup(
         ],
         'invenio_i18n.translations': [
             'messages = iroko',
+            'messages_userprofiles = iroko.userprofiles',
         ],
         'invenio_base.api_apps': [
-            'iroko = iroko.records:iroko',           
-            
+            'iroko = iroko.records:iroko',
+            'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
          ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas'
@@ -193,16 +197,21 @@ setup(
             'term_source_admin = iroko.sources.admin:term_sources_adminview',
             'harvester_items_adminview = '
             'iroko.harvester.admin:harvester_items_adminview',
+            'invenio_userprofiles_view = '
+            'iroko.userprofiles.admin:user_profile_adminview',
         ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.taxonomy.models',
             'iroko_sources = iroko.sources.models',
-            'iroko_harvester = iroko.harvester.models',                        
+            'iroko_harvester = iroko.harvester.models',
+            'invenio_userprofiles = iroko.userprofiles.models',
         ],
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
             'iroko_sources = iroko.sources.views:api_blueprint',
-            'iroko_harvester = iroko.harvester.views:api_blueprint'
+            'iroko_harvester = iroko.harvester.views:api_blueprint',
+            'invenio_userprofiles'
+            ' = iroko.userprofiles.views:blueprint_api_init',
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -214,6 +223,9 @@ setup(
         'invenio_pidstore.minters': [
              'irouid'
             '= iroko.pidstore.minters:iroko_uuid_minter',
+        ],
+        'invenio_db.alembic': [
+            'invenio_userprofiles = iroko.userprofiles:alembic',
         ],
     },
     # extras_require=extras_require,
