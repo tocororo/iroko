@@ -27,6 +27,7 @@ from flask_babelex import lazy_gettext as _
 
 from invenio_oauthclient.contrib import orcid
 
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 def _(x):
     """Identity function used to trigger string extraction."""
@@ -438,3 +439,6 @@ OAUTHCLIENT_REMOTE_APPS = dict(
         orcid=orcid.REMOTE_APP,
 )
 
+INIT_TAXONOMY_JSON_PATH = os.path.join(basedir, 'data/taxonomy.json')
+INIT_JOURNAL_JSON_PATH = os.path.join(basedir, 'data/journals.json')
+INIT_STATIC_JSON_PATH = os.path.join(os.path.dirname(basedir), 'data/texts')
