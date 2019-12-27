@@ -24,7 +24,7 @@ from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
 import json
 import mistune
-from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
+# from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
 
 
 blueprint = Blueprint(
@@ -51,7 +51,7 @@ def get_record_count():
 
 @blueprint.route('/')
 def index():
-    print(USERPROFILES_EXTEND_SECURITY_FORMS)
+    # print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
     vocab_stats = []

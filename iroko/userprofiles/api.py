@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of Invenio.
+# Copyright (C) 2015-2018 CERN.
+#
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """API for user profiles."""
 
@@ -7,8 +14,7 @@ from flask import g
 from flask_security import current_user
 from werkzeug.local import LocalProxy
 
-from iroko.iroko_userprofiles.models import IrokoUserProfile
-from invenio_userprofiles.models import AnonymousUserProfile
+from .models import AnonymousUserProfile, UserProfile
 
 
 def _get_current_userprofile():
@@ -18,17 +24,17 @@ def _get_current_userprofile():
         :class:`invenio_userprofiles.models.AnonymousUserProfile` instance is
         returned.
 
-    :returns: The :class:`iroko.irokouserprofiles.models.IrokoUserProfile` instance.
+    :returns: The :class:`invenio_userprofiles.models.UserProfile` instance.
     """
     if current_user.is_anonymous:
         return AnonymousUserProfile()
 
     profile = g.get(
         'userprofile',
-        IrokoUserProfile.get_by_userid(current_user.get_id()))
+        UserProfile.get_by_userid(current_user.get_id()))
 
     if profile is None:
-        profile = IrokoUserProfile(user_id=int(current_user.get_id()))
+        profile = UserProfile(user_id=int(current_user.get_id()))
         g.userprofile = profile
     return profile
 

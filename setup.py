@@ -14,16 +14,110 @@ from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
 
-# TODO: Supuestamente si quitamos el bundle auth del Pipfile y se lo agregamos aqui sin invenio-userprofiles deberia funcionar, lo hice pero instalo de todos modos userprofiles, quizas es necesario crear un nuevo enviroment..
+tests_require = [
+    'check-manifest>=0.35',
+    'coverage>=4.5.3',
+    'isort>=4.3',
+    'pydocstyle>=3.0.0',
+    'pytest-cov>=2.7.1',
+    'pytest-invenio>=1.2.1,<1.3.0',
+    'pytest-pep8>=1.0.6',
+    'pytest>=4.6.4,<5.0.0',
+]
+
+db_version = '>=1.0.4,<1.1.0'
+search_version = '>=1.2.3,<1.3.0'
+
+
 extras_require = {
     # Bundles
+    # 'invenio-userprofiles>=1.0.1,<1.1.0',
+
+    'base': [
+        'invenio-admin>=1.1.2,<1.2.0',
+        'invenio-assets>=1.1.3,<1.2.0',
+        'invenio-formatter>=1.0.2,<1.1.0',
+        'invenio-logging>=1.2.0,<1.3.0',
+        'invenio-mail>=1.0.2,<1.1.0',
+        'invenio-rest>=1.1.2,<1.2.0',
+        'invenio-theme>=1.1.4,<1.2.0',
+    ],
     'auth': [
         'invenio-access>=1.3.0,<1.4.0',
         'invenio-accounts>=1.1.1,<1.2.0',
-        'invenio-oauth2server>=1.0.3,<1.1.0',
+        'invenio-oauth2server>=1.0.4,<1.1.0',
         'invenio-oauthclient>=1.1.3,<1.2.0',
     ],
+    'metadata': [
+        'invenio-indexer>=1.1.1,<1.2.0',
+        'invenio-jsonschemas>=1.0.1,<1.1.0',
+        'invenio-oaiserver>=1.1.1,<1.2.0',
+        'invenio-pidstore>=1.1.0,<1.2.0',
+        'invenio-records-rest>=1.6.4,<1.7.0',
+        'invenio-records-ui>=1.0.1,<1.1.0',
+        'invenio-records>=1.3.0,<1.4.0',
+        'invenio-search-ui>=1.1.1,<1.2.0',
+    ],
+    'files': [
+        'invenio-files-rest>=1.0.5,<1.1.0',
+        'invenio-iiif>=1.0.0,<1.1.0',
+        'invenio-previewer>=1.1.0,<1.2.0',
+        'invenio-records-files>=1.2.1,<1.3.0',
+    ],
+    # Database version
+    'postgresql': [
+        'invenio-db[postgresql,versioning]{}'.format(db_version),
+    ],
+    # 'mysql': [
+    #     'invenio-db[mysql,versioning]{}'.format(db_version),
+    # ],
+    # 'sqlite': [
+    #     'invenio-db[versioning]{}'.format(db_version),
+    # ],
+    # Elasticsearch version
+    # 'elasticsearch2': [
+    #     'invenio-search[elasticsearch2]{}'.format(search_version),
+    # ],
+    # 'elasticsearch5': [
+    #     'invenio-search[elasticsearch5]{}'.format(search_version),
+    # ],
+    'elasticsearch6': [
+        'invenio-search[elasticsearch6]{}'.format(search_version),
+    ],
+    # 'elasticsearch7': [
+    #     'invenio-search[elasticsearch7]{}'.format(search_version),
+    # ],
+    # Docs and test dependencies
+    'docs': [
+        'Sphinx>=1.5.1',
+    ],
+    'tests': tests_require,
 }
+
+
+setup_requires = [
+    'pytest-runner>=3.0.0,<5',
+]
+
+install_requires = [
+    'Flask>=1.0.4',
+    'invenio-app>=1.2.3,<1.3.0',
+    'invenio-base>=1.2.0,<1.3.0',
+    'invenio-cache>=1.0.0,<1.1.0',
+    'invenio-celery>=1.1.1,<1.2.0',
+    'invenio-config>=1.0.2,<1.1.0',
+    'invenio-i18n>=1.1.1,<1.2.0',
+]
+
+# extras_require['all'] = []
+for name, reqs in extras_require.items():
+    # if name in ('sqlite', 'mysql', 'postgresql') \
+    #         or name.startswith('elasticsearch'):
+    #     continue
+    # extras_require['all'].extend(reqs)
+    install_requires.extend(reqs)
+
+
 packages = find_packages()
 
 # Get the version string. Cannot be done with import!
@@ -31,6 +125,8 @@ g = {}
 with open(os.path.join('iroko', 'version.py'), 'rt') as fp:
     exec(fp.read(), g)
     version = g['__version__']
+
+print(install_requires)
 
 setup(
     name='iroko',
@@ -54,6 +150,7 @@ setup(
             'iroko_records = iroko.records:iroko',
             'iroko_fixtures = iroko.fixtures.ext:IrokoFixtures',
             'iroko_harvester = iroko.harvester.ext:IrokoHarvester',
+            'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
 
         ],
         'invenio_base.blueprints': [
@@ -61,6 +158,9 @@ setup(
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_texts = iroko.texts.views:blueprint',
+            'iroko_sources = iroko.sources.views:blueprint',
+            'invenio_userprofiles'
+            ' = iroko.userprofiles.views:blueprint_ui_init',
 
         ],
         'invenio_assets.bundles': [
@@ -78,10 +178,11 @@ setup(
         ],
         'invenio_i18n.translations': [
             'messages = iroko',
+            'messages_userprofiles = iroko.userprofiles',
         ],
         'invenio_base.api_apps': [
             'iroko = iroko.records:iroko',
-
+            'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
          ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas'
@@ -99,16 +200,21 @@ setup(
             'iroko.harvester.admin:harvester_repositories_adminview',
             'harvester_items_adminview = '
             'iroko.harvester.admin:harvester_items_adminview',
+            'invenio_userprofiles_view = '
+            'iroko.userprofiles.admin:user_profile_adminview',
         ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.taxonomy.models',
             'iroko_sources = iroko.sources.models',
             'iroko_harvester = iroko.harvester.models',
+            'invenio_userprofiles = iroko.userprofiles.models',
         ],
         'invenio_base.api_blueprints' : [
-            'iroko_taxonomy = iroko.taxonomy.rest:api_blueprint',
-            'iroko_sources = iroko.sources.rest:api_blueprint',
-            'iroko_sources_journals = iroko.sources.journals.rest:api_blueprint'
+            'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
+            'iroko_sources = iroko.sources.views:api_blueprint',
+            'iroko_harvester = iroko.harvester.views:api_blueprint',
+            'invenio_userprofiles'
+            ' = iroko.userprofiles.views:blueprint_api_init',
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -121,8 +227,14 @@ setup(
              'irouid'
             '= iroko.pidstore.minters:iroko_uuid_minter',
         ],
+        'invenio_db.alembic': [
+            'invenio_userprofiles = iroko.userprofiles:alembic',
+        ],
     },
-    extras_require=extras_require,
+    # extras_require=extras_require,
+    install_requires=install_requires,
+    setup_requires=setup_requires,
+    tests_require=tests_require,
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

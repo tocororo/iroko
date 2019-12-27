@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of Invenio.
+# Copyright (C) 2015-2018 CERN.
+#
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+
+"""Invenio module that adds userprofiles to the platform."""
+
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, current_app, flash, render_template, request
@@ -8,20 +18,25 @@ from flask_menu import register_menu
 from flask_security.confirmable import send_confirmation_instructions
 from invenio_db import db
 
-from invenio_userprofiles.api import current_userprofile
-from invenio_userprofiles.forms import EmailProfileForm, VerificationForm
+from .api import current_userprofile
+from .forms import EmailProfileForm, ProfileForm, VerificationForm, \
+    confirm_register_form_factory, register_form_factory
 from .models import UserProfile
-from .forms import IrokoUserProfile, confirm_register_form_factory, register_form_factory
-
 
 blueprint = Blueprint(
-    'iroko_userprofiles',
+    'invenio_userprofiles',
+    __name__,
+    template_folder='templates',
+)
+
+blueprint_api_init = Blueprint(
+    'invenio_userprofiles_api_init',
     __name__,
     template_folder='templates',
 )
 
 blueprint_ui_init = Blueprint(
-    'iroko_userprofiles_ui_init',
+    'invenio_userprofiles_ui_init',
     __name__,
 )
 
@@ -47,10 +62,16 @@ def init_ui(state):
         blueprint, url_prefix=app.config['USERPROFILES_PROFILE_URL'])
 
 
+@blueprint_api_init.record_once
+def init_api(state):
+    """Post initialization for API application."""
+    init_common(state.app)
+
+
 @blueprint.app_template_filter()
 def userprofile(value):
     """Retrieve user profile for a given user id."""
-    return IrokoUserProfile.get_by_userid(int(value))
+    return UserProfile.get_by_userid(int(value))
 
 
 @blueprint.route('/', methods=['GET', 'POST'])
@@ -93,7 +114,7 @@ def profile_form_factory():
             email_repeat=current_user.email,
             prefix='profile', )
     else:
-        return IrokoUserProfile(
+        return ProfileForm(
             formdata=None,
             obj=current_userprofile,
             prefix='profile', )
@@ -119,7 +140,6 @@ def handle_profile_form(form):
             # Update profile.
             current_userprofile.username = form.username.data
             current_userprofile.full_name = form.full_name.data
-            current_userprofile.extra = form.extra.data
             db.session.add(current_userprofile)
 
             # Update email

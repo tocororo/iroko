@@ -1,0 +1,22 @@
+################################################################################
+# This requirements file has been automatically generated from `Pipfile` with
+# `pipenv-to-requirements`
+#
+#
+# This has been done to maintain backward compatibility with tools and services
+# that do not support `Pipfile` yet.
+#
+# Do NOT edit it directly, use `pipenv install [-d]` to modify `Pipfile` and
+# `Pipfile.lock` and then regenerate `requirements*.txt`.
+################################################################################
+
+babel>=2.4.0
+bokeh
+flask-babelex>=0.9.3
+lxml>=3.5.0,<4.2.6
+marshmallow>=3.0.0,<4.0.0
+mistune==0.8.4
+sickle>=0.6.4
+uwsgi-tools>=1.1.1
+uwsgi>=2.0
+uwsgitop>=0.11
