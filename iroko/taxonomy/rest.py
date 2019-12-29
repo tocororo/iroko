@@ -50,7 +50,7 @@ def get_vocabularies():
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','vocabularies', \
-                            vocabulary_schema_many.dump(result).data)
+                            vocabulary_schema_many.dump(result))
     return iroko_json_response(IrokoResponseStatus.ERROR, 'vocabularies not found', None, None)
 
 
@@ -63,7 +63,7 @@ def vocabulary_get(id):
     if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'vocabulary', \
-                            vocabulary_schema.dump(vocab).data)
+                            vocabulary_schema.dump(vocab))
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
@@ -81,7 +81,7 @@ def vocabulary_edit(id):
     if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'vocabulary', \
-                        vocabulary_schema.dump(vocab).data)
+                        vocabulary_schema.dump(vocab))
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
@@ -101,7 +101,7 @@ def vocabulary_new():
     if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'vocabulary', \
-                        vocabulary_schema.dump(vocab).data)
+                        vocabulary_schema.dump(vocab))
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
@@ -156,7 +156,7 @@ def get_terms_tree(vocabulary):
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms', \
-                            {'vocab': vocabulary_schema.dump(vocab).data,\
+                            {'vocab': vocabulary_schema.dump(vocab),\
                             'terms': terms_full})
 
     return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)

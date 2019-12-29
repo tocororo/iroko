@@ -158,7 +158,6 @@ setup(
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_texts = iroko.texts.views:blueprint',
-            'iroko_sources = iroko.sources.views:blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
 
@@ -210,8 +209,8 @@ setup(
             'invenio_userprofiles = iroko.userprofiles.models',
         ],
         'invenio_base.api_blueprints' : [
-            'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
-            'iroko_sources = iroko.sources.views:api_blueprint',
+            'iroko_taxonomy = iroko.taxonomy.rest:api_blueprint',
+            'iroko_sources = iroko.sources.rest:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_api_init',
