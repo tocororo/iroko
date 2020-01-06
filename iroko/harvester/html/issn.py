@@ -112,6 +112,16 @@ class IssnHarvester(BaseHarvester):
 
 
     def process_pipeline(self):
+        """get all cuban issn and its info
+        return pair issns(array of all issns), infos(dict with issns info)
+        """
+
+        issns = self.get_all_issn()
+        infos = self.get_all_issns_info(issns, None)
+        return issns, infos
+
+
+    def get_all_issn(self):
         """get all cuban ISSNs """
 
         issns = []
@@ -155,7 +165,8 @@ class IssnHarvester(BaseHarvester):
                 pass
             else:
                 print('ok, saving to file')
-                json.dump(result, file_issn_info)
+                if file_issn_info:
+                    json.dump(result, file_issn_info)
             finally:
                 sleep_time = randint(4, 7)
                 print('finally, sleep {0} seconds'.format(sleep_time))

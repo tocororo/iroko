@@ -110,7 +110,7 @@ class SecundarySourceHarvester:
 
         if remoteissns:
             harvester = IssnHarvester()
-            issns = harvester.process_pipeline()
+            issns = harvester.get_all_issn()
             with open(file_path, 'w') as file_issn:
                 json.dump(issns, file_issn)
         else:
