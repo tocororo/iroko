@@ -1,6 +1,6 @@
 from os import path, mkdir, listdir
 
-import time
+from time import sleep
 
 import traceback
 
@@ -53,9 +53,10 @@ class OaiHarvester(SourceHarvester):
         # init_directory=True
         max_retries=3
 
-        self.source = source
-        self.work_remote = work_remote
-        self.request_wait_time = request_wait_time
+        super(self, source, work_remote, request_wait_time)
+        # self.source = source
+        # self.work_remote = work_remote
+        # self.request_wait_time = request_wait_time
 
         p = current_app.config['HARVESTER_DATA_DIRECTORY']
         # p = 'data/sceiba-data'
@@ -123,6 +124,7 @@ class OaiHarvester(SourceHarvester):
         f.write(content)
         f.close()
 
+
     def _get_xml_from_file(self, name, extra_path=""):
         xmlpath = path.join(self.harvest_dir, extra_path, name)
         if not path.exists(xmlpath):
@@ -146,6 +148,7 @@ class OaiHarvester(SourceHarvester):
         self.source.repository.identifier = identifier
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
+
 
     def get_formats(self):
         """get_formats, raise IrokoHarvesterError"""
@@ -198,7 +201,6 @@ class OaiHarvester(SourceHarvester):
                     rset.setSpec = setSpec.text
                     rset.setName = setName.text
                     db.session.add(rset)
-
 
 
     def get_items(self):
@@ -261,7 +263,7 @@ class OaiHarvester(SourceHarvester):
                     if harvest_item.status != HarvestedItemStatus.DELETED:
                         self._get_all_formats(harvest_item)
                         harvest_item.status = HarvestedItemStatus.HARVESTED
-                    time.sleep(self.request_wait_time)
+                    sleep(self.request_wait_time)
                 except Exception as e:
                     harvest_item.status = HarvestedItemStatus.ERROR
                     harvest_item.error_log = traceback.format_exc()
@@ -282,10 +284,10 @@ class OaiHarvester(SourceHarvester):
                 arguments ={'metadataPrefix':f,'identifier': item.identifier}
                 record = self.sickle.GetRecord(**arguments)
                 self._write_file(f+".xml", record.raw, str(item.id))
-                time.sleep(self.request_wait_time)
+                sleep(self.request_wait_time)
             except Exception as e:
                 item.error_log = traceback.print_exc()
-        time.sleep(self.request_wait_time)
+        sleep(self.request_wait_time)
 
 
     def record_items(self):

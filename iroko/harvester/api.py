@@ -8,15 +8,18 @@ from iroko.harvester import utils
 from iroko.sources.models import Source
 
 from flask import current_app
+import json
 
 from lxml import etree
 
+from iroko.harvester.html.issn import IssnHarvester
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
-class Harvester(object):
+class PrimarySourceHarvester(object):
     """Top level harvester, use base.Harvester class, for specific sources.
     ahora mismo hace uso solamente del OAIHarvester"""
+
 
     @staticmethod
     def rescan_and_fix_harvest_dir():
@@ -47,6 +50,7 @@ class Harvester(object):
                         shutil.move(repopath, path.join(harvest_dir, str(source.id)))
                         Harvester.harvest_pipeline(source.id, False)
 
+
     @staticmethod
     def rescan_and_fix_source_dir(source_dir):
         """
@@ -71,12 +75,12 @@ class Harvester(object):
                     Harvester.harvest_pipeline(source.id, False)
 
 
-
     @staticmethod
     def process_sources(source_id_list, work_remote=True):
         """ harvest_pipeline por cada source in sources"""
         for source in source_id_list:
             Harvester.harvest_pipeline(source, work_remote)
+
 
     @staticmethod
     def harvest_pipeline(source_id: int, work_remote=True, step=0):
@@ -90,3 +94,39 @@ class Harvester(object):
                 harvester.discover_items()
             if step <= 2:
                 harvester.process_items()
+
+
+class SecundarySourceHarvester:
+    """top level harvester for the secundary sources, issn, miar, etc...
+    this should include sec sources for primary sources (issn, miar,...)
+    and secundary sources for harvested items (dimensions, crossref, ...)
+    """
+
+    @staticmethod
+    def process_issn(remoteissns=True, remoteinfo=True, info=True):
+
+        file_path = current_app.config['HARVESTER_DATA_DIRECTORY'] + '/issn.cuba.json'
+        print(file_path)
+
+        if remoteissns:
+            harvester = IssnHarvester()
+            issns = harvester.process_pipeline()
+            with open(file_path, 'w') as file_issn:
+                json.dump(issns, file_issn)
+        else:
+            with open(file_path, 'r') as file_issn:
+                issns = json.load(file_issn)
+        count = 0
+
+        if info:
+            file_path = current_app.config['HARVESTER_DATA_DIRECTORY'] + '/issn.info.json'
+            print(file_path)
+
+            if remoteinfo:
+                harvester = IssnHarvester()
+                with open(file_path, 'w') as file_issn:
+                    infos = harvester.get_all_issns_info(issns, file_issn)
+            else:
+                with open(file_path, 'r') as file_issn:
+                    infos = json.load(file_issn)
+            # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario sea issn...
