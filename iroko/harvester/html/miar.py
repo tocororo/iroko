@@ -114,7 +114,8 @@ class MiarHarvester(BaseHarvester):
         return dictionary_info, dictionary_error
 
     def get_info_journal(self, issn: str):
-        """dado un issn obtener la informacion de esta revista de miar"""
+        """dado un issn obtener la informacion de esta revista de miar,
+        da toda la informacion presente en el tab de la revista y los icds anuales"""
 
         url = 'http://miar.ub.edu/issn/' + issn
 
