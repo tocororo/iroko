@@ -1,24 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# This file is part of INSPIRE.
-# Copyright (C) 2014-2017 CERN.
-#
-# INSPIRE is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# INSPIRE is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with INSPIRE. If not, see <http://www.gnu.org/licenses/>.
-#
-# In applying this license, CERN does not waive the privileges and immunities
-# granted to it by virtue of its status as an Intergovernmental Organization
-# or submit itself to any jurisdiction.
+
 
 """Fixtures for users, roles and actions."""
 
@@ -29,11 +9,12 @@ import json
 
 from invenio_db import db
 
-from ..taxonomy.models import Term
-from ..sources.models import Source, SourcesType, TermSources, HarvestType
+from iroko.taxonomy.models import Term
+from iroko.sources.models import Source, SourceType, TermSources, SourceStatus
+from iroko.harvester.models import HarvestType, Repository
 
 def init_journals():
-    # sources_path = '../../data/journals.json' 
+    # sources_path = '../../data/journals.json'
     delete_all_sources()
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
@@ -46,7 +27,7 @@ def init_journals():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
                     source = Source()
-                    source.source_type = SourcesType.JOURNAL
+                    source.source_type = SourceType.JOURNAL
                     source.name = record['title']
                     data = {}
                     _assing_if_exist(data, record, 'description')
@@ -61,10 +42,12 @@ def init_journals():
                     _assing_if_exist(issn, record['issn'], 'l')
                     data['issn']= issn
                     source.data = data
+                    source.source_status = SourceStatus.UNOFFICIAL
                     db.session.add(source)
         db.session.commit()
     init_term_sources()
-    
+    add_terms_to_data()
+
 
 def init_term_sources():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -78,7 +61,7 @@ def init_term_sources():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
                     source = Source.query.filter_by(name=record['title']).first()
-                    
+
                     if record.__contains__('institution'):
                         add_term_source(source, record, record['institution'], tax, 'institutions')
                     if record.__contains__('licence'):
@@ -88,7 +71,7 @@ def init_term_sources():
 
                     for subid in record["subjects"]:
                         add_term_source(source, record, subid, tax, 'subjects')
-                    
+
                     for ref in record["referecences"]:
                         if ref.__contains__('url'):
                             add_term_source(source, record, ref['name'], tax, 'data_bases', {'url': ref['url']})
@@ -127,8 +110,9 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
     ts.data = data
     db.session.add(ts)
 
+
 def remove_nulls(d):
-    return {k: v for k, v in d.items() if v is not None}   
+    return {k: v for k, v in d.items() if v is not None}
 
 def add_oaiurls():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -140,15 +124,30 @@ def add_oaiurls():
             for k, record in journals.items():
                 src = Source.query.filter_by(name=record['title']).first()
                 if src:
-                    src.repo_harvest_type = None
+                    # src.repo_harvest_type = None
                     for url in urls:
                         if url['id'] == k:
                             # print(k)
                             # print(record['id'])
                             print(url['url'])
                             # print(src.data['url'])
-                            src.repo_harvest_endpoint = url['url']
-                            src.repo_harvest_type = HarvestType.OAI
-                            print(src)
-                    db.session.commit()
-                            
+                            repo = Repository()
+                            repo.harvest_endpoint = url['url']
+                            repo.harvest_type = HarvestType.OAI
+                            repo.source_id = src.id
+                            db.session.add(repo)
+                            # src.repo_harvest_endpoint = url['url']
+                            # src.repo_harvest_type = HarvestType.OAI
+                            # src.repository = repo
+            db.session.commit()
+
+def add_terms_to_data():
+    sources = Source.query.order_by('name').all()
+    for source in sources:
+        terms = []
+        for ts in source.terms:
+            terms.append({'id': ts.term_id, 'data': ts.data})
+        data = dict(source.data)
+        data['terms'] = terms
+        source.data = data
+    db.session.commit()

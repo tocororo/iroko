@@ -1,3 +1,5 @@
+#
+
 
 # Cosecha:
 
@@ -17,5 +19,8 @@
  - Puede suceder que los metadatos no se correspondan con el documento que describen: los autores, el titulo, etc... cuando se abre el documento no es el mismo. Es raro, pero paso en Mendive, Vol 2007 No 3, la editorial lo tiene.
     - **Posible solucion:** Habria que abordar el problema de extraer automaticamente los metadatos de los articulos y comparar entonces, cosa que en definitiva no puede demorarse mucho.
 
+
+# Graph layer
+Add an extra data layer using Neo4j
 
 

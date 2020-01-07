@@ -10,20 +10,21 @@
 
 from __future__ import absolute_import, print_function
 
-import os 
+import os
 
 from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file
 from flask_menu import register_menu
 from iroko.sources.api import Sources
-from iroko.sources.marshmallow import source_schema_full
-from iroko.sources.models import Source, HarvestType, SourcesType
+from iroko.sources.marshmallow import source_schema_many
+from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
-from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestType
 from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
 import json
 import mistune
+# from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
 
 
 blueprint = Blueprint(
@@ -50,6 +51,7 @@ def get_record_count():
 
 @blueprint.route('/')
 def index():
+    # print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
@@ -61,27 +63,27 @@ def index():
     authors = IrokoAggs.getAggrs("creators.name",50000)
     #print('authors'+str(authors))
     vocab_stats.append({'authors':str(len(authors))})
-    
-    # cuando se vaya a escribir el json es agregarle la opcion w y 
+
+    # TODO: cuando se vaya a escribir el json es agregarle la opcion w y
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
     # texts = {}
     # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
     #     texts = json.load(file)
-    
-    # texts = ''
-    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
-    #      texts = file.read()
-    #      file.close()
-    # markdown = mistune.Markdown()
-    # faqs = markdown(texts)
-    
+
+    texts = ''
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
+         texts = file.read()
+         file.close()
+    markdown = mistune.Markdown()
+    faqs = markdown(texts)
+
     keywords = IrokoAggs.getAggrs("keywords",50000)
-    #print('keywords'+str(keywords))    
+    #print('keywords'+str(keywords))
     vocab_stats.append({'Keywords':str(len(keywords))})
 
     for vocab in vocabularies:
-        vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})  
+        vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
@@ -113,7 +115,7 @@ def faq():
 @blueprint.route('/source/<uuid>')
 def view_source_id(uuid):
     src = Sources.get_source_by_id(uuid=uuid)
-    source = source_schema_full.dump(src)
+    source = source_schema_many.dump(src)
     return render_template('iroko_theme/sources/source.html', source=source.data)
 
 @blueprint.route('/aggr/sources')
@@ -134,7 +136,7 @@ def view_aggr_authors():
 
 @blueprint.route('/page/<slug>')
 def static_page(slug):
-    # 1- load static_pages.json 
+    # 1- load static_pages.json
     # 2- search the slug
     # 3- render appropiate md file (including language....)
 
@@ -142,12 +144,12 @@ def static_page(slug):
     aux_text = ''
     with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json') as file:
         slugs = json.load(file)
-    if slugs:        
+    if slugs:
         with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
-        aux_text = markdown(aux_text)       
+        aux_text = markdown(aux_text)
     return render_template('iroko_theme/static_pages.html', title=slugs[slug][get_locale()]["title"], text=aux_text)
 
 @blueprint.route('/page/images/<image>')

@@ -1,10 +1,11 @@
 from __future__ import absolute_import, print_function
 from flask_wtf import FlaskForm
-from flask_wtf.html5 import URLField, EmailField
+from wtforms.fields.html5 import URLField, EmailField
+#from flask_wtf.html5 import URLField, EmailField
 from flask_babelex import lazy_gettext as _
 from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, BooleanField, validators
 from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput, HTMLString, html_params
-from iroko.sources.models import Source, TermSources, SourcesType, HarvestType
+from iroko.sources.models import Source, TermSources, SourceType, HarvestType
 from iroko.taxonomy.models import Vocabulary, Term
 from invenio_db import db
 from flask import current_app
@@ -30,43 +31,43 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget	= CheckboxInput()
 
 
-class InclusionForm(FlaskForm):    
+class InclusionForm(FlaskForm):
     source = StringField(
-        _('Source name'), 
-        description=_('Name for the journal or repository postulating'), 
+        _('Source name'),
+        description=_('Name for the journal or repository postulating'),
         validators=[validators.DataRequired()]
     )
     homepage_url = URLField(
         _('Homepage Url'),
-        validators=[validators.DataRequired()]     
+        validators=[validators.DataRequired()]
     )
     contact_name = StringField(
-        _('Contact name'), 
-        description=_('Your Full Name'), 
+        _('Contact name'),
+        description=_('Your Full Name'),
         validators=[validators.DataRequired()]
     )
     contact_email = EmailField(
         _('Contact Email'),
-        description=_('Email for contacting and processing'), 
+        description=_('Email for contacting and processing'),
         validators=[validators.DataRequired()]
-    )  
-    requeriments = MultiCheckboxField(
-        _('Inclusion checklist'), 
-        validators=[validators.Required(message=_('Please tick those who you fullfill'))],
     )
-    
+    requeriments = MultiCheckboxField(
+        _('Inclusion checklist'),
+        validators=[validators.DataRequired(message=_('Please tick those who you fullfill'))],
+    )
+
     def __init__(self, *args, **kwargs):
         super(InclusionForm, self).__init__()
-        requeriments = {}      
+        requeriments = {}
         choices = []
         with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+ '/inclusion_requeriments.json') as file:
             requeriments = json.load(file)
             for item in requeriments:
                 choices.append((item, requeriments[item]))
         self.requeriments.choices = choices
-            
-    
-    
-    
-    
+
+
+
+
+
 

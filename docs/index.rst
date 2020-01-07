@@ -6,7 +6,7 @@
 
 
 .. include:: ../README.rst
-
+TODO mejorar la documentacion
 User's Guide
 ------------
 
@@ -16,8 +16,6 @@ iroko.
 .. toctree::
    :maxdepth: 2
 
-   installation
-   configuration
    usage
 
 API Reference

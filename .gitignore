@@ -12,6 +12,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.venv/
 env/
 build/
 develop-eggs/
@@ -72,10 +73,10 @@ data/images
 
 node_modules
 
-data/harvester
+data/
 
 dev_ip.py
 
-Pipfile.lock
+deployment.py
 
-data/sceiba-data
+Pipfile.lock

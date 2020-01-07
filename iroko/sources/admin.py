@@ -26,22 +26,35 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import Source, TermSources
+from .models import Source, TermSources, SourceVersion
 
 class SourcesModelView(ModelView):
     """View for managing vocabularies."""
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'uuid', 'source_type', 'repo_harvest_type', 'repo_harvest_endpoint', 'repo_status')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'source_status')
 
     column_list = list_all
 
     column_default_sort = ('name', True)
 
-    column_filters = ('name', 'source_type', 'repo_harvest_type','repo_status')
+    column_filters = ('name', 'source_type', 'source_status')
 
-    form_columns = ('name', 'source_type', 'repo_harvest_type', 'repo_harvest_endpoint', 'repo_last_harvest_run', 'repo_identifier', 'repo_metadata_formats', 'repo_status', 'repo_error_log')
+    form_columns = ('name', 'source_type', 'source_status')
+
+
+class SourcesVersionModelView(ModelView):
+
+    list_all = ('id', 'user', 'source', 'comment', 'created_at', 'is_current')
+
+    column_list = list_all
+
+    column_default_sort = ('created_at', True)
+
+    column_filters = ('user', 'source', 'comment', 'created_at', 'is_current')
+
+    form_columns = ('user', 'source', 'comment', 'created_at', 'is_current' )
 
 
 class TermSourcesModelView(ModelView):
@@ -65,6 +78,13 @@ sources_adminview = dict(
     modelview=SourcesModelView,
     model=Source,
     name='Sources',
+    category='Iroko'
+)
+
+sources_version_adminview = dict(
+    modelview=SourcesVersionModelView,
+    model=SourceVersion,
+    name='SourcesVersion',
     category='Iroko'
 )
 

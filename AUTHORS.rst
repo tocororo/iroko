@@ -7,4 +7,4 @@
 Authors
 =======
 
-- UPR
+- Universidad de Pinar del Río "Hermanos Saíz Montes de Oca"

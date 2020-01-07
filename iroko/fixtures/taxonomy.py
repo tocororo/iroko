@@ -37,34 +37,45 @@ def init_taxonomy():
     delete_all_vocabs()
 #     tax_path = '../../data/taxonomy.json' .
     path = current_app.config['INIT_TAXONOMY_JSON_PATH']
-    
+
     with open(path) as f:
         tax = json.load(f)
         institutions = Vocabulary()
         institutions.name = 'institutions'
+        institutions.human_name = 'Instituciones Cubanas'
         db.session.add(institutions)
 
         subjects = Vocabulary()
         subjects.name = 'subjects'
+        subjects.human_name = 'Materias'
         db.session.add(subjects)
 
         provinces = Vocabulary()
         provinces.name = 'provinces'
+        provinces.human_name = 'Provincias Cubanas'
         db.session.add(provinces)
-        
+
         data_bases = Vocabulary()
         data_bases.name = 'data_bases'
+        data_bases.human_name = 'Bases de Datos e Indizadores'
         db.session.add(data_bases)
 
         grupo_mes = Vocabulary()
         grupo_mes.name = 'grupo_mes'
+        grupo_mes.human_name = 'Clasificaciones de Bases de Datos e Indizadores'
         db.session.add(grupo_mes)
 
         licences = Vocabulary()
         licences.name = 'licences'
+        licences.human_name = 'Licencias'
         db.session.add(licences)
-        
-        
+
+        miar_types = Vocabulary()
+        miar_types.name = 'miar_types'
+        miar_types.human_name = 'MIAR'
+        db.session.add(miar_types)
+
+
         db.session.commit()
         init_vocabulary(tax, institutions)
         init_vocabulary(tax, subjects)
@@ -72,6 +83,7 @@ def init_taxonomy():
         init_vocabulary(tax, data_bases)
         init_vocabulary(tax, grupo_mes)
         init_vocabulary(tax, licences)
+        init_vocabulary(tax, miar_types)
 
         # db.session.commit()
 
@@ -90,12 +102,12 @@ def init_vocabulary(tax, vocab):
                 nterm.parent_id = parent.id
         db.session.add(nterm)
         db.session.commit()
-            
+
 def delete_all_vocabs():
     s = Vocabulary.query.all()
     for so in s:
         db.session.delete(so)
     db.session.commit()
-    
+
 
 

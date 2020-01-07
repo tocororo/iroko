@@ -20,7 +20,6 @@ def test_task(source):
 def harvest_source(source_id, work_remote=True, request_wait_time=3):
     source = Source.query.filter_by(id=source_id).first()
     for i in [0,1000000]:
-        time.sleep(1)
         print(str(i))
     # harvest_finished.send(source)
     # source = Source.query.filter_by(id=source_id).first()

@@ -93,7 +93,7 @@ msgstr ""
 #: invenio_userprofiles/templates/invenio_userprofiles/settings/profile.html:29
 #: invenio_userprofiles/views.py:101
 msgid "Profile"
-msgstr "Perfil"
+msgstr ""
 
 #. NOTE: Flash message.
 #: invenio_userprofiles/views.py:146

@@ -1,4 +1,6 @@
 
+from time import sleep
+
 import enum
 from iroko.sources.models import Source
 
@@ -15,11 +17,21 @@ class SourceHarvesterMode(enum.Enum):
     REMOTE = "HARVESTED"
 
 
-class SourceHarvester(object):
+class BaseHarvester(object):
+    """Clase base de todos los harvesters
+    puede ser implementado para fuentes primarias y secundarias."""
+
+    def process_pipeline(self):
+        """Procesar el pipeline que define el harvester"""
+        raise NotImplementedError
+
+
+class SourceHarvester(BaseHarvester):
     """An iterator is responsible iterate over the items of a source, the OAI case is the most simple, in other case, is also responsible for discover the iterm before iterate over its"""
 
     def __init__(self, source: Source, work_remote=True, request_wait_time=3):
-
+        self.work_remote = work_remote
+        self.request_wait_time = request_wait_time
         self.source = source
 
     def identity_source(self):
@@ -33,6 +45,13 @@ class SourceHarvester(object):
     def process_items(self):
         """ una vez descubiertos los items aqui se procesan y eventualmente se crea un record"""
         raise NotImplementedError
+
+    def process_pipeline(self):
+        self.identity_source()
+        sleep(self.request_wait_time)
+        self.discover_items()
+        sleep(self.request_wait_time)
+        self.process_items()
 
 
 class Formater(object):
@@ -48,3 +67,5 @@ class Formater(object):
     def ProcessItem(self, item):
         """given an item return a dict given an item"""
         raise NotImplementedError
+
+

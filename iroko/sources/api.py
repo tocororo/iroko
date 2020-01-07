@@ -1,115 +1,22 @@
 
+from typing import Dict
 
 from sqlalchemy import and_, or_, not_
-from iroko.sources.models import Source, TermSources
+from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import sources_schema, sources_schema_full, journal_schema, SourceSchema
+from iroko.sources.marshmallow import source_schema
+from iroko.sources.journals.marshmallow import journal_schema
 from invenio_db import db
+from datetime import datetime
 
-def _no_params(param_data):
-    """aux func"""
-    return param_data['title'] == 'None' and \
-        param_data['description'] == 'None' and \
-        param_data['url'] == 'None' and \
-        param_data['issn'] == 'None' and \
-        param_data['rnps'] == 'None' and \
-        param_data['year_start'] == 'None' and \
-        param_data['year_end'] == 'None' 
+from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 
-def _load_terms_tree(terms):
-    """aux func"""
-    temp_terms = []    
-    for par_term in terms:
-        if str(par_term).isdigit():
-            temp_terms += [par_term]
-            aux = Term.query.filter_by(id=par_term).first()        
-            tchildren = _load_term_children_id(aux)
-            if tchildren:
-                temp_terms += tchildren
-    return set(temp_terms)
-
-def _load_term_children_id(term):
-    """aux func"""
-    if term.children:
-        children = []
-        for child in term.children:
-            children.append(child.id)
-            _load_term_children_id(child)
-        return children
-
-def _filter_data_args(source:Source, data, and_op):
-    """ aux func.
-    esto es ineficiente... pero es lo que hay.. por el momento.. 
-    solo debe usarse para la lista de revistas que no pasa de 300
-    TODO: optimizar..."""
-    
-    if source.data is None:
-        return True
-    if _no_params(data):
-        return True
-
-    title = data['title'].lower() in str(source.name).lower()
-    description = data['description'] in source.data['description'] \
-        if 'description' in source.data else False
-    url = data['url'] in source.data['url'] if 'url' in source.data else False
-
-    issn = False
-    if 'issn' in source.data:
-        issn_p = data['issn'].lower() in source.data['issn']['p'].lower() if 'p' in source.data['issn'] else False
-        issn_e = data['issn'].lower() in source.data['issn']['e'].lower() if 'e' in source.data['issn']else False
-        issn_l = data['issn'].lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn']else False
-        issn = issn_p or issn_e or issn_l
-
-    rnps = data['rnps'].lower() in source.data['rnps'].lower() if 'rnps' in source.data else False
-    year_start = data['year_start'].lower() in source.data['year_start'].lower() if 'year_start' in source.data else False
-    year_end = data['year_end'].lower() in source.data['year_end'].lower() if 'year_end' in source.data else False
-
-    if and_op:
-        return title and description and url and issn and rnps and year_start and year_end
-    else: 
-        return title or description or url or issn or rnps or year_start or year_end
-
-def _filter_repo_args(source:Source, repo_args, and_op):
-    """ aux func.
-    esto es ineficiente...lo mismo que _filter_data_args"""
-
-    harvest_type = source.repo_harvest_type == repo_args['harvest_type']
-    harvest_status = source.repo_status == repo_args['harvest_status']
-    has_harvest_endpoint = source.repo_harvest_endpoint is not None
-
-    if and_op:
-        return harvest_type and harvest_status and harvest_status
-    else: 
-        return harvest_type or harvest_status or harvest_status
-
+from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 
 class Sources:
-    """API for manipulation of Sources"""
-
-
-    @classmethod
-    def get_sources(cls, and_op, terms, data_args, repo_args):
-        """return Source array"""
-
-        result = []
-        all_terms = _load_terms_tree(terms)
-        filter_terms = len(all_terms) > 0
-        if filter_terms:
-            sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
-        else:
-            sources = Source.query.order_by('name').all()
-
-        # TODO: esto se puede hacer mas eficientemente...
-        for item in sources:
-            source = item.source if filter_terms else item
-            in_data = _filter_data_args(source, data_args, and_op)
-            in_repo = _filter_repo_args(source, repo_args, and_op)
-            if and_op and in_data and in_repo:
-                result.append(source)
-            else: 
-                if in_data or in_repo:
-                    result.append(source)
-        return result
+    """API for manipulation of Sources
+    Considering SourceVersion: meanining this class use Source and SourceVersion model.
+    """
 
     @classmethod
     def get_source_by_id(cls, id=None, uuid= None):
@@ -122,4 +29,110 @@ class Sources:
     def count_sources(cls):
         return Source.query.count()
 
+    @classmethod
+    def _check_source_exist(cls, data):
+        """ comprobar que no exista otro Title,ISSN, RNPS o URL igual
+
+            :returns: boolean, Source
+        """
+        # TODO: Replace this function by Pidstore for sources.
+        # esto cambiaria la filosofia un poco, hay que definir diferentes PIDs para los sources, y eso depende del tipo de source, aqui nada mas se estan reflejando los de revistas y lo hace mirando en el data, lo que no es la mejor manera.
+        title = data['title'] if 'title' in data else ''
+        issn = data['issn'] if 'issn' in data else ''
+        rnps = data['rnps'] if 'rnps' in data else ''
+        url = data['url'] if 'url' in data else ''
+
+        source = Source.query.filter_by(name=title).first()
+        if source:
+            return True, source
+
+        result = []
+        sources = Source.query.all()
+
+        for item in sources:
+            if not issn_is_in_data(item.data, issn, True):
+                if not field_is_in_data(item.data, 'rnps', rnps, True):
+                    if field_is_in_data(item.data, 'url', url, True):
+                        return True, item
+                else:
+                    return True, item
+            else:
+                return True, item
+
+        return False, None
+
+    @classmethod
+    def insert_new_source(cls, user, json_data) -> Dict[Dict[bool, str], Source]:
+        """Insert new Source and an associated SourceVersion
+            return [success, message, source]
+        """
+
+        #FIXME
+        user_id = 1
+
+        msg = ''
+
+
+        exist, source = cls._check_source_exist(json_data['data'])
+
+        if exist:
+            msg = 'Source already exist id={0}. Call insert_new_source_version'.format(source.id)
+            return dict(False, msg), None
+        else:
+
+            valid_data, errors = source_schema.load(json_data)
+            if not errors:
+                new_source = Source()
+                new_source.name = valid_data['name']
+                new_source.source_type = valid_data['source_type']
+                new_source.source_status = SourceStatus.TO_REVIEW
+                new_source.data = valid_data['data']
+                # print(new_source)
+                db.session.add(new_source)
+                db.session.commit()
+
+                cls.insert_new_source_version(user, new_source.data, new_source.id, True)
+
+                msg = 'New Source created id={0}'.format(new_source.id)
+                return dict(True, msg), new_source
+            else:
+                msg = str(errors)
+                return dict(False, msg), None
+
+
+
+    @classmethod
+    def insert_new_source_version(cls, user, data, source_uuid, is_current:bool):
+        """Insert new SourceVersion to an existing Source
+        """
+
+        #FIXME
+        user_id = 1
+
+        msg = ''
+
+        source = Source.query.filter_by(uuid=source_uuid).first()
+
+        if not source:
+            msg = 'Source not exist: uuid={0}'
+            return msg, None
+        else:
+            # user_id, source_id, comment, data, created_at, is_current
+            new_source_version = SourceVersion()
+            new_source_version.data = data
+            new_source_version.created_at = datetime.now()
+            new_source_version.is_current = is_current
+            new_source_version.source_id = source.id
+            new_source_version.comment = data["comment"] if "comment" in data else ""
+            new_source_version.user_id = user_id
+
+            if is_current:
+                source.data = data
+                sync_term_source_with_data(source)
+
+            db.session.add(new_source_version)
+            db.session.commit()
+
+            msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
+            return msg, new_source_version
 

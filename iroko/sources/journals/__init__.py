@@ -22,20 +22,4 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Iroko sources.
-Los tipos de fuentes son:
-    JOURNAL = "journal"
-    STUDENT = "student"
-    POPULARIZATION = "popularization"
-    REPOSITORY = "repository"
-    WEBSITE = "website"
-
-En dependencia del tipo de fuente, existen diferentes marshmallows, apis, views, etc..
-
-el api rest por defecto asume el source sin procesar el campo data.
-las apis rest "herederas" lo que hacen es interpretar el campo data.
-por ejemplo, las journals, interpretan el campo data, con los datos especificos de las revistas academicas.
-
-
-
-"""
+"""Source Type, Journal specific operations."""
