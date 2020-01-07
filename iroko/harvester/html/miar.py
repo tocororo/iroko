@@ -114,8 +114,25 @@ class MiarHarvester(BaseHarvester):
         return dictionary_info, dictionary_error
 
     def get_info_journal(self, issn: str):
-        """dado un issn obtener la informacion de esta revista de miar,
-        da toda la informacion presente en el tab de la revista y los icds anuales"""
-
         url = 'http://miar.ub.edu/issn/' + issn
+        sess = requests.Session()
+        sess.headers.update(get_agent())
+        timeout = 30
+        dictionary = {}
+        response = sess.get(url,timeout = timeout)
+        doc1 = html.fromstring(response.text)
+        element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
+        element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
 
+        if len(element_not_found) > 0:
+            return element_not_found[0].text
+
+        for e in element:
+            element1 = e.xpath('.//div//div')
+            if(element1[1].xpath('.//a')):
+                a = element1[1].xpath('.//a')
+                dictionary[element1[0].text_content()] = a[0].text
+            else:
+                dictionary[element1[0].text_content()] = element1[1].text_content().split(sep='\n')[1]
+
+        return dictionary
