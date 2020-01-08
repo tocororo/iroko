@@ -8,15 +8,15 @@ from flask import current_app
 import json
 
 from invenio_db import db
-
+from iroko.deployment import INIT_TAXONOMY_JSON_PATH, INIT_JOURNALS_JSON_PATH, INIT_OAIURL_JSON_PATH
 from ..taxonomy.models import Term
 from ..sources.models import Source, SourceType, TermSources, HarvestType, SourceStatus
 
 def init_journals():
     # sources_path = '../../data/journals.json'
     delete_all_sources()
-    path = current_app.config['INIT_JOURNALS_JSON_PATH']
-    path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
+    path = INIT_JOURNALS_JSON_PATH
+    path_tax = INIT_TAXONOMY_JSON_PAT
     with open(path) as fsource, open(path_tax) as ftax:
         data = json.load(fsource, object_hook=remove_nulls)
         tax = json.load(ftax)
@@ -49,8 +49,8 @@ def init_journals():
 
 
 def init_term_sources():
-    path = current_app.config['INIT_JOURNALS_JSON_PATH']
-    path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
+    path = INIT_JOURNALS_JSON_PATH
+    path_tax = INIT_TAXONOMY_JSON_PATH
     with open(path) as fsource, open(path_tax) as ftax:
         data = json.load(fsource, object_hook=remove_nulls)
         tax = json.load(ftax)
@@ -114,8 +114,8 @@ def remove_nulls(d):
     return {k: v for k, v in d.items() if v is not None}
 
 def add_oaiurls():
-    path = current_app.config['INIT_JOURNALS_JSON_PATH']
-    path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
+    path = INIT_JOURNALS_JSON_PATH
+    path_oai = INIT_OAIURL_JSON_PATH
     with open(path) as fsource, open(path_oai) as foai:
         journals = json.load(fsource, object_hook=remove_nulls)
         urls = json.load(foai)

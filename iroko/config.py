@@ -439,6 +439,5 @@ OAUTHCLIENT_REMOTE_APPS = dict(
         orcid=orcid.REMOTE_APP,
 )
 
-INIT_TAXONOMY_JSON_PATH = os.path.join(basedir, 'data/taxonomy.json')
-INIT_JOURNAL_JSON_PATH = os.path.join(basedir, 'data/journals.json')
-INIT_STATIC_JSON_PATH = os.path.join(os.path.dirname(basedir), 'data/texts')
+
+

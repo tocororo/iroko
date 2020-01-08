@@ -19,6 +19,7 @@ from iroko.sources.marshmallow import source_schema_full
 from iroko.sources.models import Source, HarvestType, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
+from iroko.deployment import INIT_STATIC_JSON_PATH
 from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
@@ -72,7 +73,7 @@ def index():
     #     texts = json.load(file)
 
     texts = ''
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
+    with open(INIT_STATIC_JSON_PATH+'/'+get_locale()+'/faqs.md', 'r') as file:
          texts = file.read()
          file.close()
     markdown = mistune.Markdown()
@@ -142,10 +143,10 @@ def static_page(slug):
 
     slugs = {}
     aux_text = ''
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json') as file:
+    with open(INIT_STATIC_JSON_PATH+ '/static_pages.json') as file:
         slugs = json.load(file)
     if slugs:
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
+        with open(INIT_STATIC_JSON_PATH+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
@@ -154,7 +155,7 @@ def static_page(slug):
 
 @blueprint.route('/page/images/<image>')
 def static_page_image(image):
-    directory = os.path.join(current_app.config['INIT_STATIC_JSON_PATH'],'images')
+    directory = os.path.join(INIT_STATIC_JSON_PATH,'images')
     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     print(directory)
     print(image)

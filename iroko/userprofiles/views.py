@@ -18,10 +18,11 @@ from flask_menu import register_menu
 from flask_security.confirmable import send_confirmation_instructions
 from invenio_db import db
 
-from .api import current_userprofile
+from .api import current_userprofile, current_userprofile_json_metadata
 from .forms import EmailProfileForm, ProfileForm, VerificationForm, \
     confirm_register_form_factory, register_form_factory
 from .models import UserProfile
+from .marshmallow import userprofile_schema, UserProfilesSchema
 
 blueprint = Blueprint(
     'invenio_userprofiles',
@@ -105,18 +106,24 @@ def profile():
 
 def profile_form_factory():
     """Create a profile form."""
-    if current_app.config['USERPROFILES_EMAIL_ENABLED']:
+    if current_app.config['USERPROFILES_EMAIL_ENABLED']:        
         return EmailProfileForm(
             formdata=None,
             username=current_userprofile.username,
-            full_name=current_userprofile.full_name,
+            full_name=current_userprofile.full_name,   
+            biography=current_userprofile_json_metadata.biography if current_userprofile_json_metadata else '',
+            institution=current_userprofile_json_metadata.institution_id if current_userprofile_json_metadata else 0,
             email=current_user.email,
-            email_repeat=current_user.email,
+            email_repeat=current_user.email,            
             prefix='profile', )
     else:
+
         return ProfileForm(
             formdata=None,
-            obj=current_userprofile,
+            username=current_userprofile.username,
+            full_name=current_userprofile.full_name,   
+            biography=current_userprofile_json_metadata.biography if current_userprofile_json_metadata else '',
+            institution=current_userprofile_json_metadata.institution_id if current_userprofile_json_metadata else 0,
             prefix='profile', )
 
 
@@ -133,14 +140,19 @@ def handle_verification_form(form):
 def handle_profile_form(form):
     """Handle profile update form."""
     form.process(formdata=request.form)
-
+    
     if form.validate_on_submit():
+        print('aquiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
+        print(form.institution.data.id)
         email_changed = False
         with db.session.begin_nested():
             # Update profile.
             current_userprofile.username = form.username.data
-            current_userprofile.full_name = form.full_name.data
-            db.session.add(current_userprofile)
+            current_userprofile.full_name = form.full_name.data            
+            userprofile_schema.biography = form.biography.data
+            userprofile_schema.institution_id = form.institution.data.id
+            current_userprofile.json_metadaata = userprofile_schema
+            db.session.add(current_userprofile)            
 
             # Update email
             if current_app.config['USERPROFILES_EMAIL_ENABLED'] and \

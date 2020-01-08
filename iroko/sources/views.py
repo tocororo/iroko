@@ -158,7 +158,7 @@ def source_new_version(id):
     # FIXME: Check if user have permission to do this, if not, just add the version!!!
     is_current = True if "is_current" in input_data else False
 
-    Sources.insert_new_source_version(user, json_data, id, is_current)
+    Sources.insert_new_source_version(user, input_data, id, is_current)
 
     try:
         source_type = SourceType(input_data["type"])

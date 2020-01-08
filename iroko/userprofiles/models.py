@@ -14,8 +14,8 @@ from invenio_accounts.models import User
 from invenio_db import db
 from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
-
 from .validators import validate_username
+from sqlalchemy_utils.types import JSONType
 
 
 class AnonymousUserProfile():
@@ -57,6 +57,9 @@ class UserProfile(db.Model):
 
     full_name = db.Column(db.String(255), nullable=False, default='')
     """Full name of person."""
+
+    json_metadata = db.Column( JSONType )
+    """Store metadata in JSON format."""
 
     @hybrid_property
     def username(self):
