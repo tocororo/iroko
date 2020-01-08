@@ -18,12 +18,7 @@ from iroko.sources.api import Sources
 from iroko.sources.marshmallow import source_schema_many
 from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
-<<<<<<< HEAD
-from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
-from iroko.deployment import INIT_STATIC_JSON_PATH
-=======
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestType
->>>>>>> 3833519628842369d04978d92f43cd24d3229a39
 from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs

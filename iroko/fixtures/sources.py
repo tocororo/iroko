@@ -8,16 +8,10 @@ from flask import current_app
 import json
 
 from invenio_db import db
-<<<<<<< HEAD
-from iroko.deployment import INIT_TAXONOMY_JSON_PATH, INIT_JOURNALS_JSON_PATH, INIT_OAIURL_JSON_PATH
-from ..taxonomy.models import Term
-from ..sources.models import Source, SourceType, TermSources, HarvestType, SourceStatus
-=======
 
 from iroko.taxonomy.models import Term
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus
 from iroko.harvester.models import HarvestType, Repository
->>>>>>> 3833519628842369d04978d92f43cd24d3229a39
 
 def init_journals():
     # sources_path = '../../data/journals.json'
