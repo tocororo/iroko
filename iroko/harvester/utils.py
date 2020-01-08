@@ -86,3 +86,7 @@ def xml_to_dict(tree, paths=None, nsmap=None, strip_ns=False):
                 r'\{.*\}', '', element.tag) if strip_ns else element.tag
             fields[tag].append(element.text)
     return dict(fields)
+
+
+def get_iroko_harvester_agent():
+    return {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}

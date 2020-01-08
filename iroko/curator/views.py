@@ -5,9 +5,9 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import login_required
 from flask_babelex import lazy_gettext as _
-from iroko.sources.models import Source, HarvestType, SourceType
+from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-from iroko.sources.marshmallow import source_schema_many, source_schema_full_many_no_versions, source_schema_full
+from iroko.sources.marshmallow import source_schema_many
 from os import listdir, path
 from .forms import VocabularyForm, TermForm, SourceForm
 from .api import create_vocabulary
@@ -98,15 +98,15 @@ def add_source():
     if form.validate_on_submit():
         new_source = Source()
 
-        if form.name.data:
-            new_source.name = form.name.data
-        if form.source_type.data:
-            new_source.source_type = SourceType[form.source_type.data]
-        if form.repo_harvest_type.data:
-            new_source.repo_harvest_type = HarvestType[form.repo_harvest_type.data]
-        if form.repo_harvest_endpoint.data:
-            new_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data
-        print(form.terms.data)
+        # if form.name.data:
+        #     new_source.name = form.name.data
+        # if form.source_type.data:
+        #     new_source.source_type = SourceType[form.source_type.data]
+        # if form.repo_harvest_type.data:
+        #     new_source.repo_harvest_type = HarvestType[form.repo_harvest_type.data]
+        # if form.repo_harvest_endpoint.data:
+        #     new_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data
+        # print(form.terms.data)
 
         # for term in form.terms.data:
         #     new_source

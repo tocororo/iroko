@@ -11,6 +11,7 @@ import os
 
 from setuptools import find_packages, setup
 
+
 readme = open('README.rst').read()
 
 tests_require = [
@@ -148,19 +149,18 @@ setup(
         'invenio_base.apps': [
             'iroko_records = iroko.records:iroko',
             'iroko_fixtures = iroko.fixtures.ext:IrokoFixtures',
-            'iroko_harvester = iroko.harvester.ext:IrokoHarvester', 
+            'iroko_harvester = iroko.harvester.ext:IrokoHarvester',
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
-            
+
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.iroko_theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
-            'iroko_texts = iroko.texts.views:blueprint',            
-            'iroko_sources = iroko.sources.views:blueprint',
+            'iroko_texts = iroko.texts.views:blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
-            
+
         ],
         'invenio_assets.bundles': [
             'iroko_theme_css = iroko.iroko_theme.bundles:css',
@@ -195,6 +195,8 @@ setup(
             'source_admin = iroko.sources.admin:sources_adminview',
             'source_version_admin = iroko.sources.admin:sources_version_adminview',
             'term_source_admin = iroko.sources.admin:term_sources_adminview',
+            'harvester_repositories_adminview = '
+            'iroko.harvester.admin:harvester_repositories_adminview',
             'harvester_items_adminview = '
             'iroko.harvester.admin:harvester_items_adminview',
             'invenio_userprofiles_view = '
@@ -207,8 +209,8 @@ setup(
             'invenio_userprofiles = iroko.userprofiles.models',
         ],
         'invenio_base.api_blueprints' : [
-            'iroko_taxonomy = iroko.taxonomy.views:api_blueprint',
-            'iroko_sources = iroko.sources.views:api_blueprint',
+            'iroko_taxonomy = iroko.taxonomy.rest:api_blueprint',
+            'iroko_sources = iroko.sources.rest:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_api_init',

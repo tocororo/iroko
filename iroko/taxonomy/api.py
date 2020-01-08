@@ -10,7 +10,7 @@ from marshmallow import ValidationError
 
 
 class Vocabularies:
-    """Manage vocabularies"""
+    '''Manage vocabularies'''
 
     @classmethod
     def get_vocabulary(cls, id) -> Dict[str, Vocabulary]:
@@ -28,15 +28,15 @@ class Vocabularies:
 
         msg, vocab = cls.get_vocabulary(id)
         if vocab:
-            try:
-                valid_data, errors = vocabulary_schema.load(data)
+            valid_data, errors = vocabulary_schema.load(data)
+            if not errors:
                 vocab.human_name = valid_data['human_name']
                 vocab.description = valid_data['description']
                 vocab.data = valid_data['data']
                 db.session.commit()
                 msg = 'New Vocabulary UPDATED name={0}'.format(vocab.name)
-            except ValidationError as err:
-                msg = err.messages
+            else:
+                msg = errors
                 vocab = None
         return msg, vocab
 
@@ -44,8 +44,8 @@ class Vocabularies:
     @classmethod
     def new_vocabulary(cls, data) -> Dict[str, Vocabulary]:
 
-        try:
-            valid_data, errors = vocabulary_schema.load(data)
+        valid_data, errors = vocabulary_schema.load(data)
+        if not errors:
             vocab = Vocabulary.query.filter_by(name=valid_data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
@@ -59,9 +59,9 @@ class Vocabularies:
             else:
                 msg = 'Vocabulary already exist name={0}'.format(vocab.name)
                 vocab = None
-        except ValidationError as err:
-                msg = err.messages
-                vocab = None
+        else:
+            msg = errors
+            vocab = None
         return msg, vocab
 
 
@@ -79,9 +79,9 @@ class Terms:
             return msg, None
 
     @classmethod
-    def edit_term(cls, id ,data) -> Dict[str, Term]:
+    def edit_term(cls, uuid ,data) -> Dict[str, Term]:
 
-        msg, term = cls.get_term(id)
+        msg, term = cls.get_term(uuid)
         if term:
             valid_data, errors = term_schema.load(data)
             if not errors:
@@ -122,6 +122,8 @@ class Terms:
 
     @classmethod
     def _update_term_data(cls, term: Term, data):
+        ''''''
+
         term.vocabulary_id = data['vocabulary_id']
         term.name = data['name']
         term.description = data['description']

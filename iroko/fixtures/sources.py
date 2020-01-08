@@ -8,9 +8,16 @@ from flask import current_app
 import json
 
 from invenio_db import db
+<<<<<<< HEAD
 from iroko.deployment import INIT_TAXONOMY_JSON_PATH, INIT_JOURNALS_JSON_PATH, INIT_OAIURL_JSON_PATH
 from ..taxonomy.models import Term
 from ..sources.models import Source, SourceType, TermSources, HarvestType, SourceStatus
+=======
+
+from iroko.taxonomy.models import Term
+from iroko.sources.models import Source, SourceType, TermSources, SourceStatus
+from iroko.harvester.models import HarvestType, Repository
+>>>>>>> 3833519628842369d04978d92f43cd24d3229a39
 
 def init_journals():
     # sources_path = '../../data/journals.json'
@@ -123,17 +130,22 @@ def add_oaiurls():
             for k, record in journals.items():
                 src = Source.query.filter_by(name=record['title']).first()
                 if src:
-                    src.repo_harvest_type = None
+                    # src.repo_harvest_type = None
                     for url in urls:
                         if url['id'] == k:
                             # print(k)
                             # print(record['id'])
                             print(url['url'])
                             # print(src.data['url'])
-                            src.repo_harvest_endpoint = url['url']
-                            src.repo_harvest_type = HarvestType.OAI
-                            print(src)
-                    db.session.commit()
+                            repo = Repository()
+                            repo.harvest_endpoint = url['url']
+                            repo.harvest_type = HarvestType.OAI
+                            repo.source_id = src.id
+                            db.session.add(repo)
+                            # src.repo_harvest_endpoint = url['url']
+                            # src.repo_harvest_type = HarvestType.OAI
+                            # src.repository = repo
+            db.session.commit()
 
 def add_terms_to_data():
     sources = Source.query.order_by('name').all()

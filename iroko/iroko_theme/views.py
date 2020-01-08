@@ -15,11 +15,15 @@ import os
 from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file
 from flask_menu import register_menu
 from iroko.sources.api import Sources
-from iroko.sources.marshmallow import source_schema_full
-from iroko.sources.models import Source, HarvestType, SourceType
+from iroko.sources.marshmallow import source_schema_many
+from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
+<<<<<<< HEAD
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
 from iroko.deployment import INIT_STATIC_JSON_PATH
+=======
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestType
+>>>>>>> 3833519628842369d04978d92f43cd24d3229a39
 from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
@@ -116,7 +120,7 @@ def faq():
 @blueprint.route('/source/<uuid>')
 def view_source_id(uuid):
     src = Sources.get_source_by_id(uuid=uuid)
-    source = source_schema_full.dump(src)
+    source = source_schema_many.dump(src)
     return render_template('iroko_theme/sources/source.html', source=source.data)
 
 @blueprint.route('/aggr/sources')
