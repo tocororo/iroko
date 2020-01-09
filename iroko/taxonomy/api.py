@@ -190,3 +190,12 @@ class Terms:
         except Exception as e:
             return str(e), False
 
+    @classmethod
+    def get_terms_by_vocabulary_name(cls, vocabulary_name):
+        try:
+            lista = Term.query.filter(Vocabulary.name==vocabulary_name).order_by('name').all()            
+            print(lista[0].id)
+            return lista
+        except Exception as error:
+            return []
+        
