@@ -233,6 +233,6 @@ def dump_term(term):
     children = []
     for child in term.children:
         children.append(dump_term(child))
-    return {'term': term_schema.dump(term).data, 'children':children}
+    return {'term': term_schema.dump(term), 'children':children}
 
 

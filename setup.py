@@ -5,7 +5,7 @@
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
-"""sceiba project, iroko software, invenio repository softwar"""
+"""sceiba project, iroko software, invenio repository software"""
 
 import os
 
@@ -213,7 +213,7 @@ setup(
             'iroko_sources = iroko.sources.rest:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
-            
+
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -232,7 +232,7 @@ setup(
         'invenio_access.actions':[
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',
-            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',            
+            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',
         ]
     },
     # extras_require=extras_require,

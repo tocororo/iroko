@@ -13,7 +13,7 @@ class VocabularySchema(Schema):
     data = fields.Raw(allow_none=True)
 
     @post_load
-    def vocabulary_load(self, item):
+    def vocabulary_load(self, item, **kwargs):
         # TODO: Add here fix to the name (no spaces, not capitals... etc...)
         item['description'] = item['description'] if 'description' in item else ''
         item['data'] = item['data'] if 'data' in item else {}
@@ -38,7 +38,7 @@ class TermSchema(Schema):
     clasified_ids = fields.List(fields.Int())
 
     @pre_load
-    def load_clasification(self, item):
+    def load_clasification(self, item, **kwargs):
         item['description'] = item['description'] if 'description' in item else ''
         item['class_ids'] = item['class_ids'] if 'class_ids' in item else []
         item['clasified_ids'] = item['clasified_ids'] if 'clasified_ids' in item else []
@@ -47,7 +47,7 @@ class TermSchema(Schema):
         return item
 
     @pre_dump
-    def dump_clasification(self, term):
+    def dump_clasification(self, term, **kwargs):
         term.class_ids = []
         for term_class in TermClasification.query.filter_by(term_clasified_id=term.id).all():
             term.class_ids.append(term_class.term_class_id)
@@ -61,6 +61,6 @@ class TermSchema(Schema):
 
 
 term_schema_many = TermSchema(many=True, only=('id', 'uuid', 'name'))
-term_schema = TermSchema()
+term_schema = TermSchema(many=False)
 vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'name', 'human_name', 'description'))
-vocabulary_schema = VocabularySchema()
+vocabulary_schema = VocabularySchema(many=False)
