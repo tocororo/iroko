@@ -72,7 +72,7 @@ def index():
     #     texts = json.load(file)
 
     texts = ''
-    with open(INIT_STATIC_JSON_PATH+'/'+get_locale()+'/faqs.md', 'r') as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
          texts = file.read()
          file.close()
     markdown = mistune.Markdown()
@@ -142,10 +142,10 @@ def static_page(slug):
 
     slugs = {}
     aux_text = ''
-    with open(INIT_STATIC_JSON_PATH+ '/static_pages.json') as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json') as file:
         slugs = json.load(file)
     if slugs:
-        with open(INIT_STATIC_JSON_PATH+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
@@ -154,7 +154,7 @@ def static_page(slug):
 
 @blueprint.route('/page/images/<image>')
 def static_page_image(image):
-    directory = os.path.join(INIT_STATIC_JSON_PATH,'images')
+    directory = os.path.join(current_app.config['INIT_STATIC_JSON_PATH'],'images')
     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     print(directory)
     print(image)

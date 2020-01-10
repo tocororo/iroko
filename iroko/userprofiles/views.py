@@ -30,12 +30,6 @@ blueprint = Blueprint(
     template_folder='templates',
 )
 
-blueprint_api_init = Blueprint(
-    'invenio_userprofiles_api_init',
-    __name__,
-    template_folder='templates',
-)
-
 blueprint_ui_init = Blueprint(
     'invenio_userprofiles_ui_init',
     __name__,
@@ -63,10 +57,7 @@ def init_ui(state):
         blueprint, url_prefix=app.config['USERPROFILES_PROFILE_URL'])
 
 
-@blueprint_api_init.record_once
-def init_api(state):
-    """Post initialization for API application."""
-    init_common(state.app)
+
 
 
 @blueprint.app_template_filter()
