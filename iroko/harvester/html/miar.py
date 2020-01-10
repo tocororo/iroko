@@ -167,7 +167,8 @@ class MiarHarvester(BaseHarvester):
                             time.sleep(sleep_time)
 
 
-    def get_info_journal(self, issn: str):
+    def get_info_journal(issn: str):
+
         url = 'http://miar.ub.edu/issn/' + issn
         sess = requests.Session()
         sess.headers.update(get_agent())
@@ -177,10 +178,12 @@ class MiarHarvester(BaseHarvester):
         doc1 = html.fromstring(response.text)
         element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
         element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
+        element_history = doc1.xpath('.//div[@id="mod_versiones"]//a')
 
         if len(element_not_found) > 0:
             return element_not_found[0].text
 
+        #Info ISSN in actual year
         for e in element:
             element1 = e.xpath('.//div//div')
             if(element1[1].xpath('.//a')):
@@ -189,4 +192,22 @@ class MiarHarvester(BaseHarvester):
             else:
                 dictionary[element1[0].text_content()] = element1[1].text_content().split(sep='\n')[1]
 
+        #Info ISSN in past years
+        for e_h in element_history:
+            element_history1 = e_h.xpath('.//img/@alt')
+            url_history = e_h.get('href')
+            icds_year = element_history1[0]
+            get_info_icds(url_history, dictionary, sess, icds_year)
+            sleep_time = randint(3, 9)
+            time.sleep(sleep_time)
+
         return dictionary
+
+    def get_info_icds(url: str, dictionary:dict, sess:requests.Session, icds_year: str):
+
+        timeout = 30
+        response = sess.get(url,timeout = timeout)
+        doc1 = html.fromstring(response.text)
+        element = doc1.xpath('.//div[@id="sp_icds"]')
+        if len(element) > 0:
+            dictionary[str(icds_year)] = element[0].text
