@@ -1,0 +1,50 @@
+- import_playbook: common.yml
+
+- name: posgre
+  hosts: posgre
+  remote_user: root
+  roles:
+    - role: postgresql
+      vars:
+        postgresql_python_library: python3-psycopg2
+        postgresql_hba_entries:
+          - {type: host, database: iroko, user: iroko, address: ' 0.0.0.0/0', auth_method: md5}
+        postgresql_global_config_options:
+          - option: unix_socket_directories
+            value: '{{ postgresql_unix_socket_directories | join(",") }}'
+          - option: listen_addresses
+            value: '*'
+        postgresql_users:
+          - {name: iroko, password: iroko, priv: ALL, db: iroko}
+        postgresql_databases:
+          - {name: iroko, owner: iroko}
+
+- name: redis
+  hosts: redis
+  remote_user: root
+  roles:
+    - role: redis
+      vars:
+        redis_bind_interface: 0.0.0.0
+
+
+- name: rabbit
+  hosts: rabbit
+  remote_user: root
+  roles:
+    - role: rabbitmq
+      vars:
+        rabbitmq_deb: rabbitmq-server
+        rabbitmq_user: iroko
+        rabbitmq_password: iroko
+
+
+- name: elastic
+  hosts: elastic
+  remote_user: root
+  roles:
+    - java
+    - role: elasticsearch
+      vars:
+        elasticsearch_network_host: 0.0.0.0
+

@@ -10,7 +10,7 @@ import traceback
 
 # from iroko.documents.api import Document
 from iroko.sources.models import Source
-from iroko.harvester.models import HarvestType
+from iroko.harvester.models import HarvestType, HarvestedItemStatus
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
 
@@ -25,7 +25,7 @@ from iroko.harvester.models import HarvestType
 from iroko.harvester.oai.harvester import OaiHarvester
 
 from iroko.harvester.api import PrimarySourceHarvester, SecundarySourceHarvester
-from iroko.harvester.tasks import harvest_source
+from iroko.harvester.tasks import harvest_source_task
 
 from invenio_db import db
 
@@ -84,7 +84,7 @@ def harvestall():
     sources = Source.query.filter_by(repo_harvest_type=HarvestType.OAI).all()
     count = 0
     for source in sources:
-        if source is not None and source.repository.status is None or source.repository.status == RepositoryStatus.ERROR:
+        if source is not None and source.repository.status is None or source.repository.status == HarvestedItemStatus.ERROR:
             print("{0} - {1} : {2} : {3}".format(count, source.id, source.name, source.repository.status))
             count = count + 1
             try:
@@ -101,10 +101,18 @@ def harvestall():
                 print('###########################')
 
 @harvester.command()
-@click.option('-r', '--remoteissns', required=False, type=bool)
-@click.option('-r', '--remoteinfo', required=False, type=bool)
+@click.option('-ri', '--remoteissns', required=False, type=bool)
+@click.option('-rf', '--remoteinfo', required=False, type=bool)
 @click.option('-i', '--info', required=False, type=bool)
 @with_appcontext
 def issn(remoteissns, remoteinfo, info):
     """get all cuban issn from issn.org and create/update respective source versions"""
     SecundarySourceHarvester.process_issn(remoteissns, remoteinfo, info)
+
+
+@harvester.command()
+@click.option('-rc', '--recheck', required=False, type=bool)
+@with_appcontext
+def miar(recheck):
+    """get all info from miar"""
+    SecundarySourceHarvester.harvest_miar(recheck)
