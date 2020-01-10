@@ -1,0 +1,6 @@
+[submodule "roles"]
+	path = ansible/roles
+	url = git@10.2.4.28:ansible-crai-roles
+[submodule "ansible/roles"]
+	path = ansible/roles
+	url = git@10.2.4.28:ansible-crai-roles

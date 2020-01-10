@@ -1,0 +1,23 @@
+
+
+- name: apply common configuration to all nodes
+  hosts: all
+  remote_user: root
+
+  roles:
+    - role: crai-common
+      vars:
+        apt_protocol: http
+        apt_repo: repos.upr.edu.cu
+        apt_so: ubuntu
+        apt_dist: bionic
+        apt_upgrade: false
+        apt_update: true
+        proxy_protocol: http
+        proxy_host: servers-proxy.upr.edu.cu
+        proxy_port: 8080
+        no_proxy: localhost,127.0.0.1,*.upr.edu.cu,repos.upr.edu.cu,10.2.0.0/15
+        set_apt_proxy: false
+        set_proxy: false
+        set_crai_hosts: true
+        crai_hosts_file: files/crai.hosts
