@@ -16,6 +16,10 @@ class IssnHarvester(BaseHarvester):
 
     # TODO: all functions private, except process_pipeline
 
+    def __init__(self, path, load_remote=False):
+        self.path = path
+
+
     def encode_multipart_formdata(self, fields):
 
         boundary = binascii.hexlify(urandom(16)).decode('ascii')
