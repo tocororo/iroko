@@ -13,6 +13,7 @@ import json
 from lxml import etree
 
 from iroko.harvester.html.issn import IssnHarvester
+from iroko.harvester.html.miar import MiarHarvester
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
@@ -48,7 +49,7 @@ class PrimarySourceHarvester(object):
                     source = Source.query.filter_by(repo_harvest_endpoint=baseURL.text).first()
                     if source is not None:
                         shutil.move(repopath, path.join(harvest_dir, str(source.id)))
-                        Harvester.harvest_pipeline(source.id, False)
+                        PrimarySourceHarvester.harvest_pipeline(source.id, False)
 
 
     @staticmethod
@@ -72,14 +73,14 @@ class PrimarySourceHarvester(object):
                 source = Source.query.filter_by(repo_harvest_endpoint=baseURL.text).first()
                 if source is not None:
                     shutil.move(repopath, path.join(harvest_dir, str(source.id)))
-                    Harvester.harvest_pipeline(source.id, False)
+                    PrimarySourceHarvester.harvest_pipeline(source.id, False)
 
 
     @staticmethod
     def process_sources(source_id_list, work_remote=True):
         """ harvest_pipeline por cada source in sources"""
         for source in source_id_list:
-            Harvester.harvest_pipeline(source, work_remote)
+            PrimarySourceHarvester.harvest_pipeline(source, work_remote)
 
 
     @staticmethod
@@ -130,3 +131,14 @@ class SecundarySourceHarvester:
                 with open(file_path, 'r') as file_issn:
                     infos = json.load(file_issn)
             # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario sea issn...
+
+    @staticmethod
+    def harvest_miar(recheck=True):
+        file_path = current_app.config['HARVESTER_DATA_DIRECTORY'] + '/miar.dbs.json'
+        print(file_path)
+        if not recheck:
+            harvester = MiarHarvester(file_path, True)
+        else:
+            harvester = MiarHarvester(file_path, False)
+            harvester.get_info_database_recheck()
+        # crear el vocabulario miar_databases

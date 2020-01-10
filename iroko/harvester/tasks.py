@@ -17,7 +17,7 @@ def test_task(source):
     # iterator.get_all_metadata()
 
 @shared_task
-def harvest_source(source_id, work_remote=True, request_wait_time=3):
+def harvest_source_task(source_id, work_remote=True, request_wait_time=3):
     source = Source.query.filter_by(id=source_id).first()
     for i in [0,1000000]:
         print(str(i))
