@@ -28,7 +28,6 @@ import os
 
 import json
 from flask import current_app
-from iroko.deployment import INIT_TAXONOMY_JSON_PATH
 
 from invenio_db import db
 from ..taxonomy.models import Vocabulary, Term
@@ -37,7 +36,7 @@ def init_taxonomy():
     """Init taxonomy"""
     delete_all_vocabs()
 #     tax_path = '../../data/taxonomy.json' .
-    path = INIT_TAXONOMY_JSON_PATH
+    path = current_app.config['INIT_TAXONOMY_JSON_PATH']
 
     with open(path) as f:
         tax = json.load(f)

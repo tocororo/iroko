@@ -29,7 +29,7 @@ class PrimarySourceHarvester(object):
         2- itera por todos los sources y busca si hay alguna carpeta old que le corresponda,
             esto es, mirando en el identify.xml si el baseURL == source.repository.harvest_endpoint
         3- renombra la carpeta old con el source.id corresponiente
-        4- borra todos los items y records asociados al source que se esta reescaneando
+        4- TODO: borra todos los items y records asociados al source que se esta reescaneando
         4- relanza el proceso completo de harvest usando work_remote=False
         """
         harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']

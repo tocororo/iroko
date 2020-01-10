@@ -27,6 +27,8 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, jsonify, request, json
+from invenio_oauth2server import require_api_auth
+from flask_login import current_user
 
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
@@ -40,8 +42,8 @@ api_blueprint = Blueprint(
     __name__,
 )
 
-
 @api_blueprint.route('/vocabularies')
+@require_api_auth()
 def get_vocabularies():
     """
     List all vocabularies

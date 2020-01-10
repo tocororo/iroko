@@ -15,7 +15,7 @@ vocabulary_editor_permission = Permission(vocabulary_editor_actions)
 
 def grant_vocabulary_editor_permission(user, vocabulary):
     try:        
-        db.session.add(ActionUsers.allow(vocabulary_editor_actions(vocabulary.id, user=user))
+        db.session.add(ActionUsers.allow(vocabulary_editor_actions(vocabulary.id, user=user)))
         db.session.commit()
         return True
     except Exception as e:
@@ -25,7 +25,7 @@ def grant_vocabulary_editor_permission(user, vocabulary):
 
 def deny_vocabulary_editor_permission(user, vocabulary):
     try:
-        db.session.add(ActionUsers.deny(vocabulary_editor_actions(vocabulary.id, user=user))
+        db.session.add(ActionUsers.deny(vocabulary_editor_actions(vocabulary.id, user=user)))
         db.session.commit()
         return True
     except Exception as e:
