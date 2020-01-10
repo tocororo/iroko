@@ -16,13 +16,17 @@ from flask_security.forms import email_required, email_validator, \
     unique_user_email
 from flask_wtf import FlaskForm
 from sqlalchemy.orm.exc import NoResultFound
-from wtforms import FormField, StringField, SubmitField
+from wtforms import FormField, StringField, SubmitField, TextField, TextAreaField, SelectField, validators
 from wtforms.validators import DataRequired, EqualTo, StopValidation, \
     ValidationError
+from flask_admin.form.widgets import Select2Widget
+from iroko.taxonomy.api import Terms
 
 from .api import current_userprofile
 from .models import UserProfile
 from .validators import USERNAME_RULES, validate_username
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from flask_admin.form.widgets import Select2Widget
 
 
 def strip_filter(text):
@@ -56,10 +60,24 @@ class ProfileForm(FlaskForm):
         # NOTE: Form label
         _('Full name'),
         filters=[strip_filter], )
+    
+    biography = TextAreaField(
+        _('Biography'),
+        description=_('Short description of your biography'),
+        validators=[validators.DataRequired()]
+    )
+
+    institution = QuerySelectField(
+        label=_('Institution'),    
+        query_factory=lambda: Terms.get_terms_by_vocabulary_name('institutions'),        
+        widget=Select2Widget(),
+        allow_blank=True,        
+        blank_text=_('Select Institution')        
+    )
 
     def validate_username(form, field):
         """Wrap username validator for WTForms."""
-        try:
+        try:            
             validate_username(field.data)
         except ValueError as e:
             raise ValidationError(e)
@@ -73,6 +91,11 @@ class ProfileForm(FlaskForm):
                 raise ValidationError(_('Username already exists.'))
         except NoResultFound:
             return
+    
+    # def __init__(self, formdata=None, **kwargs):
+    #     super(ProfileForm, self).__init__(formdata, **kwargs)
+    #     self.institution.choices = [(c.id, c.name) for c in Terms.get_terms_by_vocabulary_name('institutions')]
+
 
 
 class EmailProfileForm(ProfileForm):
@@ -109,6 +132,7 @@ class VerificationForm(FlaskForm):
 
     # NOTE: Form button label
     send_verification_email = SubmitField(_('Resend verification email'))
+
 
 
 def register_form_factory(Form):

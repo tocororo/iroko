@@ -212,8 +212,8 @@ setup(
             'iroko_taxonomy = iroko.taxonomy.rest:api_blueprint',
             'iroko_sources = iroko.sources.rest:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint',
-            'invenio_userprofiles'
-            ' = iroko.userprofiles.views:blueprint_api_init',
+            'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
+            
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -229,6 +229,11 @@ setup(
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
         ],
+        'invenio_access.actions':[
+            'source_editor_actions = iroko.sources.permissions:source_editor_actions',
+            'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',
+            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',            
+        ]
     },
     # extras_require=extras_require,
     install_requires=install_requires,

@@ -8,4 +8,4 @@ We collect resources published in Open Access: Scientific articles, Presentation
 It is a computer solution within the Tocororo project, in an effort for scientific communication in Cuba within the National Science, Technology and Innovation Program: Computerization of Society.
 
 
-![Imagen de faqs](images/upr-logo.png)
+<img src="images/upr-logo.png" alt="Imagen de Faqs" style="width:200px;"/>

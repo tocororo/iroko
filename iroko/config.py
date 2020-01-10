@@ -27,6 +27,8 @@ from invenio_oauthclient.contrib import orcid
 
 from iroko.deployment import *
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 def _(x):
     """Identity function used to trigger string extraction."""
     return x
@@ -436,4 +438,6 @@ REST_ENABLE_CORS = True
 OAUTHCLIENT_REMOTE_APPS = dict(
         orcid=orcid.REMOTE_APP,
 )
+
+
 
