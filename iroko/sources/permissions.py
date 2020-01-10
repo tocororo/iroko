@@ -32,7 +32,7 @@ source_gestor_actions = ObjectSourceGestor(None)
 
 def grant_source_editor_permission(user, source):
     try:        
-        db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id, user=user)))
+        db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
         db.session.commit()
         return True
     except Exception as e:
@@ -42,7 +42,7 @@ def grant_source_editor_permission(user, source):
 
 def deny_source_editor_permission(user, source):
     try:
-        db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id, user=user)))
+        db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))
         db.session.commit()
         return True
     except Exception as e:
