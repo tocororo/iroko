@@ -1,13 +1,13 @@
 from typing import Dict
 
 from invenio_db import db
-
+from flask_login import current_user
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.models import TermSources
 from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
 from flask_babelex import lazy_gettext as _
 from marshmallow import ValidationError
-
+from iroko.taxonomy.permissions import grant_vocabulary_editor_permission
 
 class Vocabularies:
     '''Manage vocabularies'''
@@ -55,6 +55,11 @@ class Vocabularies:
                 vocab.data = valid_data['data']
                 db.session.add(vocab)
                 db.session.commit()
+
+                if current_user:
+                   yesss = grant_vocabulary_editor_permission(current_user, vocab)
+                   print(yesss)
+
                 msg = 'New Vocabulary CREATED name={0}'.format(vocab.name)
             else:
                 msg = 'Vocabulary already exist name={0}'.format(vocab.name)
@@ -190,3 +195,12 @@ class Terms:
         except Exception as e:
             return str(e), False
 
+    @classmethod
+    def get_terms_by_vocabulary_name(cls, vocabulary_name):
+        try:
+            lista = Term.query.filter(Vocabulary.name==vocabulary_name).order_by('name').all()            
+            print(lista[0].id)
+            return lista
+        except Exception as error:
+            return []
+        

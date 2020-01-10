@@ -9,8 +9,9 @@
 """Admin views for invenio-userprofiles."""
 
 from __future__ import absolute_import, print_function
-
+import json
 from flask_admin.contrib.sqla import ModelView
+from jinja2 import Markup
 
 from .models import UserProfile
 
@@ -18,6 +19,13 @@ from .models import UserProfile
 def _(x):
     """Identity."""
     return x
+
+
+
+def json_formatter(view, context, model, name):
+    value = getattr(model, name)
+    json_value = json.dumps(value, ensure_ascii=False, indent=2)
+    return Markup('<pre>{}</pre>'.format(json_value))
 
 
 class UserProfileView(ModelView):
@@ -45,9 +53,26 @@ class UserProfileView(ModelView):
         '_displayname': _('Username'),
     }
 
+    column_formatters = {
+        'json_metadata': json_formatter,
+    }
+
 
 user_profile_adminview = {
     'model': UserProfile,
     'modelview': UserProfileView,
     'category': _('User Management'),
 }
+
+
+# class MyView(ModelView)
+#     def _user_formatter(view, context, model, name):
+#         if model.url:
+#            markupstring = "<a href='%s'>%s</a>" % (model.url, model.urltitle)
+#            return Markup(markupstring)
+#         else:
+#            return ""
+
+#     column_formatters = {
+#         'url': _user_formatter
+#     }

@@ -13,8 +13,10 @@ from __future__ import absolute_import, print_function
 from flask import g
 from flask_security import current_user
 from werkzeug.local import LocalProxy
-
+from marshmallow import ValidationError
 from .models import AnonymousUserProfile, UserProfile
+from .marshmallow import userprofile_schema
+
 
 
 def _get_current_userprofile():
@@ -38,5 +40,18 @@ def _get_current_userprofile():
         g.userprofile = profile
     return profile
 
+
+def _get_current_userprofile_json_metadata():
+    if current_userprofile.json_metadata:
+        try:
+            data = userprofile_schema.loads(current_userprofile.json_metadata)
+        except ValidationError as err:
+            pass
+    
+    return None
+
+
 current_userprofile = LocalProxy(lambda: _get_current_userprofile())
 """Proxy to the user profile of the currently logged in user."""
+
+current_userprofile_json_metadata = LocalProxy(lambda: _get_current_userprofile_json_metadata())
