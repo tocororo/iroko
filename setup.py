@@ -232,7 +232,7 @@ setup(
         'invenio_access.actions':[
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',
-            'vocabulary_editor_actions = iroko.sources.permissions:vocabulary_editor_actions',            
+            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',            
         ]
     },
     # extras_require=extras_require,

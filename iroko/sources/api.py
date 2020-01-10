@@ -10,7 +10,7 @@ from invenio_db import db
 from datetime import datetime
 
 from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
-from iroko.sources.permissions import grant_source_editor_permission
+# from iroko.sources.permissions import grant_source_editor_permission
 
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 
@@ -92,8 +92,8 @@ class Sources:
                 db.session.add(new_source)
                 db.session.commit()
 
-                if current_user:
-                    grant_source_editor_permission(current_user, source)
+                # if current_user:
+                #     grant_source_editor_permission(current_user, source)
 
                 cls.insert_new_source_version(user, new_source.data, new_source.id, True)
 

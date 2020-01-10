@@ -7,15 +7,19 @@ from invenio_access.utils import get_identity
 
 
 #creando action
-vocabulary_editor_actions = action_factory('vocabulary_editor_actions', parameter=True)
+ObjectVocabularyEditor = action_factory('vocabulary_editor_actions', parameter=True)
+vocabulary_editor_actions = ObjectVocabularyEditor(None)
 
-#creando permiso, que requiere varias acciones, por ahora solo la anterior
-vocabulary_editor_permission = Permission(vocabulary_editor_actions)
+
+
+#creando permiso, que requiere varias acciones, por ahora solo
+#  la anterior
+# vocabulary_editor_permission = Permission(vocabulary_editor_actions)
 
 
 def grant_vocabulary_editor_permission(user, vocabulary):
     try:        
-        db.session.add(ActionUsers.allow(vocabulary_editor_actions(vocabulary.id, user=user))
+        db.session.add(ActionUsers.allow(ObjectVocabularyEditor(vocabulary.id, user=user)))
         db.session.commit()
         return True
     except Exception as e:
@@ -25,7 +29,7 @@ def grant_vocabulary_editor_permission(user, vocabulary):
 
 def deny_vocabulary_editor_permission(user, vocabulary):
     try:
-        db.session.add(ActionUsers.deny(vocabulary_editor_actions(vocabulary.id, user=user))
+        db.session.add(ActionUsers.deny(ObjectVocabularyEditor(vocabulary.id, user=user)))
         db.session.commit()
         return True
     except Exception as e:
@@ -36,7 +40,7 @@ def deny_vocabulary_editor_permission(user, vocabulary):
 def check_user_vocabulary_editor_permission(user, vocabulary):
     try:
         user_identity = get_identity(user)
-        permission = Permission(vocabulary_editor_actions(vocabulary.id))
+        permission = Permission(ObjectVocabularyEditor(vocabulary.id))
         return permission.allows(user_identity)
     except Exception as e:
         print(str(e))

@@ -7,12 +7,15 @@ from invenio_access.utils import get_identity
 
 
 #creando action
-source_editor_actions = action_factory('source_editor_actions', parameter=True)
-source_gestor_actions = action_factory('source_gestor_actions', parameter=True)
+ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
+source_editor_actions = ObjectSourceEditor(None)
+
+ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
+source_gestor_actions = ObjectSourceGestor(None)
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior
-source_editor_permission = Permission(source_editor_actions)
-source_gestor_permission = Permission(source_gestor_actions)
+# source_editor_permission = Permission(source_editor_actions)
+# source_gestor_permission = Permission(source_gestor_actions)
 
 
 #concediendo acceso a un usuario, puede ser por rol
@@ -29,7 +32,7 @@ source_gestor_permission = Permission(source_gestor_actions)
 
 def grant_source_editor_permission(user, source):
     try:        
-        db.session.add(ActionUsers.allow(source_editor_actions(source.id), user=user))
+        db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id, user=user)))
         db.session.commit()
         return True
     except Exception as e:
@@ -39,7 +42,7 @@ def grant_source_editor_permission(user, source):
 
 def deny_source_editor_permission(user, source):
     try:
-        db.session.add(ActionUsers.deny(source_editor_actions(source.id), user=user))
+        db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id, user=user)))
         db.session.commit()
         return True
     except Exception as e:
@@ -50,7 +53,7 @@ def deny_source_editor_permission(user, source):
 def check_user_source_editor_permission(user, source):
     try:
         user_identity = get_identity(user)
-        permission = Permission(source_editor_actions(source.id))
+        permission = Permission(ObjectSourceEditor(source.id))
         return permission.allows(user_identity)
     except Exception as e:
         print(str(e))
