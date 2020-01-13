@@ -126,10 +126,12 @@ class Vocabularies:
         return msg, done
 
     @classmethod
-    def check_user_vocabulary_editor_permission(user, vocabulary)-> Dict[str, bool]:
+    def check_user_vocabulary_editor_permission(user_id, vocabulary_id)-> Dict[str, bool]:
         done = False
         msg = ''
         try:
+            vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+            user = User.query.filter_by(id=user_id)
             user_identity = get_identity(user)
             permission = Permission(ObjectVocabularyEditor(vocabulary.id))
             done = permission.allows(user_identity)
