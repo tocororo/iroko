@@ -4,7 +4,7 @@ echo container_name?
 
 read container_name
 
-lxc launch bionicbase $container_name
+lxc launch bionic-base $container_name
 
 public_key=id_rsa.pub
 
