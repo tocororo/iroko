@@ -8,6 +8,10 @@ from iroko.sources.marshmallow import source_schema
 from iroko.sources.journals.marshmallow import journal_schema
 from invenio_db import db
 from datetime import datetime
+from invenio_access import Permission
+from invenio_access.models import ActionRoles, ActionUsers
+from invenio_accounts.models import User
+from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor
 
 from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 # from iroko.sources.permissions import grant_source_editor_permission
@@ -139,4 +143,32 @@ class Sources:
 
             msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
             return msg, new_source_version
+
+    @classmethod
+    def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:  
+            source = Source.query.filter_by(id=source_id).first()
+            user = User.query.filter_by(id=user_id)
+            if not source:
+                msg = 'source not found'
+            elif not user:
+                msg = 'User not found'
+            else:
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
+                if not source.data:
+                    source.data = {'editor':[user.id]}
+                else:                    
+                    source.data['editor'].append(user.id)
+                    
+                db.session.commit()
+                msg = 'Editor Permission granted over {0}'.format(source.name)
+                done = True
+            
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
 
