@@ -8,7 +8,6 @@ from iroko.sources.models import TermSources
 from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
 from flask_babelex import lazy_gettext as _
 from marshmallow import ValidationError
-from iroko.taxonomy.permissions import grant_vocabulary_editor_permission
 from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
