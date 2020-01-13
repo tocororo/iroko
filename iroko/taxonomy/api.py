@@ -1,6 +1,7 @@
 from typing import Dict
 
 from invenio_db import db
+from invenio_access.utils import get_identity 
 from flask_login import current_user
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.models import TermSources
@@ -8,6 +9,11 @@ from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema
 from flask_babelex import lazy_gettext as _
 from marshmallow import ValidationError
 from iroko.taxonomy.permissions import grant_vocabulary_editor_permission
+from invenio_access import Permission
+from invenio_access.models import ActionRoles, ActionUsers
+from invenio_accounts.models import User
+from iroko.taxonomy.permissions import ObjectVocabularyEditor
+
 
 class Vocabularies:
     '''Manage vocabularies'''
@@ -55,11 +61,7 @@ class Vocabularies:
                 vocab.data = valid_data['data']
                 db.session.add(vocab)
                 db.session.commit()
-
-                if current_user:
-                   yesss = grant_vocabulary_editor_permission(current_user, vocab)
-                   print(yesss)
-
+                
                 msg = 'New Vocabulary CREATED name={0}'.format(vocab.name)
             else:
                 msg = 'Vocabulary already exist name={0}'.format(vocab.name)
@@ -69,6 +71,74 @@ class Vocabularies:
             vocab = None
         return msg, vocab
 
+    @classmethod
+    def grant_vocabulary_editor_permission(cls, user_id, vocabulary_id) -> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:  
+            vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+            user = User.query.filter_by(id=user_id)
+            if not vocabulary:
+                msg = 'Vocabulary not found'
+            elif not user:
+                msg = 'User not found'
+            else:
+                db.session.add(ActionUsers.allow(ObjectVocabularyEditor(vocabulary.id), user=user))
+                if not vocabulary.data:
+                    vocabulary.data = {'owner':[user.id]}
+                else:                    
+                    vocabulary.data['owner'].append(user.id)
+                    
+                db.session.commit()
+                msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
+                done = True
+            
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
+
+    @classmethod
+    def deny_vocabulary_editor_permission(user_id, vocabulary_id) -> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:
+            vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+            user = User.query.filter_by(id=user_id)
+            if not vocabulary:
+                msg = 'Vocabulary not found'
+            elif not user:
+                msg = 'User not found'
+            else:  
+                db.session.add(ActionUsers.deny(ObjectVocabularyEditor(vocabulary.id), user=user))
+                if vocabulary.data and 'owner' in vocabulary.data.keys():
+                    owners = vocabulary.data['owner']
+                    del(owners[user.id])
+                    vocabulary.data['owner'] = owners
+                
+                db.session.commit()
+                msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
+                done = True
+            
+        except Exception as e:
+            print(str(e))
+            
+        return msg, done
+
+    @classmethod
+    def check_user_vocabulary_editor_permission(user, vocabulary)-> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:
+            user_identity = get_identity(user)
+            permission = Permission(ObjectVocabularyEditor(vocabulary.id))
+            done = permission.allows(user_identity)
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
 
 class Terms:
     """Manage Terms"""
