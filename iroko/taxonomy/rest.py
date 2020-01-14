@@ -35,7 +35,10 @@ from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema
 
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
-from iroko.taxonomy.api import Vocabularies, Terms
+from iroko.taxonomy.api import Vocabularies, Terms, get_current_user_permissions
+from iroko.taxonomy.permissions import vocabulary_editor_permission_factory
+from iroko.decorators import taxonomy_admin_required
+
 
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
@@ -43,7 +46,7 @@ api_blueprint = Blueprint(
 )
 
 @api_blueprint.route('/vocabularies')
-@require_api_auth()
+# @require_api_auth()
 def get_vocabularies():
     """
     List all vocabularies
@@ -71,24 +74,31 @@ def vocabulary_get(id):
 
 #TODO: Need authentication
 @api_blueprint.route('/vocabulary/<id>/edit', methods=['POST'])
+@taxonomy_admin_required
 def vocabulary_edit(id):
+    msg = ''
+    try:
+            
+        if not request.is_json:
+            return {"message": "No JSON data provided"}, 400
+        input_data = request.json
 
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
+        msg, vocab = Vocabularies.edit_vocabulary(id, input_data)
+        if vocab:
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'vocabulary', \
+                            vocabulary_schema.dump(vocab))
 
-    msg, vocab = Vocabularies.edit_vocabulary(id, input_data)
-    if vocab:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'vocabulary', \
-                        vocabulary_schema.dump(vocab))
+    except Exception as e:
+        msg = str(e)
+
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 #TODO: Need authentication
 @api_blueprint.route('/vocabulary/new', methods=['POST'])
+@require_api_auth()
+@taxonomy_admin_required
 def vocabulary_new():
 
     # FIXME: get the user is trying to perform this action!!!!
@@ -168,16 +178,24 @@ def get_terms_tree(vocabulary):
 @api_blueprint.route('/term/<id>/edit', methods=['POST'])
 def term_edit(id):
 
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
-    msg, term = Terms.edit_term(id, input_data)
-    if term:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'term', \
-                        term_schema.dump(term).data)
+    msg = ''
+    try:
+        msg, term = Terms.get_term(id)
+   
+        if term:
+            with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
+                # user = current_user
+                if not request.is_json:
+                    return {"message": "No JSON data provided"}, 400
+                input_data = request.json
+                msg, term = Terms.edit_term(id, input_data)
+                if term:
+                    return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                    msg,'term', \
+                                    term_schema.dump(term).data)
+    except Exception as e:
+        msg = str(e)
+
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
@@ -221,6 +239,25 @@ def term_delete(uuid):
         msg, deleted = Terms.delete_term(uuid)
         if deleted:
             return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+@api_blueprint.route('/taxonomy/user/permissions')
+
+def taxonomy_current_user_permissions():
+    msg = ''
+    try:
+        actions, vocabs  = get_current_user_permissions()
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, 
+            msg,
+            'permissions', 
+            {actions:vocabs}
+            )
+        
     except Exception as e:
         msg = str(e)
 

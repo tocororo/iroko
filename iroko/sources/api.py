@@ -12,6 +12,7 @@ from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor
+from invenio_access.utils import get_identity 
 
 from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 # from iroko.sources.permissions import grant_source_editor_permission
@@ -94,6 +95,12 @@ class Sources:
                 new_source.data = valid_data['data']
                 # print(new_source)
                 db.session.add(new_source)
+
+                #transactions are taking place but, however, are not written to disk yet...
+                #so we can use new_source.id for granting editor permission
+                db.session.flush()
+                cls.grant_source_editor_permission(current_user.id, new_source.id)
+                
                 db.session.commit()
 
                 # if current_user:
@@ -144,31 +151,95 @@ class Sources:
             msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
             return msg, new_source_version
 
-    # @classmethod
-    # def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
-    #     done = False
-    #     msg = ''
-    #     try:  
-    #         source = Source.query.filter_by(id=source_id).first()
-    #         user = User.query.filter_by(id=user_id)
-    #         if not source:
-    #             msg = 'source not found'
-    #         elif not user:
-    #             msg = 'User not found'
-    #         else:
-    #             db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
-    #             if not source.data:
-    #                 source.data = {'editor':[user.id]}
-    #             else:                    
-    #                 source.data['editor'].append(user.id)
+    @classmethod
+    def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:  
+            source = Source.query.filter_by(id=source_id).first()
+            user = User.query.filter_by(id=user_id)
+            if not source:
+                msg = 'source not found'
+            elif not user:
+                msg = 'User not found'
+            else:
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
+                if not source.data:
+                    source.data = {'editor':[user.id]}
+                else:                    
+                    source.data['editor'].append(user.id)
                     
-    #             db.session.commit()
-    #             msg = 'Editor Permission granted over {0}'.format(source.name)
-    #             done = True
+                db.session.commit()
+                msg = 'Source Editor Permission granted over {0}'.format(source.name)
+                done = True
             
-    #     except Exception as e:
-    #         msg = str(e)
-    #         print(str(e))
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
         
-    #     return msg, done
+        return msg, done
+    
+    @classmethod
+    def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:  
+            source = Source.query.filter_by(id=source_id).first()
+            user = User.query.filter_by(id=user_id)
+            if not source:
+                msg = 'source not found'
+            elif not user:
+                msg = 'User not found'
+            else:
+                db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))
+                if not source.data:
+                    source.data = {'editor':[user.id]}
+                else:                    
+                    source.data['editor'].append(user.id)
+                    
+                db.session.commit()
+                msg = 'Source Editor Permission granted over {0}'.format(source.name)
+                done = True
+            
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
+    
+    @classmethod
+    def check_user_source_editor_permission(user_id, vocabulary_id)-> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:
+            if is_current_user_source_admin():
+                done = True
+            else:
+                source = Source.query.filter_by(id=vocabulary_id).first()
+                user = User.query.filter_by(id=user_id)
+                user_identity = get_identity(user)
+                permission = Permission(ObjectSourceEditor(source.id))
+                done = permission.allows(user_identity)
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
 
+
+
+# def is_current_user_source_admin():
+#     its = False
+#     try:
+#         admin = ActionUsers.query.filter_by(
+#             user=current_user, 
+#             exclude=False,
+#             action='source_full_editor_actions').first() 
+
+#         if admin:
+#             its = True
+
+#     except Exception as e:        
+#         print(str(e))
+    
+#     return its
