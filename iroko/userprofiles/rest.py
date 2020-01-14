@@ -50,4 +50,7 @@ def init_api(state):
 def get_user_info():
     return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok', 'userprofile', \
-                            { 'email': current_user.email, 'id': current_user.id })
+                            { 
+                                'email': current_user.email, 
+                                'id': current_user.id 
+                            })
