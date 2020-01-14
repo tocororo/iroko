@@ -83,11 +83,6 @@ class Vocabularies:
                 msg = 'User not found'
             else:
                 db.session.add(ActionUsers.allow(ObjectVocabularyEditor(vocabulary.id), user=user))
-                if not vocabulary.data:
-                    vocabulary.data = {'editor':[user.id]}
-                else:                    
-                    vocabulary.data['editor'].append(user.id)
-                    
                 db.session.commit()
                 msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
                 done = True
@@ -111,11 +106,6 @@ class Vocabularies:
                 msg = 'User not found'
             else:  
                 db.session.add(ActionUsers.deny(ObjectVocabularyEditor(vocabulary.id), user=user))
-                if vocabulary.data and 'editor' in vocabulary.data.keys():
-                    editors = vocabulary.data['editor']
-                    del(editors[user.id])
-                    vocabulary.data['editor'] = editors
-                
                 db.session.commit()
                 msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
                 done = True
