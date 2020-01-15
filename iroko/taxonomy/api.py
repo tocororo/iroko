@@ -18,6 +18,10 @@ class Vocabularies:
     '''Manage vocabularies'''
 
     @classmethod
+    def get_vocabularies(cls):
+        return Vocabulary.query.all()
+
+    @classmethod
     def get_vocabulary(cls, id) -> Dict[str, Vocabulary]:
 
         vocab = Vocabulary.query.filter_by(id=id).first()
@@ -44,10 +48,11 @@ class Vocabularies:
                 msg = errors
                 vocab = None
         return msg, vocab
-
-
+   
     @classmethod
-    def new_vocabulary(cls, data) -> Dict[str, Vocabulary]:
+    def new_vocabulary(cls, input_data) -> Dict[str, Vocabulary]:
+        
+        data = vocabulary_schema.load(input_data)
 
         if data:
             vocab = Vocabulary.query.filter_by(name=data['name']).first()
@@ -68,6 +73,8 @@ class Vocabularies:
             msg = 'not data'
             vocab = None
         return msg, vocab
+
+        
 
     @classmethod
     def grant_vocabulary_editor_permission(cls, user_id, vocabulary_id) -> Dict[str, bool]:
@@ -136,7 +143,37 @@ class Vocabularies:
 class Terms:
     """Manage Terms"""
 
+    @classmethod
+    def get_terms(cls):
+        return Term.query.all()   
+    
+    @classmethod
+    def get_first_level_terms_by_vocabulary(cls, vocabulary_id)-> Dict[str, Term]:
 
+        msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
+        if not vocab:
+            raise Exception(msg)            
+        terms = vocab.terms.filter_by(parent_id=None).all()
+
+        return 'ok', terms
+
+    @classmethod
+    def get_terms_tree_by_vocabulary(cls, vocabulary_id)-> [str, Vocabulary, list]:
+
+        msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
+        if not vocab:
+            raise Exception(msg)
+        
+        msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
+        if not terms:
+            raise Exception(msg)
+
+        terms_full = []
+        for term in terms:
+            terms_full.append(Terms.dump_term(term))
+        
+        return 'ok', vocab, terms_full
+        
     @classmethod
     def get_term(cls, uuid) -> Dict[str, Term]:
         term = Term.query.filter_by(uuid=uuid).first()
@@ -147,7 +184,7 @@ class Terms:
             return msg, None
     
     @classmethod
-    def get_term(cls, id) -> Dict[str, Term]:
+    def get_term_by_id(cls, id) -> Dict[str, Term]:
         term = Term.query.filter_by(id=id).first()
         if term:
             return 'ok', term
@@ -156,8 +193,9 @@ class Terms:
             return msg, None
 
     @classmethod
-    def edit_term(cls, uuid ,data) -> Dict[str, Term]:
+    def edit_term(cls, uuid, input_data) -> Dict[str, Term]:
 
+        data = term_schema.load(input_data)
         msg, term = cls.get_term(uuid)
         if term:
             
@@ -275,6 +313,14 @@ class Terms:
             return lista
         except Exception as error:
             return []
+    
+    @classmethod
+    def dump_term(cls, term):
+        """ helper function to load terms children"""
+        children = []
+        for child in term.children:
+            children.append(Terms.dump_term(child))
+        return {'term': term_schema.dump(term), 'children':children}
 
 
 def is_current_user_taxonomy_admin():

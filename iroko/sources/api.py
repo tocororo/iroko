@@ -220,6 +220,7 @@ class Sources:
             #     user_identity = get_identity(user)
             #     permission = Permission(ObjectSourceEditor(source.id))
             #     done = permission.allows(user_identity)
+            pass
         except Exception as e:
             msg = str(e)
             print(str(e))
