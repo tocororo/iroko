@@ -11,6 +11,9 @@ from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources
 from invenio_i18n.selectors import get_locale
+from invenio_oauth2server import require_api_auth
+from iroko.decorators import source_admin_required
+from iroko.sources.permissions import source_editor_permission_factory, source_gestor_permission_factory, source_admin_permission_factory
 
 
 
@@ -25,39 +28,52 @@ api_blueprint = Blueprint(
 def get_sources_count():
     """return sources count"""
 
-    result = Sources.count_sources()
-    return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
+    try:
+        result = Sources.count_sources()
+        if not result:
+            raise Exception('Sources not found')
+        
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
+        
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)    
 
 
 @api_blueprint.route('/<uuid>')
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
+    try: 
+        source = Sources.get_source_by_id(uuid=uuid)
+        if not source:
+            raise Exception('Source not found')
 
-    source = Sources.get_source_by_id(uuid=uuid)
-    if source:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': source_schema.dump(source), 'count': 1})
-    return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, None)
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
 
 
-#TODO: Need authentication
 @api_blueprint.route('/new', methods=['POST'])
+@require_api_auth()
 def source_new():
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
 
-    # FIXME: get current user!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
+        input_data = request.json
 
-    msg, source = Sources.insert_new_source(user, input_data)
+        msg, source = Sources.insert_new_source(input_data)
+        if not source:
+            raise Exception(msg)
 
-    if source:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': source_schema.dump(source), 'count': 1})
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+                            
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
 
 
 
@@ -67,45 +83,41 @@ def source_new():
     # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
     # Aqui no se trata la parte que tiene en ver con repo!!!!
 
-
-
-#TODO: Need authentication
 @api_blueprint.route('/<uuid>/new-version', methods=['POST'])
+@require_api_auth()
 def source_new_version(uuid):
 
     # inserta un nuevo sourceVersion de un source que ya existe
     # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
-    # FIXME: get current user!!!!
-    user = None
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
 
-    if not request.is_json:
-        return {"message": "No input data provided"}, 400
+        input_data = request.json
 
-    input_data = request.json
+        with source_admin_permission_factory({'uuid': uuid}).require():
+            is_current = True if "is_current" in input_data else False
 
-    # FIXME: Check if user have permission to do this, if not, just add the version!!!
-    is_current = True if "is_current" in input_data else False
+            msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
+            if not source or not source_version:                
+                raise Exception('Not source for changing found')
 
-    msg, source_version = Sources.insert_new_source_version(user, json_data, uuid, is_current)
-    if source_version:
-        source = Source.query.filter_by(uuid=source_uuid).first()
-        if source:
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': source_schema.dump(source), 'count': 1})
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
 
 
-
-
-#TODO: Necesita autenticacion.
-@api_blueprint.route('/<id>/current', methods=['GET', 'POST'])
-def source_version_set_current(id):
-
+@api_blueprint.route('/<uuid>/current', methods=['GET', 'POST'])
+@require_api_auth()
+def source_version_set_current(uuid):
     # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
     # comprobar que el usuario tiene el role para hacer esto.
-
-    src = Sources.get_source_by_id(id=id)
-
-
+    try:
+        with source_gestor_permission_factory({'uuid': uuid}).require():
+            src = Sources.get_source_by_id(uuid=uuid)
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
