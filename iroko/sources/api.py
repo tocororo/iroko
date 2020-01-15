@@ -212,14 +212,14 @@ class Sources:
         done = False
         msg = ''
         try:
-            if is_current_user_source_admin():
-                done = True
-            else:
-                source = Source.query.filter_by(id=vocabulary_id).first()
-                user = User.query.filter_by(id=user_id)
-                user_identity = get_identity(user)
-                permission = Permission(ObjectSourceEditor(source.id))
-                done = permission.allows(user_identity)
+            # if is_current_user_source_admin():
+            #     done = True
+            # else:
+            #     source = Source.query.filter_by(id=vocabulary_id).first()
+            #     user = User.query.filter_by(id=user_id)
+            #     user_identity = get_identity(user)
+            #     permission = Permission(ObjectSourceEditor(source.id))
+            #     done = permission.allows(user_identity)
         except Exception as e:
             msg = str(e)
             print(str(e))
