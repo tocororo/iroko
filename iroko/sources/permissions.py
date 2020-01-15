@@ -1,9 +1,45 @@
+from __future__ import absolute_import, print_function
+
 from invenio_access import action_factory
 from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
 from invenio_access.utils import get_identity 
+
+from functools import partial
+from flask_principal import ActionNeed
+from invenio_access.permissions import ParameterizedActionNeed
+from flask_login import current_user
+
+
+
+def iroko_action_factory(name, parameter=False):
+    """Factory method for creating new actions (w/wo parameters).
+
+    :param name: Name of the action (prefix with your module name).
+    :param parameter: Determines if action should take parameters or not.
+        Default is ``False``.
+    """
+    if parameter:
+        return partial(ParameterizedActionNeed, name)
+    else:
+        return ActionNeed(name)
+
+
+def is_current_user_source_admin():
+    its = False
+    try:
+        from sqlalchemy import or_
+        admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
+
+        if admin:
+            its = True
+
+    except Exception as e:        
+        print(str(e))
+    
+    return its
 
 
 #creando action
@@ -18,6 +54,8 @@ source_gestor_actions = ObjectSourceGestor(None)
 
 
 
+
+
 def source_editor_permission_factory(obj):
     return Permission(ObjectSourceEditor(obj['uuid']))
 
@@ -26,6 +64,8 @@ def source_gestor_permission_factory(obj):
     return Permission(ObjectSourceGestor(obj['uuid']))
 
 def source_admin_permission_factory(obj):
+    if current_user and is_current_user_source_admin():
+        return True
     return Permission(ObjectSourceGestor(obj['uuid'])) or Permission(ObjectSourceEditor(obj['uuid']))
 
 

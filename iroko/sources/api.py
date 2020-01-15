@@ -228,16 +228,3 @@ class Sources:
 
 
 
-def is_current_user_source_admin():
-    its = False
-    try:
-        from sqlalchemy import or_
-        admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
-
-        if admin:
-            its = True
-
-    except Exception as e:        
-        print(str(e))
-    
-    return its
