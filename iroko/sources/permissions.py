@@ -19,12 +19,14 @@ source_gestor_actions = ObjectSourceGestor(None)
 
 
 def source_editor_permission_factory(obj):
-    return Permission(ObjectSourceEditor(obj['id']))
+    return Permission(ObjectSourceEditor(obj['uuid']))
 
 
 def source_gestor_permission_factory(obj):
-    return Permission(ObjectSourceGestor(obj['id']))
+    return Permission(ObjectSourceGestor(obj['uuid']))
 
+def source_admin_permission_factory(obj):
+    return Permission(ObjectSourceGestor(obj['uuid'])) or Permission(ObjectSourceEditor(obj['uuid']))
 
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior

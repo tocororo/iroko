@@ -52,7 +52,6 @@ def get_vocabularies():
     """
     List all vocabularies
     """
-    msg = ''
     try:
         result = Vocabularies.get_vocabularies()
         if not result:
@@ -61,8 +60,7 @@ def get_vocabularies():
         return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','vocabularies', vocabulary_schema_many.dump(result))
         
     except Exception as e:
-        msg = str(e)    
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/vocabulary/<id>', methods=['GET'])
@@ -83,6 +81,7 @@ def vocabulary_get(id):
 
 
 @api_blueprint.route('/vocabulary/<id>/edit', methods=['POST'])
+@require_api_auth()
 @taxonomy_admin_required
 def vocabulary_edit(id):
     msg = ''
@@ -249,6 +248,7 @@ def term_get(uuid):
 
 #TODO: Need authentication
 @api_blueprint.route('/term/<uuid>/delete', methods=['DELETE'])
+@require_api_auth()
 def term_delete(uuid):
     try:
         msg, term = Terms.get_term(uuid)
@@ -262,7 +262,7 @@ def term_delete(uuid):
 
 
 @api_blueprint.route('/taxonomy/user/permissions')
-
+@require_api_auth()
 def taxonomy_current_user_permissions():
     msg = ''
     try:

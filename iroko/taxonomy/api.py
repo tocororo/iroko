@@ -14,6 +14,8 @@ from invenio_accounts.models import User
 from iroko.taxonomy.permissions import ObjectVocabularyEditor
 
 
+#TODO: Revisar lanzamientos de excepciones
+
 class Vocabularies:
     '''Manage vocabularies'''
 
