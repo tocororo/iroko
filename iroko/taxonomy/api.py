@@ -49,15 +49,14 @@ class Vocabularies:
     @classmethod
     def new_vocabulary(cls, data) -> Dict[str, Vocabulary]:
 
-        valid_data, errors = vocabulary_schema.load(data)
-        if not errors:
-            vocab = Vocabulary.query.filter_by(name=valid_data['name']).first()
+        if data:
+            vocab = Vocabulary.query.filter_by(name=data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
-                vocab.name = valid_data['name']
-                vocab.human_name = valid_data['human_name']
-                vocab.description = valid_data['description']
-                vocab.data = valid_data['data']
+                vocab.name = data['name']
+                vocab.human_name = data['human_name']
+                vocab.description = data['description']
+                vocab.data = data['data']
                 db.session.add(vocab)
                 db.session.commit()
                 
@@ -66,7 +65,7 @@ class Vocabularies:
                 msg = 'Vocabulary already exist name={0}'.format(vocab.name)
                 vocab = None
         else:
-            msg = errors
+            msg = 'not data'
             vocab = None
         return msg, vocab
 
@@ -83,13 +82,8 @@ class Vocabularies:
                 msg = 'User not found'
             else:
                 db.session.add(ActionUsers.allow(ObjectVocabularyEditor(vocabulary.id), user=user))
-                if not vocabulary.data:
-                    vocabulary.data = {'editor':[user.id]}
-                else:                    
-                    vocabulary.data['editor'].append(user.id)
-                    
                 db.session.commit()
-                msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
+                msg = 'Vocabulary Editor Permission granted over {0}'.format(vocabulary.name)
                 done = True
             
         except Exception as e:
@@ -111,11 +105,6 @@ class Vocabularies:
                 msg = 'User not found'
             else:  
                 db.session.add(ActionUsers.deny(ObjectVocabularyEditor(vocabulary.id), user=user))
-                if vocabulary.data and 'editor' in vocabulary.data.keys():
-                    editors = vocabulary.data['editor']
-                    del(editors[user.id])
-                    vocabulary.data['editor'] = editors
-                
                 db.session.commit()
                 msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
                 done = True
@@ -130,11 +119,14 @@ class Vocabularies:
         done = False
         msg = ''
         try:
-            vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
-            user = User.query.filter_by(id=user_id)
-            user_identity = get_identity(user)
-            permission = Permission(ObjectVocabularyEditor(vocabulary.id))
-            done = permission.allows(user_identity)
+            if is_current_user_taxonomy_admin():
+                done= True
+            else:
+                vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+                user = User.query.filter_by(id=user_id)
+                user_identity = get_identity(user)
+                permission = Permission(ObjectVocabularyEditor(vocabulary.id))
+                done = permission.allows(user_identity)
         except Exception as e:
             msg = str(e)
             print(str(e))
@@ -153,21 +145,30 @@ class Terms:
         else:
             msg = 'Term not exist uuid={0}'.format(uuid)
             return msg, None
+    
+    @classmethod
+    def get_term(cls, id) -> Dict[str, Term]:
+        term = Term.query.filter_by(id=id).first()
+        if term:
+            return 'ok', term
+        else:
+            msg = 'Term not exist id={0}'.format(id)
+            return msg, None
 
     @classmethod
     def edit_term(cls, uuid ,data) -> Dict[str, Term]:
 
         msg, term = cls.get_term(uuid)
         if term:
-            valid_data, errors = term_schema.load(data)
-            if not errors:
-                cls._update_term_data(term, valid_data)
+            
+            if data:
+                cls._update_term_data(term, data)
                 db.session.commit()
-                cls._update_term_clasification(term, valid_data)
+                cls._update_term_clasification(term, data)
                 db.session.commit()
                 msg = 'New Term UPDATED name={0}'.format(term.name)
             else:
-                msg = str(errors)
+                msg = 'not data'
                 term = None
         return msg, term
 
@@ -269,9 +270,53 @@ class Terms:
     @classmethod
     def get_terms_by_vocabulary_name(cls, vocabulary_name):
         try:
-            lista = Term.query.filter(Vocabulary.name==vocabulary_name).order_by('name').all()            
+            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name)
             print(lista[0].id)
             return lista
         except Exception as error:
             return []
+
+
+def is_current_user_taxonomy_admin():
+
+    its = False
+    try:
+        print('user')
+        print(current_user)
+        admin = ActionUsers.query.filter_by(
+            user=current_user, 
+            exclude=False,
+            action='taxonomy_full_editor_actions').first()         
+
+        if admin:
+            its = True
+
+    except Exception as e:        
+        print(str(e))
+    
+    return its
+
+
+def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
+    """
+    Checks from ActionUsers if current_user has taxonomy_full_editor_actions,
+    that way it has full permissions over vocabularies and terms
+    if not, then:
+        checks if it has vocabulary_editor_actions, 
+        then collect the ids of the vocabularies it has permission on
+    """
+    vocabularies_ids = []
+    if is_current_user_taxonomy_admin():
+        return 'actions', {'taxonomy_full_editor_actions': None}
+    else:
+        actions = ActionUsers.query.filter_by(
+            user=current_user, 
+            exclude=False,
+            action='vocabulary_editor_actions').all()  
         
+        for action in actions:
+            vocabularies_ids.append(action.argument)
+        
+    return 'actions', {'vocabulary_editor_actions': vocabularies_ids}
+            
+    
