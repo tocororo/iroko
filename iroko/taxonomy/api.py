@@ -49,15 +49,14 @@ class Vocabularies:
     @classmethod
     def new_vocabulary(cls, data) -> Dict[str, Vocabulary]:
 
-        valid_data, errors = vocabulary_schema.load(data)
-        if not errors:
-            vocab = Vocabulary.query.filter_by(name=valid_data['name']).first()
+        if data:
+            vocab = Vocabulary.query.filter_by(name=data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
-                vocab.name = valid_data['name']
-                vocab.human_name = valid_data['human_name']
-                vocab.description = valid_data['description']
-                vocab.data = valid_data['data']
+                vocab.name = data['name']
+                vocab.human_name = data['human_name']
+                vocab.description = data['description']
+                vocab.data = data['data']
                 db.session.add(vocab)
                 db.session.commit()
                 
@@ -66,7 +65,7 @@ class Vocabularies:
                 msg = 'Vocabulary already exist name={0}'.format(vocab.name)
                 vocab = None
         else:
-            msg = errors
+            msg = 'not data'
             vocab = None
         return msg, vocab
 
@@ -161,15 +160,15 @@ class Terms:
 
         msg, term = cls.get_term(uuid)
         if term:
-            valid_data, errors = term_schema.load(data)
-            if not errors:
-                cls._update_term_data(term, valid_data)
+            
+            if data:
+                cls._update_term_data(term, data)
                 db.session.commit()
-                cls._update_term_clasification(term, valid_data)
+                cls._update_term_clasification(term, data)
                 db.session.commit()
                 msg = 'New Term UPDATED name={0}'.format(term.name)
             else:
-                msg = str(errors)
+                msg = 'not data'
                 term = None
         return msg, term
 
