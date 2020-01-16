@@ -8,7 +8,7 @@ from iroko.utils import iroko_json_response, IrokoResponseStatus
 from iroko.sources.marshmallow import source_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
-from iroko.sources.api import Sources, get_current_user_source_permissions
+from iroko.sources.api import Sources, get_current_user_source_permissions, get_user_ids_source_gestor
 from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
@@ -154,6 +154,63 @@ def sources_current_user_permissions():
             msg,
             'permissions',
             {actions:vocabs}
+            )
+
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+@api_blueprint.route('/gestor/<uuid>')
+# @require_api_auth()
+def get_source_gestor(uuid):
+    
+    try:
+        msg, user_ids  = get_user_ids_source_gestor(uuid)
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            msg,
+            'users',
+            user_ids
+            )
+
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+@api_blueprint.route('/editor/sources')
+# @require_api_auth()
+def get_sources_from_editor():
+    
+    try:
+        msg, sources  = Sources.get_sources_from_editor_current_user()
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            msg,
+            'sources',
+            sources
+            )
+
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+@api_blueprint.route('/gestor/sources')
+# @require_api_auth()
+def get_sources_from_gestor():
+    
+    try:
+        msg, sources  = Sources.get_sources_from_gestor_current_user()
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            msg,
+            'sources',
+            sources
             )
 
     except Exception as e:

@@ -17,11 +17,19 @@ from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 # from iroko.sources.permissions import grant_source_editor_permission
 from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
+from iroko.taxonomy.api import Terms
+
+
 
 class Sources:
     """API for manipulation of Sources
     Considering SourceVersion: meanining this class use Source and SourceVersion model.
     """
+
+    @classmethod
+    def get_sources_id_list(cls):
+        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
+        return list(map(lambda x: int(x.id), db.session.query(Source.id).all()))
 
     @classmethod
     def get_source_by_id(cls, id=None, uuid= None):        
@@ -174,30 +182,7 @@ class Sources:
         return msg, done
     
     @classmethod
-    def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
-        done = False
-        msg = ''
-        try:  
-            source = Source.query.filter_by(id=source_id).first()
-            user = User.query.filter_by(id=user_id)
-            if not source:
-                msg = 'source not found'
-            elif not user:
-                msg = 'User not found'
-            else:
-                db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))                                  
-                db.session.commit()
-                msg = 'Source Editor Permission granted over {0}'.format(source.name)
-                done = True
-            
-        except Exception as e:
-            msg = str(e)
-            print(str(e))
-        
-        return msg, done
-    
-    @classmethod
-    def check_user_source_editor_permission(user_id, vocabulary_id)-> Dict[str, bool]:
+    def check_user_source_editor_permission(cls, user_id, vocabulary_id)-> Dict[str, bool]:
         done = False
         msg = ''
         try:
@@ -220,7 +205,42 @@ class Sources:
         
         return msg, done
 
+    @classmethod
+    def get_sources_from_editor_current_user(cls)-> Dict[str, list]:
+        
+        sources = get_arguments_for_source_from_action(current_user, 'source_editor_actions')
+        if sources:
+            return 'ok', sources
+        
+        return 'none', []
+    
+    @classmethod
+    def get_sources_from_gestor_current_user(cls)-> Dict[str, list]:
+        
+        if is_current_user_source_admin():
+            return 'ok', Sources.get_sources_id_list()
+        
+        sources_directly = get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
+       
+        sources_by_term = []
+        terms_ids = get_arguments_for_source_from_action(current_user, 'source_term_gestor_actions')
+        if terms_ids:
+            all_terms = _load_terms_tree(terms_ids)
+            sources_by_term = list(map(lambda x: int(x.id), db.session.query(Source.id).join(TermSources).filter(TermSources.term_id.in_(all_terms)).all()))
 
+        sources = []
+        if sources_directly:
+            sources.append(sources_directly)
+        if sources_by_term:
+            sources.append(sources_by_term)
+        
+        if sources:
+            return 'ok', sources
+        
+        return 'none', []
+        
+
+        
 
 def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     """
@@ -273,3 +293,68 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     
     return 'actions', {'source_gestor_actions':sources_gestor_ids, 'source_editor_actions': sources_editor_ids}
 
+
+
+def get_user_ids_source_gestor(uuid) -> Dict[str, list]:
+    #TODO validate uuid
+    gestors = get_userids_for_source_from_action('source_gestor_actions', uuid)
+    if gestors:
+        return 'ok', gestors
+    
+    source = Sources.get_source_by_id(uuid=uuid)
+    
+    for term_source in source.terms:
+        
+        term_gestors = get_userids_for_source_from_action('source_term_gestor_actions', term_source.term_id)
+        
+        if term_gestors:
+            return 'ok', term_gestors
+        
+        msg, aux = Terms.get_term_by_id(term_source.term_id)
+        
+        while aux.parent_id:
+            print('parent')
+            print(aux.parent_id)
+            msg, aux = Terms.get_term_by_id(aux.parent_id)
+            term_gestors = get_userids_for_source_from_action('source_term_gestor_actions', aux.id)
+            if term_gestors:
+                return 'ok', term_gestors
+    
+    #para obtener al full_gestor por si no hay alguien mas
+    admins = get_userids_for_source_from_action('source_full_gestor_actions')
+    if admins:
+        return 'ok', admins
+
+    return 'error', []
+    
+
+
+def get_userids_for_source_from_action(paction, p_argument=None):
+    user_ids = None
+    actions = ActionUsers.query.filter_by(
+        argument=str(p_argument),
+        exclude=False,
+        action=paction).all()
+    
+    if actions:
+        user_ids = []
+        for action in actions:
+            user_ids.append(action.user.id)
+    
+    return user_ids
+
+
+def get_arguments_for_source_from_action(puser, paction):
+    arguments = None
+    actions = ActionUsers.query.filter_by(
+        user=puser,
+        exclude=False,
+        action=paction).all()
+    
+    if actions:
+        arguments = []
+        for action in actions:
+            if action.argument:
+                arguments.append(action.argument)
+    
+    return arguments
