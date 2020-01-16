@@ -236,8 +236,9 @@ setup(
         'invenio_access.actions':[
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',            
-            'source_full_gestor_actions = iroko.sources.permissions:source_full_gestor_actions',             
-            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',
+            'source_full_gestor_actions = iroko.sources.permissions:source_full_gestor_actions',
+            'source_term_gestor_actions = iroko.sources.permissions:source_term_gestor_actions',
+            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',            
             'taxonomy_full_editor_actions = iroko.taxonomy.permissions:taxonomy_full_editor_actions',
             'notification_admin_actions = iroko.notifications.permissions:notification_admin_actions',
         ]

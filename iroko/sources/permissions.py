@@ -57,7 +57,7 @@ ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
 source_gestor_actions = ObjectSourceGestor(None)
 
 ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
-source_term_gestor_actions = ObjectSourceGestor(None)
+source_term_gestor_actions = ObjectSourceTermGestor(None)
 
 
 
@@ -75,11 +75,11 @@ def source_term_gestor_permission_factory(obj):
         return True
     aux = obj['terms']
     terms = aux.split(',')
-    permiso = PermissionDenied()
+    permiso = PermissionDenied(ObjectSourceGestor(None))
 
     for term_id in terms:
         try:
-            permiso = Permission(ObjectSourceGestor(term_id))
+            permiso = Permission(ObjectSourceTermGestor(term_id))
         except Exception as e:
             raise e
     return permiso
