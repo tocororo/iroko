@@ -1,16 +1,14 @@
 
 [posgre]
-10.172.228.105
+10.154.178.122
 
 [redis]
-10.172.228.105
+10.154.178.73
 
 [rabbit]
-10.172.228.105
+10.154.178.10
 
-[elastic]
-10.172.228.105
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
-db_postges_ip=10.172.228.105
+
