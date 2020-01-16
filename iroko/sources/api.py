@@ -11,12 +11,11 @@ from datetime import datetime
 from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
-from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor
+from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor, is_current_user_source_admin
 from invenio_access.utils import get_identity 
-
 from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 # from iroko.sources.permissions import grant_source_editor_permission
-
+from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 
 class Sources:
@@ -25,10 +24,11 @@ class Sources:
     """
 
     @classmethod
-    def get_source_by_id(cls, id=None, uuid= None):
+    def get_source_by_id(cls, id=None, uuid= None):        
         if id is not None:
             return Source.query.filter_by(id=id).first()
         if uuid is not None:
+            #uuid = UUIDType(uuid)
             return Source.query.filter_by(uuid=uuid).first()
 
     @classmethod
@@ -162,12 +162,7 @@ class Sources:
             elif not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
-                if not source.data:
-                    source.data = {'editor':[user.id]}
-                else:                    
-                    source.data['editor'].append(user.id)
-                    
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))                     
                 db.session.commit()
                 msg = 'Source Editor Permission granted over {0}'.format(source.name)
                 done = True
@@ -190,12 +185,7 @@ class Sources:
             elif not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))
-                if not source.data:
-                    source.data = {'editor':[user.id]}
-                else:                    
-                    source.data['editor'].append(user.id)
-                    
+                db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))                                  
                 db.session.commit()
                 msg = 'Source Editor Permission granted over {0}'.format(source.name)
                 done = True
@@ -211,14 +201,18 @@ class Sources:
         done = False
         msg = ''
         try:
-            # if is_current_user_source_admin():
-            #     done = True
-            # else:
-            #     source = Source.query.filter_by(id=vocabulary_id).first()
-            #     user = User.query.filter_by(id=user_id)
-            #     user_identity = get_identity(user)
-            #     permission = Permission(ObjectSourceEditor(source.id))
-            #     done = permission.allows(user_identity)
+            if is_current_user_source_admin():
+                done = True
+            else:
+                source = Source.query.filter_by(id=vocabulary_id).first()
+                user = User.query.filter_by(id=user_id)
+                user_identity = get_identity(user)
+
+                permission = Permission(ObjectSourceGestor(source.id))
+                done = permission.allows(user_identity)
+                if not done:
+                    permission = Permission(ObjectSourceEditor(source.id))
+                    done = permission.allows(user_identity)
             pass
         except Exception as e:
             msg = str(e)

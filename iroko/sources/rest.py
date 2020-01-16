@@ -14,7 +14,7 @@ from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
 from flask_principal import PermissionDenied
-from iroko.sources.permissions import source_editor_permission_factory, source_gestor_permission_factory, source_admin_permission_factory
+from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, source_gestor_permission_factory
 
 
 
@@ -95,8 +95,19 @@ def source_new_version(uuid):
             raise Exception("No JSON data provided")
 
         input_data = request.json
+        
+        source = Sources.get_source_by_id(uuid=uuid)
 
-        with source_admin_permission_factory({'uuid': uuid}).require():
+        if not source:
+            raise Exception('Not source found')
+        
+        terms = ''
+        for term in source.terms:
+            terms = terms + str(term.id) + ','
+        if terms:
+            terms = terms[1,-1]
+
+        with source_term_gestor_permission_factory({'terms': terms}).require():
             is_current = True if "is_current" in input_data else False
 
             msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)

@@ -31,7 +31,11 @@ def is_current_user_source_admin():
     its = False
     try:
         from sqlalchemy import or_
-        admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
+        #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
+        admin = db.session.query(ActionUsers).filter_by(
+            user_id=current_user.id, 
+            exclude=False,
+            action='source_full_gestor_actions').first() 
 
         if admin:
             its = True
@@ -52,6 +56,8 @@ source_editor_actions = ObjectSourceEditor(None)
 ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
 source_gestor_actions = ObjectSourceGestor(None)
 
+ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
+source_term_gestor_actions = ObjectSourceGestor(None)
 
 
 
@@ -63,10 +69,25 @@ def source_editor_permission_factory(obj):
 def source_gestor_permission_factory(obj):
     return Permission(ObjectSourceGestor(obj['uuid']))
 
-def source_admin_permission_factory(obj):
+
+def source_term_gestor_permission_factory(obj):
     if current_user and is_current_user_source_admin():
         return True
-    return Permission(ObjectSourceGestor(obj['uuid'])) or Permission(ObjectSourceEditor(obj['uuid']))
+    aux = obj['terms']
+    terms = aux.split(',')
+    permiso = None
+
+    for term in terms:
+        permiso = ActionUsers.query.filter_by(
+            user_id=current_user.id,
+            exclude=False,
+            action='source_term_gestor_actions'            
+        ).filter(ActionUsers.argument.contains(term)).first()
+        
+    return permiso
+         
+
+    
 
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior
