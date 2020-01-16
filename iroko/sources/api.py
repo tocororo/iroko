@@ -11,11 +11,11 @@ from datetime import datetime
 from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
-from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor
-
+from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor, is_current_user_source_admin
+from invenio_access.utils import get_identity 
 from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
 # from iroko.sources.permissions import grant_source_editor_permission
-
+from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 
 class Sources:
@@ -24,10 +24,11 @@ class Sources:
     """
 
     @classmethod
-    def get_source_by_id(cls, id=None, uuid= None):
+    def get_source_by_id(cls, id=None, uuid= None):        
         if id is not None:
             return Source.query.filter_by(id=id).first()
         if uuid is not None:
+            #uuid = UUIDType(uuid)
             return Source.query.filter_by(uuid=uuid).first()
 
     @classmethod
@@ -67,16 +68,16 @@ class Sources:
         return False, None
 
     @classmethod
-    def insert_new_source(cls, user, json_data) -> Dict[Dict[bool, str], Source]:
+    def insert_new_source(cls, json_data) -> Dict[Dict[bool, str], Source]:
         """Insert new Source and an associated SourceVersion
             return [success, message, source]
         """
 
         #FIXME
-        user_id = 1
-
+        
         msg = ''
-
+        if not current_user:
+            raise Exception('Must be authenticated')
 
         exist, source = cls._check_source_exist(json_data['data'])
 
@@ -94,12 +95,18 @@ class Sources:
                 new_source.data = valid_data['data']
                 # print(new_source)
                 db.session.add(new_source)
+
+                #transactions are taking place but, however, are not written to disk yet...
+                #so we can use new_source.id for granting editor permission
+                db.session.flush()
+                cls.grant_source_editor_permission(current_user.id, new_source.id)
+                
                 db.session.commit()
 
                 # if current_user:
                 #     grant_source_editor_permission(current_user, source)
 
-                cls.insert_new_source_version(user, new_source.data, new_source.id, True)
+                cls.insert_new_source_version(new_source.data, new_source.id, True)
 
                 msg = 'New Source created id={0}'.format(new_source.id)
                 return dict(True, msg), new_source
@@ -110,39 +117,38 @@ class Sources:
 
 
     @classmethod
-    def insert_new_source_version(cls, user, data, source_uuid, is_current:bool):
+    def insert_new_source_version(cls, data, source_uuid, is_current:bool) -> [str, Source, SourceVersion]:
         """Insert new SourceVersion to an existing Source
         """
 
         #FIXME
-        user_id = 1
-
         msg = ''
+        if not current_user:
+            raise Exception('Must be authenticated')
 
         source = Source.query.filter_by(uuid=source_uuid).first()
 
         if not source:
-            msg = 'Source not exist: uuid={0}'
-            return msg, None
-        else:
-            # user_id, source_id, comment, data, created_at, is_current
-            new_source_version = SourceVersion()
-            new_source_version.data = data
-            new_source_version.created_at = datetime.now()
-            new_source_version.is_current = is_current
-            new_source_version.source_id = source.id
-            new_source_version.comment = data["comment"] if "comment" in data else ""
-            new_source_version.user_id = user_id
+            raise Exception('Source not exist: uuid={0}')            
+        
+        # user_id, source_id, comment, data, created_at, is_current
+        new_source_version = SourceVersion()
+        new_source_version.data = data
+        new_source_version.created_at = datetime.now()
+        new_source_version.is_current = is_current
+        new_source_version.source_id = source.id
+        new_source_version.comment = data["comment"] if "comment" in data else ""            
+        new_source_version.user_id = current_user.id
 
-            if is_current:
-                source.data = data
-                sync_term_source_with_data(source)
+        if is_current:
+            source.data = data
+            sync_term_source_with_data(source)
 
-            db.session.add(new_source_version)
-            db.session.commit()
+        db.session.add(new_source_version)
+        db.session.commit()
 
-            msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
-            return msg, new_source_version
+        msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
+        return msg, source, new_source_version
 
     @classmethod
     def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
@@ -156,14 +162,9 @@ class Sources:
             elif not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
-                if not source.data:
-                    source.data = {'editor':[user.id]}
-                else:                    
-                    source.data['editor'].append(user.id)
-                    
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))                     
                 db.session.commit()
-                msg = 'Editor Permission granted over {0}'.format(source.name)
+                msg = 'Source Editor Permission granted over {0}'.format(source.name)
                 done = True
             
         except Exception as e:
@@ -171,4 +172,53 @@ class Sources:
             print(str(e))
         
         return msg, done
+    
+    @classmethod
+    def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:  
+            source = Source.query.filter_by(id=source_id).first()
+            user = User.query.filter_by(id=user_id)
+            if not source:
+                msg = 'source not found'
+            elif not user:
+                msg = 'User not found'
+            else:
+                db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))                                  
+                db.session.commit()
+                msg = 'Source Editor Permission granted over {0}'.format(source.name)
+                done = True
+            
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
+    
+    @classmethod
+    def check_user_source_editor_permission(user_id, vocabulary_id)-> Dict[str, bool]:
+        done = False
+        msg = ''
+        try:
+            if is_current_user_source_admin():
+                done = True
+            else:
+                source = Source.query.filter_by(id=vocabulary_id).first()
+                user = User.query.filter_by(id=user_id)
+                user_identity = get_identity(user)
+
+                permission = Permission(ObjectSourceGestor(source.id))
+                done = permission.allows(user_identity)
+                if not done:
+                    permission = Permission(ObjectSourceEditor(source.id))
+                    done = permission.allows(user_identity)
+            pass
+        except Exception as e:
+            msg = str(e)
+            print(str(e))
+        
+        return msg, done
+
+
 

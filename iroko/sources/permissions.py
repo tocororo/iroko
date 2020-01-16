@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 from invenio_access import action_factory
 from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
@@ -5,13 +7,88 @@ from invenio_accounts.models import User
 from invenio_db import db
 from invenio_access.utils import get_identity 
 
+from functools import partial
+from flask_principal import ActionNeed
+from invenio_access.permissions import ParameterizedActionNeed
+from flask_login import current_user
+
+
+
+def iroko_action_factory(name, parameter=False):
+    """Factory method for creating new actions (w/wo parameters).
+
+    :param name: Name of the action (prefix with your module name).
+    :param parameter: Determines if action should take parameters or not.
+        Default is ``False``.
+    """
+    if parameter:
+        return partial(ParameterizedActionNeed, name)
+    else:
+        return ActionNeed(name)
+
+
+def is_current_user_source_admin():
+    its = False
+    try:
+        from sqlalchemy import or_
+        #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
+        admin = db.session.query(ActionUsers).filter_by(
+            user_id=current_user.id, 
+            exclude=False,
+            action='source_full_gestor_actions').first() 
+
+        if admin:
+            its = True
+
+    except Exception as e:        
+        print(str(e))
+    
+    return its
+
 
 #creando action
+source_full_editor_actions = action_factory('source_full_editor_actions')
+source_full_gestor_actions = action_factory('source_full_gestor_actions')
+
 ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
 source_editor_actions = ObjectSourceEditor(None)
 
 ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
 source_gestor_actions = ObjectSourceGestor(None)
+
+ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
+source_term_gestor_actions = ObjectSourceGestor(None)
+
+
+
+
+def source_editor_permission_factory(obj):
+    return Permission(ObjectSourceEditor(obj['uuid']))
+
+
+def source_gestor_permission_factory(obj):
+    return Permission(ObjectSourceGestor(obj['uuid']))
+
+
+def source_term_gestor_permission_factory(obj):
+    if current_user and is_current_user_source_admin():
+        return True
+    aux = obj['terms']
+    terms = aux.split(',')
+    permiso = None
+
+    for term in terms:
+        permiso = ActionUsers.query.filter_by(
+            user_id=current_user.id,
+            exclude=False,
+            action='source_term_gestor_actions'            
+        ).filter(ActionUsers.argument.contains(term)).first()
+        
+    return permiso
+         
+
+    
+
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior
 # source_editor_permission = Permission(source_editor_actions)
@@ -30,31 +107,3 @@ source_gestor_actions = ObjectSourceGestor(None)
 # permission.allows(eduardo_identity) #Tambie puede ser eduardo_identity.can(permission)
 
 
-def grant_source_editor_permission(user, source):
-    try:        
-        db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))
-        db.session.commit()
-        return True
-    except Exception as e:
-        print(str(e))
-        return False
-
-
-def deny_source_editor_permission(user, source):
-    try:
-        db.session.add(ActionUsers.deny(ObjectSourceEditor(source.id), user=user))
-        db.session.commit()
-        return True
-    except Exception as e:
-        print(str(e))
-        return False
-
-
-def check_user_source_editor_permission(user, source):
-    try:
-        user_identity = get_identity(user)
-        permission = Permission(ObjectSourceEditor(source.id))
-        return permission.allows(user_identity)
-    except Exception as e:
-        print(str(e))
-        return False

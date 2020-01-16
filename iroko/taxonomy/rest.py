@@ -27,212 +27,259 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, jsonify, request, json
-from invenio_oauth2server import require_api_auth
 from flask_login import current_user
+from flask_principal import PermissionDenied
+
+from invenio_oauth2server import require_api_auth
 
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
 
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
-from iroko.taxonomy.api import Vocabularies, Terms
+from iroko.taxonomy.api import Vocabularies, Terms, get_current_user_permissions
+from iroko.taxonomy.permissions import vocabulary_editor_permission_factory
+from iroko.decorators import taxonomy_admin_required
+
 
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
     __name__,
+    url_prefix='/taxonomy'
 )
 
-@api_blueprint.route('/vocabularies')
-@require_api_auth()
+@api_blueprint.route('/vocabulary/list')
 def get_vocabularies():
     """
     List all vocabularies
     """
-    result = Vocabulary.query.all()
-    if result:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','vocabularies', \
-                            vocabulary_schema_many.dump(result))
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'vocabularies not found', None, None)
+    try:
+        result = Vocabularies.get_vocabularies()
+        if not result:
+            raise Exception('Vocabularies not found')
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','vocabularies', vocabulary_schema_many.dump(result))
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/vocabulary/<id>', methods=['GET'])
+@api_blueprint.route('/vocabulary/<int:id>', methods=['GET'])
 def vocabulary_get(id):
+    msg = ''
+    try:
+        msg, vocab = Vocabularies.get_vocabulary(id)
+        if not vocab:
+            raise Exception('Not vocabulary found')
 
-    user = None
-
-    msg, vocab = Vocabularies.get_vocabulary(id)
-    if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'vocabulary', \
                             vocabulary_schema.dump(vocab))
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-#TODO: Need authentication
-@api_blueprint.route('/vocabulary/<id>/edit', methods=['POST'])
+@api_blueprint.route('/vocabulary/edit/<int:id>', methods=['POST'])
+@require_api_auth()
+@taxonomy_admin_required
 def vocabulary_edit(id):
+    msg = ''
+    try:
 
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
+        if not request.is_json:
+            raise Exception('No JSON data provided')
 
-    msg, vocab = Vocabularies.edit_vocabulary(id, input_data)
-    if vocab:
+        input_data = request.json
+
+        msg, vocab = Vocabularies.edit_vocabulary(id, input_data)
+        if not vocab:
+            raise Exception(msg)
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'vocabulary', \
-                        vocabulary_schema.dump(vocab))
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+                            msg,'vocabulary', \
+                            vocabulary_schema.dump(vocab))
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-#TODO: Need authentication
 @api_blueprint.route('/vocabulary/new', methods=['POST'])
+@require_api_auth()
+@taxonomy_admin_required
 def vocabulary_new():
+    msg = ''
+    try:
+        if not request.is_json:
+            raise Exception('No JSON data provided')
 
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
+        input_data = request.json
+        msg, vocab = Vocabularies.new_vocabulary(input_data)
 
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
+        if not vocab:
+            raise Exception(msg)
 
-    input_data = request.json
-
-    msg, vocab = Vocabularies.new_vocabulary(input_data)
-    if vocab:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'vocabulary', \
                         vocabulary_schema.dump(vocab))
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-
-@api_blueprint.route('/terms')
+@api_blueprint.route('/term/list')
 def get_terms_list():
     """List all terms """
-    result = Term.query.all()
-    if result:
+    try:
+        result =  Terms.get_terms()
+
+        if not result:
+            raise Exception('No terms found')
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms', \
-                            term_schema_many.dump(result).data)
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'terms not found', None, None)
+                                'ok','terms', \
+                                term_schema_many.dump(result))
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/vocabulary/<vocabulary>/terms')
-def get_terms(vocabulary):
+@api_blueprint.route('/term/list/<vocabulary_id>')
+def get_terms(vocabulary_id):
     """List the first level o the terms in a vocabulary """
-
-    vocab = Vocabulary.query.filter_by(id=vocabulary).first()
-    if vocab:
-        terms = vocab.terms.filter_by(parent_id=None).all()
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms',term_schema_many.dump(terms).data)
-
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
+    try:
+        msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
+        return iroko_json_response(IrokoResponseStatus.SUCCESS,'ok','terms',term_schema_many.dump(terms))
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/vocabulary/<vocabulary>/terms')
-def get_terms_any(vocabulary):
-    """List the first level o the terms in a vocabulary """
-
-    vocab = Vocabulary.query.filter_by(id=vocabulary).first()
-    if vocab:
-        terms = vocab.terms.all()
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms',term_schema_many.dump(terms).data)
-
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
-
-
-@api_blueprint.route('/vocabulary/<vocabulary>/terms/tree')
-def get_terms_tree(vocabulary):
+@api_blueprint.route('/term/tree/<vocabulary_id>/')
+def get_terms_tree(vocabulary_id):
     """List all the terms in a vocabulary, in a tree """
 
-    vocab = Vocabulary.query.filter_by(id=vocabulary).first()
-    if vocab:
-        terms = vocab.terms.filter_by(parent_id=None).all()
-        terms_full = []
-        for term in terms:
-            terms_full.append(dump_term(term))
+    try:
+        msg, vocab, terms_full = Terms.get_terms_tree_by_vocabulary(vocabulary_id)
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms', \
                             {'vocab': vocabulary_schema.dump(vocab),\
                             'terms': terms_full})
-
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'no vocab', None, None)
-
-
-#TODO: Need authentication
-@api_blueprint.route('/term/<id>/edit', methods=['POST'])
-def term_edit(id):
-
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
-    msg, term = Terms.edit_term(id, input_data)
-    if term:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'term', \
-                        term_schema.dump(term).data)
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-
-#TODO: Need authentication
-@api_blueprint.route('/term/new', methods=['POST'])
-def term_new():
-
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
-    msg, term = Terms.new_term(input_data)
-    if term:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'term', \
-                        term_schema.dump(term).data)
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        print(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/term/<uuid>')
 def term_get(uuid):
     """Get a term given the uuid """
-
-    msg, term = Terms.get_term(uuid)
-    if term:
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            msg,'term', \
-                            dump_term(term))
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-
-#TODO: Need authentication
-@api_blueprint.route('/term/<uuid>/delete', methods=['DELETE'])
-def term_delete(uuid):
-
-    # FIXME: get the user is trying to perform this action!!!!
-    user = None
-
     try:
-        msg, deleted = Terms.delete_term(uuid)
-        if deleted:
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
+        msg, term = Terms.get_term(uuid)
+        if not term:
+            raise Exception(msg)
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term))
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+@api_blueprint.route('/term/edit/<uuid>', methods=['POST'])
+@require_api_auth()
+def term_edit(uuid):
+
+    msg = ''
+    try:
+        msg, term = Terms.get_term(uuid)
+        if not term:
+            raise Exception(msg)
+
+        with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
+            # user = current_user
+            if not request.is_json:
+                raise Exception("No JSON data provided")
+
+            input_data = request.json
+            msg, term = Terms.edit_term(id, input_data)
+            if not term:
+                raise Exception(msg)
+
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                msg,'term', \
+                                term_schema.dump(term))
+    except PermissionDenied as err:
+        msg = 'Permission denied for editing term'
     except Exception as e:
         msg = str(e)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-def dump_term(term):
-    """ helper function to load terms children"""
+#TODO: Need authentication
+@api_blueprint.route('/term/delete/<uuid>', methods=['DELETE'])
+@require_api_auth()
+def term_delete(uuid):
+    try:
+        msg, term = Terms.get_term(uuid)
+        with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
+            msg, deleted = Terms.delete_term(uuid)
+            if deleted:
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-    children = []
-    for child in term.children:
-        children.append(dump_term(child))
-    return {'term': term_schema.dump(term), 'children':children}
+
+#TODO: Need authentication
+@api_blueprint.route('/term/new', methods=['POST'])
+@require_api_auth()
+def term_new():
+
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
+
+        input_data = request.json
+
+        with vocabulary_editor_permission_factory({'id': input_data.vocabulary_id}).require():
+            msg, term = Terms.new_term(input_data)
+            if not term:
+                raise Exception(msg)
+
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'term', \
+                            term_schema.dump(term).data)
+
+    except PermissionDenied as err:
+        msg = 'Permission denied for adding term'
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+
+@api_blueprint.route('/taxonomy/user/permissions')
+@require_api_auth()
+def taxonomy_current_user_permissions():
+    msg = ''
+    try:
+        actions, vocabs  = get_current_user_permissions()
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            msg,
+            'permissions',
+            {actions:vocabs}
+            )
+
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 
