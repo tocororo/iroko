@@ -27,6 +27,3 @@ trap 'kill $pid_celery $pid_server &>/dev/null' EXIT
 
 wait $pid_celery $pid_server
 
-trap 'kill $pid_server &>/dev/null' EXIT
-
-wait $pid_server
