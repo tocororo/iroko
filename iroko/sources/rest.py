@@ -1,4 +1,3 @@
-
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
@@ -9,7 +8,7 @@ from iroko.utils import iroko_json_response, IrokoResponseStatus
 from iroko.sources.marshmallow import source_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
-from iroko.sources.api import Sources
+from iroko.sources.api import Sources, get_current_user_source_permissions
 from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
@@ -142,3 +141,22 @@ def source_version_set_current(uuid):
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+
+
+@api_blueprint.route('/user/permissions')
+# @require_api_auth()
+def sources_current_user_permissions():
+    msg = ''
+    try:
+        actions, vocabs  = get_current_user_source_permissions()
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            msg,
+            'permissions',
+            {actions:vocabs}
+            )
+
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)

@@ -11,7 +11,8 @@ from marshmallow import ValidationError
 from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
-from iroko.taxonomy.permissions import ObjectVocabularyEditor
+from iroko.taxonomy.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
+
 
 
 #TODO: Revisar lanzamientos de excepciones
@@ -325,25 +326,6 @@ class Terms:
             children.append(Terms.dump_term(child))
         return {'term': term_schema.dump(term), 'children':children}
 
-
-def is_current_user_taxonomy_admin():
-
-    its = False
-    try:
-        print('user')
-        print(current_user)
-        admin = ActionUsers.query.filter_by(
-            user=current_user,
-            exclude=False,
-            action='taxonomy_full_editor_actions').first()
-
-        if admin:
-            its = True
-
-    except Exception as e:
-        print(str(e))
-
-    return its
 
 
 def get_current_user_permissions() -> Dict[str, Dict[str, list]]:

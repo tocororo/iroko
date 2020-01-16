@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Flask, jsonify, request
-from iroko.taxonomy.api import is_current_user_taxonomy_admin
+from iroko.taxonomy.permissions import is_current_user_taxonomy_admin
 from iroko.sources.permissions import is_current_user_source_admin
 from flask_login import current_user
 from iroko.utils import iroko_json_response, IrokoResponseStatus
