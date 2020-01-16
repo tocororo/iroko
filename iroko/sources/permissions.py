@@ -6,7 +6,7 @@ from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
 from invenio_access.utils import get_identity 
-
+from flask_principal import PermissionDenied
 from functools import partial
 from flask_principal import ActionNeed
 from invenio_access.permissions import ParameterizedActionNeed
@@ -75,15 +75,13 @@ def source_term_gestor_permission_factory(obj):
         return True
     aux = obj['terms']
     terms = aux.split(',')
-    permiso = None
+    permiso = PermissionDenied()
 
-    for term in terms:
-        permiso = ActionUsers.query.filter_by(
-            user_id=current_user.id,
-            exclude=False,
-            action='source_term_gestor_actions'            
-        ).filter(ActionUsers.argument.contains(term)).first()
-        
+    for term_id in terms:
+        try:
+            permiso = Permission(ObjectSourceGestor(term_id))
+        except Exception as e:
+            raise e
     return permiso
          
 
