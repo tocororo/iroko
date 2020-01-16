@@ -13,6 +13,7 @@ from iroko.sources.api import Sources
 from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
+from flask_principal import PermissionDenied
 from iroko.sources.permissions import source_editor_permission_factory, source_gestor_permission_factory, source_admin_permission_factory
 
 
@@ -105,7 +106,9 @@ def source_new_version(uuid):
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': source_schema.dump(source), 'count': 1})
-    
+
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
 
@@ -116,8 +119,15 @@ def source_version_set_current(uuid):
     # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
     # comprobar que el usuario tiene el role para hacer esto.
     try:
+        source = Sources.get_source_by_id(uuid=uuid)
+        if not source:
+            raise Exception('Not source found.')
+        #source.data[]
         with source_gestor_permission_factory({'uuid': uuid}).require():
             src = Sources.get_source_by_id(uuid=uuid)
+    
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
