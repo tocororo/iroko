@@ -29,11 +29,19 @@ from invenio_accounts.models import User
 from sqlalchemy import and_, or_
 from sqlalchemy_utils.models import Timestamp
 from sqlalchemy_utils.types import UUIDType, JSONType
+from enum import Enum
 import uuid
 
 from invenio_db import db
 
 # TODO: add data field to Notification and Term
+
+class NotificationType(Enum):
+    INFO = "info"
+    ERROR = "error"
+    ALERT = "alert"
+
+
 
 class Notification(db.Model):
     """Define a Notification"""
@@ -41,16 +49,13 @@ class Notification(db.Model):
     __tablename__ = 'iroko_notification'
 
     id = db.Column(db.Integer, primary_key=True)
-    classification = db.Column(db.String, nullable=False)
+    classification = db.Column(db.Enum(NotificationType))
     description = db.Column(db.String)
     emiter = db.Column(db.String)
     viewed = db.Column(db.Boolean, default=False)
-    receiver_id = db.Column(
-        db.Integer,
-        db.ForeignKey(User.id),
-        primary_key=True
-    )
-    """Foreign key to :class:`~invenio_accounts.models.User`."""
+    receiver_id = db.Column(db.Integer,
+              db.ForeignKey(
+                User.id, name='fk_iroko_notifications_user_id'))
 
     receiver = db.relationship(
         User, backref=db.backref(
