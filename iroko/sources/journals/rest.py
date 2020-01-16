@@ -81,7 +81,7 @@ def get_journals():
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': journal_schema_many.dump(result[offset:offset+limit]).data,\
+                        {'data': journal_schema_many.dump(result[offset:offset+limit]),\
                          'count': len(result)})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 

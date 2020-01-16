@@ -211,6 +211,7 @@ setup(
         'invenio_base.api_blueprints' : [
             'iroko_taxonomy = iroko.taxonomy.rest:api_blueprint',
             'iroko_sources = iroko.sources.rest:api_blueprint',
+            'iroko_sources_journals = iroko.sources.journals.rest:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
 
@@ -233,7 +234,7 @@ setup(
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',            
             'source_full_gestor_actions = iroko.sources.permissions:source_full_gestor_actions', 
-            'source_term_gestor_actions = iroko.sources.permissions:source_term_gestor_actions',                        
+            'source_term_gestor_actions = iroko.sources.permissions:source_term_gestor_actions',  
             'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',
             'taxonomy_full_editor_actions = iroko.taxonomy.permissions:taxonomy_full_editor_actions',
         ]
