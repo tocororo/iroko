@@ -222,3 +222,54 @@ class Sources:
 
 
 
+def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
+    """
+    Checks from ActionUsers if current_user has source_full_gestor_actions,
+    if not, 
+    1- then sources of the terms he has GESTOR permissions over with action source_term_gestor_actions,
+    or with source_gestor_actions,
+    2- sources he has EDITOR permissions with source_editor_actions
+    """
+
+    vocabularies_ids = []
+    if is_current_user_source_admin():
+        return 'actions', {'source_full_gestor_actions': None}
+    
+    actions = ActionUsers.query.filter_by(
+        user=current_user,
+        exclude=False,
+        action='source_term_gestor_actions').all()
+    
+    terms = []
+    for action in actions:
+        terms.append(action.argument) 
+   
+    all_terms = _load_terms_tree(terms)
+    print('----------------tree : ', all_terms)
+    sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
+
+    sources_gestor_ids = []
+    for source in sources:
+        sources_gestor_ids.append(source.sources_id)
+
+    actions = ActionUsers.query.filter_by(
+        user=current_user,
+        exclude=False,
+        action='source_gestor_actions').all()
+
+    for action in actions:
+        if action.argument not in sources_gestor_ids:
+            sources_gestor_ids.append(action.argument)
+
+    actions = ActionUsers.query.filter_by(
+        user=current_user,
+        exclude=False,
+        action='source_editor_actions').all()
+    
+    sources_editor_ids = []
+    for action in actions:
+        sources_editor_ids.append(action.argument)
+    
+    
+    return 'actions', {'source_gestor_actions':sources_gestor_ids, 'source_editor_actions': sources_editor_ids}
+

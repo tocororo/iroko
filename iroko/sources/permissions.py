@@ -30,14 +30,16 @@ def iroko_action_factory(name, parameter=False):
 def is_current_user_source_admin():
     its = False
     try:
-        from sqlalchemy import or_
-        #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
-        admin = db.session.query(ActionUsers).filter_by(
-            user_id=current_user.id, 
-            exclude=False,
-            action='source_full_gestor_actions').first() 
+        # from sqlalchemy import or_
+        # #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
+        # admin = db.session.query(ActionUsers).filter_by(
+        #     user_id=current_user.id, 
+        #     exclude=False,
+        #     action='source_full_gestor_actions').first() 
 
-        if admin:
+        permission = Permission(source_full_gestor_actions)
+        current_identity = get_identity(current_user)
+        if permission.allows(current_identity):
             its = True
 
     except Exception as e:        
@@ -67,6 +69,14 @@ def source_editor_permission_factory(obj):
 
 
 def source_gestor_permission_factory(obj):
+    try:
+        permission = Permission(source_full_gestor_actions)
+        current_identity = get_identity(current_user)
+        if permission.allows(current_identity):
+            return permission
+    except Exception as e:
+        pass
+
     return Permission(ObjectSourceGestor(obj['uuid']))
 
 
@@ -75,10 +85,10 @@ def source_term_gestor_permission_factory(obj):
         return True
     aux = obj['terms']
     terms = aux.split(',')
-    permiso = PermissionDenied(ObjectSourceGestor(None))
+    permiso = PermissionDenied(ObjectSourceTermGestor(None))
 
     for term_id in terms:
-        try:
+        try:            
             permiso = Permission(ObjectSourceTermGestor(term_id))
         except Exception as e:
             raise e

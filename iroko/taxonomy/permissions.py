@@ -4,6 +4,7 @@ from invenio_accounts.models import User
 from invenio_db import db
 from invenio_access.utils import get_identity 
 from invenio_access import Permission
+from flask_login import current_user
 
 
 
@@ -18,3 +19,23 @@ def vocabulary_editor_permission_factory(obj):
 
 
 taxonomy_full_editor_permission = Permission(taxonomy_full_editor_actions)
+
+
+def is_current_user_taxonomy_admin():
+
+    its = False
+    try:
+        print('user')
+        print(current_user)
+        admin = ActionUsers.query.filter_by(
+            user=current_user,
+            exclude=False,
+            action='taxonomy_full_editor_actions').first()
+
+        if admin:
+            its = True
+
+    except Exception as e:
+        print(str(e))
+
+    return its
