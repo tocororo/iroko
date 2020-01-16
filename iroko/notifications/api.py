@@ -56,9 +56,9 @@ class Notifications:
             notif = Notification.query.filter_by(calssification=valid_data['calssification']).first()
             if not ntif:
                 notif = Notification()
-                notif.calssification = valid_data['calssification']
+                notif.classification = valid_data['calssification']
                 notif.description = valid_data['description']
-                notif.description = valid_data['receiver']
+                notif.receiver_id = valid_data['receiver']
                 notif.description = valid_data['emiter']
                 notif.data = valid_data['data']
                 db.session.add(notif)

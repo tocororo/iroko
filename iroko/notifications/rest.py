@@ -40,17 +40,17 @@ from iroko.notifications.api import Notifications
 api_blueprint = Blueprint(
     'iroko_api_notifications',
     __name__,
-    url_prefix='/noti'
+    url_prefix='/notification'
 )
 
-@api_blueprint.route('/notifications')
-@require_api_auth()
+@api_blueprint.route('/list')
+#@require_api_auth()
 def get_notifications():
     """
     List all notifications
     """
     print('entra')
-    result = Notifications.query.all()
+    result = Notification.query.all()
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','notifications', \
@@ -58,7 +58,7 @@ def get_notifications():
     return iroko_json_response(IrokoResponseStatus.ERROR, 'notifications not found', None, None)
 
 
-@api_blueprint.route('/notification/<id>', methods=['GET'])
+@api_blueprint.route('/<id>', methods=['GET'])
 def notification_get(id):
 
     user = None
@@ -72,7 +72,7 @@ def notification_get(id):
 
 
 #TODO: Need authentication
-@api_blueprint.route('/notification/<id>/edit', methods=['POST'])
+@api_blueprint.route('/edit/<id>', methods=['POST'])
 def notification_edit(id):
 
     # FIXME: get the user is trying to perform this action!!!!
@@ -90,7 +90,7 @@ def notification_edit(id):
 
 
 #TODO: Need authentication
-@api_blueprint.route('/notification/new', methods=['POST'])
+@api_blueprint.route('/new', methods=['POST'])
 def notification_new():
 
     # FIXME: get the user is trying to perform this action!!!!
