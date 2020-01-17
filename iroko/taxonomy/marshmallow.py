@@ -60,6 +60,17 @@ class TermSchema(Schema):
 
 
 
+# unknown='EXCLUDE', esto se pone para que el load excluya los campos que no se conoce, 
+# lo estamos usando aqui porque los campos dump_only se interpretan por marshmallow 3 como desconocidos
+# si no se pone unknown='EXCLUDE' entonces en los PUT (que hace load) no pueden venir los dump_only
+# basicamente los dump_only nuestros son id y uuid
+# https://stackoverflow.com/questions/54391524/sqlalchemy-property-causes-unknown-field-error-in-marshmallow-with-dump-only/54405610#54405610
+# https://github.com/marshmallow-code/marshmallow/issues/875
+
+# al final el cliente, debe manejar el problema de excluir los campos id y uuid del input en un PUT
+
+
+
 term_schema_many = TermSchema(many=True, only=('id', 'uuid', 'name'))
 term_schema = TermSchema(many=False)
 vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'name', 'human_name', 'description'))

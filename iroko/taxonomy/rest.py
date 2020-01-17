@@ -195,16 +195,19 @@ def term_edit(uuid):
     msg = ''
     try:
         msg, term = Terms.get_term(uuid)
+        print(term)
         if not term:
             raise Exception(msg)
 
         with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
+            print(term.vocabulary_id)
             # user = current_user
             if not request.is_json:
                 raise Exception("No JSON data provided")
 
             input_data = request.json
-            msg, term = Terms.edit_term(id, input_data)
+            print(input_data)
+            msg, term = Terms.edit_term(term, input_data)
             if not term:
                 raise Exception(msg)
 
@@ -244,15 +247,14 @@ def term_new():
             raise Exception("No JSON data provided")
 
         input_data = request.json
-
-        with vocabulary_editor_permission_factory({'id': input_data.vocabulary_id}).require():
+        
+        with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
             msg, term = Terms.new_term(input_data)
             if not term:
                 raise Exception(msg)
-
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'term', \
-                            term_schema.dump(term).data)
+                            term_schema.dump(term))
 
     except PermissionDenied as err:
         msg = 'Permission denied for adding term'
