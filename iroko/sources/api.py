@@ -24,24 +24,16 @@ class Sources:
     Considering SourceVersion: meanining this class use Source and SourceVersion model.
     """
     @classmethod
-    def get_sources_id_list_all(cls):
-        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
-        return list(map(lambda x: int(x.id), db.session.query(Source.id).all()))
+    def get_sources_id_list_x_status(cls, status='all):
+        if status == 'all':
+            return list(map(lambda x: int(x.id), db.session.query(Source.id).all()))
+        else:
+            return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==status).all()))
 
     @classmethod
     def get_sources_id_list(cls):
         #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
         return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.APPROVED).all()))
-
-    @classmethod
-    def get_to_review_sources_id_list(cls):
-        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
-        return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.TO_REVIEW).all()))
-
-    @classmethod
-    def get_unofficial_sources_id_list(cls):
-        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
-        return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.UNOFFICIAL).all()))
 
     @classmethod
     def get_source_by_id(cls, id=None, uuid= None):        
@@ -263,7 +255,7 @@ class Sources:
             status = SourceStatus.UNOFFICIAL
 
         if is_current_user_source_admin():
-            return 'ok', Sources.get_sources_id_list()
+            return 'ok', Sources.get_sources_id_list_x_status(status)
         
         sources_ids_directly = cls.get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
         if not status == 'all':
