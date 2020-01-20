@@ -197,29 +197,30 @@ class Terms:
             return msg, None
 
     @classmethod
-    def edit_term(cls, uuid, input_data) -> Dict[str, Term]:
+    def edit_term(cls, term:Term, input_data) -> Dict[str, Term]:
 
-        data = term_schema.load(input_data)
-        msg, term = cls.get_term(uuid)
-        if term:
-
-            if data:
+        try:
+            data = term_schema.load(input_data)
+            if term:
                 cls._update_term_data(term, data)
                 db.session.commit()
                 cls._update_term_clasification(term, data)
                 db.session.commit()
-                msg = 'New Term UPDATED name={0}'.format(term.name)
+                msg = 'Term UPDATED name={0}'.format(term.name)
             else:
                 msg = 'not data'
                 term = None
-        return msg, term
+        except Exception as e:
+            print(e)
+        finally:
+            return msg, term
 
 
     @classmethod
     def new_term(cls, data) -> Dict[str, Term]:
 
-        valid_data, errors = term_schema.load(data)
-        if not errors:
+        try:
+            valid_data = term_schema.load(data)
             term = Term.query.filter_by(name=valid_data['name']).first()
             if not term:
                 term = Term()
@@ -228,14 +229,15 @@ class Terms:
                 db.session.commit()
                 cls._update_term_clasification(term, valid_data)
                 db.session.commit()
-                msg = 'New Term CREATED id={0}'.format(term.id)
+                msg = 'New Term CREATED name={0}'.format(term.name)
             else:
                 msg = 'Term already exist name={0}'.format(valid_data['name'])
                 term = None
-        else:
-            msg = str(data) + str(valid_data)
+        except Exception as e:
+            msg = 'ERROR {0} - {1}'.format(e, data)
             term = None
-        return msg, term
+        finally:
+            return msg, term
 
 
     @classmethod
