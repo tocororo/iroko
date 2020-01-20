@@ -13,23 +13,35 @@ from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor, is_current_user_source_admin
 from invenio_access.utils import get_identity 
-from iroko.sources.utils import _load_terms_tree,sync_term_source_with_data
-# from iroko.sources.permissions import grant_source_editor_permission
+from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid, sync_term_source_with_data
 from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 from iroko.taxonomy.api import Terms
-
 
 
 class Sources:
     """API for manipulation of Sources
     Considering SourceVersion: meanining this class use Source and SourceVersion model.
     """
+    @classmethod
+    def get_sources_id_list_all(cls):
+        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
+        return list(map(lambda x: int(x.id), db.session.query(Source.id).all()))
 
     @classmethod
     def get_sources_id_list(cls):
         #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
-        return list(map(lambda x: int(x.id), db.session.query(Source.id).all()))
+        return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.APPROVED).all()))
+
+    @classmethod
+    def get_to_review_sources_id_list(cls):
+        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
+        return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.TO_REVIEW).all()))
+
+    @classmethod
+    def get_unofficial_sources_id_list(cls):
+        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
+        return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.UNOFFICIAL).all()))
 
     @classmethod
     def get_source_by_id(cls, id=None, uuid= None):        
@@ -61,6 +73,7 @@ class Sources:
             return True, source
 
         result = []
+        #sources = Source.query.filter(or_(Source.source_status==SourceStatus.APPROVED, Source.source_status==SourceStatus.TO_REVIEW)).all()
         sources = Source.query.all()
 
         for item in sources:
@@ -80,52 +93,53 @@ class Sources:
         """Insert new Source and an associated SourceVersion
             return [success, message, source]
         """
-
         #FIXME
         
-        msg = ''
         if not current_user:
-            raise Exception('Must be authenticated')
+            raise Exception('Must be authenticated')        
+        try:
+            exist, source = cls._check_source_exist(json_data['data'])
 
-        exist, source = cls._check_source_exist(json_data['data'])
+            if exist:
+                if source.source_status is SourceStatus.UNOFFICIAL:
+                    return cls.insert_new_source_version(json_data, source.uuid, True)
 
-        if exist:
-            msg = 'Source already exist id={0}. Call insert_new_source_version'.format(source.id)
-            return dict(False, msg), None
-        else:
-
-            valid_data, errors = source_schema.load(json_data)
-            if not errors:
-                new_source = Source()
-                new_source.name = valid_data['name']
-                new_source.source_type = valid_data['source_type']
-                new_source.source_status = SourceStatus.TO_REVIEW
-                new_source.data = valid_data['data']
-                # print(new_source)
-                db.session.add(new_source)
-
-                #transactions are taking place but, however, are not written to disk yet...
-                #so we can use new_source.id for granting editor permission
-                db.session.flush()
-                cls.grant_source_editor_permission(current_user.id, new_source.id)
+                msg = 'Source already exist id={0}. Call insert_new_source_version'.format(source.id)
+                #return dict(False, msg), None
+                raise Exception(msg)
                 
-                db.session.commit()
+            valid_data = source_schema.load(json_data)
+        
+            new_source = Source()
+            new_source.name = valid_data['name']
+            new_source.source_type = valid_data['source_type']
+            new_source.source_status = SourceStatus.TO_REVIEW
+            new_source.data = valid_data['data']
+            # print(new_source)
+            db.session.add(new_source)
 
-                # if current_user:
-                #     grant_source_editor_permission(current_user, source)
+            #transactions are taking place but, however, are not written to disk yet...
+            #so we can use new_source.id for granting editor permission
+            db.session.flush()
+            cls.grant_source_editor_permission(current_user.id, new_source.id)            
+            cls.insert_new_source_version(new_source.data, new_source.id, True, is_flush=True)
 
-                cls.insert_new_source_version(new_source.data, new_source.id, True)
+            db.session.commit()
 
-                msg = 'New Source created id={0}'.format(new_source.id)
-                return dict(True, msg), new_source
-            else:
-                msg = str(errors)
-                return dict(False, msg), None
+            msg = 'New Source created id={0}'.format(new_source.id)
+            done = True 
+
+        except Exception as e:
+            msg = 'ERROR {0} - {1}'.format(e, json_data)
+            new_source = None
+            done = False
+        finally:
+            return dict(done, msg), new_source
 
 
 
     @classmethod
-    def insert_new_source_version(cls, data, source_uuid, is_current:bool) -> [str, Source, SourceVersion]:
+    def insert_new_source_version(cls, data, source_uuid, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
         """Insert new SourceVersion to an existing Source
         """
 
@@ -153,13 +167,16 @@ class Sources:
             sync_term_source_with_data(source)
 
         db.session.add(new_source_version)
-        db.session.commit()
+        if is_flush:
+            db.session.flush()
+        else:
+            db.session.commit()
 
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
 
     @classmethod
-    def grant_source_editor_permission(cls, user_id, source_id) -> Dict[str, bool]:
+    def grant_source_editor_permission(cls, user_id, source_id, is_flush=True) -> Dict[str, bool]:
         done = False
         msg = ''
         try:  
@@ -170,8 +187,11 @@ class Sources:
             elif not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))                     
-                db.session.commit()
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))        
+                if is_flush:
+                    db.session.flush()
+                else:
+                    db.session.commit()
                 msg = 'Source Editor Permission granted over {0}'.format(source.name)
                 done = True
             
@@ -206,40 +226,118 @@ class Sources:
         return msg, done
 
     @classmethod
-    def get_sources_from_editor_current_user(cls)-> Dict[str, list]:
+    def get_sources_from_editor_current_user(cls, status='all')-> Dict[str, list]:
+        """
+            param status: 'all', 'approved', 'review', 'unofficial'
+        """
+        if status == 'approved':
+            status = SourceStatus.APPROVED
+        elif status == 'review':
+            status = SourceStatus.TO_REVIEW
+        elif status == 'unofficial':
+            status = SourceStatus.UNOFFICIAL
+
+        sources = cls.get_arguments_for_source_from_action(current_user, 'source_editor_actions')
         
-        sources = get_arguments_for_source_from_action(current_user, 'source_editor_actions')
-        if sources:
-            return 'ok', sources
+        if not status == 'all':
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources), Source.source_status==status).all()
+        else:
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources)).all()
+
+        if sources_directly:
+            return 'ok', sources_directly
         
         return 'none', []
     
     @classmethod
-    def get_sources_from_gestor_current_user(cls)-> Dict[str, list]:
-        
+    def get_sources_from_gestor_current_user(cls, status='all')-> Dict[str, list]:
+        """
+            param status: 'all', 'approved', 'review', 'unofficial'
+        """        
+
+        if status == 'approved':
+            status = SourceStatus.APPROVED
+        elif status == 'review':
+            status = SourceStatus.TO_REVIEW
+        elif status == 'unofficial':
+            status = SourceStatus.UNOFFICIAL
+
         if is_current_user_source_admin():
             return 'ok', Sources.get_sources_id_list()
         
-        sources_directly = get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
+        sources_ids_directly = cls.get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
+        if not status == 'all':
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly), Source.source_status==status).all()
+        else:
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly)).all()
        
         sources_by_term = []
-        terms_ids = get_arguments_for_source_from_action(current_user, 'source_term_gestor_actions')
-        if terms_ids:
-            all_terms = _load_terms_tree(terms_ids)
-            sources_by_term = list(map(lambda x: int(x.id), db.session.query(Source.id).join(TermSources).filter(TermSources.term_id.in_(all_terms)).all()))
-
-        sources = []
-        if sources_directly:
-            sources.append(sources_directly)
-        if sources_by_term:
-            sources.append(sources_by_term)
+        terms_uuids = cls.get_arguments_for_source_from_action(current_user, 'source_term_gestor_actions')
         
-        if sources:
-            return 'ok', sources
+        if terms_uuids:
+            all_terms = _load_terms_tree_by_uuid(terms_uuids)
+            if not status == 'all':
+                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status).all()
+            else:
+                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms)).all()
+        
+        # sources = []
+        # if sources_directly:
+        #     sources.append(sources_directly)
+        # if sources_by_term:
+        #     sources.append(sources_by_term)
+        
+        if sources_directly or sources_by_term:
+            return 'ok', sources_directly+sources_by_term
         
         return 'none', []
-        
+    
+    @classmethod
+    def get_userids_for_source_from_action(cls, paction, p_argument=None):
+    
+        user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(argument=str(p_argument),exclude=False,action=paction).all()))
+            
+        return user_ids
 
+    @classmethod
+    def get_arguments_for_source_from_action(cls, puser, paction):
+        
+        arguments = list(map(lambda x: x.argument, db.session.query(ActionUsers).filter_by(user=puser,exclude=False,action=paction).all()))
+        
+        return arguments
+
+    @classmethod
+    def get_user_ids_source_gestor(cls, uuid) -> Dict[str, list]:
+        #TODO validate uuid
+        gestors = cls.get_userids_for_source_from_action('source_gestor_actions', uuid)
+        if gestors:
+            return 'ok', gestors
+        
+        source = Sources.get_source_by_id(uuid=uuid)
+        
+        for term_source in source.terms:
+            
+            term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', term_source.term_id)
+            
+            if term_gestors:
+                return 'ok', term_gestors
+            
+            msg, aux = Terms.get_term_by_id(term_source.term_id)
+            
+            while aux.parent_id:
+                print('parent')
+                print(aux.parent_id)
+                msg, aux = Terms.get_term_by_id(aux.parent_id)
+                term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', aux.id)
+                if term_gestors:
+                    return 'ok', term_gestors
+        
+        #para obtener al full_gestor por si no hay alguien mas
+        admins = cls.get_userids_for_source_from_action('source_full_gestor_actions')
+        if admins:
+            return 'ok', admins
+
+        return 'error', []
         
 
 def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
@@ -292,4 +390,3 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     
     
     return 'actions', {'source_gestor_actions':sources_gestor_ids, 'source_editor_actions': sources_editor_ids}
-

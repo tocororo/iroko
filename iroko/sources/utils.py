@@ -21,12 +21,35 @@ def _load_terms_tree(terms):
     return set(temp_terms)
 
 
+def _load_terms_tree_by_uuid(terms):
+    """aux func"""
+    #TODO validar UUID
+    temp_terms = []
+    for uuid in terms:
+        temp_terms += [str(uuid)]
+        aux = Term.query.filter_by(uuid=uuid).first()
+        tchildren = _load_term_children_uuid(aux)
+        if tchildren:
+            temp_terms += tchildren
+    return temp_terms
+
+
 def _load_term_children_id(term):
     """aux func to load Term tree"""
     if term.children:
         children = []
         for child in term.children:
             children.append(child.id)
+            _load_term_children_id(child)
+        return children
+
+
+def _load_term_children_uuid(term):
+    """aux func to load Term tree"""
+    if term.children:
+        children = []
+        for child in term.children:
+            children.append(str(child.uuid))
             _load_term_children_id(child)
         return children
 

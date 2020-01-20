@@ -39,7 +39,7 @@ class SourcesModelView(ModelView):
 
     column_default_sort = ('name', True)
 
-    column_filters = ('name', 'source_type', 'source_status')
+    column_filters = ('name', 'uuid', 'source_type', 'source_status')
 
     form_columns = ('name', 'source_type', 'source_status')
 

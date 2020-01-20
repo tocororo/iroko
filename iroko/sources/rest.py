@@ -5,10 +5,10 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema
+from iroko.sources.marshmallow import source_schema, source_schema_many
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
-from iroko.sources.api import Sources, get_current_user_source_permissions, get_user_ids_source_gestor
+from iroko.sources.api import Sources, get_current_user_source_permissions
 from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
@@ -167,7 +167,7 @@ def sources_current_user_permissions():
 def get_source_gestor(uuid):
     
     try:
-        msg, user_ids  = get_user_ids_source_gestor(uuid)
+        msg, user_ids  = Sources.get_user_ids_source_gestor(uuid)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
@@ -181,17 +181,19 @@ def get_source_gestor(uuid):
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/editor/sources')
+@api_blueprint.route('/editor/sources/<status>')
 # @require_api_auth()
-def get_sources_from_editor():
-    
+def get_sources_from_editor(status):
+    """
+        param status: 'all', 'approved', 'review', 'unofficial'
+    """
     try:
-        msg, sources  = Sources.get_sources_from_editor_current_user()
+        msg, sources  = Sources.get_sources_from_editor_current_user(status)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            sources
+            source_schema_many.dumps(sources)
             )
 
     except Exception as e:
@@ -200,17 +202,20 @@ def get_sources_from_editor():
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/gestor/sources')
+@api_blueprint.route('/gestor/sources/<status>')
 # @require_api_auth()
-def get_sources_from_gestor():
-    
+def get_sources_from_gestor(status):
+    """
+        param status: 'all', 'approved', 'review', 'unofficial'
+    """        
     try:
-        msg, sources  = Sources.get_sources_from_gestor_current_user()
+        msg, sources  = Sources.get_sources_from_gestor_current_user(status)
+        
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            sources
+            source_schema_many.dumps(sources)
             )
 
     except Exception as e:
