@@ -149,6 +149,15 @@ class Terms:
     @classmethod
     def get_terms(cls):
         return Term.query.all()
+    
+    @classmethod
+    def get_terms_by_vocab(cls, vocabulary_id) -> Dict[str, Term]:
+        msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
+        if not vocab:
+            raise Exception(msg)
+        terms = vocab.terms
+
+        return 'ok', terms
 
     @classmethod
     def get_first_level_terms_by_vocabulary(cls, vocabulary_id)-> Dict[str, Term]:
