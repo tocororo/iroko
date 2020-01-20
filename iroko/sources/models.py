@@ -46,8 +46,6 @@ class Source(db.Model):
 
     #term_sources = db.relationship("Term_sources", back_populates="sources")
 
-
-
     def __str__(self):
         """Representation."""
         return self.name

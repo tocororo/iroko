@@ -24,11 +24,12 @@ class Sources:
     Considering SourceVersion: meanining this class use Source and SourceVersion model.
     """
     @classmethod
-    def get_sources_id_list_x_status(cls, status='all):
+    def get_sources_list_x_status(cls, status='all'):
+        print(status)
         if status == 'all':
-            return list(map(lambda x: int(x.id), db.session.query(Source.id).all()))
+            return list(map(lambda x: x, db.session.query(Source).all()))
         else:
-            return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==status).all()))
+            return list(map(lambda x: x, db.session.query(Source).filter(Source.source_status==status).all()))
 
     @classmethod
     def get_sources_id_list(cls):
@@ -128,7 +129,14 @@ class Sources:
         finally:
             return dict(done, msg), new_source
 
+    @classmethod
+    def set_source_current(cls, source):
+        pass
 
+    @classmethod
+    def set_source_approved(cls, source):
+        source.source_status = SourceStatus.APPROVED
+        db.session.commit()
 
     @classmethod
     def insert_new_source_version(cls, data, source_uuid, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
@@ -255,7 +263,7 @@ class Sources:
             status = SourceStatus.UNOFFICIAL
 
         if is_current_user_source_admin():
-            return 'ok', Sources.get_sources_id_list_x_status(status)
+            return 'ok', Sources.get_sources_list_x_status(status)
         
         sources_ids_directly = cls.get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
         if not status == 'all':

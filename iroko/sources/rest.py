@@ -142,9 +142,32 @@ def source_version_set_current(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
+@api_blueprint.route('/<uuid>/approved', methods=['GET', 'POST'])
+@require_api_auth()
+def source_version_set_approved(uuid):    
+    try:
+        source = Sources.get_source_by_id(uuid=uuid)
+        if not source:
+            raise Exception('Source not found.')
+        
+        with source_gestor_permission_factory({'uuid': uuid}).require():
+            Sources.set_source_approved(source)
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'Source {0} approved.'.format(source.name),
+                'approved',
+                source_schema.dumps(source)
+            )
+    
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
 
 @api_blueprint.route('/user/permissions')
-# @require_api_auth()
+@require_api_auth()
 def sources_current_user_permissions():
     msg = ''
     try:
@@ -163,7 +186,7 @@ def sources_current_user_permissions():
 
 
 @api_blueprint.route('/gestor/<uuid>')
-# @require_api_auth()
+@require_api_auth()
 def get_source_gestor(uuid):
     
     try:
@@ -182,7 +205,7 @@ def get_source_gestor(uuid):
 
 
 @api_blueprint.route('/editor/sources/<status>')
-# @require_api_auth()
+@require_api_auth()
 def get_sources_from_editor(status):
     """
         param status: 'all', 'approved', 'review', 'unofficial'
@@ -203,7 +226,7 @@ def get_sources_from_editor(status):
 
 
 @api_blueprint.route('/gestor/sources/<status>')
-# @require_api_auth()
+@require_api_auth()
 def get_sources_from_gestor(status):
     """
         param status: 'all', 'approved', 'review', 'unofficial'
@@ -222,3 +245,5 @@ def get_sources_from_gestor(status):
         msg = str(e)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
