@@ -19,7 +19,6 @@ class Notifications:
 
     @classmethod
     def get_notification(cls, id) -> Dict[str, Notification]:
-        print('entra')
         notif = Notification.query.filter_by(id=id).first()
         if notif:
             return 'ok', notif
@@ -37,7 +36,7 @@ class Notifications:
             if not errors:
                 notif.classification = valid_data['classification']
                 notif.description = valid_data['description']
-                notif.description = valid_data['receiver']
+                notif.description = valid_data['receiver_id']
                 notif.description = valid_data['emiter']
                 notif.data = valid_data['data']
                 db.session.commit()
@@ -45,6 +44,17 @@ class Notifications:
             else:
                 msg = errors
                 notif = None
+        return msg, notif
+
+    
+    @classmethod
+    def viewed_notification(cls, id) -> Dict[str, Notification]:
+
+        msg, notif = cls.get_notification(id)
+        if notif:
+            notif.viewed = True
+            db.session.commit()
+            msg = 'New Notification VIEWED classification={0}'.format(notif.classification)
         return msg, notif
 
 

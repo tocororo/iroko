@@ -7,7 +7,7 @@ class NotificationSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     description = fields.Str(allow_none=True)
-    receiver = fields.Int(required=True)
+    receiver_id = fields.Int(required=True)
     emiter = fields.Str(required=True)
     viewed = fields.Bool(required=True)
     
@@ -22,5 +22,5 @@ class NotificationSchema(Schema):
         return item
 
 
-notification_schema_many = NotificationSchema(many=True, only=('id', 'name', 'description', 'receiver', 'emiter', 'viewed'))
+notification_schema_many = NotificationSchema(many=True, only=('id', 'name', 'description', 'receiver_id', 'emiter', 'viewed'))
 notification_schema = NotificationSchema(many=False)

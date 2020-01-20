@@ -49,8 +49,8 @@ def get_notifications():
     """
     List all notifications
     """
-    print('entra')
     result = Notification.query.all()
+    print(result)
     if result:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','notifications', \
@@ -87,6 +87,25 @@ def notification_edit(id):
                         msg,'notification', \
                         notification_schema.dump(notif))
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+#TODO: Need authentication
+@api_blueprint.route('/viewed/<id>')
+def notification_viewed(id):
+    
+    # FIXME: get the user is trying to perform this action!!!!
+    user = None
+    # if not request.is_json:
+    #     return {"message": "No JSON data provided"}, 400
+    # input_data = request.json
+
+    msg, notif = Notifications.viewed_notification(id)
+    if notif:
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        msg,'notification', \
+                        notification_schema.dump(notif))
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 
 #TODO: Need authentication
