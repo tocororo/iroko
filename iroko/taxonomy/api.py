@@ -40,24 +40,25 @@ class Vocabularies:
 
         msg, vocab = cls.get_vocabulary(id)
         if vocab:
-            valid_data, errors = vocabulary_schema.load(data)
-            if not errors:
+            try:
+                valid_data = vocabulary_schema.load(data)
                 vocab.human_name = valid_data['human_name']
                 vocab.description = valid_data['description']
                 vocab.data = valid_data['data']
                 db.session.commit()
                 msg = 'New Vocabulary UPDATED name={0}'.format(vocab.name)
-            else:
-                msg = errors
-                vocab = None
-        return msg, vocab
+            except Exception as err:
+                msg = 'ERROR {0} - {1}'.format(err, data)
+            finally:
+                return msg, vocab
+        else:
+            return msg, vocab
 
     @classmethod
     def new_vocabulary(cls, input_data) -> Dict[str, Vocabulary]:
 
-        data = vocabulary_schema.load(input_data)
-
-        if data:
+        try:
+            data = vocabulary_schema.load(input_data)
             vocab = Vocabulary.query.filter_by(name=data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
@@ -67,16 +68,15 @@ class Vocabularies:
                 vocab.data = data['data']
                 db.session.add(vocab)
                 db.session.commit()
-
                 msg = 'New Vocabulary CREATED name={0}'.format(vocab.name)
             else:
                 msg = 'Vocabulary already exist name={0}'.format(vocab.name)
                 vocab = None
-        else:
-            msg = 'not data'
+        except Exception as err:
+            msg = 'ERROR {0} - {1}'.format(err, data)
             vocab = None
-        return msg, vocab
-
+        finally:
+            return msg, vocab
 
 
     @classmethod
@@ -220,7 +220,7 @@ class Terms:
                 msg = 'not data'
                 term = None
         except Exception as e:
-            print(e)
+            msg = 'ERROR {0} - {1}'.format(e, data)
         finally:
             return msg, term
 
