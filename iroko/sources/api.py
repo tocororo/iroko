@@ -45,6 +45,16 @@ class Sources:
             return Source.query.filter_by(uuid=uuid).first()
 
     @classmethod
+    def get_source_version(cls, uuid= None):        
+        if id is not None:
+            return Source.query.filter_by(id=id).first()
+        if uuid is not None:
+            #uuid = UUIDType(uuid)
+            return Source.query.filter_by(uuid=uuid).first()
+
+    
+
+    @classmethod
     def count_sources(cls):
         return Source.query.count()
 
@@ -130,8 +140,23 @@ class Sources:
             return dict(done, msg), new_source
 
     @classmethod
-    def set_source_current(cls, source):
-        pass
+    def set_source_current(cls, data, source) -> Dict[str, Source]:
+        if not current_user:
+            raise Exception('Must be authenticated')        
+
+        if not source:
+            raise Exception('Source not exist: uuid={0}'.format(source.uuid))            
+        
+        # user_id, source_id, comment, data, created_at, is_current
+        source_version = TermSources.query.filter_by(sources_id=source.id).first()        
+        source_version.is_current = True        
+        source.data = data
+        sync_term_source_with_data(source)
+
+        db.session.commit()
+
+        msg = 'Source id={0} is now current'.format(source_version.id)
+        return msg, source
 
     @classmethod
     def set_source_approved(cls, source):
@@ -151,7 +176,7 @@ class Sources:
         source = Source.query.filter_by(uuid=source_uuid).first()
 
         if not source:
-            raise Exception('Source not exist: uuid={0}')            
+            raise Exception('Source not exist: uuid={0}'.format(source_uuid))            
         
         # user_id, source_id, comment, data, created_at, is_current
         new_source_version = SourceVersion()
@@ -231,11 +256,11 @@ class Sources:
             param status: 'all', 'approved', 'review', 'unofficial'
         """
         if status == 'approved':
-            status = SourceStatus.APPROVED
+            status = SourceStatus.APPROVED.value
         elif status == 'review':
-            status = SourceStatus.TO_REVIEW
+            status = SourceStatus.TO_REVIEW.value
         elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL
+            status = SourceStatus.UNOFFICIAL.value
 
         sources = cls.get_arguments_for_source_from_action(current_user, 'source_editor_actions')
         
@@ -256,12 +281,12 @@ class Sources:
         """        
 
         if status == 'approved':
-            status = SourceStatus.APPROVED
+            status = SourceStatus.APPROVED.value
         elif status == 'review':
-            status = SourceStatus.TO_REVIEW
+            status = SourceStatus.TO_REVIEW.value
         elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL
-
+            status = SourceStatus.UNOFFICIAL.value
+        
         if is_current_user_source_admin():
             return 'ok', Sources.get_sources_list_x_status(status)
         
@@ -280,13 +305,7 @@ class Sources:
                 sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status).all()
             else:
                 sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms)).all()
-        
-        # sources = []
-        # if sources_directly:
-        #     sources.append(sources_directly)
-        # if sources_by_term:
-        #     sources.append(sources_by_term)
-        
+              
         if sources_directly or sources_by_term:
             return 'ok', sources_directly+sources_by_term
         
