@@ -208,7 +208,6 @@ def source_set_approved(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-
 @api_blueprint.route('/user/permissions')
 @require_api_auth()
 def sources_current_user_permissions():

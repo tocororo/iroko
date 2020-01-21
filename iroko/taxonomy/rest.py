@@ -85,6 +85,7 @@ def vocabulary_get(id):
 @require_api_auth()
 @taxonomy_admin_required
 def vocabulary_edit(id):
+    print(current_user)
     msg = ''
     try:
 
