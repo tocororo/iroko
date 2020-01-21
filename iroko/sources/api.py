@@ -231,11 +231,11 @@ class Sources:
             param status: 'all', 'approved', 'review', 'unofficial'
         """
         if status == 'approved':
-            status = SourceStatus.APPROVED
+            status = SourceStatus.APPROVED.value
         elif status == 'review':
-            status = SourceStatus.TO_REVIEW
+            status = SourceStatus.TO_REVIEW.value
         elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL
+            status = SourceStatus.UNOFFICIAL.value
 
         sources = cls.get_arguments_for_source_from_action(current_user, 'source_editor_actions')
         
@@ -256,12 +256,12 @@ class Sources:
         """        
 
         if status == 'approved':
-            status = SourceStatus.APPROVED
+            status = SourceStatus.APPROVED.value
         elif status == 'review':
-            status = SourceStatus.TO_REVIEW
+            status = SourceStatus.TO_REVIEW.value
         elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL
-
+            status = SourceStatus.UNOFFICIAL.value
+        
         if is_current_user_source_admin():
             return 'ok', Sources.get_sources_list_x_status(status)
         
