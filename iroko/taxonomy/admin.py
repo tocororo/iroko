@@ -54,7 +54,7 @@ class TermModelView(ModelView):
 
     column_default_sort = ('name', True)
 
-    column_filters =  ('id', 'name', 'vocabulary')
+    column_filters =  ('id', 'uuid', 'name', 'vocabulary')
 
     # form_columns = ('name', 'description')
     form_columns = ('vocabulary', 'name', 'description', 'parent_id')

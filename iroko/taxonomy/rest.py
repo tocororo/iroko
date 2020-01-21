@@ -85,6 +85,7 @@ def vocabulary_get(id):
 @require_api_auth()
 @taxonomy_admin_required
 def vocabulary_edit(id):
+    print(current_user)
     msg = ''
     try:
 
@@ -148,9 +149,9 @@ def get_terms_list():
 
 @api_blueprint.route('/term/list/<vocabulary_id>')
 def get_terms(vocabulary_id):
-    """List the first level o the terms in a vocabulary """
+    """Get all terms of a vocabulary in a list """
     try:
-        msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
+        msg, terms = Terms.get_terms_by_vocab(vocabulary_id)
         return iroko_json_response(IrokoResponseStatus.SUCCESS,'ok','terms',term_schema_many.dump(terms))
     except Exception as e:
         msg = str(e)

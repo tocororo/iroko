@@ -5,10 +5,10 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema
+from iroko.sources.marshmallow import source_schema, source_schema_many
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
-from iroko.sources.api import Sources, get_current_user_source_permissions, get_user_ids_source_gestor
+from iroko.sources.api import Sources, get_current_user_source_permissions
 from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
@@ -55,6 +55,22 @@ def get_source_by_uuid(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
 
 
+# @api_blueprint.route('/<uuid>')
+# def get_source_version_by_uuid(uuid):
+#     """Get a source version by UUID of the source"""
+#     try: 
+#         source = Sources.get_source_by_id(uuid=uuid)
+#         if not source:
+#             raise Exception('Source not found')
+
+#         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+#                         'ok','sources', \
+#                         {'data': source_schema.dump(source), 'count': 1})
+
+#     except Exception as e:
+#         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+
+
 @api_blueprint.route('/new', methods=['POST'])
 @require_api_auth()
 def source_new():
@@ -83,7 +99,7 @@ def source_new():
     # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
     # Aqui no se trata la parte que tiene en ver con repo!!!!
 
-@api_blueprint.route('/<uuid>/new-version', methods=['POST'])
+@api_blueprint.route('/<uuid>/edit', methods=['POST'])
 @require_api_auth()
 def source_new_version(uuid):
 
@@ -106,11 +122,57 @@ def source_new_version(uuid):
         if terms:
             terms = terms[1,-1]
 
-        with source_term_gestor_permission_factory({'terms': terms}).require():
-            is_current = True if "is_current" in input_data else False
+        try:
+            with source_editor_permission_factory({'uuid':uuid}).require():
+                is_current = source.source_status is not SourceStatus.APPROVED 
+                msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
+                if not source or not source_version:                
+                    raise Exception('Not source for changing found')
 
-            msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
-            if not source or not source_version:                
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','sources', \
+                            {'data': source_schema.dump(source), 'count': 1})
+        except PermissionDenied as e:
+            with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():                
+                msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True)
+                if not source or not source_version:                
+                    raise Exception('Not source for changing found')
+
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','sources', \
+                            {'data': source_schema.dump(source), 'count': 1})
+
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+
+
+@api_blueprint.route('/<uuid>/current', methods=['POST'])
+@require_api_auth()
+def source_version_set_current(uuid):
+    # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
+    # comprobar que el usuario tiene el role para hacer esto.
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
+
+        input_data = request.json
+        
+        source = Sources.get_source_by_id(uuid=uuid)
+
+        if not source:
+            raise Exception('Not source found')
+        
+        terms = ''
+        for term in source.terms:
+            terms = terms + str(term.id) + ','
+        if terms:
+            terms = terms[1,-1]
+
+        with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():
+            msg, source  = Sources.set_source_current(input_data, source)
+            if not source:                
                 raise Exception('Not source for changing found')
 
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -123,18 +185,22 @@ def source_new_version(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
 
 
-@api_blueprint.route('/<uuid>/current', methods=['GET', 'POST'])
+@api_blueprint.route('/<uuid>/approved', methods=['GET', 'POST'])
 @require_api_auth()
-def source_version_set_current(uuid):
-    # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
-    # comprobar que el usuario tiene el role para hacer esto.
+def source_set_approved(uuid):    
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
-            raise Exception('Not source found.')
-        #source.data[]
+            raise Exception('Source not found.')
+        
         with source_gestor_permission_factory({'uuid': uuid}).require():
-            src = Sources.get_source_by_id(uuid=uuid)
+            Sources.set_source_approved(source)
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'Source {0} approved.'.format(source.name),
+                'approved',
+                source_schema.dumps(source)
+            )
     
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -142,9 +208,8 @@ def source_version_set_current(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-
 @api_blueprint.route('/user/permissions')
-# @require_api_auth()
+@require_api_auth()
 def sources_current_user_permissions():
     msg = ''
     try:
@@ -163,11 +228,11 @@ def sources_current_user_permissions():
 
 
 @api_blueprint.route('/gestor/<uuid>')
-# @require_api_auth()
+@require_api_auth()
 def get_source_gestor(uuid):
     
     try:
-        msg, user_ids  = get_user_ids_source_gestor(uuid)
+        msg, user_ids  = Sources.get_user_ids_source_gestor(uuid)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
@@ -181,17 +246,19 @@ def get_source_gestor(uuid):
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/editor/sources')
-# @require_api_auth()
-def get_sources_from_editor():
-    
+@api_blueprint.route('/editor/sources/<status>')
+@require_api_auth()
+def get_sources_from_editor(status):
+    """
+        param status: 'all', 'approved', 'review', 'unofficial'
+    """
     try:
-        msg, sources  = Sources.get_sources_from_editor_current_user()
+        msg, sources  = Sources.get_sources_from_editor_current_user(status)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            sources
+            source_schema_many.dumps(sources)
             )
 
     except Exception as e:
@@ -200,20 +267,25 @@ def get_sources_from_editor():
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/gestor/sources')
-# @require_api_auth()
-def get_sources_from_gestor():
-    
+@api_blueprint.route('/gestor/sources/<status>')
+@require_api_auth()
+def get_sources_from_gestor(status):
+    """
+        param status: 'all', 'approved', 'review', 'unofficial'
+    """        
     try:
-        msg, sources  = Sources.get_sources_from_gestor_current_user()
+        msg, sources  = Sources.get_sources_from_gestor_current_user(status)
+        
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            sources
+            source_schema_many.dumps(sources)
             )
 
     except Exception as e:
         msg = str(e)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
