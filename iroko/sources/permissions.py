@@ -27,6 +27,19 @@ def iroko_action_factory(name, parameter=False):
         return ActionNeed(name)
 
 
+#creando action
+source_full_gestor_actions = action_factory('source_full_gestor_actions')
+
+ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
+source_editor_actions = ObjectSourceEditor(None)
+
+ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
+source_gestor_actions = ObjectSourceGestor(None)
+
+ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
+source_term_gestor_actions = ObjectSourceTermGestor(None)
+
+
 def is_current_user_source_admin():
     its = False
     try:
@@ -46,21 +59,6 @@ def is_current_user_source_admin():
         print(str(e))
     
     return its
-
-
-#creando action
-source_full_editor_actions = action_factory('source_full_editor_actions')
-source_full_gestor_actions = action_factory('source_full_gestor_actions')
-
-ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
-source_editor_actions = ObjectSourceEditor(None)
-
-ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
-source_gestor_actions = ObjectSourceGestor(None)
-
-ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
-source_term_gestor_actions = ObjectSourceTermGestor(None)
-
 
 
 
