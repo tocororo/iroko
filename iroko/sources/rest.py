@@ -187,7 +187,7 @@ def source_version_set_current(uuid):
 
 @api_blueprint.route('/<uuid>/approved', methods=['GET', 'POST'])
 @require_api_auth()
-def source_version_set_approved(uuid):    
+def source_set_approved(uuid):    
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
