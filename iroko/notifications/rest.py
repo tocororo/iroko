@@ -133,7 +133,7 @@ def notification_edit(id):
 
 #TODO: Need authentication
 @api_blueprint.route('/viewed/<id>')
-@require_api_auth()
+# @require_api_auth()
 def notification_viewed(id):
     
     # FIXME: get the user is trying to perform this action!!!!
