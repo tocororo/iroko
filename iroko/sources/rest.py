@@ -290,7 +290,7 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-#@require_api_auth()
+@require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'review', 'unofficial'
