@@ -177,8 +177,6 @@ class Terms:
             raise Exception(msg)
 
         msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
-        if not terms:
-            raise Exception(msg)
 
         terms_full = []
         for term in terms:
