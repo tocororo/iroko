@@ -289,3 +289,34 @@ def get_sources_from_gestor(status):
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
+@api_blueprint.route('/me/sources/<status>')
+@require_api_auth()
+def get_sources_from_user(status):
+    """
+        param status: 'all', 'approved', 'review', 'unofficial'
+    """        
+    try:
+        msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
+        msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)        
+        
+        in_first = set(sources_gestor)
+        in_second = set(sources_editor)
+
+        in_second_but_not_in_first = in_second - in_first
+
+        result = sources_gestor + list(in_second_but_not_in_first)
+        print(result)
+
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            msg,
+            'sources',
+            source_schema_many.dumps(result)
+            )
+
+    except Exception as e:
+        msg = str(e)
+
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
