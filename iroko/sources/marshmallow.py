@@ -1,8 +1,10 @@
 
 from marshmallow import Schema, fields, ValidationError, pre_load, post_dump
-from iroko.sources.models import Source, SourceType, TermSources, SourceType
+from iroko.sources.models import Source, SourceVersion, SourceType, TermSources, SourceType
 from invenio_records_rest.schemas.fields import DateString
 from iroko.harvester.marshmallow import RepositorySchema
+from sqlalchemy import desc, asc
+
 
 class TermSourcesSchema(Schema):
     term_id = fields.Int()
@@ -33,7 +35,9 @@ class BaseSourceSchema(Schema):
     @post_dump
     def dump_need_review_version(self, source, **kwargs):
         # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current. 
-        source['version_to_review'] = True 
+        versions = SourceVersion.query.filter_by(source_id=source['id']).order_by(desc(SourceVersion.created_at)).first()
+        if versions and not versions.is_current:
+            source['version_to_review'] = True 
         return source
 
 
