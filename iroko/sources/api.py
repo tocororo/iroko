@@ -124,7 +124,7 @@ class Sources:
             #transactions are taking place but, however, are not written to disk yet...
             #so we can use new_source.id for granting editor permission
             db.session.flush()
-            cls.grant_source_editor_permission(current_user.id, new_source.id)            
+            cls.grant_source_editor_permission(current_user.id, new_source.uuid)            
             cls.insert_new_source_version(new_source.data, new_source.id, True, is_flush=True)
 
             db.session.commit()
@@ -201,23 +201,24 @@ class Sources:
         return msg, source, new_source_version
 
     @classmethod
-    def grant_source_editor_permission(cls, user_id, source_id, is_flush=True) -> Dict[str, bool]:
+    def grant_source_editor_permission(cls, user_id, source_uuid, is_flush=True) -> Dict[str, bool]:
         done = False
         msg = ''
         try:  
-            source = Source.query.filter_by(id=source_id).first()
+            #source = Source.query.filter_by(id=source_id).first()            
+            # if not source:
+            #     msg = 'source not found'
+            
             user = User.query.filter_by(id=user_id)
-            if not source:
-                msg = 'source not found'
-            elif not user:
+            if not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))        
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source_uuid), user=user))        
                 if is_flush:
                     db.session.flush()
                 else:
                     db.session.commit()
-                msg = 'Source Editor Permission granted over {0}'.format(source.name)
+                msg = 'Source Editor Permission granted '
                 done = True
             
         except Exception as e:
@@ -226,30 +227,6 @@ class Sources:
         
         return msg, done
     
-    @classmethod
-    def check_user_source_editor_permission(cls, user_id, vocabulary_id)-> Dict[str, bool]:
-        done = False
-        msg = ''
-        try:
-            if is_current_user_source_admin():
-                done = True
-            else:
-                source = Source.query.filter_by(id=vocabulary_id).first()
-                user = User.query.filter_by(id=user_id)
-                user_identity = get_identity(user)
-
-                permission = Permission(ObjectSourceGestor(source.id))
-                done = permission.allows(user_identity)
-                if not done:
-                    permission = Permission(ObjectSourceEditor(source.id))
-                    done = permission.allows(user_identity)
-            pass
-        except Exception as e:
-            msg = str(e)
-            print(str(e))
-        
-        return msg, done
-
     @classmethod
     def get_sources_from_editor_current_user(cls, status='all')-> Dict[str, list]:
         """
