@@ -19,8 +19,18 @@ class Notifications:
 
     @classmethod
     def get_notification(cls, id) -> Dict[str, Notification]:
-        print('entra')
         notif = Notification.query.filter_by(id=id).first()
+        if notif:
+            return 'ok', notif
+        else:
+            msg = 'Notification not exist id={0}'.format(id)
+            return msg, None
+
+    @classmethod
+    def get_notification_receiver(cls, id) -> Dict[str, list]:
+        print('id= ', id)
+        notif = Notification.query.filter_by(receiver_id=id).all()
+        print('result= ', notif)
         if notif:
             return 'ok', notif
         else:
@@ -33,12 +43,12 @@ class Notifications:
 
         msg, notif = cls.get_notification(id)
         if notif:
-            valid_data, errors = notification_schema.load(data)
-            if not errors:
+            valid_data = notification_schema.load(data)
+            if valid_data:
                 notif.classification = valid_data['classification']
                 notif.description = valid_data['description']
-                notif.description = valid_data['receiver']
-                notif.description = valid_data['emiter']
+                notif.receiver_id = valid_data['receiver_id']
+                notif.emiter = valid_data['emiter']
                 notif.data = valid_data['data']
                 db.session.commit()
                 msg = 'New Notification UPDATED classification={0}'.format(notif.classification)
@@ -47,29 +57,35 @@ class Notifications:
                 notif = None
         return msg, notif
 
+    
+    @classmethod
+    def viewed_notification(cls, id) -> Dict[str, Notification]:
+
+        msg, notif = cls.get_notification(id)
+        if notif:
+            notif.viewed = True
+            db.session.commit()
+            msg = 'New Notification VIEWED classification={0}'.format(notif.classification)
+        return msg, notif
+
 
     @classmethod
     def new_notification(cls, data) -> Dict[str, Notification]:
 
-        notif_data, errors = notification_schema.load(data)
-        if not errors:
-            notif = Notification.query.filter_by(calssification=valid_data['calssification']).first()
-            if not ntif:
-                notif = Notification()
-                notif.classification = valid_data['calssification']
-                notif.description = valid_data['description']
-                notif.receiver_id = valid_data['receiver']
-                notif.description = valid_data['emiter']
-                notif.data = valid_data['data']
-                db.session.add(notif)
-                db.session.commit()
-                
-                msg = 'New Notification CREATED calssification={0}'.format(notif.calssification)
-            else:
-                msg = 'Notification already exist calssification={0}'.format(notif.calssification)
-                notif = None
+        notif_data = notification_schema.load(data)
+        if notif_data:
+            notif = Notification()
+            notif.classification = notif_data['classification']
+            notif.description = notif_data['description']
+            notif.receiver_id = notif_data['receiver_id']
+            notif.emiter = notif_data['emiter']
+            notif.data = notif_data['data']
+            db.session.add(notif)
+            db.session.commit()
+
+            msg = 'New Notification CREATED classification={0}'.format(notif.classification)
         else:
-            msg = errors
+            msg = 'Invalid data'
             notif = None
         return msg, notif
 
