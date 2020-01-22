@@ -302,12 +302,18 @@ def get_sources_from_editor(status):
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """
     try:
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+
         msg, sources  = Sources.get_sources_from_editor_current_user(status)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(sources)
+            source_schema_many.dumps(sources[offset:offset+limit])
             )
 
     except Exception as e:
@@ -323,13 +329,19 @@ def get_sources_from_gestor(status):
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """        
     try:
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+        
         msg, sources  = Sources.get_sources_from_gestor_current_user(status)
         
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(sources)
+            source_schema_many.dumps(sources[offset:offset+limit])
             )
 
     except Exception as e:
@@ -339,12 +351,18 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-#@require_api_auth()
+@require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """        
     try:
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
         msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)        
         
@@ -354,13 +372,12 @@ def get_sources_from_user(status):
         in_second_but_not_in_first = in_second - in_first
 
         result = sources_gestor + list(in_second_but_not_in_first)
-        print(result)
-
+        
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(result)
+            source_schema_many.dumps(result[offset:offset+limit])
             )
 
     except Exception as e:
