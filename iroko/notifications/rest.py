@@ -44,7 +44,7 @@ api_blueprint = Blueprint(
 )
 
 @api_blueprint.route('/list')
-# @require_api_auth()
+@require_api_auth()
 def get_notifications():
     try:
         """
