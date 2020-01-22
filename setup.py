@@ -241,6 +241,7 @@ setup(
             'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',            
             'taxonomy_full_editor_actions = iroko.taxonomy.permissions:taxonomy_full_editor_actions',
             'notification_admin_actions = iroko.notifications.permissions:notification_admin_actions',
+            'notification_viewed_actions = iroko.notifications.permissions:notification_viewed_actions'
         ]
     },
     # extras_require=extras_require,
