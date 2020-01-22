@@ -29,7 +29,7 @@ class Sources:
         if status == 'all':
             return list(map(lambda x: x, db.session.query(Source).all()))
         else:
-            return list(map(lambda x: x, db.session.query(Source).filter(Source.source_status==status).all()))
+            return list(map(lambda x: x, db.session.query(Source).filter(Source.source_status==status.upper()).all()))
 
     @classmethod
     def get_sources_id_list(cls):
@@ -230,19 +230,13 @@ class Sources:
     @classmethod
     def get_sources_from_editor_current_user(cls, status='all')-> Dict[str, list]:
         """
-            param status: 'all', 'approved', 'review', 'unofficial'
-        """
-        if status == 'approved':
-            status = SourceStatus.APPROVED.value
-        elif status == 'review':
-            status = SourceStatus.TO_REVIEW.value
-        elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL.value
+            param status: 'all', 'approved', 'to_review', 'unofficial' """
+        
 
         sources = cls.get_arguments_for_source_from_action(current_user, 'source_editor_actions')
         
         if not status == 'all':
-            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources), Source.source_status==status).all()
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources), Source.source_status==status.upper()).all()
         else:
             sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources)).all()
 
@@ -254,22 +248,15 @@ class Sources:
     @classmethod
     def get_sources_from_gestor_current_user(cls, status='all')-> Dict[str, list]:
         """
-            param status: 'all', 'approved', 'review', 'unofficial'
-        """        
-
-        if status == 'approved':
-            status = SourceStatus.APPROVED.value
-        elif status == 'review':
-            status = SourceStatus.TO_REVIEW.value
-        elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL.value
+            param status: 'all', 'approved', 'to_review', 'unofficial'
+        """               
         
         if is_current_user_source_admin():
             return 'ok', Sources.get_sources_list_x_status(status)
         
         sources_ids_directly = cls.get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
         if not status == 'all':
-            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly), Source.source_status==status).all()
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly), Source.source_status==status.upper()).all()
         else:
             sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly)).all()
        
@@ -279,7 +266,7 @@ class Sources:
         if terms_uuids:
             all_terms = _load_terms_tree_by_uuid(terms_uuids)
             if not status == 'all':
-                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status).all()
+                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status.upper()).all()
             else:
                 sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms)).all()
               
