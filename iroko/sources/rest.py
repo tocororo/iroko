@@ -248,7 +248,7 @@ def source_set_approved(uuid):
                 IrokoResponseStatus.SUCCESS,
                 'Source {0} approved.'.format(source.name),
                 'approved',
-                source_schema.dumps(source)
+                source_schema.dump(source)
             )
     
     except PermissionDenied as err:
@@ -313,7 +313,7 @@ def get_sources_from_editor(status):
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(sources[offset:offset+limit])
+            source_schema_many.dump(sources[offset:offset+limit])
             )
 
     except Exception as e:
@@ -341,7 +341,7 @@ def get_sources_from_gestor(status):
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(sources[offset:offset+limit])
+            source_schema_many.dump(sources[offset:offset+limit])
             )
 
     except Exception as e:
@@ -351,7 +351,7 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-@require_api_auth()
+#@require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
@@ -377,7 +377,7 @@ def get_sources_from_user(status):
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(result[offset:offset+limit])
+            source_schema_many.dump(result)
             )
 
     except Exception as e:
