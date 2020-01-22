@@ -1,7 +1,7 @@
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
-
+from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
@@ -14,6 +14,9 @@ from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
 from flask_principal import PermissionDenied
 from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, source_gestor_permission_factory
+from iroko.notifications.marshmallow import NotificationSchema
+from iroko.notifications.api import Notifications
+from iroko.notifications.models import NotificationType
 
 
 
@@ -83,6 +86,18 @@ def source_new():
         msg, source = Sources.insert_new_source(input_data)
         if not source:
             raise Exception(msg)
+        
+        notification = NotificationSchema()
+        notification.classification = NotificationType.INFO
+        notification.description = _('Nueva fuente ingresada, requiere revisión de un gestor {0}'.format(source.name))
+        notification.emiter = _('Sistema')
+
+        msg, users = Sources.get_user_ids_source_gestor(source.uuid)
+        if users:
+            for user_id in users:
+                notification.receiver_id = user_id
+                Notifications.new_notification(notification)
+
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
@@ -128,6 +143,17 @@ def source_new_version(uuid):
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
                 if not source or not source_version:                
                     raise Exception('Not source for changing found')
+                
+                notification = NotificationSchema()
+                notification.classification = NotificationType.INFO
+                notification.description = _('El gestor ha editado la fuente: {0}.'.format(source.name))
+                notification.emiter = _('Sistema')
+
+                msg, users = Sources.get_user_ids_source_editor(source.uuid)
+                if users:
+                    for user_id in users:
+                        notification.receiver_id = user_id
+                        Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
@@ -137,6 +163,17 @@ def source_new_version(uuid):
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True)
                 if not source or not source_version:                
                     raise Exception('Not source for changing found')
+                
+                notification = NotificationSchema()
+                notification.classification = NotificationType.INFO
+                notification.description = _('Editada fuente: {0} y requiere revisión de un gestor.'.format(source.name))
+                notification.emiter = _('Sistema')
+                
+                msg, users = Sources.get_user_ids_source_gestor(source.uuid)
+                if users:
+                    for user_id in users:
+                        notification.receiver_id = user_id
+                        Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
@@ -195,6 +232,18 @@ def source_set_approved(uuid):
         
         with source_gestor_permission_factory({'uuid': uuid}).require():
             Sources.set_source_approved(source)
+
+            notification = NotificationSchema()
+            notification.classification = NotificationType.INFO
+            notification.description = _('El gestor ha aprobado para incluir en Sceiba la fuente: {0}.'.format(source.name))
+            notification.emiter = _('Sistema')
+
+            msg, users = Sources.get_user_ids_source_editor(source.uuid)
+            if users:
+                for user_id in users:
+                    notification.receiver_id = user_id
+                    Notifications.new_notification(notification)
+
             return iroko_json_response(
                 IrokoResponseStatus.SUCCESS,
                 'Source {0} approved.'.format(source.name),
