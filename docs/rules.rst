@@ -11,7 +11,7 @@ Sources's Rules
 ------------
     Editor
     • Puede agregar una nueva fuente fuente
-    • Al agregar fuente el siste envia notificacion a los gestores de los terminos
+    • Al agregar fuente el sistema envia notificacion a los gestores de los terminos
     • Puede editar una fuente, que si no esta aprobada seria la current
     • Al editar enviar notificacion a los gestores 
     •

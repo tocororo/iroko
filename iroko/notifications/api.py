@@ -1,5 +1,5 @@
 from typing import Dict
-
+from flask_babelex import lazy_gettext as _
 from invenio_db import db
 from invenio_access.utils import get_identity 
 from flask_login import current_user

@@ -38,6 +38,8 @@ class BaseSourceSchema(Schema):
         versions = SourceVersion.query.filter_by(source_id=source['id']).order_by(desc(SourceVersion.created_at)).first()
         if versions and not versions.is_current:
             source['version_to_review'] = True 
+        else:
+            source['version_to_review'] = False
         return source
 
 
