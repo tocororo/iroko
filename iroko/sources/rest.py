@@ -250,7 +250,7 @@ def get_source_gestor(uuid):
 @require_api_auth()
 def get_sources_from_editor(status):
     """
-        param status: 'all', 'approved', 'review', 'unofficial'
+        param status: 'all', 'approved', 'to_review', 'unofficial'
     """
     try:
         msg, sources  = Sources.get_sources_from_editor_current_user(status)
@@ -271,7 +271,7 @@ def get_sources_from_editor(status):
 @require_api_auth()
 def get_sources_from_gestor(status):
     """
-        param status: 'all', 'approved', 'review', 'unofficial'
+        param status: 'all', 'approved', 'to_review', 'unofficial'
     """        
     try:
         msg, sources  = Sources.get_sources_from_gestor_current_user(status)
@@ -290,10 +290,10 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-@require_api_auth()
+#@require_api_auth()
 def get_sources_from_user(status):
     """
-        param status: 'all', 'approved', 'review', 'unofficial'
+        param status: 'all', 'approved', 'to_review', 'unofficial'
     """        
     try:
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)

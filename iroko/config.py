@@ -107,6 +107,8 @@ THEME_FRONTPAGE_TITLE = _('sceiba')
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
+CATALOG_LOGO_ADMIN = 'images/archives_icon_129343.png'
+TAXONOMY_LOGO_ADMIN = 'images/checklist_icon_129189.png'
 #: Frontpage template.
 THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
 THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
