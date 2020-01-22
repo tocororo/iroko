@@ -85,7 +85,7 @@ class Vocabularies:
         msg = ''
         try:
             vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
-            user = User.query.filter_by(id=user_id)
+            user = User.query.filter_by(id=user_id).first()
             if not vocabulary:
                 msg = 'Vocabulary not found'
             elif not user:
@@ -108,7 +108,7 @@ class Vocabularies:
         msg = ''
         try:
             vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
-            user = User.query.filter_by(id=user_id)
+            user = User.query.filter_by(id=user_id).first()
             if not vocabulary:
                 msg = 'Vocabulary not found'
             elif not user:
