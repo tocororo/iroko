@@ -46,10 +46,10 @@ def get_source_by_uuid(uuid):
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Source not found')
-
+        
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        'ok','sources', \
-                        {'data': source_schema.dump(source), 'count': 1})
+                            'ok','source', \
+                            source_schema.dump(source))
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   

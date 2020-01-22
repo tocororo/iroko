@@ -58,11 +58,9 @@ def get_notifications():
 
         result = Notification.query.filter_by(receiver_id = current_user.id).order_by('viewed').all()
         result1 = Notification.query.filter_by(receiver_id = current_user.id,viewed = False).all()
-        print(result)
+        
         count_not_viewed = len(result1)
         count_total = len(result)
-        if not result:
-            raise Exception('Notification not found')
         
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','notifications', \
