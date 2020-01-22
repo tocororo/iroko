@@ -29,7 +29,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, jsonify, request, json
 from invenio_oauth2server import require_api_auth
 from flask_login import current_user
-
+from iroko.notifications.permissions import notification_viewed_permission_factory
 from iroko.notifications.models import Notification
 from iroko.notifications.marshmallow import notification_schema_many, notification_schema
 
@@ -44,7 +44,7 @@ api_blueprint = Blueprint(
 )
 
 @api_blueprint.route('/list')
-# @require_api_auth()
+@require_api_auth()
 def get_notifications():
     try:
         """
@@ -57,13 +57,16 @@ def get_notifications():
         offset = count*page
 
         result = Notification.query.filter_by(receiver_id = current_user.id).order_by('viewed').all()
+        result1 = Notification.query.filter_by(receiver_id = current_user.id,viewed = False).all()
+        print(result)
+        count_not_viewed = len(result1)
         count_total = len(result)
         if not result:
             raise Exception('Notification not found')
         
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','notifications', \
-                            {'data':notification_schema_many.dump(result[offset:offset+limit]), 'total': count_total})                    
+                            {'data':notification_schema_many.dump(result[offset:offset+limit]), 'total': count_total, 'total_not_view': count_not_viewed})                    
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -108,7 +111,7 @@ def notification_get_receiver(id):
 
 #TODO: Need authentication
 @api_blueprint.route('/edit/<id>', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def notification_edit(id):
 
     # FIXME: get the user is trying to perform this action!!!!
@@ -138,15 +141,14 @@ def notification_viewed(id):
     
     # FIXME: get the user is trying to perform this action!!!!
     try:
-        user = None
+        with notification_viewed_permission_factory({'id':id}).require():
+            msg, notif = Notifications.viewed_notification(id)
+            if not notif:
+                raise Exception('Notifications not found')
 
-        msg, notif = Notifications.viewed_notification(id)
-        if not notif:
-            raise Exception('Notifications not found')
-
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'notification', \
-                        notification_schema.dump(notif))
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'notification', \
+                            notification_schema.dump(notif))
 
     except Exception as e:
         msg = str(e)
@@ -155,7 +157,7 @@ def notification_viewed(id):
 
 #TODO: Need authentication
 @api_blueprint.route('/new', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def notification_new():
 
     # FIXME: get the user is trying to perform this action!!!!
