@@ -1,7 +1,7 @@
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
-
+from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
@@ -14,6 +14,9 @@ from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
 from flask_principal import PermissionDenied
 from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, source_gestor_permission_factory
+from iroko.notifications.marshmallow import NotificationSchema
+from iroko.notifications.api import Notifications
+from iroko.notifications.models import NotificationType
 
 
 
@@ -83,6 +86,18 @@ def source_new():
         msg, source = Sources.insert_new_source(input_data)
         if not source:
             raise Exception(msg)
+        
+        notification = NotificationSchema()
+        notification.classification = NotificationType.INFO
+        notification.description = _('Nueva fuente ingresada, requiere revisión de un gestor {0}'.format(source.name))
+        notification.emiter = _('Sistema')
+
+        msg, users = Sources.get_user_ids_source_gestor(source.uuid)
+        if users:
+            for user_id in users:
+                notification.receiver_id = user_id
+                Notifications.new_notification(notification)
+
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
@@ -128,6 +143,17 @@ def source_new_version(uuid):
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
                 if not source or not source_version:                
                     raise Exception('Not source for changing found')
+                
+                notification = NotificationSchema()
+                notification.classification = NotificationType.INFO
+                notification.description = _('El gestor ha editado la fuente: {0}.'.format(source.name))
+                notification.emiter = _('Sistema')
+
+                msg, users = Sources.get_user_ids_source_editor(source.uuid)
+                if users:
+                    for user_id in users:
+                        notification.receiver_id = user_id
+                        Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
@@ -137,6 +163,17 @@ def source_new_version(uuid):
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True)
                 if not source or not source_version:                
                     raise Exception('Not source for changing found')
+                
+                notification = NotificationSchema()
+                notification.classification = NotificationType.INFO
+                notification.description = _('Editada fuente: {0} y requiere revisión de un gestor.'.format(source.name))
+                notification.emiter = _('Sistema')
+                
+                msg, users = Sources.get_user_ids_source_gestor(source.uuid)
+                if users:
+                    for user_id in users:
+                        notification.receiver_id = user_id
+                        Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','sources', \
@@ -195,11 +232,23 @@ def source_set_approved(uuid):
         
         with source_gestor_permission_factory({'uuid': uuid}).require():
             Sources.set_source_approved(source)
+
+            notification = NotificationSchema()
+            notification.classification = NotificationType.INFO
+            notification.description = _('El gestor ha aprobado para incluir en Sceiba la fuente: {0}.'.format(source.name))
+            notification.emiter = _('Sistema')
+
+            msg, users = Sources.get_user_ids_source_editor(source.uuid)
+            if users:
+                for user_id in users:
+                    notification.receiver_id = user_id
+                    Notifications.new_notification(notification)
+
             return iroko_json_response(
                 IrokoResponseStatus.SUCCESS,
                 'Source {0} approved.'.format(source.name),
                 'approved',
-                source_schema.dumps(source)
+                source_schema.dump(source)
             )
     
     except PermissionDenied as err:
@@ -253,12 +302,18 @@ def get_sources_from_editor(status):
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """
     try:
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+
         msg, sources  = Sources.get_sources_from_editor_current_user(status)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(sources)
+            source_schema_many.dump(sources[offset:offset+limit])
             )
 
     except Exception as e:
@@ -274,13 +329,19 @@ def get_sources_from_gestor(status):
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """        
     try:
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+        
         msg, sources  = Sources.get_sources_from_gestor_current_user(status)
         
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(sources)
+            source_schema_many.dump(sources[offset:offset+limit])
             )
 
     except Exception as e:
@@ -290,12 +351,18 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-#@require_api_auth()
+@require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """        
     try:
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
         msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)        
         
@@ -305,13 +372,12 @@ def get_sources_from_user(status):
         in_second_but_not_in_first = in_second - in_first
 
         result = sources_gestor + list(in_second_but_not_in_first)
-        print(result)
-
+        
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dumps(result)
+            source_schema_many.dump(result)
             )
 
     except Exception as e:

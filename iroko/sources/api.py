@@ -1,5 +1,5 @@
-
 from typing import Dict
+from flask_babelex import lazy_gettext as _
 from flask_login import current_user
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
@@ -128,7 +128,7 @@ class Sources:
             cls.insert_new_source_version(new_source.data, new_source.id, True, is_flush=True)
 
             db.session.commit()
-
+            
             msg = 'New Source created id={0}'.format(new_source.id)
             done = True 
 
@@ -278,7 +278,10 @@ class Sources:
     @classmethod
     def get_userids_for_source_from_action(cls, paction, p_argument=None):
     
-        user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(argument=str(p_argument),exclude=False,action=paction).all()))
+        if p_argument:
+            user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(argument=str(p_argument),exclude=False,action=paction).all()))
+        else:
+            user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(exclude=False,action=paction).all()))
             
         return user_ids
 
@@ -288,6 +291,15 @@ class Sources:
         arguments = list(map(lambda x: x.argument, db.session.query(ActionUsers).filter_by(user=puser,exclude=False,action=paction).all()))
         
         return arguments
+
+    @classmethod
+    def get_user_ids_source_editor(cls, uuid) -> Dict[str, list]:
+        #TODO validate uuid
+        gestors = cls.get_userids_for_source_from_action('source_editor_actions', uuid)
+        if gestors:
+            return 'ok', gestors
+        
+        return 'error', []
 
     @classmethod
     def get_user_ids_source_gestor(cls, uuid) -> Dict[str, list]:
