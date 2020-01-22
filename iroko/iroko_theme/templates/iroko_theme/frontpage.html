@@ -17,26 +17,31 @@
 
     <div class="row justify-content-center mt-4">
         <div class="col-lg-4 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" src="{{ url_for('static', filename=config.THEME_LOGO)}}"
-            alt="{{_(config.THEME_SITENAME)}}">
-
-            <h2>Inclusión</h2>
-            <p>Usted puede iniciar el proceso de registro de revistas científicas o repositorios institucionales...</p>
-            <a class="btn btn-info" href="#" role="button">Iniciar Proceso »</a>
+            <a>
+                <img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
+                    alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catalog')}}">
+            </a>            
+            <p>                
+                <br/>Sistema de fuentes registradas en Sceiba y su manejo por editores y gestores. 
+            </p>
+            <h4><a class="text-default" href="">¿Quiere ser parte de Sceiba? </a></h2>                
+            
+            <a class="btn btn-info btn-orange" href="#" role="button">Catátogo »</a>
         </div>
 
         <div class="col-lg-4 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" src="{{ url_for('static', filename=config.THEME_LOGO)}}"
-            alt="{{_(config.THEME_SITENAME)}}">
+            <a>
+                <img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
+                    alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomy')}}">
+            </a>           
 
-            <h2>Taxonomía</h2>
-            <p>Usted puede procesar los vocabularios controlados y términos para lograr la unicidad en las búsquedas...</p>
-            <a class="btn btn-info" href="#" role="button">Iniciar Proceso »</a>
+            <p></p>
+            <p>Sistema de vocabularios y términos controlados para lograr la estandarización y la unicidad en las búsquedas...</p>
+            <a class="btn btn-info btn-orange" href="#" role="button">Taxonomía »</a>
         </div>
-
-
     </div>
-
+    <br/>
+    <br/>
     <div class="row justify-content-center mb-4">
         <!-- {{vocab_stats}} -->
         {% for stat in vocab_stats %}
@@ -172,5 +177,7 @@
 
 
 </div>
+
+   
 
 {%- endblock page_body %}

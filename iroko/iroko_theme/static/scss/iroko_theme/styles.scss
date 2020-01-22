@@ -20,3 +20,13 @@ $fa-font-path: "/static/node_modules/font-awesome/fonts";
 @import "footer";
 @import "input-icon";
 @import "angular";
+
+.btn-red {
+    background-color: #ec796a !important;
+    border-color: #d64e3d !important;
+}
+
+.btn-orange {
+    background-color: #d8b365 !important;
+    border-color: #af8b40 !important;
+}
