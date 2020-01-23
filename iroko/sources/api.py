@@ -1,5 +1,5 @@
-
 from typing import Dict
+from flask_babelex import lazy_gettext as _
 from flask_login import current_user
 from sqlalchemy import and_, or_, not_
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
@@ -29,7 +29,7 @@ class Sources:
         if status == 'all':
             return list(map(lambda x: x, db.session.query(Source).all()))
         else:
-            return list(map(lambda x: x, db.session.query(Source).filter(Source.source_status==status).all()))
+            return list(map(lambda x: x, db.session.query(Source).filter(Source.source_status==status.upper()).all()))
 
     @classmethod
     def get_sources_id_list(cls):
@@ -43,6 +43,16 @@ class Sources:
         if uuid is not None:
             #uuid = UUIDType(uuid)
             return Source.query.filter_by(uuid=uuid).first()
+
+    @classmethod
+    def get_source_version(cls, uuid= None):        
+        if id is not None:
+            return Source.query.filter_by(id=id).first()
+        if uuid is not None:
+            #uuid = UUIDType(uuid)
+            return Source.query.filter_by(uuid=uuid).first()
+
+    
 
     @classmethod
     def count_sources(cls):
@@ -114,11 +124,11 @@ class Sources:
             #transactions are taking place but, however, are not written to disk yet...
             #so we can use new_source.id for granting editor permission
             db.session.flush()
-            cls.grant_source_editor_permission(current_user.id, new_source.id)            
+            cls.grant_source_editor_permission(current_user.id, new_source.uuid)            
             cls.insert_new_source_version(new_source.data, new_source.id, True, is_flush=True)
 
             db.session.commit()
-
+            
             msg = 'New Source created id={0}'.format(new_source.id)
             done = True 
 
@@ -130,8 +140,23 @@ class Sources:
             return dict(done, msg), new_source
 
     @classmethod
-    def set_source_current(cls, source):
-        pass
+    def set_source_current(cls, data, source) -> Dict[str, Source]:
+        if not current_user:
+            raise Exception('Must be authenticated')        
+
+        if not source:
+            raise Exception('Source not exist: uuid={0}'.format(source.uuid))            
+        
+        # user_id, source_id, comment, data, created_at, is_current
+        source_version = TermSources.query.filter_by(sources_id=source.id).first()        
+        source_version.is_current = True        
+        source.data = data
+        sync_term_source_with_data(source)
+
+        db.session.commit()
+
+        msg = 'Source id={0} is now current'.format(source_version.id)
+        return msg, source
 
     @classmethod
     def set_source_approved(cls, source):
@@ -151,7 +176,7 @@ class Sources:
         source = Source.query.filter_by(uuid=source_uuid).first()
 
         if not source:
-            raise Exception('Source not exist: uuid={0}')            
+            raise Exception('Source not exist: uuid={0}'.format(source_uuid))            
         
         # user_id, source_id, comment, data, created_at, is_current
         new_source_version = SourceVersion()
@@ -176,23 +201,24 @@ class Sources:
         return msg, source, new_source_version
 
     @classmethod
-    def grant_source_editor_permission(cls, user_id, source_id, is_flush=True) -> Dict[str, bool]:
+    def grant_source_editor_permission(cls, user_id, source_uuid, is_flush=True) -> Dict[str, bool]:
         done = False
         msg = ''
         try:  
-            source = Source.query.filter_by(id=source_id).first()
+            #source = Source.query.filter_by(id=source_id).first()            
+            # if not source:
+            #     msg = 'source not found'
+            
             user = User.query.filter_by(id=user_id)
-            if not source:
-                msg = 'source not found'
-            elif not user:
+            if not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=user))        
+                db.session.add(ActionUsers.allow(ObjectSourceEditor(source_uuid), user=user))        
                 if is_flush:
                     db.session.flush()
                 else:
                     db.session.commit()
-                msg = 'Source Editor Permission granted over {0}'.format(source.name)
+                msg = 'Source Editor Permission granted '
                 done = True
             
         except Exception as e:
@@ -202,45 +228,15 @@ class Sources:
         return msg, done
     
     @classmethod
-    def check_user_source_editor_permission(cls, user_id, vocabulary_id)-> Dict[str, bool]:
-        done = False
-        msg = ''
-        try:
-            if is_current_user_source_admin():
-                done = True
-            else:
-                source = Source.query.filter_by(id=vocabulary_id).first()
-                user = User.query.filter_by(id=user_id)
-                user_identity = get_identity(user)
-
-                permission = Permission(ObjectSourceGestor(source.id))
-                done = permission.allows(user_identity)
-                if not done:
-                    permission = Permission(ObjectSourceEditor(source.id))
-                    done = permission.allows(user_identity)
-            pass
-        except Exception as e:
-            msg = str(e)
-            print(str(e))
-        
-        return msg, done
-
-    @classmethod
     def get_sources_from_editor_current_user(cls, status='all')-> Dict[str, list]:
         """
-            param status: 'all', 'approved', 'review', 'unofficial'
-        """
-        if status == 'approved':
-            status = SourceStatus.APPROVED
-        elif status == 'review':
-            status = SourceStatus.TO_REVIEW
-        elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL
+            param status: 'all', 'approved', 'to_review', 'unofficial' """
+        
 
         sources = cls.get_arguments_for_source_from_action(current_user, 'source_editor_actions')
         
         if not status == 'all':
-            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources), Source.source_status==status).all()
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources), Source.source_status==status.upper()).all()
         else:
             sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources)).all()
 
@@ -252,22 +248,15 @@ class Sources:
     @classmethod
     def get_sources_from_gestor_current_user(cls, status='all')-> Dict[str, list]:
         """
-            param status: 'all', 'approved', 'review', 'unofficial'
-        """        
-
-        if status == 'approved':
-            status = SourceStatus.APPROVED
-        elif status == 'review':
-            status = SourceStatus.TO_REVIEW
-        elif status == 'unofficial':
-            status = SourceStatus.UNOFFICIAL
-
+            param status: 'all', 'approved', 'to_review', 'unofficial'
+        """               
+        
         if is_current_user_source_admin():
             return 'ok', Sources.get_sources_list_x_status(status)
         
         sources_ids_directly = cls.get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
         if not status == 'all':
-            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly), Source.source_status==status).all()
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly), Source.source_status==status.upper()).all()
         else:
             sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly)).all()
        
@@ -277,16 +266,10 @@ class Sources:
         if terms_uuids:
             all_terms = _load_terms_tree_by_uuid(terms_uuids)
             if not status == 'all':
-                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status).all()
+                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status.upper()).all()
             else:
                 sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms)).all()
-        
-        # sources = []
-        # if sources_directly:
-        #     sources.append(sources_directly)
-        # if sources_by_term:
-        #     sources.append(sources_by_term)
-        
+              
         if sources_directly or sources_by_term:
             return 'ok', sources_directly+sources_by_term
         
@@ -295,7 +278,10 @@ class Sources:
     @classmethod
     def get_userids_for_source_from_action(cls, paction, p_argument=None):
     
-        user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(argument=str(p_argument),exclude=False,action=paction).all()))
+        if p_argument:
+            user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(argument=str(p_argument),exclude=False,action=paction).all()))
+        else:
+            user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(exclude=False,action=paction).all()))
             
         return user_ids
 
@@ -305,6 +291,15 @@ class Sources:
         arguments = list(map(lambda x: x.argument, db.session.query(ActionUsers).filter_by(user=puser,exclude=False,action=paction).all()))
         
         return arguments
+
+    @classmethod
+    def get_user_ids_source_editor(cls, uuid) -> Dict[str, list]:
+        #TODO validate uuid
+        gestors = cls.get_userids_for_source_from_action('source_editor_actions', uuid)
+        if gestors:
+            return 'ok', gestors
+        
+        return 'error', []
 
     @classmethod
     def get_user_ids_source_gestor(cls, uuid) -> Dict[str, list]:

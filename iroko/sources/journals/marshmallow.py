@@ -7,6 +7,7 @@ class ISSNSchema(Schema):
     p = fields.Str()
     e = fields.Str()
     l = fields.Str()
+    # TODO: Comprobar con pre_load que cada campo es un issn valido
 
 class JournalDataSchema(Schema):
     """JournalDataSchema specific data for academic journals """

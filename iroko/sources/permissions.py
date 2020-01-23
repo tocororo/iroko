@@ -27,6 +27,19 @@ def iroko_action_factory(name, parameter=False):
         return ActionNeed(name)
 
 
+#creando action
+source_full_gestor_actions = action_factory('source_full_gestor_actions')
+
+ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
+source_editor_actions = ObjectSourceEditor(None)
+
+ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
+source_gestor_actions = ObjectSourceGestor(None)
+
+ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
+source_term_gestor_actions = ObjectSourceTermGestor(None)
+
+
 def is_current_user_source_admin():
     its = False
     try:
@@ -46,21 +59,6 @@ def is_current_user_source_admin():
         print(str(e))
     
     return its
-
-
-#creando action
-source_full_editor_actions = action_factory('source_full_editor_actions')
-source_full_gestor_actions = action_factory('source_full_gestor_actions')
-
-ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
-source_editor_actions = ObjectSourceEditor(None)
-
-ObjectSourceGestor = action_factory('source_gestor_actions', parameter=True)
-source_gestor_actions = ObjectSourceGestor(None)
-
-ObjectSourceTermGestor = action_factory('source_term_gestor_actions', parameter=True)
-source_term_gestor_actions = ObjectSourceTermGestor(None)
-
 
 
 
@@ -83,19 +81,24 @@ def source_gestor_permission_factory(obj):
 def source_term_gestor_permission_factory(obj):
     if current_user and is_current_user_source_admin():
         return True
+    
+    permiso = None
+    permiso = Permission(ObjectSourceGestor(obj['uuid']))
+    if permiso:
+        return permiso
+
     aux = obj['terms']
     terms = aux.split(',')
-    permiso = PermissionDenied(ObjectSourceTermGestor(None))
-
-    for term_id in terms:
+    permiso = None
+    
+    for term_uuid in terms:
         try:            
-            permiso = Permission(ObjectSourceTermGestor(term_id))
+            permiso = Permission(ObjectSourceTermGestor(term_uuid))
+            if permiso:
+                return permiso
         except Exception as e:
             raise e
-    return permiso
-         
-
-    
+    return PermissionDenied(ObjectSourceTermGestor(None))
 
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior

@@ -93,18 +93,15 @@ def index():
     )
 
 
-@blueprint.route('/catalog')
-@register_menu(blueprint, 'main.catalog', _('Journal Catalog'), order=2)
-def catalogo():
-    return render_template('iroko_theme/catalog/index.html', iroko_host=current_app.config['IROKO_HOST'])
+# @blueprint.route('/faq')
+# @register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
+# def faq():
+#     return redirect('/page/faq')
 
-
-
-@blueprint.route('/faq')
-@register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
-def faq():
-    return redirect('/page/faq')
-
+# @blueprint.route('/about')
+# @register_menu(blueprint, 'main.about', _('Acerca de'), order=3)
+# def about():
+#     return redirect('/page/about')
 
 # @blueprint.route('/about')
 # @register_menu(blueprint, 'main.about', _('About'), order=4)

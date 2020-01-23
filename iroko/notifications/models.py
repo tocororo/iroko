@@ -59,13 +59,13 @@ class Notification(db.Model):
 
     receiver = db.relationship(
         User, backref=db.backref(
-            'notifications', uselist=False, cascade='all, delete-orphan')
+            'notifications', cascade='all, delete-orphan')
     )
     # any data related to the notification
     data = db.Column( JSONType )
 
 
-    def __str__(self):
-        """Representation."""
-        return self.name
+    # def __str__(self):
+    #     """Representation."""
+    #     return self.description
 

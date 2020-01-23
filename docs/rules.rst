@@ -9,8 +9,22 @@
 TODO mejorar la documentacion de las reglas
 Sources's Rules
 ------------
+    Editor
+    • Puede agregar una nueva fuente fuente
+    • Al agregar fuente el sistema envia notificacion a los gestores de los terminos
+    • Puede editar una fuente, que si no esta aprobada seria la current
+    • Al editar enviar notificacion a los gestores 
+    •
+    
+    Gestor
+    • Puede hacer lo mismo que el editor
+    • Al editar una fuente esta siempre sera la current y se envia notificacion al editor
+    • Puede cambiar el status de una fuente y se envia notificaicon al editor
+    • Puede poner una version como current
+    
 
-    • Cada vez que se aprueba una versión cambia el current en Sources
+
+    Generales
     • El usuario que incluye una fuente se le da el rol Editor de ese Source
-    • Cada vez que se cambia los datos de una fuente se agrega una nueva versión
-    • Cuando se cambia un comentario de una versión el sistema notifica al otro rol (Editor-Gestor) para revisión
+    • Al editar un source, simplemente se crea una nueva version que sera current si es que el source no esta aprobado
+    • Las fuentes nunca se eliminan, cada vez que se cambian datos en una se guerda una version de la misma

@@ -29,7 +29,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, jsonify, request, json
 from invenio_oauth2server import require_api_auth
 from flask_login import current_user
-
+from iroko.notifications.permissions import notification_viewed_permission_factory
 from iroko.notifications.models import Notification
 from iroko.notifications.marshmallow import notification_schema_many, notification_schema
 
@@ -44,69 +44,139 @@ api_blueprint = Blueprint(
 )
 
 @api_blueprint.route('/list')
-#@require_api_auth()
+@require_api_auth()
 def get_notifications():
-    """
-    List all notifications
-    """
-    print('entra')
-    result = Notification.query.all()
-    if result:
+    try:
+        """
+        List all notifications
+        """
+        count = int(request.args.get('count')) if request.args.get('count') else 9
+        page = int(request.args.get('page')) if request.args.get('page') else 0
+
+        limit = count
+        offset = count*page
+
+        result = Notification.query.filter_by(receiver_id = current_user.id).order_by('viewed').all()
+        result1 = Notification.query.filter_by(receiver_id = current_user.id,viewed = False).all()
+        
+        count_not_viewed = len(result1)
+        count_total = len(result)
+        
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','notifications', \
-                            notification_schema_many.dump(result))
-    return iroko_json_response(IrokoResponseStatus.ERROR, 'notifications not found', None, None)
+                            {'data':notification_schema_many.dump(result[offset:offset+limit]), 'total': count_total, 'total_not_view': count_not_viewed})                    
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+                            
+    
 
 
 @api_blueprint.route('/<id>', methods=['GET'])
+@require_api_auth()
 def notification_get(id):
+    try:
+        user = None
 
-    user = None
-
-    msg, notif = Notifications.get_notification(id)
-    if notif:
+        msg, notif = Notifications.get_notification(id)
+        if not notif:
+            raise Exception('Notification not found')
+        
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'notification', \
                             notification_schema.dump(notif))
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+@api_blueprint.route('/receiver/<id>', methods=['GET'])
+@require_api_auth()
+def notification_get_receiver(id):
+    try:
+        user = None
+
+        msg, notif = Notifications.get_notification_receiver(id)
+        if not notif:
+            raise Exception('Notification not found')
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'notification', \
+                            notification_schema_many.dump(notif))
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 #TODO: Need authentication
 @api_blueprint.route('/edit/<id>', methods=['POST'])
+@require_api_auth()
 def notification_edit(id):
 
     # FIXME: get the user is trying to perform this action!!!!
-    user = None
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
-    input_data = request.json
+    try:
+        user = None
+        if not request.is_json:
+            raise Exception('No JSON data provided')
 
-    msg, notif = Notifications.edit_notification(id, input_data)
-    if notif:
+        input_data = request.json
+
+        msg, notif = Notifications.edit_notification(id, input_data)
+        if not notif:
+            raise Exception(msg)
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'notification', \
                         notification_schema.dump(notif))
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+
+#TODO: Need authentication
+@api_blueprint.route('/viewed/<id>')
+@require_api_auth()
+def notification_viewed(id):
+    
+    # FIXME: get the user is trying to perform this action!!!!
+    try:
+        with notification_viewed_permission_factory({'id':id}).require():
+            msg, notif = Notifications.viewed_notification(id)
+            if not notif:
+                raise Exception('Notifications not found')
+
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'notification', \
+                            notification_schema.dump(notif))
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 #TODO: Need authentication
 @api_blueprint.route('/new', methods=['POST'])
+@require_api_auth()
 def notification_new():
 
     # FIXME: get the user is trying to perform this action!!!!
-    user = None
+    try:
+        user = None
 
-    if not request.is_json:
-        return {"message": "No JSON data provided"}, 400
+        if not request.is_json:
+            raise Exception('No JSON data provided')
 
-    input_data = request.json
+        input_data = request.json
 
-    msg, notif = Notifications.new_notification(input_data)
-    if notif:
+        msg, notif = Notifications.new_notification(input_data)
+        if not notif:
+            raise Exception(msg)
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'notification', \
                         notification_schema.dump(notif))
-
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
