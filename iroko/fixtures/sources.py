@@ -32,6 +32,7 @@ def init_journals():
                     source.source_type = SourceType.JOURNAL
                     source.name = record['title']
                     data = {}
+                    _assing_if_exist(data, record, 'title')
                     _assing_if_exist(data, record, 'description')
                     _assing_if_exist(data, record, 'url')
                     _assing_if_exist(data, record, 'rnps')
@@ -55,6 +56,7 @@ def init_journals():
                     source_version.data = data
                     source_version.is_current = True
                     source_version.created_at = datetime.date(2019, 1, 1)
+                    db.session.add(source_version)
                     db.session.flush()
         db.session.commit()
     init_term_sources()
