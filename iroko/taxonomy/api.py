@@ -149,7 +149,7 @@ class Terms:
     @classmethod
     def get_terms(cls):
         return Term.query.all()
-    
+
     @classmethod
     def get_terms_by_vocab(cls, vocabulary_id) -> Dict[str, Term]:
         msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
@@ -328,12 +328,15 @@ class Terms:
             return []
 
     @classmethod
-    def dump_term(cls, term):
+    def dump_term(cls, term:Term, tree: bool=True):
         """ helper function to load terms children"""
-        children = []
-        for child in term.children:
-            children.append(Terms.dump_term(child))
-        return {'term': term_schema.dump(term), 'children':children}
+        if tree:
+            children = []
+            for child in term.children:
+                children.append(Terms.dump_term(child))
+            return {'term': term_schema.dump(term), 'children':children}
+        else:
+            return term_schema.dump(term)
 
 
 

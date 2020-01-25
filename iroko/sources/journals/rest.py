@@ -12,8 +12,6 @@ from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
 
 
 
-
-
 api_blueprint = Blueprint(
     'iroko_api_sources_journals',
     __name__,

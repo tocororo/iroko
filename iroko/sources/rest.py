@@ -351,7 +351,7 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-@require_api_auth()
+# @require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
@@ -373,11 +373,12 @@ def get_sources_from_user(status):
 
         result = sources_gestor + list(in_second_but_not_in_first)
 
+        # TODO: URGENTE, esto es lentisimooooooo No hace falta paginar aqui realmente...
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dump(result[offset:offset+limit])
+            source_schema_many.dump(result)
             )
 
     except Exception as e:
