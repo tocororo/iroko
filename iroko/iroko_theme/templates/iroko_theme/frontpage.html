@@ -9,175 +9,274 @@
 
 {%- extends config.BASE_TEMPLATE %}
 {%- block page_header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage-style-theme.css') }}">
 {%- include "iroko_theme/header_frontpage.html" %}
+
 {%- endblock page_header %}
 
 {%- block page_body %}
-<div class="container">
-
-    <div class="row justify-content-center mt-4">
-        <div class="col-lg-4 text-center">
-            <a>
-                <img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
-                    alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catalog')}}">
-            </a>            
-            <p>                
-                <br/>Sistema de fuentes registradas en Sceiba y su manejo por editores y gestores. 
-            </p>
-            <h4><a class="text-default" href="">¿Quiere ser parte de Sceiba? </a></h2>                
-            
-            <a class="btn btn-info btn-orange" href="#" role="button">Catátogo »</a>
+  <section class="after-loop" id="products">
+      <h3 class="font-weight-bold black-text mt-4 pt-2 text-center">{{ _('Productos y Servicios') }}</h3>
+      <div class="container py-5 my-5">
+          <section class="p-md-3 mx-md-5">
+            <div class="row mb-5 d-flex align-items-center">
+              <div class="col-lg-6 col-md-6">
+                <div class="card">
+                  <div class="card-header white">
+                    <h4 class="font-weight-bold mb-0">{{ _('Catálogo') }}</h4>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text">
+                      {{ _('Revistas científicas cubanas incluidas hasta el momento en Sceiba activas, 
+                      o sea, accesible y publicando según lo definido en su política editorial. 
+                      No es un registro oficial o exhaustivo de toda revista existente. 
+                      Incluye el registro de dichas fuentes y su manejo por los editores 
+                        y gestores del sistema. ') }}
+                    </p>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Acceder') }}</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-4">
+                  <div class="item-preview mb-5">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
+                          <img class="img-fluid" style="max-width:320px;"
+                          src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}" 
+                          alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catalog')}}">
+                      </a>
+              </div>
+            </div>
+            <div class="row mb-5 d-flex align-items-center justify-content-end">
+              <div class="col-md-6 col-lg-4">
+                  <div class="item-preview mb-5">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
+                          <img class="mg-fluid" style="max-width:320px;"
+                          src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
+                          alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomy')}}">
+                      </a>
+                    
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="card">
+                  <div class="card-header white">
+                    <h4 class="font-weight-bold mb-0">{{ _('Taxonomía') }}</h4>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text">
+                        {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y 
+                        la unicidad en las búsquedas.... ') }}
+                    </p>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Acceder') }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row d-flex align-items-center">
+              <div class="col-lg-6 col-md-6">
+                <div class="card">
+                  <div class="card-header white">
+                    <h4 class="font-weight-bold mb-0">{{ _('APIs') }}</h4>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text">
+                      {{ _('Se ofrecen servicios de API-Rest para obtención de información de las 
+                      Revistas científicas registradas en Sceiba, así como vocabularios y términos 
+                      controlados en el sistema. Estos datos se protegen según política de privacidad del sistema
+                      y es compartido según los términos de servicio. Contacte al administrador para más detalles') }}
+                    </p>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Contáctanos') }}</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-4">
+                  <div class="item-preview mb-5">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
+                          <img class="mg-fluid" style="max-width:320px;"
+                          src="{{ url_for('static', filename='images/api_icon_129131.png')}}"
+                          alt="{{_('Sceiba APIs')}}" title="{{_('Sceiba APIs')}}">
+                      </a>                    
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
+  </section>
 
-        <div class="col-lg-4 text-center">
-            <a>
-                <img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
-                    alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomy')}}">
-            </a>           
-
-            <p></p>
-            <p>Sistema de vocabularios y términos controlados para lograr la estandarización y la unicidad en las búsquedas...</p>
-            <a class="btn btn-info btn-orange" href="#" role="button">Taxonomía »</a>
-        </div>
-    </div>
-    <br/>
-    <br/>
-    <div class="row justify-content-center mb-4">
-        <!-- {{vocab_stats}} -->
-        {% for stat in vocab_stats %}
-        {% if stat['records'] %}
-        <a href="search?">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Records') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['records'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-list fa-2x text-default"></i>
-                                </div>
-                            </div>
+    <!-- <section class="after-loop">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-8 mb-5 mb-lg-0 mx-auto">
+                    <a href="" class="after-loop-item card border-0 card-templates shadow-lg">
+                        <div class="card-body d-flex align-items-end flex-column text-right">
+                            <h4>Templates</h4>
+                            <p class="w-75">Unstyled layouts to help you get started!</p>
+                            <i class="fal fa-pencil-ruler"></i>
                         </div>
-                    </div>
+                    </a>
                 </div>
-            </div>
-        </a>
-
-        {% elif stat['sources'] %}
-        <a href="aggr/sources">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Sources') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['sources'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-home fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
-        {% elif stat['authors'] %}
-        <a href="aggr/authors">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Creators') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['authors'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-user fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
-        {% elif stat['Keywords'] %}
-        <a href="aggr/keywords">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Keywords') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['Keywords'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-bookmark fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-        {% endif %}
-
-        {% endfor %}
-
-    </div>
-
-
-    {% if faqs != '' %}
-    <div id="faq" class="d-flex py-5">
-        <div class="row">
-            <div class="col-xs-12">
-                <h2 class="text-default">{{ _('FAQ') }}</h2>
-            </div>
-            <div class="col-xs-12">
-                {{ faqs|safe }}
             </div>
         </div>
-    </div>
-    {% endif %}
+    </section>
 
-
-    <!-- {% if texts and texts['faq'] %}
-  <div id="faq" class="row text-center py-5">
-      <div class="row">
-          <div class="col-10 mx-auto">
-            <h2 class="text-default">{{ _('FAQ') }}</h2>
+  <br/>
+    <br/> -->
+    
+        
+    {% if faqs %}
+    <div class="container my-5">
+        <!--Section: Content-->
+        <section>      
+          <h6 class="font-weight-normal text-uppercase font-small grey-text mb-4 text-center">FAQ</h6>
+          <!-- Section heading -->
+          <h3 class="font-weight-bold black-text mb-4 pb-2 text-center">{{ _('Frequently Asked Questions') }}</h3>
+          <hr class="w-header">
+          <!-- Section description -->
+          <p class="lead text-muted mx-auto mt-4 pt-2 mb-5 text-center">{{ _("Got a question? We've got answers. If you have some other questions, see our support center.") }}</p>
+          
+          <div class="row">
+            <div class="col-md-12 col-lg-10 mx-auto mb-5">            
+              <!--Accordion wrapper-->
+              <div class="accordion md-accordion" id="accordionEx" role="tablist" aria-multiselectable="true">
+                
+                {% for faq in faqs%}
+                <!-- Accordion card -->
+                <div class="card border-bottom-0 border-left border-right border-light">
+      
+                  <!-- Card header -->
+                  <div class="card-header border-bottom border-light" role="tab" id="headingOne{{loop.index}}">
+                    <a data-toggle="collapse" data-parent="#accordionEx" href="#collapseOne{{loop.index}}" aria-expanded="true"
+                      aria-controls="collapseOne{{loop.index}}">
+                      <h5 class="black-text font-weight-normal mb-0">
+                        {{ faq.question }} <i class="fa fa-angle-down rotate-icon"></i>
+                      </h5>
+                    </a>
+                  </div>
+      
+                  <!-- Card body -->
+                  <div id="collapseOne{{loop.index}}" class="collapse {% if loop.index == 1 %} show {% endif %}" role="tabpanel" aria-labelledby="headingOne{{loop.index}}"
+                    data-parent="#accordionEx">
+                    <div class="card-body">
+                      {{ faq.answer }}
+                    </div>
+                  </div>
+      
+                </div>
+                <!-- Accordion card -->
+                {% endfor %}
+                
+      
+              </div>
+              <!-- Accordion wrapper -->
+              
+            </div>
           </div>
-          {% for item in texts['faq'] %}
-          <div class="col-md-4 col-xs-12 mx-auto">
-            <h5>{{ item.question }}</h5>
-            <p>
-              {{ item.answer }}
-            </p>
-          </div>
-          {% endfor %}
+      
+          </section>
+        
+        
       </div>
-  </div>
-  {% endif %} -->
+    {% endif %}
+   
+
+    <div class="container my-5 py-5 z-depth-1">
+        <!--Section: Content-->
+        <section class="px-md-5 mx-md-5 text-center text-lg-left dark-grey-text">
+      
+          <style>
+            .map-container {
+              height: 230px;
+              position: relative;
+            }
+      
+            .map-container iframe {
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 100%;
+              position: absolute;
+            }
+          </style>
+      
+          <!--Grid row-->
+          <div class="row d-flex justify-content-center">
+      
+            <!--Grid column-->
+            <div class="col-md-6 text-center">
+      
+              <h3 class="font-weight-bold">Contact Us</h3>
+      
+              <p class="text-muted">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Id quam sapiente
+                molestiae.</p>
+      
+            </div>
+            <!--Grid column-->
+      
+          </div>
+          <!--Grid row-->
+      
+          <!--Grid row-->
+          <div class="row">
+      
+            <!--Grid column-->
+            <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+      
+              <!-- Material outline input -->
+              <div class="md-form md-outline mt-3">
+                <input type="email" id="form-email" class="form-control">
+                <label for="form-email">E-mail</label>
+              </div>
+      
+              <!-- Material outline input -->
+              <div class="md-form md-outline">
+                <input type="text" id="form-subject" class="form-control">
+                <label for="form-subject">Subject</label>
+              </div>
+      
+              <!--Material textarea-->
+              <div class="md-form md-outline mb-3">
+                <textarea id="form-message" class="md-textarea form-control" rows="3"></textarea>
+                <label for="form-message">How we can help?</label>
+              </div>
+      
+              <button type="submit" class="btn btn-info btn-sm ml-0">Submit<i class="far fa-paper-plane ml-2"></i></button>
+      
+            </div>
+            <!--Grid column-->
+      
+            <!--Grid column-->
+            <div class="col-lg-6 col-md-12 mb-0 mb-md-0">
+      
+                <!--Google map-->
+                <div id="map-container-google-1" class="z-depth-1 map-container mb-4">
+                  <iframe src="https://maps.google.com/maps?q=manhatan&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0"
+                    style="border:0" allowfullscreen></iframe>
+                </div>
+                <!--Google Maps-->
+      
+                <p class="font-weight-bold">New York, 94126, United States</p>
+      
+              </div>
+              <!--Grid column-->
+      
+          </div>
+          <!--Grid row-->
+      
+      
+        </section>
+        <!--Section: Content-->
+      
+      
+      </div>
+      
+      
 
 
 </div>
 
    
 
+
 {%- endblock page_body %}
+
+

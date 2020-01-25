@@ -15,6 +15,13 @@ vocabulary_editor_actions = ObjectVocabularyEditor(None)
 
 
 def vocabulary_editor_permission_factory(obj):
+    try:
+        permission = Permission(taxonomy_full_editor_actions)
+        current_identity = get_identity(current_user)
+        if permission.allows(current_identity):
+            return permission
+    except Exception as e:
+        msg = str(e)
     return Permission(ObjectVocabularyEditor(obj['id']))
 
 

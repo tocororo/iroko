@@ -377,7 +377,7 @@ def get_sources_from_user(status):
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dump(result)
+            source_schema_many.dump(result[offset:offset+limit])
             )
 
     except Exception as e:

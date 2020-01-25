@@ -1,0 +1,184 @@
+{%- extends config.BASE_TEMPLATE %}
+{%- block page_header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage-style-theme.css') }}">
+
+{%- include "iroko_theme/header.html" %}
+
+{%- endblock page_header %}
+
+{%- block page_body %}
+
+    <div class="container py-5 my-5 z-depth-1">
+        <section class="p-md-3 mx-md-5">
+          <h2 class="text-center mx-auto font-weight-bold mb-5 pb-2">{{ _('Our Team') }}</h2>
+          <div class="row">
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+                <div class="avatar white d-flex justify-content-center align-items-center">
+                    <img
+                    width="500"
+                    height="500"
+                    title="Yohannis-Marti"
+                    src="{{ url_for('static', filename='images/team/Yohannis-Marti.jpg') }}"
+                    class="img-fluid z-depth-1"
+                    />
+                </div>
+                <div class="text-center mt-4">
+                    <h5 class="font-weight-bold pb-1">Yohannis-Marti</h5>
+                    <p class="font-weight-normal">UH Library Manager</p>
+                    <p class="text-muted mb-lg-0">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+                <div class="avatar white d-flex justify-content-center align-items-center">
+                    <img
+                    width="500"
+                    height="500"
+                    title="Yohannis-Marti"
+                    src="{{ url_for('static', filename='images/team/Mabel-Rodriguz Poo.jpg') }}"
+                    class="img-fluid z-depth-1"
+                    />
+                </div>
+                <div class="text-center mt-4">
+                    <h5 class="font-weight-bold pb-1">Mabel Rodríguez Poo</h5>
+                    <p class="font-weight-normal">STI CRAI Manager</p>
+                    <p class="text-muted mb-lg-0">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+              <div class="avatar white d-flex justify-content-center align-items-center">
+                <img
+                  width="500"
+                  height="500"
+                  title="Rafael Martínez Estévez"
+                  src="{{ url_for('static', filename='images/team/Rafael-Martinez-Estevez.jpg') }}"
+                  class="img-fluid z-depth-1"
+                />
+              </div>
+              <div class="text-center mt-4">
+                <h5 class="font-weight-bold pb-1">Rafael Martínez Estévez</h5>
+                <p class="font-weight-normal">Tocororo Project Leader</p>
+                <p class="text-muted mb-lg-0">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+              <div class="avatar white d-flex justify-content-center align-items-center">
+                <img
+                    width="500"
+                    height="500"
+                    title="Edel Abreu Hernández"
+                    src="{{ url_for('static', filename='images/team/Edel-Abreu-Hernandez.jpeg') }}"
+                    class="img-fluid z-depth-1"
+                />
+              </div>
+              <div class="text-center mt-4">
+                <h5 class="font-weight-bold pb-1">Edel Abreu Hernández</h5>
+                <p class="font-weight-normal">Developer</p>
+                <p class="text-muted mb-lg-0">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-md-0 mb-4">
+              <div class="avatar white d-flex justify-content-center align-items-center">
+                <img
+                  width="500"
+                  height="500"
+                  title="Eduardo Arencibia Cabeza"
+                  src="{{ url_for('static', filename='images/team/Eduardo-Arencibia-Cabeza.jpg') }}"
+                  class="img-fluid z-depth-1"
+                />
+              </div>
+              <div class="text-center mt-4">
+                <h5 class="font-weight-bold pb-1">Eduardo Arencibia Cabeza</h5>
+                <p class="font-weight-normal">Developer</p>
+                <p class="text-muted mb-0">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-md-0 mb-4">
+              <div class="avatar white d-flex justify-content-center align-items-center">
+                <img
+                  width="500"
+                  height="500"
+                  title="Luis Enrique Cabezas Curbelo"
+                  src="{{ url_for('static', filename='images/team/Luis-Enrique-Cabezas-Curbelo.jpeg') }}"
+                  class="img-fluid z-depth-1"
+                />
+              </div>
+              <div class="text-center mt-4">
+                <h5 class="font-weight-bold pb-1">Luis Enrique Cabezas Curbelo</h5>
+                <p class="font-weight-normal">Developer</p>
+                <p class="text-muted mb-0">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                    sed do eiusmod.
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+                <div class="avatar white d-flex justify-content-center align-items-center">
+                    <img
+                    width="500"
+                    height="500"
+                    title="Rafael Martínez Estévez"
+                    src="{{ url_for('static', filename='images/team/Edel-Abreu-Hernandez.jpeg') }}"
+                    class="img-fluid z-depth-1"
+                    />
+                </div>
+                <div class="text-center mt-4">
+                    <h5 class="font-weight-bold pb-1">Reinier Lorenzo Cabezas</h5>
+                    <p class="font-weight-normal">Tocororo Project Leader</p>
+                    <p class="text-muted mb-lg-0">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+                <div class="avatar white d-flex justify-content-center align-items-center">
+                    <img
+                    width="500"
+                    height="500"
+                    title="Diego Miguel Ferreiro Garcia"
+                    src="{{ url_for('static', filename='images/team/Diego-Miguel-Ferreiro-Garcia2.jpg') }}"
+                    class="img-fluid z-depth-1"
+                    />
+                </div>
+                <div class="text-center mt-4">
+                    <h5 class="font-weight-bold pb-1">Diego Miguel Ferreiro Garcia</h5>
+                    <p class="font-weight-normal">Tocororo Project Leader</p>
+                    <p class="text-muted mb-lg-0">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-lg-0 mb-4">
+                <div class="avatar white d-flex justify-content-center align-items-center">
+                    <img
+                    width="500"
+                    height="500"
+                    title="Alejandro Cabrera Mendez"
+                    src="{{ url_for('static', filename='images/team/Alejandro-Cabrera-Mendez.jpeg') }}"
+                    class="img-fluid z-depth-1"
+                    />
+                </div>
+                <div class="text-center mt-4">
+                    <h5 class="font-weight-bold pb-1">Alejandro Cabrera Mendez</h5>
+                    <p class="font-weight-normal">Student</p>
+                    <p class="text-muted mb-lg-0">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {%- endblock page_body %}
+
+     

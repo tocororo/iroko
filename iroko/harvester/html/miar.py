@@ -10,6 +10,7 @@ from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 
+
 class MiarHarvester(BaseHarvester):
 
     def __init__(self, path, load_remote=False):
