@@ -67,16 +67,20 @@ def index():
     # TODO: cuando se vaya a escribir el json es agregarle la opcion w y
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
-    # texts = {}
-    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
-    #     texts = json.load(file)
+    texts = {}
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+        texts = json.load(file)
+    
+    faqs = {}
+    if 'faq' in texts.keys():
+        faqs = texts['faq'] 
 
-    texts = ''
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
-         texts = file.read()
-         file.close()
-    markdown = mistune.Markdown()
-    faqs = markdown(texts)
+    # texts = ''
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
+    #      texts = file.read()
+    #      file.close()
+    # markdown = mistune.Markdown()
+    # faqs = markdown(texts)
 
     keywords = IrokoAggs.getAggrs("keywords",50000)
     #print('keywords'+str(keywords))
@@ -89,8 +93,13 @@ def index():
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
         vocabularies=vocabularies,
         vocab_stats=vocab_stats,
-        faqs=''
+        faqs=faqs,
     )
+
+
+@blueprint.route('/about')
+def about():
+    return render_template('iroko_theme/about.html')
 
 
 # @blueprint.route('/faq')
@@ -98,10 +107,6 @@ def index():
 # def faq():
 #     return redirect('/page/faq')
 
-# @blueprint.route('/about')
-# @register_menu(blueprint, 'main.about', _('Acerca de'), order=3)
-# def about():
-#     return redirect('/page/about')
 
 # @blueprint.route('/about')
 # @register_menu(blueprint, 'main.about', _('About'), order=4)
