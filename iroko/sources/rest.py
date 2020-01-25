@@ -35,33 +35,33 @@ def get_sources_count():
         result = Sources.count_sources()
         if not result:
             raise Exception('Sources not found')
-        
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','count', result)
-        
+
     except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)    
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/<uuid>')
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
-    try: 
+    try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Source not found')
-        
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','source', \
                             source_schema.dump(source))
 
     except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 # @api_blueprint.route('/<uuid>')
 # def get_source_version_by_uuid(uuid):
 #     """Get a source version by UUID of the source"""
-#     try: 
+#     try:
 #         source = Sources.get_source_by_id(uuid=uuid)
 #         if not source:
 #             raise Exception('Source not found')
@@ -71,7 +71,7 @@ def get_source_by_uuid(uuid):
 #                         {'data': source_schema.dump(source), 'count': 1})
 
 #     except Exception as e:
-#         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+#         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/new', methods=['POST'])
@@ -86,7 +86,7 @@ def source_new():
         msg, source = Sources.insert_new_source(input_data)
         if not source:
             raise Exception(msg)
-        
+
         notification = NotificationSchema()
         notification.classification = NotificationType.INFO
         notification.description = _('Nueva fuente ingresada, requiere revisión de un gestor {0}'.format(source.name))
@@ -102,9 +102,9 @@ def source_new():
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': source_schema.dump(source), 'count': 1})
-                            
+
     except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 
@@ -125,12 +125,12 @@ def source_new_version(uuid):
             raise Exception("No JSON data provided")
 
         input_data = request.json
-        
+
         source = Sources.get_source_by_id(uuid=uuid)
 
         if not source:
             raise Exception('Not source found')
-        
+
         terms = ''
         for term in source.terms:
             terms = terms + str(term.id) + ','
@@ -139,11 +139,11 @@ def source_new_version(uuid):
 
         try:
             with source_editor_permission_factory({'uuid':uuid}).require():
-                is_current = source.source_status is not SourceStatus.APPROVED 
+                is_current = source.source_status is not SourceStatus.APPROVED
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
-                if not source or not source_version:                
+                if not source or not source_version:
                     raise Exception('Not source for changing found')
-                
+
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
                 notification.description = _('El gestor ha editado la fuente: {0}.'.format(source.name))
@@ -159,16 +159,16 @@ def source_new_version(uuid):
                             'ok','sources', \
                             {'data': source_schema.dump(source), 'count': 1})
         except PermissionDenied as e:
-            with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():                
+            with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True)
-                if not source or not source_version:                
+                if not source or not source_version:
                     raise Exception('Not source for changing found')
-                
+
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
                 notification.description = _('Editada fuente: {0} y requiere revisión de un gestor.'.format(source.name))
                 notification.emiter = _('Sistema')
-                
+
                 msg, users = Sources.get_user_ids_source_gestor(source.uuid)
                 if users:
                     for user_id in users:
@@ -182,7 +182,7 @@ def source_new_version(uuid):
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
     except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/<uuid>/current', methods=['POST'])
@@ -195,12 +195,12 @@ def source_version_set_current(uuid):
             raise Exception("No JSON data provided")
 
         input_data = request.json
-        
+
         source = Sources.get_source_by_id(uuid=uuid)
 
         if not source:
             raise Exception('Not source found')
-        
+
         terms = ''
         for term in source.terms:
             terms = terms + str(term.id) + ','
@@ -209,7 +209,7 @@ def source_version_set_current(uuid):
 
         with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():
             msg, source  = Sources.set_source_current(input_data, source)
-            if not source:                
+            if not source:
                 raise Exception('Not source for changing found')
 
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -219,17 +219,17 @@ def source_version_set_current(uuid):
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
     except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)   
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/<uuid>/approved', methods=['GET', 'POST'])
 @require_api_auth()
-def source_set_approved(uuid):    
+def source_set_approved(uuid):
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Source not found.')
-        
+
         with source_gestor_permission_factory({'uuid': uuid}).require():
             Sources.set_source_approved(source)
 
@@ -250,7 +250,7 @@ def source_set_approved(uuid):
                 'approved',
                 source_schema.dump(source)
             )
-    
+
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
     except Exception as e:
@@ -279,7 +279,7 @@ def sources_current_user_permissions():
 @api_blueprint.route('/gestor/<uuid>')
 @require_api_auth()
 def get_source_gestor(uuid):
-    
+
     try:
         msg, user_ids  = Sources.get_user_ids_source_gestor(uuid)
         return iroko_json_response(
@@ -327,16 +327,16 @@ def get_sources_from_editor(status):
 def get_sources_from_gestor(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
-    """        
+    """
     try:
         count = int(request.args.get('count')) if request.args.get('count') else 9
         page = int(request.args.get('page')) if request.args.get('page') else 0
 
         limit = count
         offset = count*page
-        
+
         msg, sources  = Sources.get_sources_from_gestor_current_user(status)
-        
+
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
@@ -355,7 +355,7 @@ def get_sources_from_gestor(status):
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
-    """        
+    """
     try:
         count = int(request.args.get('count')) if request.args.get('count') else 9
         page = int(request.args.get('page')) if request.args.get('page') else 0
@@ -364,20 +364,20 @@ def get_sources_from_user(status):
         offset = count*page
 
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
-        msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)        
-        
+        msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)
+
         in_first = set(sources_gestor)
         in_second = set(sources_editor)
 
         in_second_but_not_in_first = in_second - in_first
 
         result = sources_gestor + list(in_second_but_not_in_first)
-        
+
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dump(result)
+            source_schema_many.dump(result[offset:offset+limit])
             )
 
     except Exception as e:

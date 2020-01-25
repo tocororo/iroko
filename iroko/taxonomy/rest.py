@@ -248,7 +248,7 @@ def term_new():
             raise Exception("No JSON data provided")
 
         input_data = request.json
-        
+
         with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
             msg, term = Terms.new_term(input_data)
             if not term:
@@ -266,7 +266,7 @@ def term_new():
 
 
 
-@api_blueprint.route('/taxonomy/user/permissions')
+@api_blueprint.route('/user/permissions')
 @require_api_auth()
 def taxonomy_current_user_permissions():
     msg = ''

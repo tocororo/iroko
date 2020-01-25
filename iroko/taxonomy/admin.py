@@ -33,11 +33,11 @@ class VocabularyModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('name', 'human_name', 'description')
+    list_all = ('id', 'name', 'human_name', 'description')
 
     column_list = list_all
 
-    column_default_sort = ('name', True)
+    column_default_sort = ('id', True)
 
     column_filters = list_all
 

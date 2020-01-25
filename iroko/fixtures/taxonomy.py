@@ -75,6 +75,11 @@ def init_taxonomy():
         miar_types.human_name = 'MIAR'
         db.session.add(miar_types)
 
+        unesco_vocab = Vocabulary()
+        unesco_vocab.name = 'unesco_vocab'
+        unesco_vocab.human_name = 'Materias (UNESCO)'
+        db.session.add(unesco_vocab)
+
 
         db.session.commit()
         init_vocabulary(tax, institutions)
@@ -84,6 +89,7 @@ def init_taxonomy():
         init_vocabulary(tax, grupo_mes)
         init_vocabulary(tax, licences)
         init_vocabulary(tax, miar_types)
+        init_vocabulary(tax, unesco_vocab)
 
         # db.session.commit()
 
