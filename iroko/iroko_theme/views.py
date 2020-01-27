@@ -24,6 +24,7 @@ from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
 import json
 import mistune
+from iroko.iroko_theme.forms import ContactForm
 # from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
 
 
@@ -49,7 +50,7 @@ def get_record_count():
     return cant_records
 
 
-@blueprint.route('/')
+@blueprint.route('/', methods=['GET', 'POST'])
 def index():
     # print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
@@ -88,12 +89,17 @@ def index():
 
     for vocab in vocabularies:
         vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})
+    
+    form = ContactForm()
+    if form.validate_on_submit():
+        print('Mensaje enviado')
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
         vocabularies=vocabularies,
         vocab_stats=vocab_stats,
         faqs=faqs,
+        form=form,
     )
 
 
