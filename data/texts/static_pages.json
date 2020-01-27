@@ -38,5 +38,25 @@
             "url":"projects.md",
             "title":"Projects"
         }
+    },
+    "terminos": {
+        "en":{
+            "url":"terminos.md",
+            "title":"Terms of service" 
+        },
+        "es":{
+            "url":"terminos.md",
+            "title":"Términos de Servicio"
+        }
+    },
+    "politicas": {
+        "en":{
+            "url":"politicas.md",
+            "title":"Privacy Policy" 
+        },
+        "es":{
+            "url":"politicas.md",
+            "title":"Políticas de Privacidad"
+        }
     }
 }

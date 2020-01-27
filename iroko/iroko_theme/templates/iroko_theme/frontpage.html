@@ -15,12 +15,37 @@
 {%- endblock page_header %}
 
 {%- block page_body %}
-<img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename='images/kisspng-magnifying-glass-clip-art-magnifying-glass-5ab8dc4b2de316.582723831522064459188.png')}}"
-                                            alt="{{_('Records')}}" title="{{_('Records')}}">
-  <section class="after-loop" id="products">
-      <h3 class="font-weight-bold black-text mt-4 pt-2 text-center">{{ _('Productos y Servicios') }}</h3>
-      <div class="container py-5 my-5">
+  <section id="products">
+      <h3 class="font-weight-bold black-text py-5 text-center">{{ _('Productos y Servicios') }}</h3>
+      <div class="container">
           <section class="p-md-3 mx-md-5">
+            <div class="row mb-5 d-flex align-items-center justify-content-end">
+                <div class="col-md-6 col-lg-4">
+                    <div class="item-preview mb-5">
+                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="">                            
+                            <img class="img-fluid" style="max-width:320px;"
+                            src="{{ url_for('static', filename='images/iconfinder_search_126577.png')}}"
+                            alt="{{_('Records')}}" title="{{_('Records')}}">
+                        </a>
+                      
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                  <div class="card">
+                    <div class="card-header white">
+                      <h4 class="font-weight-bold mb-0">{{ _('Buscador') }}</h4>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text">
+                          {{ _('Buscador sobre los archivos del repositorio, incluyendo filtros y 
+                          posibilidades ayudando a que encuentres información que necesites dentro 
+                          de Sceiba ') }}
+                      </p>
+                      <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Acceder') }}</a>
+                    </div>
+                  </div>
+                </div>
+            </div>
             <div class="row mb-5 d-flex align-items-center">
               <div class="col-lg-6 col-md-6">
                 <div class="card">
@@ -42,7 +67,7 @@
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
                       <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
-                          <img class="img-fluid" style="max-width:320px;"
+                          <img class="img-fluid"
                           src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}" 
                           alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catalog')}}">
                       </a>
@@ -53,7 +78,7 @@
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
                       <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
-                          <img class="mg-fluid" style="max-width:320px;"
+                          <img class="img-fluid" 
                           src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
                           alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomy')}}">
                       </a>
@@ -95,7 +120,7 @@
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
                       <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
-                          <img class="mg-fluid" style="max-width:320px;"
+                          <img class="img-fluid"
                           src="{{ url_for('static', filename='images/api_icon_129131.png')}}"
                           alt="{{_('Sceiba APIs')}}" title="{{_('Sceiba APIs')}}">
                       </a>                    
@@ -124,6 +149,31 @@
 
   <br/>
     <br/> -->
+
+  
+    <div class="container mt-5 pt-5 pb-3 px-5 z-depth-1">
+        <h3 class="font-weight-bold black-text text-center">{{ _('Próximamente') }}</h3>
+        <!--Section: Content-->
+        <section class="text-center dark-grey-text">          
+          <div class="row text-center d-flex justify-content-center my-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+              <i class="fa fa-users fa-3x mb-4 grey-text"></i>
+              <h5 class="font-weight-normal mb-3">{{ _('Personas') }}</h5>
+              <p class="text-muted mb-0">{{ _('Identificación de personas. ¿Quiénes investigan?') }}</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+              <i class="fa fa-balance-scale fa-3x mb-4 grey-text"></i>
+              <h5 class="font-weight-normal mb-3">{{ _('Evaluación') }}</h5>
+              <p class="text-muted mb-0">{{ _('Evaluaciones a la ciencia desde la metodología cubana') }}</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+              <i class="fa fa-key fa-3x mb-4 grey-text"></i>
+              <h5 class="font-weight-normal mb-3">{{ _('Autenticación single-sign-on') }}</h5>
+              <p class="text-muted mb-0">{{ _('Una misma cuenta en servicio para todos los sistemas que usen nuestro proveedor de autenticación.') }}</p>
+            </div>           
+          </div>          
+        </section>        
+    </div>      
     
         
     {% if faqs %}
@@ -132,10 +182,10 @@
         <section>      
           <h6 class="font-weight-normal text-uppercase font-small grey-text mb-4 text-center">FAQ</h6>
           <!-- Section heading -->
-          <h3 class="font-weight-bold black-text mb-4 pb-2 text-center">{{ _('Frequently Asked Questions') }}</h3>
+          <h3 class="font-weight-bold black-text mb-4 pb-2 text-center">{{ _('Preguntas Frecuentes') }}</h3>
           <hr class="w-header">
           <!-- Section description -->
-          <p class="lead text-muted mx-auto mt-4 pt-2 mb-5 text-center">{{ _("Got a question? We've got answers. If you have some other questions, see our support center.") }}</p>
+          <p class="lead text-muted mx-auto mt-4 pt-2 mb-5 text-center">{{ _("¿Tienes una pregunta? Tenemos respuestas. Si tienes otras preguntas Contáctanos.") }}</p>
           
           <div class="row">
             <div class="col-md-12 col-lg-10 mx-auto mb-5">            
@@ -192,9 +242,9 @@
             <!--Grid column-->
             <div class="col-md-6 text-center">
       
-              <h3 class="font-weight-bold">Contact Us</h3>
+              <h3 class="font-weight-bold">{{ _('Contáctanos') }}</h3>
       
-              <p class="text-muted">{{ _('Department of Information Systems and Technologies') }}</p>
+              <p class="text-muted">{{ _('Departamento de Sistemas y Tecnologías de la Información') }}</p>
       
             </div>
             <!--Grid column-->
@@ -211,22 +261,19 @@
                 <form action="" method="post">
                     {{ form.hidden_tag() }}
                     <div class="md-form md-outline mt-3">
-                        {{ form.email(class="form-control") }}
-                        <label for="email">{{ _('Email') }}</label>
+                        {{ form.email(class="form-control", placeholder=form.email.label.text) }}                        
                         {% for error in form.email.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
                     </div>          
                     <div class="md-form md-outline">
-                        {{ form.subject(class="form-control") }}                      
-                        <label for="subject">{{ _('Subject') }}</label>
+                        {{ form.subject(class="form-control", placeholder=form.subject.label.text) }}
                         {% for error in form.subject.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
                     </div> 
                     <div class="md-form md-outline mb-3">
-                        {{ form.message(class="md-textarea form-control") }}                         
-                        <label for="message">{{ _('How we can help?') }}</label>
+                        {{ form.message(class="md-textarea form-control", placeholder=_('How we can help?')) }}                        
                         {% for error in form.message.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
