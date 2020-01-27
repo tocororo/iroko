@@ -108,6 +108,17 @@ def about():
     return render_template('iroko_theme/about.html')
 
 
+@blueprint.route('/terminos')
+def terminos():
+    return redirect('/page/terminos')
+
+
+@blueprint.route('/politicas')
+def politicas():
+    return redirect('/page/politicas')
+
+
+
 # @blueprint.route('/faq')
 # @register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
 # def faq():
