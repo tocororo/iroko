@@ -73,7 +73,8 @@ data/images
 
 node_modules
 
-data/
+data/sceiba-data
+data/sceiba-data/
 
 dev_ip.py
 
