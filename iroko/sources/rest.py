@@ -373,7 +373,7 @@ def get_sources_from_user(status):
 
         result = sources_gestor + list(in_second_but_not_in_first)
 
-        # TODO: URGENTE, esto es lentisimooooooo No hace falta paginar aqui realmente...
+        # TODO: optimizar esta operacion porque puede ser lenta
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
