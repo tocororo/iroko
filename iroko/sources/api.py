@@ -25,7 +25,7 @@ class Sources:
     """
     @classmethod
     def get_sources_list_x_status(cls, status='all'):
-        print(status)
+        
         if status == 'all':
             return list(map(lambda x: x, db.session.query(Source).all()))
         else:
@@ -43,17 +43,9 @@ class Sources:
         if uuid is not None:
             #uuid = UUIDType(uuid)
             return Source.query.filter_by(uuid=uuid).first()
-
-    @classmethod
-    def get_source_version(cls, uuid= None):        
-        if id is not None:
-            return Source.query.filter_by(id=id).first()
-        if uuid is not None:
-            #uuid = UUIDType(uuid)
-            return Source.query.filter_by(uuid=uuid).first()
+        return None
 
     
-
     @classmethod
     def count_sources(cls):
         return Source.query.count()
@@ -305,25 +297,26 @@ class Sources:
     def get_user_ids_source_gestor(cls, uuid) -> Dict[str, list]:
         #TODO validate uuid
         gestors = cls.get_userids_for_source_from_action('source_gestor_actions', uuid)
+        
         if gestors:
             return 'ok', gestors
         
         source = Sources.get_source_by_id(uuid=uuid)
+        if not source:
+            raise Exception('Not source found')
         
         for term_source in source.terms:
             
-            term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', term_source.term_id)
+            term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', term_source.term.uuid)
             
             if term_gestors:
                 return 'ok', term_gestors
             
             msg, aux = Terms.get_term_by_id(term_source.term_id)
             
-            while aux.parent_id:
-                print('parent')
-                print(aux.parent_id)
+            while aux.parent_id:                
                 msg, aux = Terms.get_term_by_id(aux.parent_id)
-                term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', aux.id)
+                term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', aux.uuid)
                 if term_gestors:
                     return 'ok', term_gestors
         
@@ -385,3 +378,4 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     
     
     return 'actions', {'source_gestor_actions':sources_gestor_ids, 'source_editor_actions': sources_editor_ids}
+

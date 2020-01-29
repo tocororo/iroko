@@ -59,7 +59,7 @@ def get_source_by_uuid_no_versions(uuid):
 
 
 @api_blueprint.route('/<uuid>/versions')
-@require_api_auth()
+#@require_api_auth()
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
     try:
@@ -83,22 +83,6 @@ def get_source_by_uuid(uuid):
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
-
-
-# @api_blueprint.route('/<uuid>')
-# def get_source_version_by_uuid(uuid):
-#     """Get a source version by UUID of the source"""
-#     try:
-#         source = Sources.get_source_by_id(uuid=uuid)
-#         if not source:
-#             raise Exception('Source not found')
-
-#         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-#                         'ok','sources', \
-#                         {'data': source_schema.dump(source), 'count': 1})
-
-#     except Exception as e:
-#         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/new', methods=['POST'])
