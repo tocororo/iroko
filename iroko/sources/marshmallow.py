@@ -33,6 +33,10 @@ class BaseSourceSchema(Schema):
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
     name = fields.Str(allow_none=False)
+
+    # TODO: los valores que se serializan son source_status:
+    # "SourceStatus.UNOFFICIAL" source_type: "SourceType.JOURNAL"
+    # esto habria que hacerlo mejor...el tipo de fields no deberia ser Str
     source_type = fields.Str(allow_none=False)
     source_status = fields.Str(allow_none=True)
 
@@ -48,7 +52,9 @@ class BaseSourceSchema(Schema):
             source['version_to_review'] = True
         else:
             source['version_to_review'] = False
+
         return source
+
 
 
 class SourceSchema(BaseSourceSchema):

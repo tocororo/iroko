@@ -110,7 +110,7 @@ class SecundarySourceHarvester:
         print(file_path)
 
         if remoteissns:
-            harvester = IssnHarvester()
+            harvester = IssnHarvester(file_path)
             issns = harvester.get_all_issn()
             with open(file_path, 'w') as file_issn:
                 json.dump(issns, file_issn)
@@ -124,7 +124,7 @@ class SecundarySourceHarvester:
             print(file_path)
 
             if remoteinfo:
-                harvester = IssnHarvester()
+                harvester = IssnHarvester(file_path)
                 with open(file_path, 'w') as file_issn:
                     infos = harvester.get_all_issns_info(issns, file_issn)
             else:
@@ -134,11 +134,11 @@ class SecundarySourceHarvester:
 
     @staticmethod
     def harvest_miar(recheck=True):
-        file_path = current_app.config['HARVESTER_DATA_DIRECTORY'] + '/miar.dbs.json'
-        print(file_path)
+        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        print(work_dir)
         if not recheck:
-            harvester = MiarHarvester(file_path, True)
+            harvester = MiarHarvester(work_dir, True)
         else:
-            harvester = MiarHarvester(file_path, False)
+            harvester = MiarHarvester(work_dir, False)
             harvester.get_info_database_recheck()
         # crear el vocabulario miar_databases

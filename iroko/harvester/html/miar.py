@@ -13,8 +13,13 @@ from iroko.harvester.base import BaseHarvester
 
 class MiarHarvester(BaseHarvester):
 
-    def __init__(self, path, load_remote=False):
-        self.path = path
+    def __init__(self, work_dir, load_remote=False):
+        self.work_dir = work_dir
+        self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
+        self.miar_journals_file = self.work_dir + '/miar.journals.json'
+
+        self.miar_types_vocab_name = 'miar_types'
+        self.miar_database_vocab_name = 'miar_databases'
         if load_remote:
             self.miar_groups = [
                     {
@@ -37,7 +42,7 @@ class MiarHarvester(BaseHarvester):
             self.get_url_db()
             self.get_info_databases()
         else:
-            with open(self.path, 'r') as file_db:
+            with open(self.miar_dbs_file, 'r') as file_db:
                 self.miar_groups = json.load(file_db)
 
 
@@ -127,7 +132,7 @@ class MiarHarvester(BaseHarvester):
 
 
     def get_info_databases(self):
-        with open(self.path, 'w') as file_db:
+        with open(self.miar_dbs_file, 'w') as file_db:
             for group in self.miar_groups:
                 for db in group['dbs']:
                     if 'url' in db:
@@ -148,7 +153,7 @@ class MiarHarvester(BaseHarvester):
 
 
     def get_info_database_recheck(self):
-        with open(self.path, 'w') as file_db:
+        with open(self.miar_dbs_file, 'w') as file_db:
             for group in self.miar_groups:
                 for db in group['dbs']:
                     if 'url' in db and 'info' in db and db['info'] == 'ERROR':
@@ -167,12 +172,24 @@ class MiarHarvester(BaseHarvester):
                             print('finally, sleep {0} seconds'.format(sleep_time))
                             time.sleep(sleep_time)
 
+    def update_databases_iroko(self):
+        # TODO: sincroniza lo que  hay en self.miar_dbs_file con la base de datos de iroko
+        pass
 
-    def get_info_journal(issn: str):
+    def get_info_from_journals(self, issn_path):
+        # TODO: dado la lista de issns en un archivo llamar a get_info_journal y guargar todo en el fichero
+        # self.miar_journals_file
+        pass
+
+    def update_journals_iroko(self):
+        # TODO: sincroniza lo que  hay en self.miar_journals_file con la base de datos de iroko, es decir,
+        pass
+
+    def get_info_journal(self, issn: str):
 
         url = 'http://miar.ub.edu/issn/' + issn
         sess = requests.Session()
-        sess.headers.update(get_agent())
+        sess.headers.update(get_iroko_harvester_agent())
         timeout = 30
         dictionary = {}
         response = sess.get(url,timeout = timeout)
@@ -198,13 +215,13 @@ class MiarHarvester(BaseHarvester):
             element_history1 = e_h.xpath('.//img/@alt')
             url_history = e_h.get('href')
             icds_year = element_history1[0]
-            get_info_icds(url_history, dictionary, sess, icds_year)
+            self.get_info_icds(url_history, dictionary, sess, icds_year)
             sleep_time = randint(3, 9)
             time.sleep(sleep_time)
 
         return dictionary
 
-    def get_info_icds(url: str, dictionary:dict, sess:requests.Session, icds_year: str):
+    def get_info_icds(self, url: str, dictionary:dict, sess:requests.Session, icds_year: str):
 
         timeout = 30
         response = sess.get(url,timeout = timeout)
