@@ -160,10 +160,15 @@ def get_terms(vocabulary_id):
 
 @api_blueprint.route('/term/tree/<vocabulary_id>/')
 def get_terms_tree(vocabulary_id):
-    """List all the terms in a vocabulary, in a tree """
+    """List all the terms in a vocabulary, in a tree
+    Receive <level> as an argument, defining the level of the tree you want.
+    If argument <level> is not provided returns the first level
+    level=0 is the first level.
+    """
 
     try:
-        msg, vocab, terms_full = Terms.get_terms_tree_by_vocabulary(vocabulary_id)
+        level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
+        msg, vocab, terms_full = Terms.get_terms_tree_by_vocabulary(vocabulary_id, level)
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','terms', \
@@ -173,6 +178,7 @@ def get_terms_tree(vocabulary_id):
         print(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+# TODO: Delete this, ask edel....
 @api_blueprint.route('/term/<id>')
 def term_get_by_id(id):
     """Get a term given the id but not in deep"""
@@ -181,7 +187,7 @@ def term_get_by_id(id):
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, False))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, 0, 0))
 
     except Exception as e:
         msg = str(e)
@@ -190,13 +196,17 @@ def term_get_by_id(id):
 
 @api_blueprint.route('/term/<uuid>')
 def term_get_tree(uuid):
-    """Get a term given the uuid, in deep, meaning the children """
+    """Get a term given the uuid, in deep, meaning the children
+    Receive <level> as an argument, defining the level of the tree considering the children as level=1.
+    If argument <level> is not provided returns the first level, meaning only the term.
+    level=0 is the first level."""
     try:
+        level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
         msg, term = Terms.get_term(uuid)
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, level, 0))
 
     except Exception as e:
         msg = str(e)
