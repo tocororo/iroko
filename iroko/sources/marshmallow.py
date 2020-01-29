@@ -27,6 +27,7 @@ class SourceVersionSchema(Schema):
     created_at = fields.DateTime()
     is_current = fields.Boolean()
     data = fields.Raw(many=False)
+    reviewed = fields.Boolean()
 
 
 class BaseSourceSchema(Schema):

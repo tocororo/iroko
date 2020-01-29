@@ -99,6 +99,9 @@ class SourceVersion(db.Model):
     is_current = db.Column(db.Boolean)
     """If is the current active version of Source"""
 
+    reviewed = db.Column(db.Boolean)
+    """the version is reviewed by some gestor"""
+
     def __str__(self):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
