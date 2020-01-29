@@ -173,10 +173,24 @@ def get_terms_tree(vocabulary_id):
         print(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+@api_blueprint.route('/term/<id>')
+def term_get_by_id(id):
+    """Get a term given the id but not in deep"""
+    try:
+        msg, term = Terms.get_term_by_id(id)
+        if not term:
+            raise Exception(msg)
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, False))
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 @api_blueprint.route('/term/<uuid>')
-def term_get(uuid):
-    """Get a term given the uuid """
+def term_get_tree(uuid):
+    """Get a term given the uuid, in deep, meaning the children """
     try:
         msg, term = Terms.get_term(uuid)
         if not term:
@@ -248,7 +262,7 @@ def term_new():
             raise Exception("No JSON data provided")
 
         input_data = request.json
-        
+
         with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
             msg, term = Terms.new_term(input_data)
             if not term:
@@ -266,7 +280,7 @@ def term_new():
 
 
 
-@api_blueprint.route('/taxonomy/user/permissions')
+@api_blueprint.route('/user/permissions')
 @require_api_auth()
 def taxonomy_current_user_permissions():
     msg = ''

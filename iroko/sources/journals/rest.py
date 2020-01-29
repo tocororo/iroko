@@ -9,9 +9,7 @@ from iroko.sources.journals.marshmallow import journal_schema, journal_schema_ma
 from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
 from iroko.sources.utils import _load_terms_tree
 from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
-
-
-
+from iroko.sources.marshmallow import source_schema, source_schema_many
 
 
 api_blueprint = Blueprint(
@@ -86,3 +84,17 @@ def get_journals():
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 
 
+@api_blueprint.route('/journal/<uuid>')
+def get_journal_by_uuid(uuid):
+    """Get a journal by UUID"""
+    try: 
+        source = Source.query.filter_by(uuid=uuid, source_type=SourceType.JOURNAL)
+        if not source:
+            raise Exception('Source not found')
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','sources', \
+                        {'data': source_schema.dump(source), 'count': 1})
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)

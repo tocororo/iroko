@@ -81,7 +81,12 @@ class SourceVersion(db.Model):
         Source.id, name='fk_iroko_source_versions_source_id'))
     """ID of Source for this inclusion."""
 
-    source = db.relationship("Source", backref=db.backref("versions",cascade="all, delete-orphan", lazy='dynamic'))
+    source = db.relationship("Source",
+                             backref=db.backref("versions",
+                                                cascade="all, delete-orphan",
+                                                lazy='dynamic',
+                                                order_by='SourceVersion.created_at.desc()')
+                             )
 
     comment = db.Column(db.String)
 

@@ -6,11 +6,12 @@ from __future__ import absolute_import, division, print_function
 
 from flask import current_app
 import json
+import datetime
 
 from invenio_db import db
-
+from invenio_accounts.models import User
 from iroko.taxonomy.models import Term
-from iroko.sources.models import Source, SourceType, TermSources, SourceStatus
+from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
 from iroko.harvester.models import HarvestType, Repository
 
 def init_journals():
@@ -22,6 +23,7 @@ def init_journals():
         data = json.load(fsource, object_hook=remove_nulls)
         tax = json.load(ftax)
         inserted= {}
+        user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
         if isinstance(data, dict):
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
@@ -30,6 +32,7 @@ def init_journals():
                     source.source_type = SourceType.JOURNAL
                     source.name = record['title']
                     data = {}
+                    _assing_if_exist(data, record, 'title')
                     _assing_if_exist(data, record, 'description')
                     _assing_if_exist(data, record, 'url')
                     _assing_if_exist(data, record, 'rnps')
@@ -44,6 +47,17 @@ def init_journals():
                     source.data = data
                     source.source_status = SourceStatus.UNOFFICIAL
                     db.session.add(source)
+                    db.session.flush()
+
+                    source_version = SourceVersion()
+                    source_version.comment = 'initial version'
+                    source_version.source_id = source.id
+                    source_version.user_id = user.id
+                    source_version.data = data
+                    source_version.is_current = True
+                    source_version.created_at = datetime.date(2019, 1, 1)
+                    db.session.add(source_version)
+                    db.session.flush()
         db.session.commit()
     init_term_sources()
     add_terms_to_data()

@@ -47,20 +47,21 @@ class TermSchema(Schema):
         return item
 
     @pre_dump
-    def dump_clasification(self, term, **kwargs):
-        term.class_ids = []
-        for term_class in TermClasification.query.filter_by(term_clasified_id=term.id).all():
-            term.class_ids.append(term_class.term_class_id)
+    def dump_clasification(self, term: Term, **kwargs):
+        if not term is None:
+            term.class_ids = []
+            for term_class in TermClasification.query.filter_by(term_clasified_id=term.id).all():
+                term.class_ids.append(term_class.term_class_id)
 
-        term.clasified_ids = []
-        for term_clasification in TermClasification.query.filter_by(term_class_id=term.id).all():
-            term.clasified_ids.append(term_clasification.term_clasified_id)
+            term.clasified_ids = []
+            for term_clasification in TermClasification.query.filter_by(term_class_id=term.id).all():
+                term.clasified_ids.append(term_clasification.term_clasified_id)
 
         return term
 
 
 
-# unknown='EXCLUDE', esto se pone para que el load excluya los campos que no se conoce, 
+# unknown='EXCLUDE', esto se pone para que el load excluya los campos que no se conoce,
 # lo estamos usando aqui porque los campos dump_only se interpretan por marshmallow 3 como desconocidos
 # si no se pone unknown='EXCLUDE' entonces en los PUT (que hace load) no pueden venir los dump_only
 # basicamente los dump_only nuestros son id y uuid
