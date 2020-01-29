@@ -13,7 +13,7 @@ from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
 from flask_principal import PermissionDenied
-from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, source_gestor_permission_factory
+from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, source_gestor_permission_factory, user_has_editor_or_gestor_permissions
 from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.api import Notifications
 from iroko.notifications.models import NotificationType
@@ -57,37 +57,32 @@ def get_source_by_uuid_no_versions(uuid):
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+
 @api_blueprint.route('/<uuid>/versions')
-@require_api_auth()
+#@require_api_auth()
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
-            raise Exception('Source not found')
+                raise Exception('Source not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','source', \
-                            source_schema.dump(source))
+        terms = ''
+        for term in source.terms:
+            terms = terms + str(term.term.uuid) + ','        
+        if terms:
+            terms = terms[0:-1]
+        
+        if user_has_editor_or_gestor_permissions({'terms': terms, 'uuid':uuid}):
+            
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                'ok','source', \
+                                source_schema.dump(source))
+        
+        raise PermissionDenied('No tiene permiso')
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
-
-
-# @api_blueprint.route('/<uuid>')
-# def get_source_version_by_uuid(uuid):
-#     """Get a source version by UUID of the source"""
-#     try:
-#         source = Sources.get_source_by_id(uuid=uuid)
-#         if not source:
-#             raise Exception('Source not found')
-
-#         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-#                         'ok','sources', \
-#                         {'data': source_schema.dump(source), 'count': 1})
-
-#     except Exception as e:
-#         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/new', methods=['POST'])
@@ -149,9 +144,9 @@ def source_new_version(uuid):
 
         terms = ''
         for term in source.terms:
-            terms = terms + str(term.id) + ','
+            terms = terms + str(term.term.uuid) + ','
         if terms:
-            terms = terms[1,-1]
+            terms = terms[0:-1]
 
         try:
             with source_editor_permission_factory({'uuid':uuid}).require():
@@ -219,9 +214,9 @@ def source_version_set_current(uuid):
 
         terms = ''
         for term in source.terms:
-            terms = terms + str(term.id) + ','
+            terms = terms + str(term.term.uuid) + ','
         if terms:
-            terms = terms[1,-1]
+            terms = terms[0:-1]
 
         with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():
             msg, source  = Sources.set_source_current(input_data, source)

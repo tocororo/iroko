@@ -79,8 +79,10 @@ def source_gestor_permission_factory(obj):
 
 
 def source_term_gestor_permission_factory(obj):
-    if current_user and is_current_user_source_admin():
-        return True
+    permission = Permission(source_full_gestor_actions)
+    current_identity = get_identity(current_user)
+    if permission.allows(current_identity):
+        return permission
     
     permiso = None
     permiso = Permission(ObjectSourceGestor(obj['uuid']))
@@ -98,7 +100,34 @@ def source_term_gestor_permission_factory(obj):
                 return permiso
         except Exception as e:
             raise e
-    return PermissionDenied(ObjectSourceTermGestor(None))
+    raise PermissionDenied('No tiene permisos de gestión')
+
+
+def user_has_editor_or_gestor_permissions(obj):
+    permission = Permission(source_full_gestor_actions)
+    current_identity = get_identity(current_user)
+    if permission.allows(current_identity):
+        return permission
+    
+    permiso = None
+    permiso = Permission(ObjectSourceGestor(obj['uuid']))
+    if permiso:
+        return permiso
+
+    aux = obj['terms']
+    terms = aux.split(',')
+    permiso = None
+    
+    for term_uuid in terms:
+        try:            
+            permiso = Permission(ObjectSourceTermGestor(term_uuid))
+            if permiso:
+                return permiso
+        except Exception as e:
+            raise e
+    
+    return Permission(ObjectSourceEditor(obj['uuid']))
+    
 
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior
