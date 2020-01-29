@@ -158,7 +158,7 @@ def get_terms(vocabulary_id):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/term/tree/<vocabulary_id>/')
+@api_blueprint.route('/term/tree/<vocabulary_id>')
 def get_terms_tree(vocabulary_id):
     """List all the terms in a vocabulary, in a tree
     Receive <level> as an argument, defining the level of the tree you want.
