@@ -5,7 +5,7 @@ from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema, source_schema_many, source_schema_no_versions
+from iroko.sources.marshmallow import source_schema, source_schema_many, source_schema_no_versions, source_version_schema, source_version_schema_many
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources, get_current_user_source_permissions
@@ -59,7 +59,7 @@ def get_source_by_uuid_no_versions(uuid):
 
 
 @api_blueprint.route('/<uuid>/versions')
-#@require_api_auth()
+@require_api_auth()
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
     try:
@@ -111,7 +111,7 @@ def source_new():
 
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        'ok','sources', \
+                        'ok','source', \
                         {'data': source_schema.dump(source), 'count': 1})
 
     except Exception as e:
@@ -157,10 +157,10 @@ def source_new_version(uuid):
 
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
-                notification.description = _('El gestor ha editado la fuente: {0}.'.format(source.name))
+                notification.description = _('Editor has change this source: {0}.'.format(source.name))
                 notification.emiter = _('Sistema')
 
-                msg, users = Sources.get_user_ids_source_editor(source.uuid)
+                msg, users = Sources.get_user_ids_source_gestor(source.uuid)
                 if users:
                     for user_id in users:
                         notification.receiver_id = user_id
@@ -177,21 +177,71 @@ def source_new_version(uuid):
 
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
-                notification.description = _('Editada fuente: {0} y requiere revisión de un gestor.'.format(source.name))
+                notification.description = _('Gestor has reviewed this soruce: {0}.'.format(source.name))
                 notification.emiter = _('Sistema')
 
-                msg, users = Sources.get_user_ids_source_gestor(source.uuid)
+                msg, users = Sources.get_user_ids_source_editor(source.uuid)
                 if users:
                     for user_id in users:
                         notification.receiver_id = user_id
                         Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','sources', \
+                            'ok','source', \
                             {'data': source_schema.dump(source), 'count': 1})
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/<id>/version/edit', methods=['POST'])
+@require_api_auth()
+def source_edit_version(id):
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
+
+        input_data = request.json
+
+        version = Sources.get_source_version_by_id(id)
+        if not version:
+            raise Exception('Not version found')
+
+        source = Sources.get_source_by_id(uuid=version.source.uuid)
+
+        if not source:
+            raise Exception('Not source found')
+
+        with source_editor_permission_factory({'uuid':source.uuid}).require():            
+            msg, source, source_version = Sources.edit_source_version(input_data, version)
+            if not source or not source_version:
+                raise Exception('Not source for changing found')
+
+            notification = NotificationSchema()
+            notification.classification = NotificationType.INFO
+            notification.description = _('The edit has change data in version of source: {0}.'.format(source.name))
+            notification.emiter = _('System')
+
+            msg, users = Sources.get_user_ids_source_gestor(source.uuid)
+            if users:
+                for user_id in users:
+                    notification.receiver_id = user_id
+                    Notifications.new_notification(notification)
+
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','source', \
+                        {
+                            'data': source_schema_no_versions.dump(source), 
+                            'version': source_version_schema.dump(source_version),
+                            'count': 1
+                        })
+        
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -224,11 +274,12 @@ def source_version_set_current(uuid):
                 raise Exception('Not source for changing found')
 
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        'ok','sources', \
+                        'ok','source', \
                         {'data': source_schema.dump(source), 'count': 1})
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -258,12 +309,13 @@ def source_set_approved(uuid):
             return iroko_json_response(
                 IrokoResponseStatus.SUCCESS,
                 'Source {0} approved.'.format(source.name),
-                'approved',
+                'source',
                 source_schema.dump(source)
             )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -362,7 +414,7 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-# @require_api_auth()
+@require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
@@ -398,3 +450,28 @@ def get_sources_from_user(status):
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
+@api_blueprint.route('/editor/<uuid>/versions', methods=['GET'])
+@require_api_auth()
+def get_editor_source_versions(uuid):
+    try:        
+        #listar las versiones de este editor que no se han revisado para que pueda cambiarlas        
+        source = Sources.get_source_by_id(uuid=uuid)
+        print('source> ', source)
+        if not source:
+            raise Exception('Not source found')
+
+        with source_editor_permission_factory({'uuid':source.uuid}).require():            
+            versions = Sources.get_editor_versions_not_reviewed(source)
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','source', \
+                        {
+                            'data': source_schema.dump(source), 
+                            'versions':source_version_schema_many.dump(versions),
+                            'count': 1
+                        })
+        
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
