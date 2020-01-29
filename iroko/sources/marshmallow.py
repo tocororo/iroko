@@ -63,4 +63,5 @@ class SourceSchema(BaseSourceSchema):
 
 source_schema_many = SourceSchema(many=True, exclude=['versions'])
 source_schema = SourceSchema()
+source_schema_no_versions = SourceSchema(exclude=['versions'])
 

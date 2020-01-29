@@ -5,7 +5,7 @@ from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema, source_schema_many
+from iroko.sources.marshmallow import source_schema, source_schema_many, source_schema_no_versions
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources, get_current_user_source_permissions
@@ -43,6 +43,22 @@ def get_sources_count():
 
 
 @api_blueprint.route('/<uuid>')
+def get_source_by_uuid_no_versions(uuid):
+    """Get a source by UUID"""
+    try:
+        source = Sources.get_source_by_id(uuid=uuid)
+        if not source:
+            raise Exception('Source not found')
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','source', \
+                            source_schema_no_versions.dump(source))
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+@api_blueprint.route('/<uuid>/versions')
+@require_api_auth()
 def get_source_by_uuid(uuid):
     """Get a source by UUID"""
     try:
