@@ -179,19 +179,19 @@ def get_terms_tree(vocabulary_id):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 # TODO: Delete this, ask edel....
-@api_blueprint.route('/term/<id>')
-def term_get_by_id(id):
-    """Get a term given the id but not in deep"""
-    try:
-        msg, term = Terms.get_term_by_id(id)
-        if not term:
-            raise Exception(msg)
+# @api_blueprint.route('/term/<id>')
+# def term_get_by_id(id):
+#     """Get a term given the id but not in deep"""
+#     try:
+#         msg, term = Terms.get_term_by_id(id)
+#         if not term:
+#             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, 0, 0))
+#         return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, 0, 0))
 
-    except Exception as e:
-        msg = str(e)
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+#     except Exception as e:
+#         msg = str(e)
+#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/<uuid>')
