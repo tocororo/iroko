@@ -169,9 +169,10 @@ class Terms:
 
         return 'ok', terms
 
-    @classmethod
-    def get_terms_tree_by_vocabulary(cls, vocabulary_id)-> [str, Vocabulary, list]:
 
+    @classmethod
+    def get_terms_tree_by_vocabulary(cls, vocabulary_id, level: int)-> [str, Vocabulary, list]:
+        """If level < 0, means all the levels of the tree"""
         msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
         if not vocab:
             raise Exception(msg)
@@ -180,7 +181,7 @@ class Terms:
 
         terms_full = []
         for term in terms:
-            terms_full.append(Terms.dump_term(term))
+            terms_full.append(Terms.dump_term(term, level, 0))
 
         return 'ok', vocab, terms_full
 
@@ -328,12 +329,12 @@ class Terms:
             return []
 
     @classmethod
-    def dump_term(cls, term:Term, tree: bool=True):
+    def dump_term(cls, term:Term, level_to_reach: int, current_level: int):
         """ helper function to load terms children"""
-        if tree:
+        if current_level < level_to_reach:
             children = []
             for child in term.children:
-                children.append(Terms.dump_term(child))
+                children.append(Terms.dump_term(child, level_to_reach, current_level+1))
             return {'term': term_schema.dump(term), 'children':children}
         else:
             return term_schema.dump(term)
