@@ -5,6 +5,7 @@ from invenio_records_rest.schemas.fields import DateString
 from iroko.harvester.marshmallow import RepositorySchema
 from sqlalchemy import desc, asc
 from iroko.taxonomy.api import Terms
+from iroko.taxonomy.marshmallow import term_node_schema
 
 from marshmallow_enum import EnumField
 
@@ -17,7 +18,7 @@ class TermSourcesSchema(Schema):
     def dump_term(self, termSource, **kwargs):
         # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current.
         msg, term = Terms.get_term_by_id(termSource['term_id']);
-        termSource['term'] = Terms.dump_term(term, 0, 0)
+        termSource['term'] = term_node_schema.dump_term_node(term, 0, 0)
 
         return termSource
 

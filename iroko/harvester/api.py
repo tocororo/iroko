@@ -139,6 +139,7 @@ class SecundarySourceHarvester:
         if not recheck:
             harvester = MiarHarvester(work_dir, True)
         else:
+            print('recheck is True')
             harvester = MiarHarvester(work_dir, False)
             harvester.get_info_database_recheck()
         # crear el vocabulario miar_databases

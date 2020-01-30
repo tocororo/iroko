@@ -61,7 +61,7 @@ def get_source_by_uuid_no_versions(uuid):
 @api_blueprint.route('/<uuid>/versions')
 @require_api_auth()
 def get_source_by_uuid(uuid):
-    """Get a source by UUID"""
+    """Get a source and its versions by UUID, with permission checking"""
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
@@ -69,16 +69,16 @@ def get_source_by_uuid(uuid):
 
         terms = ''
         for term in source.terms:
-            terms = terms + str(term.term.uuid) + ','        
+            terms = terms + str(term.term.uuid) + ','
         if terms:
             terms = terms[0:-1]
-        
+
         if user_has_editor_or_gestor_permissions({'terms': terms, 'uuid':uuid}):
-            
+
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok','source', \
                                 source_schema.dump(source))
-        
+
         raise PermissionDenied('No tiene permiso')
 
     except Exception as e:
@@ -215,7 +215,7 @@ def source_edit_version(id):
         if not source:
             raise Exception('Not source found')
 
-        with source_editor_permission_factory({'uuid':source.uuid}).require():            
+        with source_editor_permission_factory({'uuid':source.uuid}).require():
             msg, source, source_version = Sources.edit_source_version(input_data, version)
             if not source or not source_version:
                 raise Exception('Not source for changing found')
@@ -234,11 +234,11 @@ def source_edit_version(id):
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','source', \
                         {
-                            'data': source_schema_no_versions.dump(source), 
+                            'data': source_schema_no_versions.dump(source),
                             'version': source_version_schema.dump(source_version),
                             'count': 1
                         })
-        
+
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -453,23 +453,23 @@ def get_sources_from_user(status):
 @api_blueprint.route('/editor/<uuid>/versions', methods=['GET'])
 @require_api_auth()
 def get_editor_source_versions(uuid):
-    try:        
-        #listar las versiones de este editor que no se han revisado para que pueda cambiarlas        
+    try:
+        #listar las versiones de este editor que no se han revisado para que pueda cambiarlas
         source = Sources.get_source_by_id(uuid=uuid)
         print('source> ', source)
         if not source:
             raise Exception('Not source found')
 
-        with source_editor_permission_factory({'uuid':source.uuid}).require():            
+        with source_editor_permission_factory({'uuid':source.uuid}).require():
             versions = Sources.get_editor_versions_not_reviewed(source)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','source', \
                         {
-                            'data': source_schema.dump(source), 
+                            'data': source_schema.dump(source),
                             'versions':source_version_schema_many.dump(versions),
                             'count': 1
                         })
-        
+
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
