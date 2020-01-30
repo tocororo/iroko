@@ -22,6 +22,11 @@ class TermSourcesSchema(Schema):
 
         return termSource
 
+
+# TODO: to replace by UserProfilesSchema
+class IrokoUserSchema(Schema):
+    email = fields.Str()
+
 class SourceVersionSchema(Schema):
     id = fields.Int(dump_only=True)
     user_id = fields.Int()
@@ -31,6 +36,7 @@ class SourceVersionSchema(Schema):
     is_current = fields.Boolean()
     data = fields.Raw(many=False)
     reviewed = fields.Boolean()
+    versions = fields.Nested(UserSchema)
 
 
 class BaseSourceSchema(Schema):
