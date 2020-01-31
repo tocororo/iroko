@@ -4,9 +4,9 @@ from iroko.userprofiles.models import UserProfile
 from invenio_db import db
 
 
-class UserProfilesSchema(Schema):    
-       
-    biography = fields.Str()    
+class UserProfilesSchema(Schema):
+
+    biography = fields.Str()
     institution_id = fields.Integer()
 
 userprofile_schema_many = UserProfilesSchema(many=True)

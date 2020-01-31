@@ -5,7 +5,7 @@ from invenio_access.utils import get_identity
 from flask_login import current_user
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.models import TermSources
-from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
+from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema, term_node_schema, term_node_schema_many
 from flask_babelex import lazy_gettext as _
 from marshmallow import ValidationError
 from invenio_access import Permission
@@ -167,22 +167,23 @@ class Terms:
             raise Exception(msg)
         terms = vocab.terms.filter_by(parent_id=None).all()
 
-        return 'ok', terms
+        return 'ok', vocab, terms
 
-    @classmethod
-    def get_terms_tree_by_vocabulary(cls, vocabulary_id)-> [str, Vocabulary, list]:
 
-        msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
-        if not vocab:
-            raise Exception(msg)
+    # @classmethod
+    # def get_terms_tree_by_vocabulary(cls, vocabulary_id, level: int)-> [str, Vocabulary, list]:
+    #     """If level < 0, means all the levels of the tree"""
+    #     msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
+    #     if not vocab:
+    #         raise Exception(msg)
 
-        msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
+    #     msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
 
-        terms_full = []
-        for term in terms:
-            terms_full.append(Terms.dump_term(term))
+    #     terms_full = []
+    #     for term in terms:
+    #         terms_full.append(term_node_schema.dump_term_node(term, level, 0))
 
-        return 'ok', vocab, terms_full
+    #     return 'ok', vocab, terms_full
 
     @classmethod
     def get_term(cls, uuid) -> Dict[str, Term]:
@@ -327,16 +328,16 @@ class Terms:
         except Exception as error:
             return []
 
-    @classmethod
-    def dump_term(cls, term:Term, tree: bool=True):
-        """ helper function to load terms children"""
-        if tree:
-            children = []
-            for child in term.children:
-                children.append(Terms.dump_term(child))
-            return {'term': term_schema.dump(term), 'children':children}
-        else:
-            return term_schema.dump(term)
+    # @classmethod
+    # def dump_term(cls, term:Term, level_to_reach: int, current_level: int):
+    #     """ helper function to load terms children"""
+    #     if current_level < level_to_reach:
+    #         children = []
+    #         for child in term.children:
+    #             children.append(Terms.dump_term(child, level_to_reach, current_level+1))
+    #         return {'term': term_schema.dump(term), 'children':children}
+    #     else:
+    #         return term_schema.dump(term)
 
 
 
