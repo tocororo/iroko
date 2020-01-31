@@ -56,6 +56,7 @@ class Source(db.Model):
 class TermSources(db.Model):
     __tablename__ = 'iroko_terms_sources'
 
+    # TODO: Esta relacion deberia hacerse con los UUIDs y no con los IDs
     term_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'), primary_key=True)
     sources_id = db.Column(db.Integer, db.ForeignKey('iroko_sources.id'), primary_key=True)
     data = db.Column(JSONType)

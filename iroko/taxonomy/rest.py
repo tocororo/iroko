@@ -33,7 +33,7 @@ from flask_principal import PermissionDenied
 from invenio_oauth2server import require_api_auth
 
 from iroko.taxonomy.models import Vocabulary, Term
-from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema
+from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema, term_node_schema
 
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
@@ -168,45 +168,57 @@ def get_terms_tree(vocabulary_id):
 
     try:
         level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
-        msg, vocab, terms_full = Terms.get_terms_tree_by_vocabulary(vocabulary_id, level)
+
+        vocab = Vocabulary.query.filter_by(id=vocabulary_id).first()
+        terms = vocab.terms.filter_by(parent_id=None).all()
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','terms', \
+                            'ok','tree', \
                             {'vocab': vocabulary_schema.dump(vocab),\
-                            'terms': terms_full})
+                            'term_node': term_node_schema.dump_term_node_list(terms, level, 0)})
     except Exception as e:
         print(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
-# TODO: Delete this, ask edel....
-@api_blueprint.route('/term/<id>')
-def term_get_by_id(id):
-    """Get a term given the id but not in deep"""
-    try:
-        msg, term = Terms.get_term_by_id(id)
-        if not term:
-            raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, 0, 0))
+# @api_blueprint.route('/term/<id>')
+# @require_api_auth()
+# def term_get_by_id(id):
+#     """Get a term given the id but not in deep
+#     Helper endpoint
+#     """
+#     try:
+#         msg, term = Terms.get_term_by_id(id)
+#         if not term:
+#             raise Exception(msg)
 
-    except Exception as e:
-        msg = str(e)
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+#         return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, 0, 0))
+
+#     except Exception as e:
+#         msg = str(e)
+#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/<uuid>')
 def term_get_tree(uuid):
     """Get a term given the uuid, in deep, meaning the children
-    Receive <level> as an argument, defining the level of the tree considering the children as level=1.
-    If argument <level> is not provided returns the first level, meaning only the term.
-    level=0 is the first level."""
+    Receive <level> as an argument, defining the level of the tree considering the children as level=1 and parent as level=-1
+    If argument <level> is not provided or equal 0, returns the first level, meaning only the term.
+    Whith negative values it gets to the parents.
+    TermNode
+    {
+        term:Term,
+        children: TermNode[],
+        parent:TermNode
+    }
+    """
     try:
-        level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
+        level = int(request.args.get('level')) if request.args.get('level') else 0
         msg, term = Terms.get_term(uuid)
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, level, 0))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term_node', term_node_schema.dump_term_node(term, level, 0))
 
     except Exception as e:
         msg = str(e)

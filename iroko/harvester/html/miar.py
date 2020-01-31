@@ -145,6 +145,7 @@ class MiarHarvester(BaseHarvester):
                         else:
                             print('ok, saving to file')
                             if file_db:
+                                file_db.seek(0)
                                 json.dump(self.miar_groups, file_db)
                         finally:
                             sleep_time = randint(3, 9)
@@ -153,24 +154,31 @@ class MiarHarvester(BaseHarvester):
 
 
     def get_info_database_recheck(self):
-        with open(self.miar_dbs_file, 'w') as file_db:
-            for group in self.miar_groups:
-                for db in group['dbs']:
-                    if 'url' in db and 'info' in db and db['info'] == 'ERROR':
-                        try:
-                            print('getting info of {0}'.format(db['url']))
-                            db['info'] = self.get_info_db(db['url'])
-                        except Exception as ex:
-                            print('ERROR, getting {0}'.format(db['url']))
-                            db['info'] = 'ERROR'
-                        else:
-                            print('ok, saving to file')
-                            if file_db:
-                                json.dump(self.miar_groups, file_db)
-                        finally:
-                            sleep_time = randint(3, 9)
-                            print('finally, sleep {0} seconds'.format(sleep_time))
-                            time.sleep(sleep_time)
+        print(self.miar_groups)
+        for group in self.miar_groups:
+            for db in group['dbs']:
+                if 'url' in db and (
+                    (not 'info' in db) or ('info' in db and db['info'] == 'ERROR')
+                ):
+                    try:
+                        print('getting info of {0}'.format(db['url']))
+                        db['info'] = self.get_info_db(db['url'])
+                    except Exception as ex:
+                        print('ERROR, getting {0}'.format(db['url']))
+                        db['info'] = 'ERROR'
+                    # else:
+                    #     print('ok, saving to file')
+                    #     if file_db:
+                    #         # This is an error
+                    #         file_db.seek(0)
+
+                    finally:
+                        sleep_time = randint(3, 9)
+                        print('finally, sleep {0} seconds'.format(sleep_time))
+                        time.sleep(sleep_time)
+        with open(self.miar_dbs_file, 'w+',  encoding=('UTF-8')) as file_db:
+            print('writing to file {0}'.format(self.miar_dbs_file))
+            json.dump(self.miar_groups, file_db)
 
     def update_databases_iroko(self):
         # TODO: sincroniza lo que  hay en self.miar_dbs_file con la base de datos de iroko
