@@ -36,7 +36,7 @@ class SourceVersionSchema(Schema):
     is_current = fields.Boolean()
     data = fields.Raw(many=False)
     reviewed = fields.Boolean()
-    versions = fields.Nested(UserSchema)
+    user = fields.Nested(IrokoUserSchema)
 
 
 class BaseSourceSchema(Schema):
