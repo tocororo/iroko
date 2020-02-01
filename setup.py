@@ -217,6 +217,7 @@ setup(
             'iroko_sources_journals = iroko.sources.journals.rest:api_blueprint',
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
+            'iroko_issn = iroko.issn.rest:api_blueprint',
 
         ],
         'invenio_celery.tasks': [

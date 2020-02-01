@@ -9,6 +9,8 @@ import time
 from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
+from iroko.taxonomy.models import Vocabulary, Term, TermClasification
+from invenio_db import db
 
 
 class MiarHarvester(BaseHarvester):
@@ -17,7 +19,6 @@ class MiarHarvester(BaseHarvester):
         self.work_dir = work_dir
         self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
         self.miar_journals_file = self.work_dir + '/miar.journals.json'
-
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
         if load_remote:
@@ -182,11 +183,44 @@ class MiarHarvester(BaseHarvester):
 
     def update_databases_iroko(self):
         # TODO: sincroniza lo que  hay en self.miar_dbs_file con la base de datos de iroko
-        pass
+        with open(self.miar_dbs_file, 'r') as file_dbs:
+            archive = json.load(file_dbs)
+
+        miar_db_type_vocab = Vocabulary.query.filter_by(name = 'miar_types').first()
+        miar_db_vocab = Vocabulary.query.filter_by(name = 'miar_databases').first()
+
+        if(archive):
+            for archive_dbs in archive:
+                miar_types = Term()
+                miar_types.name = archive_dbs['name']
+                miar_types.vocabulary_id = miar_db_type_vocab.id
+                miar_types.description = archive_dbs['url']
+                db.session.add(miar_types)
+                db.session.flush()
+                for archive_dbs_info in archive_dbs['dbs']:
+                    miar_dbs = Term()
+                    miar_dbs.name = archive_dbs_info['name']
+                    miar_dbs.vocabulary_id = miar_db_vocab.id
+                    miar_dbs.description = archive_dbs_info['url']
+                    miar_dbs.data = archive_dbs_info['info']
+                    db.session.add(miar_dbs)
+                    db.session.flush()
+                    miar_classification = TermClasification()
+                    miar_classification.term_class_id = miar_types.id
+                    miar_classification.term_clasified_id = miar_dbs.id
+                    db.session.add(miar_classification)
+                    db.session.commit()
+
+            return 'success'
+        else:
+            return 'error'
+
 
     def get_info_from_journals(self, issn_path):
         # TODO: dado la lista de issns en un archivo llamar a get_info_journal y guargar todo en el fichero
         # self.miar_journals_file
+        dbs = open(self.miar_dbs_file, 'w')
+        print(dbs)
         pass
 
     def update_journals_iroko(self):
