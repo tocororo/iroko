@@ -10,6 +10,7 @@ from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
 from iroko.sources.utils import _load_terms_tree
 from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
 from iroko.sources.marshmallow import source_schema, source_schema_many
+from iroko.harvester.api import SecundarySourceHarvester
 
 
 api_blueprint = Blueprint(
@@ -87,7 +88,7 @@ def get_journals():
 @api_blueprint.route('/journal/<uuid>')
 def get_journal_by_uuid(uuid):
     """Get a journal by UUID"""
-    try: 
+    try:
         source = Source.query.filter_by(uuid=uuid, source_type=SourceType.JOURNAL)
         if not source:
             raise Exception('Source not found')
@@ -95,6 +96,35 @@ def get_journal_by_uuid(uuid):
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
                         {'data': source_schema.dump(source), 'count': 1})
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/journal/issn/<issn>')
+def get_journal_by_issn(issn):
+    """Get a journal by UUID"""
+    try:
+        issns_with_info = SecundarySourceHarvester.get_cuban_issns()
+
+        if not issn in issns_with_info.keys():
+            return iroko_json_response(IrokoResponseStatus.NOT_FOUND, "ISSN {0} not found on Cuban ISSNs list".format(issn), None, None)
+            # raise Exception("ISSN {0} not found on Cuban ISSNs list".format(issn))
+        if not "@graph" in issns_with_info[issn].keys():
+            raise Exception("Wrong json format for ISSN: {0}".format(issn))
+
+        for item in issns_with_info[issn]["@graph"]:
+            if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
+                return iroko_json_response(IrokoResponseStatus.SUCCESS,
+                "ok", "issn_org",
+                {"issn":issn, "title":item["value"]})
+
+            # if "issn" in item.keys() and "name" in item.keys():
+            #     return iroko_json_response(IrokoResponseStatus.SUCCESS,
+            #     "ok", "ISSN validation",
+            #     {"issn":issn, "name":item["name"]})
+
+        raise Exception("Internal Error: Name not found on the ISSN info")
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)

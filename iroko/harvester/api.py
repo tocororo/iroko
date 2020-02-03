@@ -106,30 +106,13 @@ class SecundarySourceHarvester:
     @staticmethod
     def process_issn(remoteissns=True, remoteinfo=True, info=True):
 
-        file_path = current_app.config['HARVESTER_DATA_DIRECTORY'] + '/issn.cuba.json'
-        print(file_path)
+        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        harvester = IssnHarvester(work_dir)
 
-        if remoteissns:
-            harvester = IssnHarvester(file_path)
-            issns = harvester.get_all_issn()
-            with open(file_path, 'w') as file_issn:
-                json.dump(issns, file_issn)
-        else:
-            with open(file_path, 'r') as file_issn:
-                issns = json.load(file_issn)
-        count = 0
+        issns = harvester.get_cuban_issns_json(remoteissns)
 
         if info:
-            file_path = current_app.config['HARVESTER_DATA_DIRECTORY'] + '/issn.info.json'
-            print(file_path)
-
-            if remoteinfo:
-                harvester = IssnHarvester(file_path)
-                with open(file_path, 'w') as file_issn:
-                    infos = harvester.get_all_issns_info(issns, file_issn)
-            else:
-                with open(file_path, 'r') as file_issn:
-                    infos = json.load(file_issn)
+            infos = harvester.get_cuban_issns_info_json(issns, remoteinfo)
             # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario sea issn...
 
     @staticmethod
@@ -143,3 +126,13 @@ class SecundarySourceHarvester:
             harvester = MiarHarvester(work_dir, False)
             harvester.get_info_database_recheck()
         # crear el vocabulario miar_databases
+
+    @staticmethod
+    def get_cuban_issns():
+        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        harvester = IssnHarvester(work_dir)
+        
+        issns = harvester.get_cuban_issns_json(False)
+        infos = harvester.get_cuban_issns_info_json(issns, False)        
+        
+        return infos

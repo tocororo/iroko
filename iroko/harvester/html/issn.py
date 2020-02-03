@@ -16,8 +16,11 @@ class IssnHarvester(BaseHarvester):
 
     # TODO: all functions private, except process_pipeline
 
-    def __init__(self, path, load_remote=False):
-        self.path = path
+    def __init__(self, work_dir, load_remote=False):
+        self.work_dir = work_dir
+        
+        self.cuban_issn_file = self.work_dir + '/issn.cuba.json'
+        self.cuban_issn_info_file = self.work_dir + '/issn.info.cuba.json'
 
 
     def encode_multipart_formdata(self, fields):
@@ -51,7 +54,9 @@ class IssnHarvester(BaseHarvester):
         url='https://portal.issn.org/resource/ISSN/'+issn+'?format=json'
         response = sess.get(url)
 
-        return response.text
+        # text = response.text.replace('\\n', '')
+        # return text.replace('\\"', '"')
+        return json.loads(response.text)
 
 
     def getissn(self, res: requests.Response):
@@ -121,7 +126,7 @@ class IssnHarvester(BaseHarvester):
         """
 
         issns = self.get_all_issn()
-        infos = self.get_all_issns_info(issns, None)
+        infos = self.get_all_issns_info(issns)
         return issns, infos
 
 
@@ -151,29 +156,57 @@ class IssnHarvester(BaseHarvester):
             time.sleep(sleep_time)
 
             page += 1
+
+        return issns
+    
+
+    def get_cuban_issns_json(self, remoteissns):
+        if remoteissns:            
+            issns = self.get_all_issn()
+            with open(self.cuban_issn_file, 'w+',  encoding=('UTF-8')) as file_issn:
+                if file_issn:                                
+                    json.dump(issns, file_issn)                    
+        else:
+            with open(self.cuban_issn_file, 'r') as file_issn:
+                issns = json.load(file_issn)
+
         return issns
 
 
-    def get_all_issns_info(self, issns, file_issn_info):
+    def get_all_issns_info(self, issns):
         session = requests.Session()
 
         session.headers.update(get_iroko_harvester_agent())
 
         result = dict()
+        with open(self.cuban_issn_info_file, 'r') as file_issn:
+            result = json.load(file_issn)        
         for issn in issns:
             try:
                 print('try getting {0} info'.format(issn))
-                result[issn] = self.get_info_issn(issn, session)
+                result[issn] = self.get_info_issn(issn, session)                
             except Exception as e:
-                print('error, getting {0} info'.format(issn))
-                pass
-            else:
-                print('ok, saving to file')
-                if file_issn_info:
-                    json.dump(result, file_issn_info)
+                print('error, getting {0} info, error: {1}'.format(issn, e))
+                result[issn] = {"error":str(e)}
+                pass            
             finally:
+                print('ok, saving to file')
+                with open(self.cuban_issn_info_file, 'w+',  encoding=('UTF-8')) as file_issn:
+                    print('writing to file {0}'.format(self.cuban_issn_info_file))                    
+                    json.dump(result, file_issn)
+
                 sleep_time = randint(4, 7)
                 print('finally, sleep {0} seconds'.format(sleep_time))
                 time.sleep(sleep_time)
         return result
 
+
+    def get_cuban_issns_info_json(self, issns, remoteinfo):
+        if remoteinfo and issns:                
+            infos = self.get_all_issns_info(issns)  
+                
+        else:
+            with open(self.cuban_issn_info_file, 'r') as file_issn:
+                infos = json.load(file_issn)       
+
+        return infos
