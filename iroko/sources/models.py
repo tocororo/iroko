@@ -51,8 +51,6 @@ class Source(db.Model):
         return self.name
 
 
-
-
 class TermSources(db.Model):
     __tablename__ = 'iroko_terms_sources'
 
@@ -107,13 +105,14 @@ class SourceVersion(db.Model):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
 
+
 class Issn(db.Model):
     __tablename__ = 'iroko_issn'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    code = db.Column(db.String, nullable=False,  unique=True)
     data = db.Column( JSONType )
 
     def __str__(self):
         """Representation."""
-        return self.name
+        return self.code

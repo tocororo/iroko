@@ -9,7 +9,7 @@ import time
 from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
-
+from iroko.sources.models import Issn
 
 class IssnHarvester(BaseHarvester):
     """
@@ -228,11 +228,11 @@ class IssnHarvester(BaseHarvester):
 
         if archive_issn and archive_issn_info:
             for archive in archive_issn:
-                issn_model = Issn.query.filter_by(name = archive).first()
+                issn_model = Issn.query.filter_by(code = archive).first()
                 if not issn_model:
                     data = archive_issn_info[archive]
                     obj_issn = Issn()
-                    obj_issn.name = archive
+                    obj_issn.code = archive
                     obj_issn.data = data
                     db.session.add(obj_issn)
                     db.session.flush()

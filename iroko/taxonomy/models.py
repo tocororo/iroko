@@ -79,7 +79,6 @@ class Term(db.Model):
         return self.name
 
 
-
 # TODO: This will be replaced by the graph database, when done....
 class TermClasification(db.Model):
     __tablename__ = 'iroko_term_term'
@@ -90,6 +89,8 @@ class TermClasification(db.Model):
 
     # term_object es como el termino <Web of Science>
     term_clasified_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
+
+    data = db.Column( JSONType )
 
     def __str__(self):
         """Representation."""

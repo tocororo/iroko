@@ -281,26 +281,26 @@ def term_delete(uuid):
 def term_new():
 
     msg = ''
-    # try:
-    print(request)
-    if not request.is_json:
-            raise Exception("No JSON data provided")
+    try:
+        print(request)
+        if not request.is_json:
+                raise Exception("No JSON data provided")
 
-    input_data = request.json
+        input_data = request.json
 
-    with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
-        msg, term = Terms.new_term(input_data)
-        if not term:
-            raise Exception(msg)
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'term', \
-                        term_schema.dump(term))
+        with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
+            msg, term = Terms.new_term(input_data)
+            if not term:
+                raise Exception(msg)
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            msg,'term', \
+                            term_schema.dump(term))
 
-    # except PermissionDenied as err:
-    #     msg = 'Permission denied for adding term'
-    # except Exception as e:
-    #     msg = str(e)
-    # return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except PermissionDenied as err:
+        msg = 'Permission denied for adding term'
+    except Exception as e:
+        msg = str(e)
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 

@@ -10,7 +10,7 @@ from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-from iroko.sources.models import Issn
+
 from invenio_db import db
 
 

@@ -46,6 +46,7 @@ class Repository(db.Model):
     data = db.Column( JSONType )
     """Any relevant data, dependent of the harvest_type, this could mean one thing. Eg, for oai-pmh the information about the set could be here."""
 
+
 class HarvestedItem(db.Model):
     """The items harvested from a repository"""
 
@@ -66,6 +67,9 @@ class HarvestedItem(db.Model):
 
     status = db.Column(db.Enum(HarvestedItemStatus))
     error_log = db.Column(db.String)
+
+    data = db.Column( JSONType )
+    """Any other relevant data to be used in the future could be here."""
 
     def __str__(self):
         """Representation."""
