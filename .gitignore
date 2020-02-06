@@ -75,6 +75,8 @@ node_modules
 
 data/sceiba-data
 data/sceiba-data/
+data
+data/
 
 dev_ip.py
 
