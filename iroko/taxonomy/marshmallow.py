@@ -51,7 +51,8 @@ class TermSchema(Schema):
         item['class_ids'] = item['class_ids'] if 'class_ids' in item else []
         item['clasified_ids'] = item['clasified_ids'] if 'clasified_ids' in item else []
         item['data'] = item['data'] if 'data' in item else {}
-        item['parent_id'] = item['parent_id'] if 'parent_id' in item else None
+
+        item['parent_id'] = item['parent_id'] if 'parent_id' in item and item['parent_id'] and item['parent_id']>0 else None
         return item
 
     @pre_dump
@@ -164,5 +165,6 @@ term_node_schema = TermNodeSchema(many=False)
 
 term_schema_many = TermSchema(many=True, only=('id', 'uuid', 'name'))
 term_schema = TermSchema(many=False)
+term_schema_no_clases = TermSchema(many=False, exclude=('class_ids','clasified_ids'))
 vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'name', 'human_name', 'description'))
 vocabulary_schema = VocabularySchema(many=False)

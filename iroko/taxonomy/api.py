@@ -1,11 +1,12 @@
 from typing import Dict
 
 from invenio_db import db
+from sqlalchemy import exc as sqlalchemyExc
 from invenio_access.utils import get_identity
 from flask_login import current_user
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.models import TermSources
-from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema, term_node_schema, term_node_schema_many
+from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema, term_node_schema, term_node_schema_many, term_schema_no_clases
 from flask_babelex import lazy_gettext as _
 from marshmallow import ValidationError
 from invenio_access import Permission
@@ -57,6 +58,7 @@ class Vocabularies:
     @classmethod
     def new_vocabulary(cls, input_data) -> Dict[str, Vocabulary]:
 
+        msg = ''
         try:
             data = vocabulary_schema.load(input_data)
             vocab = Vocabulary.query.filter_by(name=data['name']).first()
@@ -205,58 +207,114 @@ class Terms:
             return msg, None
 
     @classmethod
-    def edit_term(cls, term:Term, input_data) -> Dict[str, Term]:
-
+    def edit_term(cls, uuid, input_data) -> Dict[str, Term]:
+        msg = ''
         try:
             data = term_schema.load(input_data)
-            if term:
-                cls._update_term_data(term, data)
+            term = Term.query.filter_by(uuid=uuid).first()
+            term.vocabulary_id = data['vocabulary_id']
+            term.name = data['name']
+            term.description = data['description']
+            term.parent_id = data['parent_id']
+            term.data = data['data']
+            # cls._update_term_data(term, data)
+            print(term.data)
+            try:
                 db.session.commit()
                 cls._update_term_clasification(term, data)
-                db.session.commit()
-                msg = 'Term UPDATED name={0}'.format(term.name)
-            else:
-                msg = 'not data'
-                term = None
+                msg = 'New Term UPDATED name={0}'.format(term.name)
+                return msg, term
+            except sqlalchemyExc.SQLAlchemyError as e:
+                msg = 'sqlalthemy: {0}'.format(e)
+                db.session.rollback()
+                return msg, None
+
         except Exception as e:
-            msg = 'ERROR {0} - {1}'.format(e, data)
-        finally:
-            return msg, term
+            msg = 'ERROR {0} - {1}'.format(e, input_data)
+            return msg, None
 
 
     @classmethod
     def new_term(cls, data) -> Dict[str, Term]:
+        msg = ''
+        # try:
+        valid_data = term_schema.load(data)
 
-        try:
-            valid_data = term_schema.load(data)
-            term = Term.query.filter_by(name=valid_data['name']).first()
-            if not term:
-                term = Term()
-                cls._update_term_data(term, valid_data)
-                db.session.add(term)
+        term = Term.query.filter_by(name=valid_data['name']).first()
+        if not term:
+            print(valid_data)
+            term = Term()
+            term.vocabulary_id = valid_data['vocabulary_id']
+            term.name = valid_data['name']
+            term.description = valid_data['description']
+            term.parent_id = valid_data['parent_id']
+            term.data = valid_data['data']
+            print(term.data)
+            db.session.add(term)
+            print(term)
+            try:
                 db.session.commit()
                 cls._update_term_clasification(term, valid_data)
-                db.session.commit()
                 msg = 'New Term CREATED name={0}'.format(term.name)
-            else:
-                msg = 'Term already exist name={0}'.format(valid_data['name'])
-                term = None
-        except Exception as e:
-            msg = 'ERROR {0} - {1}'.format(e, data)
-            term = None
-        finally:
-            return msg, term
+                return msg, term
+            except sqlalchemyExc.SQLAlchemyError as e:
+                msg = 'sqlalthemy: {0}'.format(e)
+                db.session.rollback()
+                return msg, None
+        else:
+            msg = 'Term already exist name={0}'.format(valid_data['name'])
+            return msg, None
+        # except Exception as e:
+        #     msg = 'ERROR {0} - {1}'.format(e, data)
+        #     return msg, None
+
+
+    # @classmethod
+    # def _get_term_data(cls, term: Term, data):
+    #     ''''''
+    #     # return {
+    #     #     'vocabulary_id': data['vocabulary_id'],
+    #     #     'name': data['name'],
+    #     #     'description': data['description'],
+    #     #     'parent_id': data['parent_id'],
+    #     #     'data': data['data'],
+    #     # }
+
+    #     print(data)
+    #     term.vocabulary_id = data['vocabulary_id']
+    #     print(data)
+    #     term.name = data['name']
+    #     print(data)
+    #     term.description = data['description']
+    #     print(data)
+    #     term.parent_id = data['parent_id']
+    #     print(data)
+    #     term.data = data['data']
+    #     print(data)
 
 
     @classmethod
     def _update_term_data(cls, term: Term, data):
         ''''''
+        # return {
+        #     'vocabulary_id': data['vocabulary_id'],
+        #     'name': data['name'],
+        #     'description': data['description'],
+        #     'parent_id': data['parent_id'],
+        #     'data': data['data'],
+        # }
 
+        print(data)
         term.vocabulary_id = data['vocabulary_id']
+        print(data)
         term.name = data['name']
+        print(data)
         term.description = data['description']
+        print(data)
         term.parent_id = data['parent_id']
+        print(data)
         term.data = data['data']
+        print(data)
 
 
     @classmethod
@@ -270,12 +328,12 @@ class Terms:
         class_ids: IDs of Terms that clasifies this term
         clasified_ids: IDs of Terms clasified by this term
         '''
-
+        print('_update_term_clasification', data)
         # delete all Clasifications in wich this term is envolved
         TermClasification.query.filter_by(term_class_id=term.id).delete()
         TermClasification.query.filter_by(term_clasified_id=term.id).delete()
         db.session.commit()
-
+        print('_update_term_clasification', data)
         # Terms clasified by this term
         for clasified_ids in data['clasified_ids']:
             clasified = Term.query.filter_by(id=clasified_ids).first()
@@ -293,6 +351,8 @@ class Terms:
                 clasification.term_class_id = t_class.id
                 clasification.term_clasified_id = term.id
                 db.session.add(clasification)
+        db.session.commit()
+        print('_update_term_clasification', data)
 
 
     @classmethod

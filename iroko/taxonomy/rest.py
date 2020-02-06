@@ -80,6 +80,7 @@ def vocabulary_get(id):
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
+# TODO: Cambiar todos los POST de editar para PUT
 
 @api_blueprint.route('/vocabulary/edit/<int:id>', methods=['POST'])
 @require_api_auth()
@@ -232,19 +233,19 @@ def term_edit(uuid):
     msg = ''
     try:
         msg, term = Terms.get_term(uuid)
-        print(term)
+        # print(term)
         if not term:
             raise Exception(msg)
 
         with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
-            print(term.vocabulary_id)
+            # print(term.vocabulary_id)
             # user = current_user
             if not request.is_json:
                 raise Exception("No JSON data provided")
 
             input_data = request.json
-            print(input_data)
-            msg, term = Terms.edit_term(term, input_data)
+            # print(input_data)
+            msg, term = Terms.edit_term(uuid, input_data)
             if not term:
                 raise Exception(msg)
 
@@ -279,26 +280,27 @@ def term_delete(uuid):
 @require_api_auth()
 def term_new():
 
-    try:
-        if not request.is_json:
+    msg = ''
+    # try:
+    print(request)
+    if not request.is_json:
             raise Exception("No JSON data provided")
 
-        input_data = request.json
+    input_data = request.json
 
-        with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
-            msg, term = Terms.new_term(input_data)
-            if not term:
-                raise Exception(msg)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            msg,'term', \
-                            term_schema.dump(term))
+    with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
+        msg, term = Terms.new_term(input_data)
+        if not term:
+            raise Exception(msg)
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        msg,'term', \
+                        term_schema.dump(term))
 
-    except PermissionDenied as err:
-        msg = 'Permission denied for adding term'
-    except Exception as e:
-        msg = str(e)
-
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    # except PermissionDenied as err:
+    #     msg = 'Permission denied for adding term'
+    # except Exception as e:
+    #     msg = str(e)
+    # return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 
