@@ -12,13 +12,15 @@ from iroko.harvester.base import BaseHarvester
 
 
 class IssnHarvester(BaseHarvester):
-    """Harvest all cuban ISSN from issn.org"""
+    """
+    TODO: Document this better!!!
+    Harvest all cuban ISSN from issn.org"""
 
     # TODO: all functions private, except process_pipeline
 
     def __init__(self, work_dir, load_remote=False):
         self.work_dir = work_dir
-        
+
         self.cuban_issn_file = self.work_dir + '/issn.cuba.json'
         self.cuban_issn_info_file = self.work_dir + '/issn.info.cuba.json'
 
@@ -158,14 +160,14 @@ class IssnHarvester(BaseHarvester):
             page += 1
 
         return issns
-    
+
 
     def get_cuban_issns_json(self, remoteissns):
-        if remoteissns:            
+        if remoteissns:
             issns = self.get_all_issn()
             with open(self.cuban_issn_file, 'w+',  encoding=('UTF-8')) as file_issn:
-                if file_issn:                                
-                    json.dump(issns, file_issn)                    
+                if file_issn:
+                    json.dump(issns, file_issn)
         else:
             with open(self.cuban_issn_file, 'r') as file_issn:
                 issns = json.load(file_issn)
@@ -180,19 +182,19 @@ class IssnHarvester(BaseHarvester):
 
         result = dict()
         with open(self.cuban_issn_info_file, 'r') as file_issn:
-            result = json.load(file_issn)        
+            result = json.load(file_issn)
         for issn in issns:
             try:
                 print('try getting {0} info'.format(issn))
-                result[issn] = self.get_info_issn(issn, session)                
+                result[issn] = self.get_info_issn(issn, session)
             except Exception as e:
                 print('error, getting {0} info, error: {1}'.format(issn, e))
                 result[issn] = {"error":str(e)}
-                pass            
+                pass
             finally:
                 print('ok, saving to file')
                 with open(self.cuban_issn_info_file, 'w+',  encoding=('UTF-8')) as file_issn:
-                    print('writing to file {0}'.format(self.cuban_issn_info_file))                    
+                    print('writing to file {0}'.format(self.cuban_issn_info_file))
                     json.dump(result, file_issn)
 
                 sleep_time = randint(4, 7)
@@ -202,11 +204,40 @@ class IssnHarvester(BaseHarvester):
 
 
     def get_cuban_issns_info_json(self, issns, remoteinfo):
-        if remoteinfo and issns:                
-            infos = self.get_all_issns_info(issns)  
-                
+
+        if remoteinfo and issns:
+            infos = self.get_all_issns_info(issns)
+
         else:
             with open(self.cuban_issn_info_file, 'r') as file_issn:
-                infos = json.load(file_issn)       
+                infos = json.load(file_issn)
 
         return infos
+
+
+    def syncronize_files_issn_model(self):
+        """
+        sincroniza lo que  hay en los ficheros con que trabaja el harvester de issn con el modelo iroko.sources.model.Issn
+        """
+
+        with open(self.issn_file, 'r') as file_issn:
+            archive_issn = json.load(file_issn)
+
+        with open(self.issn_info_file, 'r') as file_issn_info:
+            archive_issn_info = json.load(file_issn_info)
+
+        if archive_issn and archive_issn_info:
+            for archive in archive_issn:
+                issn_model = Issn.query.filter_by(name = archive).first()
+                if not issn_model:
+                    data = archive_issn_info[archive]
+                    obj_issn = Issn()
+                    obj_issn.name = archive
+                    obj_issn.data = data
+                    db.session.add(obj_issn)
+                    db.session.flush()
+                    db.session.commit()
+
+            return 'success'
+        else:
+            return 'error'
