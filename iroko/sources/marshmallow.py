@@ -78,10 +78,15 @@ class BaseSourceSchema(Schema):
 class SourceSchema(BaseSourceSchema):
     data = fields.Raw(many=False, allow_none=False)
 
+class IssnSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str(required=True)
+    data = fields.Raw(many=False)
 
 source_schema_many = SourceSchema(many=True, exclude=['versions'])
 source_schema = SourceSchema()
 source_schema_no_versions = SourceSchema(exclude=['versions'])
 source_version_schema = SourceVersionSchema()
 source_version_schema_many = SourceVersionSchema(many=True)
+issn_schema = IssnSchema()
 

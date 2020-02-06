@@ -10,6 +10,7 @@ from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
+from iroko.sources.models import Issn 
 from invenio_db import db
 
 
@@ -18,6 +19,8 @@ class MiarHarvester(BaseHarvester):
     def __init__(self, work_dir, load_remote=False):
         self.work_dir = work_dir
         self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
+        self.issn_info_file = self.work_dir + '/issn.info.cuba.json'
+        self.issn_file = self.work_dir + '/issn.cuba.json'
         self.miar_journals_file = self.work_dir + '/miar.journals.json'
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
@@ -189,27 +192,32 @@ class MiarHarvester(BaseHarvester):
         miar_db_type_vocab = Vocabulary.query.filter_by(name = 'miar_types').first()
         miar_db_vocab = Vocabulary.query.filter_by(name = 'miar_databases').first()
 
-        if(archive):
+        if archive:
             for archive_dbs in archive:
-                miar_types = Term()
-                miar_types.name = archive_dbs['name']
-                miar_types.vocabulary_id = miar_db_type_vocab.id
-                miar_types.description = archive_dbs['url']
-                db.session.add(miar_types)
-                db.session.flush()
-                for archive_dbs_info in archive_dbs['dbs']:
-                    miar_dbs = Term()
-                    miar_dbs.name = archive_dbs_info['name']
-                    miar_dbs.vocabulary_id = miar_db_vocab.id
-                    miar_dbs.description = archive_dbs_info['url']
-                    miar_dbs.data = archive_dbs_info['info']
-                    db.session.add(miar_dbs)
+                miar_db_type_term = Term.query.filter_by(name = archive_dbs['name']).first()
+                if not miar_db_type_term:
+                    miar_types = Term()
+                    miar_types.name = archive_dbs['name']
+                    miar_types.vocabulary_id = miar_db_type_vocab.id
+                    miar_types.description = archive_dbs['url']
+                    db.session.add(miar_types)
                     db.session.flush()
-                    miar_classification = TermClasification()
-                    miar_classification.term_class_id = miar_types.id
-                    miar_classification.term_clasified_id = miar_dbs.id
-                    db.session.add(miar_classification)
-                    db.session.commit()
+                    miar_db_type_term = miar_types 
+                for archive_dbs_info in archive_dbs['dbs']:
+                    miar_db_term = Term.query.filter_by(name = archive_dbs_info['name']).first()
+                    if not miar_db_term:
+                        miar_dbs = Term()
+                        miar_dbs.name = archive_dbs_info['name']
+                        miar_dbs.vocabulary_id = miar_db_vocab.id
+                        miar_dbs.description = archive_dbs_info['url']
+                        miar_dbs.data = archive_dbs_info['info']
+                        db.session.add(miar_dbs)
+                        db.session.flush()
+                        miar_classification = TermClasification()
+                        miar_classification.term_class_id = miar_db_type_term.id
+                        miar_classification.term_clasified_id = miar_dbs.id
+                        db.session.add(miar_classification)
+                        db.session.commit()
 
             return 'success'
         else:
@@ -225,7 +233,27 @@ class MiarHarvester(BaseHarvester):
 
     def update_journals_iroko(self):
         # TODO: sincroniza lo que  hay en self.miar_journals_file con la base de datos de iroko, es decir,
-        pass
+        with open(self.issn_file, 'r') as file_issn:
+            archive_issn = json.load(file_issn)
+
+        with open(self.issn_info_file, 'r') as file_issn_info:
+            archive_issn_info = json.load(file_issn_info)
+            
+        if archive_issn and archive_issn_info:
+            for archive in archive_issn:
+                issn_model = Issn.query.filter_by(name = archive).first() 
+                if not issn_model:
+                    data = archive_issn_info[archive]
+                    obj_issn = Issn()
+                    obj_issn.name = archive
+                    obj_issn.data = data
+                    db.session.add(obj_issn)
+                    db.session.flush()
+                    db.session.commit()
+
+            return 'success'
+        else:
+            return 'error'
 
     def get_info_journal(self, issn: str):
 
