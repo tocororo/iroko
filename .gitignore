@@ -82,6 +82,10 @@ data/
 scripts
 scripts/
 
+keys
+keys/
+
+
 dev_ip.py
 
 deployment.py
