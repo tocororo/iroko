@@ -14,7 +14,7 @@ babel>=2.4.0
 bokeh
 flask-babelex>=0.9.3
 lxml>=3.5.0,<4.2.6
-c
+marshmallow-enum
 marshmallow>=3.0.0,<4.0.0
 mistune==0.8.4
 sickle>=0.6.4
