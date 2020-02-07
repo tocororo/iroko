@@ -38,7 +38,7 @@ blueprint = Blueprint(
 @blueprint.context_processor
 def get_about():
     about = {}
-    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json', encoding="utf-8") as file:
     #     texts = json.load(file)
     #     if texts and 'about' in texts.keys():
     #         about = dict(about=texts['about'])
@@ -69,12 +69,12 @@ def index():
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
     texts = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json') as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json', encoding="utf-8") as file:
         texts = json.load(file)
-    
+
     faqs = {}
     if 'faq' in texts.keys():
-        faqs = texts['faq'] 
+        faqs = texts['faq']
 
     # texts = ''
     # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
@@ -89,7 +89,7 @@ def index():
 
     for vocab in vocabularies:
         vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})
-    
+
     form = ContactForm()
     if form.validate_on_submit():
         print('Mensaje enviado')
@@ -161,10 +161,10 @@ def static_page(slug):
 
     slugs = {}
     aux_text = ''
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json') as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json', encoding="utf-8") as file:
         slugs = json.load(file)
     if slugs:
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r') as file:
+        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r', encoding="utf-8") as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
