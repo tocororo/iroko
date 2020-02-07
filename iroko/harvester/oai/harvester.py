@@ -18,7 +18,7 @@ from iroko.sources.models import Source
 
 from iroko.records.api import IrokoRecord
 
-from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository
 
 from invenio_db import db
 
@@ -69,10 +69,12 @@ class OaiHarvester(SourceHarvester):
         self.nlm = JournalPublishing()
 
         # proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
-
+        self.repository = Repository.query.filter_by(source_id=self.source.id).first()
+        if not self.repository:
+            repository = Repository()
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
         args = {'headers':request_headers,'timeout':15, 'verify':False}
-        self.sickle = Sickle(self.source.repository.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
+        self.sickle = Sickle(self.repository.harvest_endpoint, encoding=None,max_retries=max_retries, **args)
 
 
     def identity_source(self):
@@ -80,38 +82,39 @@ class OaiHarvester(SourceHarvester):
             self.get_identify()
             self.get_formats()
             self.get_sets()
-            self.source.repository.status = RepositoryStatus.IDENTIFIED
+            # TODO: habria que analizar denuevo esto.. falta un status que seria identified.. o ver si esto funciona asi..
+            self.repository.status = HarvestedItemStatus.HARVESTED
         except Exception as e:
-            self.source.repository.status = RepositoryStatus.ERROR
-            self.source.repository.error_log = traceback.format_exc()
+            self.repository.status = HarvestedItemStatus.ERROR
+            self.repository.error_log = traceback.format_exc()
             print('error: identity_source(self):')
         finally:
             db.session.commit()
 
 
     def discover_items(self):
-        if self.source.repository.status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError('calling discover_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repository.status))
+        if self.repository.status == HarvestedItemStatus.ERROR:
+            raise IrokoHarvesterError('calling discover_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.repository.status))
         try:
             self.get_items()
-            self.source.repository.status = RepositoryStatus.HARVESTED
+            self.repository.status = HarvestedItemStatus.HARVESTED
         except Exception as e:
-            self.source.repository.status = RepositoryStatus.ERROR
-            self.source.repository.error_log = traceback.format_exc()
+            self.repository.status = HarvestedItemStatus.ERROR
+            self.repository.error_log = traceback.format_exc()
             print('error: discover_items(self):')
         finally:
             db.session.commit()
 
 
     def process_items(self):
-        if self.source.repository.status == RepositoryStatus.ERROR:
-            raise IrokoHarvesterError('calling process_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.source.repository.status))
+        if self.repository.status == HarvestedItemStatus.ERROR:
+            raise IrokoHarvesterError('calling process_items of in a inestable repo. Source.id={0}. Source.repo_status={1}'.format(self.source.id, self.repository.status))
         try:
             self.record_items()
-            self.source.repository.status = RepositoryStatus.RECORDED
+            self.repository.status = HarvestedItemStatus.RECORDED
         except Exception as e:
-            self.source.repository.status = RepositoryStatus.ERROR
-            self.source.repository.error_log = traceback.format_exc()
+            self.repository.status = HarvestedItemStatus.ERROR
+            self.repository.error_log = traceback.format_exc()
             print('error: process_items(self):')
         finally:
             db.session.commit()
@@ -142,10 +145,10 @@ class OaiHarvester(SourceHarvester):
             xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier').text
 
-        if self.source.repository.identifier is not None and self.source.repository.identifier != identifier:
-            raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.source.repository.identifier, identifier, self.source.id, self.work_remote))
+        if self.repository.identifier is not None and self.repository.identifier != identifier:
+            raise IrokoHarvesterError('Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}'.format(self.repository.identifier, identifier, self.source.id, self.work_remote))
 
-        self.source.repository.identifier = identifier
+        self.repository.identifier = identifier
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
 
@@ -165,7 +168,7 @@ class OaiHarvester(SourceHarvester):
             self.formats = utils.get_multiple_elements(xml, 'metadataPrefix', xmlns=utils.xmlns.oai())
             print(self.formats)
 
-        self.source.repository.data = str(self.formats)
+        self.repository.data = str(self.formats)
 
         # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
         if 'oai_dc' not in self.formats:
@@ -180,27 +183,23 @@ class OaiHarvester(SourceHarvester):
             arguments ={}
             items = self.sickle.ListSets(**arguments)
             self._write_file("sets.xml", items.oai_response.raw)
+            rsets = []
             for s in items:
-                rset = RepositorySet.query.filter_by(source_id=self.source.id, setSpec=s.setSpec).first()
-                if not rset:
-                    rset = RepositorySet()
-                    rset.source_id = self.source.id
-                    rset.setSpec = s.setSpec
-                    rset.setName = s.setName
-                    db.session.add(rset)
+                rsets.append( { s.setSpec: s.setName } )
+            if not self.repository.data:
+                self.repository.data = {}
+            self.repository.data['sets'] = rsets
         else:
             xml = self._get_xml_from_file("sets.xml")
             sets_items = xml.findall('.//{' + utils.xmlns.oai() + '}' + 'set')
+            rsets = []
             for s in sets_items:
                 setSpec = s.find('.//{' + utils.xmlns.oai() + '}' + 'setSpec')
                 setName = s.find('.//{' + utils.xmlns.oai() + '}' + 'setName')
-                rset = RepositorySet.query.filter_by(source_id=self.source.id, setSpec=setSpec.text).first()
-                if not rset:
-                    rset = RepositorySet()
-                    rset.source_id = self.source.id
-                    rset.setSpec = setSpec.text
-                    rset.setName = setName.text
-                    db.session.add(rset)
+                rsets.append( { setSpec: setName } )
+            if not self.repository.data:
+                self.repository.data = {}
+            self.repository.data['sets'] = rsets
 
 
     def get_items(self):
@@ -208,10 +207,10 @@ class OaiHarvester(SourceHarvester):
 
         xml = self._get_xml_from_file("identify.xml")
         identifier = xml.find('.//{' + utils.xmlns.oai_identifier() + '}repositoryIdentifier')
-        if self.source.repository.identifier is not None and self.source.repository.identifier != identifier.text:
-            # print(self.source.repository.identifier)
+        if self.repository.identifier is not None and self.repository.identifier != identifier.text:
+            # print(self.repository.identifier)
             # print(identifier.text)
-            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.source.repository.identifier, identifier.text, self.source.id))
+            raise IrokoHarvesterError('{0}!={1}. Problems with directory structure. Source.id={3}. '.format(self.repository.identifier, identifier.text, self.source.id))
 
         if not self.work_remote:
             # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
@@ -286,7 +285,7 @@ class OaiHarvester(SourceHarvester):
                 self._write_file(f+".xml", record.raw, str(item.id))
                 sleep(self.request_wait_time)
             except Exception as e:
-                item.error_log = traceback.print_exc()
+                item.error_log = traceback.format_exc()
         sleep(self.request_wait_time)
 
 
@@ -300,7 +299,7 @@ class OaiHarvester(SourceHarvester):
                 # print('--------------------')
                 # print(item.identifier)
                 dc = self._process_format(item, self.oai_dc)
-                # print(str(self.source.repository.metadata_formats))
+                # print(str(self.repository.metadata_formats))
                 nlm = None
                 if 'nlm' in self.formats:
                     nlm = self._process_format(item, self.nlm)
