@@ -10,7 +10,8 @@ from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-
+from iroko.sources.models import Issn
+from iroko.sources.models import Source, SourceType
 from invenio_db import db
 
 
@@ -26,6 +27,7 @@ class MiarHarvester(BaseHarvester):
         self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
         self.issn_info_file = self.work_dir + '/issn.info.cuba.json'
         self.issn_file = self.work_dir + '/issn.cuba.json'
+        self.issn_info_miar = self.work_dir + '/issn.info.miar.json'
         self.miar_journals_file = self.work_dir + '/miar.journals.json'
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
@@ -248,9 +250,21 @@ class MiarHarvester(BaseHarvester):
         crear un nuevo fichero donde:
         por cada issn en el fichero de entrada se guarde:
             { issn : get_info_journal }
-
         """
-        return
+        result = dict()
+        with open(issn_list_path, 'r') as file_issn:
+            archive_issn = json.load(file_issn)
+
+        if archive_issn:
+            for archive in archive_issn:
+                result[archive]= self.get_info_journal(archive)
+            with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
+                print('writing to file {0}'.format(self.issn_info_miar))
+                json.dump(result, file_issn)
+        else:
+            return 'danger'
+
+        return 'success'
 
     def syncronize_miar_databases(self):
         """
@@ -296,12 +310,42 @@ class MiarHarvester(BaseHarvester):
         else:
             return 'error'
 
-    def _get_source_by_issn(self, issn):
+    def _get_source_by_issn(self, issnModel: Issn):
         """
         get the source by the issn
         si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
         """
-        return
+
+        issn = issnModel.name
+        data = issnModel.data
+
+        sources = Source.query.all()
+        selected = None
+        for item in sources:
+            if item.data and 'issn' in item.data: 
+                for v in ['p', 'e', 'l']:
+                    if v in item.data['issn'] \
+                        and item.data['issn'][v] == issn:
+                        return item
+
+        for item in data["@graph"]:
+            if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
+                title = item["value"]
+                new_source = Source()
+                new_source.source_type = SourceType.JOURNAL
+                new_source.name = title
+                new_source.data = {
+                    'title': title,
+                    'issn': {
+                        'p': issn
+                    }
+                }
+                db.session.add(new_source)
+                db.session.commit()
+                return new_source
+
+        return None
+
 
     def syncronize_miar_journals(self):
         """
