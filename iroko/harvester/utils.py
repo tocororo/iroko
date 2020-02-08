@@ -4,26 +4,30 @@ from collections import defaultdict
 import enum
 import re
 
+from os import path
+
+from lxml import etree
+
+XMLParser = etree.XMLParser(
+    remove_blank_text=True, recover=True, resolve_entities=False
+)
+
+
 class xmlns():
 
-    @staticmethod
-    def oai():
-        return 'http://www.openarchives.org/OAI/2.0/'
-    @staticmethod
-    def oai_identifier():
-        return 'http://www.openarchives.org/OAI/2.0/oai-identifier'
-    @staticmethod
-    def dc():
-        return 'http://purl.org/dc/elements/1.1/'
-    @staticmethod
-    def xsi():
-        return 'http://www.w3.org/2001/XMLSchema-instance'
-    @staticmethod
-    def xml():
-        return 'http://www.w3.org/XML/1998/namespace'
-    @staticmethod
-    def nlm():
-        return 'http://dtd.nlm.nih.gov/publishing/2.3'
+    oai = 'http://www.openarchives.org/OAI/2.0/'
+    
+    oai_identifier = 'http://www.openarchives.org/OAI/2.0/oai-identifier'
+    
+    dc = 'http://purl.org/dc/elements/1.1/'
+    
+    xsi = 'http://www.w3.org/2001/XMLSchema-instance'
+    
+    xml = 'http://www.w3.org/XML/1998/namespace'
+    
+    nlm = 'http://dtd.nlm.nih.gov/publishing/2.3'
+
+
 
 
 def get_sigle_element(metadata, name, xmlns='dc', language=None):
@@ -90,3 +94,18 @@ def xml_to_dict(tree, paths=None, nsmap=None, strip_ns=False):
 
 def get_iroko_harvester_agent():
     return {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}
+
+
+def get_xml_from_file(base_directory, file_name, extra_path=""):
+    """get an lxml tree from a file with the path:
+        base_directory + extra_path + file_name
+        rise an Exception if the file not exists
+    """
+    xmlpath = path.join(base_directory, extra_path, file_name)
+    if not path.exists(xmlpath):
+        raise Exception(
+            "Path: {0} not exists".format(
+                xmlpath
+            )
+        )
+    return etree.parse(xmlpath, parser=XMLParser)
