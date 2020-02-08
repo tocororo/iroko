@@ -53,7 +53,7 @@ class OaiHarvester(SourceHarvester):
         # init_directory=True
         max_retries=3
 
-        super(self, source, work_remote, request_wait_time)
+        super().__init__(source, work_remote, request_wait_time)
         # self.source = source
         # self.work_remote = work_remote
         # self.request_wait_time = request_wait_time
