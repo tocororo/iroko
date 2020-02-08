@@ -48,7 +48,7 @@ class IrokoAggs:
         t = s.execute()
         result = []
         for item in t.aggregations.sources.buckets:
-# item.key will the house number
+            # item.key will the house number
             result.append({
                 'key': item.key,
                 'count': item.doc_count

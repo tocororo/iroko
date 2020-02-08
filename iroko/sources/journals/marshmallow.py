@@ -38,6 +38,7 @@ class JournalDataSchema(Schema):
     url = fields.Url()
     issn = fields.Nested(ISSNSchema, many=False)
     rnps = fields.Str()
+    # TODO add here email = fields.Email(), and TEST....
     email = fields.Str()
     logo = fields.Str()
     seriadas_cubanas = fields.Url()
