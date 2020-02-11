@@ -1,10 +1,13 @@
 
 import requests
-from os import listdir, path
+import os
 import shutil
 
+from zipfile import ZipFile
+
 from iroko.harvester.oai.harvester import OaiHarvester
-from iroko.harvester import utils
+from iroko.harvester.models import Repository, HarvestedItemStatus
+import iroko.harvester.utils as  utils
 from iroko.sources.models import Source
 
 from flask import current_app
@@ -33,23 +36,44 @@ class PrimarySourceHarvester(object):
         4- relanza el proceso completo de harvest usando work_remote=False
         """
         harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
-        for repodir in listdir(harvest_dir):
-            repopath = path.join(harvest_dir, repodir)
-            if path.isdir(repopath):
-                shutil.move(repopath, path.join(harvest_dir, repodir)+'.old')
-        for repodir in listdir(harvest_dir):
-            repopath = path.join(harvest_dir, repodir)
-            if path.isdir(repopath):
+        for repodir in os.listdir(harvest_dir):
+            repopath = os.path.join(harvest_dir, repodir)
+            if os.path.isdir(repopath):
+                shutil.move(repopath, os.path.join(harvest_dir, repodir)+'.old')
+        for repodir in os.listdir(harvest_dir):
+            repopath = os.path.join(harvest_dir, repodir)
+            if os.path.isdir(repopath):
                 print(repopath)
-                xmlpath = path.join(repopath, "identify.xml")
-                if path.exists(xmlpath):
+                xmlpath = os.path.join(repopath, "identify.xml")
+                if os.path.exists(xmlpath):
                     xml = etree.parse(xmlpath, parser=XMLParser)
-                    baseURL = xml.find('.//{' + utils.xmlns.oai() + '}baseURL')
+                    baseURL = xml.find('.//{' + utils.xmlns.oai + '}baseURL')
                     print(baseURL.text)
-                    source = Source.query.filter_by(repo_harvest_endpoint=baseURL.text).first()
-                    if source is not None:
-                        shutil.move(repopath, path.join(harvest_dir, str(source.id)))
-                        PrimarySourceHarvester.harvest_pipeline(source.id, False)
+                    repository = Repository.query.filter_by(harvest_endpoint=baseURL.text).first()
+                    if repository is not None:
+                        source = Source.query.filter_by(id=repository.source_id).first()
+                        shutil.move(repopath, os.path.join(harvest_dir, str(source.id)))
+                        harvester = OaiHarvester(source, False, request_wait_time=0)
+                        harvester.repository.status = HarvestedItemStatus.HARVESTED
+                        harvester.identity_source()
+                        harvester.repository.status = HarvestedItemStatus.HARVESTED
+                        harvester.discover_items()
+                        harvester.repository.status = HarvestedItemStatus.HARVESTED
+                        zip_path = os.path.join(
+                            harvest_dir,
+                            str(source.uuid) + ".zip"
+                        )
+                        direct = os.path.join(harvest_dir, str(source.id))
+                        with ZipFile(zip_path, 'w') as zipObj:
+                            for item in os.listdir(direct):
+                                itempath = os.path.join(direct, item)
+                                if os.path.isdir(itempath):
+                                    for fil in os.listdir(itempath):
+                                        filpath = os.path.join(itempath, fil)
+                                        zipObj.write(filpath, arcname=os.path.join(item, fil))
+                                else:
+                                    zipObj.write(itempath, arcname=item)
+
 
 
     @staticmethod
@@ -60,19 +84,19 @@ class PrimarySourceHarvester(object):
         4- relanza el proceso completo de harvest usando work_remote=False
         """
         harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
-        repopath = path.join(harvest_dir, source_dir)
-        if path.isdir(repopath):
-            shutil.move(repopath, path.join(harvest_dir, source_dir)+'.old')
-            repopath = path.join(harvest_dir, source_dir)+'.old'
+        repopath = os.path.join(harvest_dir, source_dir)
+        if os.path.isdir(repopath):
+            shutil.move(repopath, os.path.join(harvest_dir, source_dir)+'.old')
+            repopath = os.path.join(harvest_dir, source_dir)+'.old'
             print(repopath)
-            xmlpath = path.join(repopath, "identify.xml")
-            if path.exists(xmlpath):
+            xmlpath = os.path.join(repopath, "identify.xml")
+            if os.path.exists(xmlpath):
                 xml = etree.parse(xmlpath, parser=XMLParser)
-                baseURL = xml.find('.//{' + utils.xmlns.oai() + '}baseURL')
+                baseURL = xml.find('.//{' + utils.xmlns.oai + '}baseURL')
                 print(baseURL.text)
                 source = Source.query.filter_by(repo_harvest_endpoint=baseURL.text).first()
                 if source is not None:
-                    shutil.move(repopath, path.join(harvest_dir, str(source.id)))
+                    shutil.move(repopath, os.path.join(harvest_dir, str(source.id)))
                     PrimarySourceHarvester.harvest_pipeline(source.id, False)
 
 
@@ -131,8 +155,8 @@ class SecundarySourceHarvester:
     def get_cuban_issns():
         work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
         harvester = IssnHarvester(work_dir)
-        
+
         issns = harvester.get_cuban_issns_json(False)
-        infos = harvester.get_cuban_issns_info_json(issns, False)        
-        
+        infos = harvester.get_cuban_issns_info_json(issns, False)
+
         return infos

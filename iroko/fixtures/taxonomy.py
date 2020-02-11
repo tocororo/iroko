@@ -85,6 +85,16 @@ def init_taxonomy():
         unesco_vocab.human_name = 'Materias (UNESCO)'
         db.session.add(unesco_vocab)
 
+        record_sets = Vocabulary()
+        record_sets.name = 'record_sets'
+        record_sets.human_name = 'Conjuntos de Articulos'
+        db.session.add(record_sets)
+
+        # record_set is clasified as record_type
+        record_types = Vocabulary()
+        record_types.name = 'record_types'
+        record_types.human_name = 'Tipos de Articulos'
+        db.session.add(record_types)
 
         db.session.commit()
         init_vocabulary(tax, institutions)
@@ -96,6 +106,8 @@ def init_taxonomy():
         init_vocabulary(tax, miar_types)
         init_vocabulary(tax, miar_databases)
         init_vocabulary(tax, unesco_vocab)
+        init_vocabulary(tax, record_sets)
+        init_vocabulary(tax, record_types)
 
         # db.session.commit()
 

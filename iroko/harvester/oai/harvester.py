@@ -37,6 +37,7 @@ class OaiHarvesterFileNames(Enum):
     IDENTIFY = "identify.xml"
     FORMATS = "metadata_formats.xml"
     SETS = "sets.xml"
+    ITEM_IDENTIFIER = "id.xml"
 
 
 class OaiHarvester(SourceHarvester):
