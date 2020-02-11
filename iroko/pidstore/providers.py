@@ -31,23 +31,26 @@ class IrokoUUIDProvider(BaseProvider):
             object_type=object_type, object_uuid=object_uuid, **kwargs)
 
 
-# class IrokoURLSourceProvider(BaseProvider):
-#     """Provider in the form of {Source.url}-{Item.identifier}
-#     When a record is harvested, Source been harvested need an identifier, we take url in this case because is more likely that is universal and all source types need an url..
-#     Also the record has a an identifier, global (url, or doi) and an internal identifier.
-#     """
+class IrokoURLSourceProvider(BaseProvider):
+    """Provider in the form of {Source.url}-{Item.identifier}
+    When a record is harvested, Source been harvested need an identifier, we take url in this case because is more likely that is universal and all source types need an url..
+    Also the record has a an identifier, global (url, or doi) and an internal identifier.
+    """
 
-#     default_status = PIDStatus.REGISTERED
-#     """Record IDs are by default registered immediately.
-#     Default: :attr:`invenio_pidstore.models.PIDStatus.REGISTERED`
-#     """
+    pid_type = 'irosourceurl'
+    """Type of persistent identifier."""
 
-#     @classmethod
-#     def create(cls, object_type=None, object_uuid=None, **kwargs):
-#         """Create a new record identifier from the depoist PID value."""
-#         if 'pid_value' not in kwargs:
+    default_status = PIDStatus.REGISTERED
+    """Record IDs are by default registered immediately.
+    Default: :attr:`invenio_pidstore.models.PIDStatus.REGISTERED`
+    """
 
-#             kwargs.setdefault('pid_value', str(uuid.uuid4()))
-#         kwargs.setdefault('status', cls.default_status)
-#         return super(IrokoUUIDProvider, cls).create(
-#             object_type=object_type, object_uuid=object_uuid, **kwargs)
+    @classmethod
+    def create(cls, object_type=None, object_uuid=None, **kwargs):
+        """Create a new record identifier from the depoist PID value."""
+        if 'pid_value' not in kwargs:
+
+            kwargs.setdefault('pid_value', str(uuid.uuid4()))
+        kwargs.setdefault('status', cls.default_status)
+        return super(IrokoUUIDProvider, cls).create(
+            object_type=object_type, object_uuid=object_uuid, **kwargs)

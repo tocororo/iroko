@@ -43,8 +43,9 @@ class Archivist:
     - busca en el data dir el zip asociado
     - lo expande en tmp dir
 
-    - se encarga de trabajar con los HarvestedItems,
+    - se encarga de trabajar con los HarvestedItems:
         - tomar lo que hay en los ficheros
+        -
     """
 
     def __init__(self, source_id):
