@@ -75,7 +75,6 @@ class PrimarySourceHarvester(object):
                                     zipObj.write(itempath, arcname=item)
 
 
-
     @staticmethod
     def rescan_and_fix_source_dir(source_dir):
         """

@@ -2,7 +2,7 @@ import os
 
 from zipfile import ZipFile
 
-from time import sleep
+import time
 
 import traceback
 
@@ -48,6 +48,57 @@ class Archivist:
         -
     """
 
+    @staticmethod
+    def create_archivist_from_zip(file_path):
+        """find the corresponding source given a zip file with harvested data
+        and return an Archivist, return None if no source is found or any exception rise with the zip file
+        before create and return the archivist, rename the given zip to HARVESTER_DATA_DIRECTORY using the uuid of the  source  
+        """
+
+        try:
+            with ZipFile(file_path, "r") as zipOpj:
+                tmp_file = "/iroko-harvest-arch-" + str(time.time())
+                zipOpj.extract(
+                    harvester.OaiHarvesterFileNames.IDENTIFY.value,
+                    os.path.join(
+                        current_app.config["IROKO_TEMP_DIRECTORY"],
+                        tmp_file
+                    )
+                )
+
+                xml = utils.get_xml_from_file(
+                    current_app.config["IROKO_TEMP_DIRECTORY"],
+                    tmp_file
+                )
+
+                name = xml.find(
+                    ".//{" + utils.xmlns.oai + "}repositoryName"
+                ).text
+
+                oai_url = xml.find(
+                    ".//{" + utils.xmlns.oai + "}baseURL"
+                ).text
+
+                identifier = xml.find(
+                    ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
+                ).text
+
+                repo = Repository.query.filter_by(harvest_endpoint=oai_url, identifier=identifier).first()
+                source = Source.query.filter_by(id=repo.source_id).first()
+
+                shutil.move(
+                    file_path, 
+                    os.path.join(
+                        current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(source.uuid)
+                    )
+                )
+
+                return Archivist(source.id)
+
+        except Exception:
+            return None
+
+
     def __init__(self, source_id):
 
         self.source = Source.query.filter_by(id=source_id).first()
@@ -66,18 +117,14 @@ class Archivist:
                 )
             )
 
-        self.working_dir = (
+        self.working_dir = os.path.join(
             current_app.config["IROKO_TEMP_DIRECTORY"]
-            + "/iroko-harvest-"
-            + str(self.source.uuid)
+            , "/iroko-harvest-" + str(self.source.uuid)
         )
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
-        zip_path = (
-            current_app.config["HARVESTER_DATA_DIRECTORY"]
-            + "/"
-            + str(self.source.uuid)
-            + ".zip"
+        zip_path = os.path.join(
+            current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(self.source.uuid)
         )
         try:
             with ZipFile(zip_path, "r") as zipOpj:
@@ -234,6 +281,7 @@ class Archivist:
                     item.status = HarvestedItemStatus.ERROR
                     item.error_log = traceback.format_exc()
 
+
     def _process_format(self, item: HarvestedItem, formater: Formater):
 
         try:
@@ -264,6 +312,7 @@ class Archivist:
         # tambien es posible hacer un request de los textos completos usando dc.relations
         return data
 
+
     def _update_item_data_vocabularies(self, data):
         """update a record data based on the source relations with specific vocabularies:
         institutions
@@ -274,6 +323,7 @@ class Archivist:
         """
         pass
 
+
     def _udate_record_type(self, data):
         """ update or define a record_type, based on record_set
         record_set should have a record_type as a class
@@ -281,3 +331,4 @@ class Archivist:
         then the corresponding record_type will be associated into the data.
         """
         pass
+

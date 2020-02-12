@@ -400,3 +400,4 @@ class OaiHarvester(SourceHarvester):
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations
         return data
+
