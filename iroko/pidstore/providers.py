@@ -31,13 +31,15 @@ class IrokoUUIDProvider(BaseProvider):
             object_type=object_type, object_uuid=object_uuid, **kwargs)
 
 
-class IrokoURLSourceProvider(BaseProvider):
-    """Provider in the form of {Source.url}-{Item.identifier}
-    When a record is harvested, Source been harvested need an identifier, we take url in this case because is more likely that is universal and all source types need an url..
-    Also the record has a an identifier, global (url, or doi) and an internal identifier.
+class IrokoSourceOAIProvider(BaseProvider):
+    """Provider in the form of {Source.uuid}-{Item.oaiIdentifier}
+    When a record is harvested using OAI-PMH, is allways from a valid Source inside iroko, meaning that the Source must have an UUID.
+    All items must have an oai identifier, since is harvested used OAI-PMH.
+    So the persistent identifier use the form {Source.uuid}-{Item.oaiIdentifier}
+    When migrating data across different installations of iroko, this need to be taken into consideration.
     """
 
-    pid_type = 'irosourceurl'
+    pid_type = 'source-oai'
     """Type of persistent identifier."""
 
     default_status = PIDStatus.REGISTERED
@@ -49,7 +51,6 @@ class IrokoURLSourceProvider(BaseProvider):
     def create(cls, object_type=None, object_uuid=None, **kwargs):
         """Create a new record identifier from the depoist PID value."""
         if 'pid_value' not in kwargs:
-
             kwargs.setdefault('pid_value', str(uuid.uuid4()))
         kwargs.setdefault('status', cls.default_status)
         return super(IrokoUUIDProvider, cls).create(

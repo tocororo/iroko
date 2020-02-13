@@ -6,6 +6,7 @@ import shutil
 from zipfile import ZipFile
 
 from iroko.harvester.oai.harvester import OaiHarvester
+from iroko.harvester.oai.archivist import Archivist
 from iroko.harvester.models import Repository, HarvestedItemStatus
 import iroko.harvester.utils as  utils
 from iroko.sources.models import Source
@@ -23,6 +24,16 @@ XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entiti
 class PrimarySourceHarvester(object):
     """Top level harvester, use base.Harvester class, for specific sources.
     ahora mismo hace uso solamente del OAIHarvester"""
+
+    @staticmethod
+    def include_zip_files_in_dir(zip_dir):
+        """trata de crear un Archivist dado cada uno de los zip en un directorio"""
+        for item in os.listdir(zip_dir):
+            itempath = os.path.join(zip_dir, item)
+            if os.path.isfile(itempath):
+                arch = Archivist.create_archivist_from_zip(itempath)
+                if arch:
+                    arch.record_items()
 
 
     @staticmethod

@@ -52,49 +52,29 @@ class Archivist:
     def create_archivist_from_zip(file_path):
         """find the corresponding source given a zip file with harvested data
         and return an Archivist, return None if no source is found or any exception rise with the zip file
-        before create and return the archivist, rename the given zip to HARVESTER_DATA_DIRECTORY using the uuid of the  source  
+        before create and return the archivist, rename the given zip to HARVESTER_DATA_DIRECTORY using the uuid of the  source
         """
 
         try:
-            with ZipFile(file_path, "r") as zipOpj:
-                tmp_file = "/iroko-harvest-arch-" + str(time.time())
-                zipOpj.extract(
-                    harvester.OaiHarvesterFileNames.IDENTIFY.value,
-                    os.path.join(
-                        current_app.config["IROKO_TEMP_DIRECTORY"],
-                        tmp_file
+            source = harvester.OaiHarvester.get_source_from_zip(file_path)
+            if (
+                source and
+                not os.path.exists(
+                    os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"],
+                                 str(source.uuid))
                     )
-                )
-
-                xml = utils.get_xml_from_file(
-                    current_app.config["IROKO_TEMP_DIRECTORY"],
-                    tmp_file
-                )
-
-                name = xml.find(
-                    ".//{" + utils.xmlns.oai + "}repositoryName"
-                ).text
-
-                oai_url = xml.find(
-                    ".//{" + utils.xmlns.oai + "}baseURL"
-                ).text
-
-                identifier = xml.find(
-                    ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
-                ).text
-
-                repo = Repository.query.filter_by(harvest_endpoint=oai_url, identifier=identifier).first()
-                source = Source.query.filter_by(id=repo.source_id).first()
-
+                ):
+                # TODO: if path exists means that a "merge" between the two files is needed
                 shutil.move(
-                    file_path, 
+                    file_path,
                     os.path.join(
                         current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(source.uuid)
                     )
                 )
 
                 return Archivist(source.id)
-
+            else:
+                return None
         except Exception:
             return None
 
@@ -118,8 +98,8 @@ class Archivist:
             )
 
         self.working_dir = os.path.join(
-            current_app.config["IROKO_TEMP_DIRECTORY"]
-            , "/iroko-harvest-" + str(self.source.uuid)
+            current_app.config["IROKO_TEMP_DIRECTORY"],
+            "iroko-harvest-" + str(self.source.uuid)
         )
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
@@ -135,6 +115,16 @@ class Archivist:
                     zip_path, self.source.id, self.source.name, traceback.format_exc()
                 )
             )
+
+        if not self._check_source_harvested_identification():
+            raise Exception(
+                "Source {0}-{1}. Repository harvest_endpoint or identifier is not equal to the values in the zip file. Digg into this to instantiate the Archivist".format(
+                    self.source.id, self.source.name
+                )
+            )
+
+        self._fix_repository_data_field()
+        self._update_record_set_vocabulary()
 
 
     def _check_source_harvested_identification(self):

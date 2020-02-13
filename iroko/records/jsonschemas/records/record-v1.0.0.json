@@ -40,7 +40,8 @@
               "urn",
               "orcid",
               "gnd",
-              "ads"
+              "ads",
+              "oai"
             ]
           },
           "value": {
