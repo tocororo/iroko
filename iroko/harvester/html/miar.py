@@ -10,7 +10,8 @@ from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-
+from iroko.sources.models import Issn
+from iroko.sources.models import Source, SourceType, TermSources
 from invenio_db import db
 
 
@@ -26,6 +27,7 @@ class MiarHarvester(BaseHarvester):
         self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
         self.issn_info_file = self.work_dir + '/issn.info.cuba.json'
         self.issn_file = self.work_dir + '/issn.cuba.json'
+        self.issn_info_miar = self.work_dir + '/issn.info.miar.json'
         self.miar_journals_file = self.work_dir + '/miar.journals.json'
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
@@ -200,11 +202,20 @@ class MiarHarvester(BaseHarvester):
     def get_info_journal(self, issn: str):
 
         url = 'http://miar.ub.edu/issn/' + issn
+        
+        print('request: {0}'.format(url))
+
         sess = requests.Session()
         sess.headers.update(get_iroko_harvester_agent())
-        timeout = 30
+        timeout = 60
         dictionary = {}
         response = sess.get(url,timeout = timeout)
+        print('request finish: {0}'.format(url))
+
+        sleep_time = randint(10, 20)
+        print('sleep: {0}'.format(sleep_time))
+        time.sleep(sleep_time)
+
         doc1 = html.fromstring(response.text)
         element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
         element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
@@ -227,20 +238,24 @@ class MiarHarvester(BaseHarvester):
             element_history1 = e_h.xpath('.//img/@alt')
             url_history = e_h.get('href')
             icds_year = element_history1[0]
+            
             self.get_info_icds(url_history, dictionary, sess, icds_year)
-            sleep_time = randint(3, 9)
+            
+            sleep_time = randint(10, 20)
+            print('sleep: {0}'.format(sleep_time))
             time.sleep(sleep_time)
 
         return dictionary
 
     def get_info_icds(self, url: str, dictionary:dict, sess:requests.Session, icds_year: str):
 
-        timeout = 30
+        timeout = 120
         response = sess.get(url,timeout = timeout)
         doc1 = html.fromstring(response.text)
         element = doc1.xpath('.//div[@id="sp_icds"]')
         if len(element) > 0:
             dictionary[str(icds_year)] = element[0].text
+            print(dictionary[str(icds_year)])
 
     def collect_miar_info(self, issn_list_path):
         """
@@ -248,9 +263,22 @@ class MiarHarvester(BaseHarvester):
         crear un nuevo fichero donde:
         por cada issn en el fichero de entrada se guarde:
             { issn : get_info_journal }
-
         """
-        return
+        result = dict()
+        with open(issn_list_path, 'r') as file_issn:
+            archive_issn = json.load(file_issn)
+
+        if archive_issn:
+            for archive in archive_issn:
+                print('getting miar info of: {0}'.format(archive))
+                result[archive] = self.get_info_journal(archive)
+            with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
+                print('writing to file {0}'.format(self.issn_info_miar))
+                json.dump(result, file_issn)
+        else:
+            return 'danger'
+
+        return 'success'
 
     def syncronize_miar_databases(self):
         """
@@ -296,12 +324,42 @@ class MiarHarvester(BaseHarvester):
         else:
             return 'error'
 
-    def _get_source_by_issn(self, issn):
+    def _get_source_by_issn(self, issnModel: Issn):
         """
         get the source by the issn
         si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
         """
-        return
+
+        issn = issnModel.code
+        data = issnModel.data
+
+        sources = Source.query.all()
+        selected = None
+        for item in sources:
+            if item.data and 'issn' in item.data: 
+                for v in ['p', 'e', 'l']:
+                    if v in item.data['issn'] \
+                        and item.data['issn'][v] == issn:
+                        return item
+
+        for item in data["@graph"]:
+            if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
+                title = item["value"]
+                new_source = Source()
+                new_source.source_type = SourceType.JOURNAL
+                new_source.name = title
+                new_source.data = {
+                    'title': title,
+                    'issn': {
+                        'p': issn
+                    }
+                }
+                db.session.add(new_source)
+                db.session.commit()
+                return new_source
+
+        return None
+
 
     def syncronize_miar_journals(self):
         """
@@ -311,6 +369,26 @@ class MiarHarvester(BaseHarvester):
         Source es el que tenga el issn que se recolecto.
         Si no existe el Source, se debe crear uno nuevo utilizando la informacion que hay en el model ISSN
         """
+        source = None
+        with open(issn_list_path, 'r') as file_issn:
+            archive_issn = json.load(file_issn)
+        with open(issn_info_miar, 'r') as file_issn_miar:
+            archive_issn_miar = json.load(file_issn_miar)
+        if archive_issn:
+            for archive in archive_issn:
+                issn = Issn.query.filter_by(code = archive).first()
+                if issn:
+                    source = self._get_source_by_issn(issn)
+                    for archive_issn_miar_info in archive_issn_miar:
+                        if archive_issn_miar_info[archive]:
+                            for dbs in archive_issn_miar_info[archive]['Metrics']:
+                                miar_db_type_term = Term.query.filter_by(name = dbs).first()
+                                source_term = TermSources()
+                                source_term.sources_id = source.id
+                                source_term.term_id = miar_db_type_term.id
+                                db.session.add(source_term)
+                                db.session.commit()
+        
         return
 
 
