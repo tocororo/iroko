@@ -2,7 +2,7 @@
 """Iroko minters."""
 
 from flask import current_app
-from .providers import IrokoUUIDProvider
+from iroko.pidstore.providers import IrokoUUIDProvider
 
 
 def iroko_uuid_minter(record_uuid, data):

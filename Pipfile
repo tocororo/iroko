@@ -15,6 +15,8 @@ sickle = ">=0.6.4"
 mistune = "==0.8.4"
 bokeh = ""
 marshmallow-enum = "*"
+werkzeug = "==0.16.1"
+pytest = "==4.6.4"
 
 [dev-packages]
 check-manifest = ">=0.35"
@@ -33,6 +35,7 @@ pytest-runner = ">=3.0.0,<5"
 Sphinx = ">=1.5.1"
 pylint = "*"
 rope = "*"
+black = "*"
 
 [requires]
 python_version = "3.6"
@@ -40,3 +43,6 @@ python_version = "3.6"
 [scripts]
 test = "python setup.py test"
 build_sphinx = "python setup.py build_sphinx"
+
+[pipenv]
+allow_prereleases = true

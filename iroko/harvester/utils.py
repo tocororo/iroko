@@ -3,27 +3,36 @@ from iroko.harvester.oai import nsmap
 from collections import defaultdict
 import enum
 import re
+from zipfile import ZipFile
+
+import os
+
+from lxml import etree
+
+"""
+several functions and classes that utils across the harvester module, 
+has oai-pmh specifics and other things, 
+Probably we need a better desing for the hole module, in the mean time, here can be most diverse functions, all related to the task of harvesting....
+"""
+
+XMLParser = etree.XMLParser(
+    remove_blank_text=True, recover=True, resolve_entities=False
+)
+
 
 class xmlns():
 
-    @staticmethod
-    def oai():
-        return 'http://www.openarchives.org/OAI/2.0/'
-    @staticmethod
-    def oai_identifier():
-        return 'http://www.openarchives.org/OAI/2.0/oai-identifier'
-    @staticmethod
-    def dc():
-        return 'http://purl.org/dc/elements/1.1/'
-    @staticmethod
-    def xsi():
-        return 'http://www.w3.org/2001/XMLSchema-instance'
-    @staticmethod
-    def xml():
-        return 'http://www.w3.org/XML/1998/namespace'
-    @staticmethod
-    def nlm():
-        return 'http://dtd.nlm.nih.gov/publishing/2.3'
+    oai = 'http://www.openarchives.org/OAI/2.0/'
+    
+    oai_identifier = 'http://www.openarchives.org/OAI/2.0/oai-identifier'
+    
+    dc = 'http://purl.org/dc/elements/1.1/'
+    
+    xsi = 'http://www.w3.org/2001/XMLSchema-instance'
+    
+    xml = 'http://www.w3.org/XML/1998/namespace'
+    
+    nlm = 'http://dtd.nlm.nih.gov/publishing/2.3'
 
 
 def get_sigle_element(metadata, name, xmlns='dc', language=None):
@@ -64,6 +73,7 @@ def get_multiple_elements(metadata, name, xmlns='dc', itemname=None, language=No
             results.append(apend)
     return results
 
+
 def xml_to_dict(tree, paths=None, nsmap=None, strip_ns=False):
     """Convert an XML tree to a dictionary.
 
@@ -90,3 +100,53 @@ def xml_to_dict(tree, paths=None, nsmap=None, strip_ns=False):
 
 def get_iroko_harvester_agent():
     return {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}
+
+
+def get_xml_from_file(base_directory, file_name, extra_path=""):
+    """get an lxml tree from a file with the path:
+        base_directory + extra_path + file_name
+        rise an Exception if the file not exists
+    """
+    xmlpath = os.path.join(base_directory, extra_path, file_name)
+    if not os.path.exists(xmlpath):
+        raise Exception(
+            "Path: {0} not exists".format(
+                xmlpath
+            )
+        )
+    return etree.parse(xmlpath, parser=XMLParser)
+
+
+class ZipHelper:
+
+    @classmethod
+    def compress_dir(cls, src_path, dst_path, dst_filename):
+        """compress the content (files and directory recursivelly) of the directory in the end of src_path 
+        to a zip file in dst_path/dst_filename
+        the idea is not compress the full src_path into the zip, but relative to the directory in the end of the src_path. 
+        """
+        zip_path = os.path.join(
+            dst_path,
+            dst_filename
+        )
+        result = []
+        if os.path.isdir(src_path):
+            cls._get_zip_items(result, src_path, '')
+        else:
+            head, tail = os.path.split(src_path)
+            result.append({'src': src_path, 'arcname': tail})
+        with ZipFile(zip_path, 'w') as zipObj:
+            for item in result:
+                zipObj.write(item['src'], arcname=item['arcname'])
+    
+    @classmethod
+    def _get_zip_items(cls, result:list, src_path, item_path):
+        if os.path.isdir(src_path):
+            for item in os.listdir(src_path):
+                cls._get_zip_items(
+                    result, 
+                    os.path.join(src_path, item), 
+                    os.path.join(item_path, item)
+                )
+        else:
+            result.append({'src': src_path, 'arcname': item_path})
