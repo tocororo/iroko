@@ -4,7 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 import json
 import binascii
-from os import urandom
+import os
 import time
 from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
@@ -27,7 +27,12 @@ class MiarHarvester(BaseHarvester):
         self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
         self.issn_info_file = self.work_dir + '/issn.info.cuba.json'
         self.issn_file = self.work_dir + '/issn.cuba.json'
+
+        self.issn_info_miar_dir = os.path.join(self.work_dir, 'miar_info')
+        if not os.path.exists:
+            os.mkdir(self.issn_info_miar_dir)
         self.issn_info_miar = self.work_dir + '/issn.info.miar.json'
+
         self.miar_journals_file = self.work_dir + '/miar.journals.json'
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
@@ -202,7 +207,7 @@ class MiarHarvester(BaseHarvester):
     def get_info_journal(self, issn: str):
 
         url = 'http://miar.ub.edu/issn/' + issn
-        
+
         print('request: {0}'.format(url))
 
         sess = requests.Session()
@@ -238,9 +243,9 @@ class MiarHarvester(BaseHarvester):
             element_history1 = e_h.xpath('.//img/@alt')
             url_history = e_h.get('href')
             icds_year = element_history1[0]
-            
+
             self.get_info_icds(url_history, dictionary, sess, icds_year)
-            
+
             sleep_time = randint(10, 20)
             print('sleep: {0}'.format(sleep_time))
             time.sleep(sleep_time)
@@ -271,10 +276,14 @@ class MiarHarvester(BaseHarvester):
         if archive_issn:
             for archive in archive_issn:
                 print('getting miar info of: {0}'.format(archive))
-                result[archive] = self.get_info_journal(archive)
-            with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
-                print('writing to file {0}'.format(self.issn_info_miar))
-                json.dump(result, file_issn)
+                res = self.get_info_journal(archive)
+                with open(os.path.join(self.issn_info_miar_dir, archive), 'w+',  encoding=('UTF-8')) as file_issn:
+                    json.dump(res, file_issn)
+
+            #     result[archive] =
+            # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
+            #     print('writing to file {0}'.format(self.issn_info_miar))
+            #     json.dump(result, file_issn)
         else:
             return 'danger'
 
@@ -336,7 +345,7 @@ class MiarHarvester(BaseHarvester):
         sources = Source.query.all()
         selected = None
         for item in sources:
-            if item.data and 'issn' in item.data: 
+            if item.data and 'issn' in item.data:
                 for v in ['p', 'e', 'l']:
                     if v in item.data['issn'] \
                         and item.data['issn'][v] == issn:
@@ -388,7 +397,7 @@ class MiarHarvester(BaseHarvester):
                                 source_term.term_id = miar_db_type_term.id
                                 db.session.add(source_term)
                                 db.session.commit()
-        
+
         return
 
 
