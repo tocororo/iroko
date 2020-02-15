@@ -39,7 +39,7 @@ class IrokoSourceOAIProvider(BaseProvider):
     When migrating data across different installations of iroko, this need to be taken into consideration.
     """
 
-    pid_type = 'source-oai'
+    pid_type = 'srcoai'
     """Type of persistent identifier."""
 
     default_status = PIDStatus.REGISTERED
@@ -48,10 +48,25 @@ class IrokoSourceOAIProvider(BaseProvider):
     """
 
     @classmethod
-    def create(cls, object_type=None, object_uuid=None, **kwargs):
+    def create(cls, object_type=None, object_uuid=None, data=None,  **kwargs):
         """Create a new record identifier from the depoist PID value."""
+        pid_value = cls.get_pid_from_data(data)
         if 'pid_value' not in kwargs:
-            kwargs.setdefault('pid_value', str(uuid.uuid4()))
+            kwargs.setdefault('pid_value', pid_value)
         kwargs.setdefault('status', cls.default_status)
-        return super(IrokoUUIDProvider, cls).create(
+        return super(IrokoSourceOAIProvider, cls).create(
             object_type=object_type, object_uuid=object_uuid, **kwargs)
+
+    @classmethod
+    def get_pid_from_data(cls, data=None):
+        assert data, "no data"
+        assert 'source' in data, "no source in data"
+        assert 'uuid' in data['source'], "no source uuid"
+
+        oai_id=None
+        for idf in data['identifiers']:
+            if idf['idtype'] == 'oai':
+                oai_id = idf['value']
+        assert oai_id, "no oai in idenfitiers in data, or not value for it"
+
+        return data['source']['uuid'] + '-' + oai_id

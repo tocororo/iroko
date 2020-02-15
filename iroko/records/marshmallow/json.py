@@ -56,7 +56,7 @@ class SourceSchemaV1(StrictKeysMixin):
     name = SanitizedUnicode()
 
 class SpecSchemaV1(StrictKeysMixin):
-    
+
     code = fields.Str()
     name = SanitizedUnicode(validate=validate.Length(min=3))
 
@@ -80,6 +80,8 @@ class MetadataSchemaV1(StrictKeysMixin):
     publication_date = DateString()
     contributors = Nested(ContributorSchemaV1, many=True)
     references = Nested(ReferenceSchemaV1, many=True)
+    iroko_terms = fields.List(SanitizedUnicode(), many=True)
+    status = fields.Str()
 
 
 class RecordSchemaV1(StrictKeysMixin):

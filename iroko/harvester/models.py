@@ -16,7 +16,7 @@ class HarvestedItemStatus(enum.Enum):
     DELETED = "DELETED"
     # ocurrio algun error en alguna de las fases
     ERROR = "ERROR"
-    # se recolecto el item y se validaron los schemas
+    # se recolecto el item
     HARVESTED = "HARVESTED"
     # se inserto el item en un IrokoRecord
     RECORDED = "RECORDED"

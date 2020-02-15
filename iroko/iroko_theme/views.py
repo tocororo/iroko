@@ -184,6 +184,14 @@ def unauthorized(e):
     """Error handler to show a 401.html page in case of a 401 error."""
     return render_template(current_app.config['THEME_401_TEMPLATE']), 401
 
+@blueprint.route('/search')
+def iroko_search():
+    search_hidden_params={'iroko_terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
+    search_extra_params={}
+    my_custom_search = "Ministerios de Cuba"
+
+    return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], my_custom_search=my_custom_search, search_hidden_params=search_hidden_params)
+
 
 def insufficient_permissions(e):
     """Error handler to show a 403.html page in case of a 403 error."""

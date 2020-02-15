@@ -22,6 +22,9 @@
 {%- endblock javascript %}
 
 {%- block body_inner %}
+
+
+
 <div id="invenio-search">
   <invenio-search
    search-endpoint="{{ config.SEARCH_UI_SEARCH_API }}"
@@ -31,6 +34,8 @@
   {{super()}}
   </invenio-search>
 </div>
+<!--  -->
+
 {%- endblock body_inner %}
 
 {%- block page_header %}
@@ -47,7 +52,14 @@
       </invenio-search-bar>
     {%- endblock search_block %}
   <div class="row">
-      
+
+
+    <div class="row" >
+      <h2>{{my_custom_search}} ministerios</h2>
+      <h3>bases de datos</h3>
+    </div>
+
+
     {%- block search_body %}
     <div class="col-xs-12 col-md-9 col-md-push-3">
       {%- block search_header %}

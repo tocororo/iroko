@@ -177,7 +177,7 @@ RECORDS_UI_ENDPOINTS = {
 }
 
 
-RECORDS_REST_ENDPOINTS = {
+RECORDS_REST_ENDPOINTS = {  
     'irouid': {
         'pid_type': 'irouid',
         'pid_minter': 'irouid',
@@ -233,7 +233,9 @@ RECORDS_REST_FACETS = {
             'keywords': terms_filter('keywords'),
             'creators': terms_filter('creators.name'),
             # 'spec': terms_filter('spec.name'),
-            'sources': terms_filter('source.name')
+            'sources': terms_filter('source.name'),
+            'status': terms_filter('status'),
+            'iroko_terms': terms_filter('iroko_terms'),
         },
         'aggs':{
             'keywords':{
