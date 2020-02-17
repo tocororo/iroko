@@ -233,7 +233,10 @@ RECORDS_REST_FACETS = {
             'keywords': terms_filter('keywords'),
             'creators': terms_filter('creators.name'),
             # 'spec': terms_filter('spec.name'),
-            'sources': terms_filter('source.name')
+            'sources': terms_filter('source.name'),
+            'status': terms_filter('status'),
+            'iroko_terms': terms_filter('iroko_terms'),
+            # 'publication_date': range_filter('publication_date', format='yyyy', end_date_math='/y')
         },
         'aggs':{
             'keywords':{
@@ -273,6 +276,13 @@ RECORDS_REST_FACETS = {
             },
             # 'language':{
             #     'terms':{'field': 'language'}
+            # }
+            # 'years': {
+            #     'date_histogram': {
+            #         'field': 'date',
+            #         'interval': 'year',
+            #         'format': 'yyyy'
+            #     }
             # }
         }
     }
@@ -432,9 +442,6 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 # Others iroko configuration
 # =======
 
-
-
-REST_ENABLE_CORS = True
 
 
 OAUTHCLIENT_REMOTE_APPS = dict(

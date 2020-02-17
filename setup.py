@@ -218,7 +218,7 @@ setup(
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
             'iroko_issn = iroko.issn.rest:api_blueprint',
-
+            'iroko_records = iroko.records.rest:api_blueprint',
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -226,20 +226,24 @@ setup(
         'invenio_pidstore.fetchers': [
             'irouid'
             '= iroko.pidstore.fetchers:iroko_uuid_fetcher',
+            'srcoai'
+            '= iroko.pidstore.fetchers:iroko_source_oai_fetcher',
         ],
         'invenio_pidstore.minters': [
              'irouid'
             '= iroko.pidstore.minters:iroko_uuid_minter',
+            'srcoai'
+            '= iroko.pidstore.minters:iroko_source_oai_minter',
         ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
         ],
         'invenio_access.actions':[
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
-            'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',            
+            'source_gestor_actions = iroko.sources.permissions:source_gestor_actions',
             'source_full_gestor_actions = iroko.sources.permissions:source_full_gestor_actions',
             'source_term_gestor_actions = iroko.sources.permissions:source_term_gestor_actions',
-            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',            
+            'vocabulary_editor_actions = iroko.taxonomy.permissions:vocabulary_editor_actions',
             'taxonomy_full_editor_actions = iroko.taxonomy.permissions:taxonomy_full_editor_actions',
             'notification_admin_actions = iroko.notifications.permissions:notification_admin_actions',
             'notification_viewed_actions = iroko.notifications.permissions:notification_viewed_actions'

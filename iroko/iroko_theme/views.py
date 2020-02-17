@@ -24,7 +24,7 @@ from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
 import json
 import mistune
-from iroko.iroko_theme.forms import ContactForm
+from iroko.iroko_theme.forms import ContactForm, IrokoSearchForm
 # from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
 
 
@@ -183,6 +183,19 @@ def static_page_image(image):
 def unauthorized(e):
     """Error handler to show a 401.html page in case of a 401 error."""
     return render_template(current_app.config['THEME_401_TEMPLATE']), 401
+
+@blueprint.route('/search', methods=['GET','POST'])
+def iroko_search():
+
+    form = IrokoSearchForm()
+    search_hidden_params={'iroko_terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
+    search_extra_params={}
+    inst = ""
+    if form.validate_on_submit():
+        inst = form.institutions.data
+        return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
+
+    return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
 
 
 def insufficient_permissions(e):

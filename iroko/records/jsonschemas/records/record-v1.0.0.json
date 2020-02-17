@@ -314,6 +314,16 @@
         "type": "object"
       },
       "type": "array"
+    },
+    "iroko_terms": {
+      "description": "UUID of related iroko terms",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "status": {
+      "type": "string"
     }
   },
   "required": [

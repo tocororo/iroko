@@ -16,7 +16,7 @@ from flask import current_app
 
 from invenio_db import db
 
-from iroko.sources.models import Source
+from iroko.sources.models import Source, TermSources, SourceStatus
 
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository
 
@@ -30,6 +30,8 @@ import iroko.harvester.oai.harvester as harvester
 from iroko.taxonomy.models import Term, Vocabulary
 
 from iroko.harvester.base import SourceHarvester, Formater
+
+from iroko.records.api import IrokoRecord
 
 # PAra que la consola haga autoreaload
 # In [1]: %load_ext autoreload
@@ -207,7 +209,7 @@ class Archivist:
         use the sets in the oai repo to create terms in the recod_sets vocabulary
         term in this vocabulary later can be merge manually in order to get another classification of articles
         """
-        voc = Vocabulary.query.filter_by(name='record_sets').first()
+        self.voc = Vocabulary.query.filter_by(name='record_sets').first()
 
         xml = utils.get_xml_from_file(self.working_dir, harvester.OaiHarvesterFileNames.SETS.value)
 
@@ -215,40 +217,37 @@ class Archivist:
         rsets = []
         for s in sets_items:
             setName = s.find(".//{" + utils.xmlns.oai + "}" + "setName").text
-            term = Term.query.filter_by(vocabulary_id=voc.id, name=setName).first()
+            term = Term.query.filter_by(vocabulary_id=self.voc.id, name=setName).first()
             if not term:
                 term = Term()
                 term.name = setName
-                term.vocabulary_id = voc.id
+                term.vocabulary_id = self.voc.id
                 db.session.add(term)
         db.session.commit()
 
+#  TODO: esta clase supone que la carpeta esta correctamente formada.
+# lo que sigue debe ser funcion de la clase harvester, que es la que garantiza formar bien la carpeta.
+# if not item:
+# then create a valid HarvestedItem and fix the directory
+# item = HarvestedItem()
+# item.repository_id = self.source.id
+# item.identifier = identifier
+# # TODO: check if item status is deleted.
+# item.status = HarvestedItemStatus.HARVESTED
+# db.session.add(item)
+# db.session.commit()
+# shutil.move(
+#     itempath, os.path.join(self.working_dir, str(item.id))
+# )
 
     def record_items(self):
         """ process all harvested items of the Source, create an IrokoRecord and save/update it"""
 
-        for itemdir in os.listdir(self.working_dir):
-            itempath = os.path.join(self.working_dir, itemdir)
-            if os.path.isdir(itempath):
-                # get the corresponding HarvestedItem
-                xml = utils.get_xml_from_file(self.working_dir, harvester.OaiHarvesterFileNames.ITEM_IDENTIFIER.value, extra_path=itemdir)
-                identifier = xml.find(
-                            ".//{" + utils.xmlns.oai + "}identifier"
-                        ).text
-                item = HarvestedItem.query.filter_by(repository_id=self.source.id, identifier=identifier).first()
-                if not item:
-                    # then create a valid HarvestedItem and fix the directory
-                    item = HarvestedItem()
-                    item.repository_id = self.source.id
-                    item.identifier = identifier
-                    item.status = HarvestedItemStatus.HARVESTED
-                    db.session.add(item)
-                    db.session.commit()
-                    shutil.move(
-                        itempath, os.path.join(self.working_dir, str(item.id))
-                    )
-                try:
-                    # currently supporting dc elements and nlm (to get more info about authors)
+        items = HarvestedItem.query.filter_by(repository_id=self.source.id).all()
+        for item in items:
+            try:
+                # currently supporting dc elements and nlm (to get more info about authors)
+                if item.status != HarvestedItemStatus.DELETED and item.status != HarvestedItemStatus.ERROR:
                     self.oai_dc = DubliCoreElements()
                     self.nlm = JournalPublishing()
 
@@ -259,17 +258,20 @@ class Archivist:
                         nlm = self._process_format(item, self.nlm)
 
                     data = self._crate_iroko_dict(item, dc, nlm)
-                    print(data)
+                    # print(data)
 
-                    # record, status = IrokoRecord.create_or_update(
-                    #     data, dbcommit=True, reindex=True
-                    # )
-                    # item.status = HarvestedItemStatus.RECORDED
-                    # item.record = record.id
-                    # print(item.record)
-                except Exception as e:
-                    item.status = HarvestedItemStatus.ERROR
-                    item.error_log = traceback.format_exc()
+
+                    record, status = IrokoRecord.create_or_update(
+                        data, dbcommit=True, reindex=True
+                    )
+                    item.status = HarvestedItemStatus.RECORDED
+                    item.record = record.id
+                    print(item.record)
+            except Exception as e:
+                item.status = HarvestedItemStatus.ERROR
+                item.error_log = traceback.format_exc()
+            finally:
+                db.session.commit()
 
 
     def _process_format(self, item: HarvestedItem, formater: Formater):
@@ -300,6 +302,10 @@ class Archivist:
                     data["spec"] = {"code": k, "name": v}
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations
+
+        self._update_item_data_vocabularies(data)
+
+        data['status'] = self.source.source_status.value
         return data
 
 
@@ -311,7 +317,16 @@ class Archivist:
         miar_databases
         unesco_vocab
         """
-        pass
+
+        # ts = TermSources.query.filter_by(source_id=self.source.id).all()
+        tuus = []
+        for ts in self.source.terms:
+            tuus.append(str(ts.term.uuid))
+
+        rs_term = Term.query.filter_by(vocabulary_id=self.voc.id, name=data['spec']['name']).first()
+        if rs_term:
+            tuus.append(str(rs_term.uuid))
+        data['iroko_terms'] = tuus
 
 
     def _udate_record_type(self, data):

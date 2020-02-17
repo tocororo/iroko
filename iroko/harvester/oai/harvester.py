@@ -311,7 +311,7 @@ class OaiHarvester(SourceHarvester):
             # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
             # db.session.delete?
             for itemdir in os.listdir(self.harvest_dir):
-                itempath = path.join(self.harvest_dir, itemdir)
+                itempath = os.path.join(self.harvest_dir, itemdir)
                 if os.path.isdir(itempath):
                     shutil.move(itempath, os.path.join(self.harvest_dir, itemdir) + ".old")
             for itemdir in os.listdir(self.harvest_dir):
