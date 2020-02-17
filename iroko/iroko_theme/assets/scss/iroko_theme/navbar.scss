@@ -21,19 +21,11 @@
   }
 }
 
-.top-nav-collapse {
-  background-color: #82b1ff !important;
-}
 
 .navbar:not(.top-nav-collapse) {
   background: transparent !important;
 }
 
-@media (max-width: 991px) {
-  .navbar:not(.top-nav-collapse) {
-      background: #82b1ff !important;
-  }
-}
 
 
 .iroko-jumbo {
