@@ -6,6 +6,44 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
+
+ .view {
+  height: 100%;
+}
+
+@media (max-width: 740px) {
+
+  html,
+  body,
+  header,
+  .view {
+      height: 100vh;
+  }
+}
+
+.top-nav-collapse {
+  background-color: #82b1ff !important;
+}
+
+.navbar:not(.top-nav-collapse) {
+  background: transparent !important;
+}
+
+@media (max-width: 991px) {
+  .navbar:not(.top-nav-collapse) {
+      background: #82b1ff !important;
+  }
+}
+
+
+.iroko-jumbo {
+  background-image: url('../../static/images/bill-4785179_1920.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+}
+
+
 .navbar-static-top {
 }
 
