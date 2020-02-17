@@ -46,12 +46,14 @@ class IrokoAggs:
         }
         s = Search(using=client, index="records").update_from_dict(query_body)
         t = s.execute()
+        # print(t.aggregations.sources.buckets)
+        # return t.aggregations.sources.buckets
         result = []
         for item in t.aggregations.sources.buckets:
             # item.key will the house number
             result.append({
                 'key': item.key,
-                'count': item.doc_count
+                'doc_count': item.doc_count
             })
         # s = Search(using=client, index="records")
 

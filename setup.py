@@ -218,7 +218,7 @@ setup(
             'iroko_harvester = iroko.harvester.views:api_blueprint',
             'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
             'iroko_issn = iroko.issn.rest:api_blueprint',
-
+            'iroko_records = iroko.records.rest:api_blueprint',
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'

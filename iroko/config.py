@@ -177,7 +177,7 @@ RECORDS_UI_ENDPOINTS = {
 }
 
 
-RECORDS_REST_ENDPOINTS = {  
+RECORDS_REST_ENDPOINTS = {
     'irouid': {
         'pid_type': 'irouid',
         'pid_minter': 'irouid',
@@ -236,6 +236,7 @@ RECORDS_REST_FACETS = {
             'sources': terms_filter('source.name'),
             'status': terms_filter('status'),
             'iroko_terms': terms_filter('iroko_terms'),
+            # 'publication_date': range_filter('publication_date', format='yyyy', end_date_math='/y')
         },
         'aggs':{
             'keywords':{
@@ -275,6 +276,13 @@ RECORDS_REST_FACETS = {
             },
             # 'language':{
             #     'terms':{'field': 'language'}
+            # }
+            # 'years': {
+            #     'date_histogram': {
+            #         'field': 'date',
+            #         'interval': 'year',
+            #         'format': 'yyyy'
+            #     }
             # }
         }
     }
@@ -434,9 +442,6 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 # Others iroko configuration
 # =======
 
-
-
-REST_ENABLE_CORS = True
 
 
 OAUTHCLIENT_REMOTE_APPS = dict(
