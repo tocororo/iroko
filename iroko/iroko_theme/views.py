@@ -187,15 +187,17 @@ def unauthorized(e):
 @blueprint.route('/search', methods=['GET','POST'])
 def iroko_search():
 
-    form = IrokoSearchForm()
-    search_hidden_params={'iroko_terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
-    search_extra_params={}
-    inst = ""
-    if form.validate_on_submit():
-        inst = form.institutions.data
-        return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
+    # form = IrokoSearchForm()
+    # search_hidden_params={'iroko_terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
+    # search_extra_params={}
+    # inst = ""
+    # if form.validate_on_submit():
+    #     inst = form.institutions.data
+    #     return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
 
-    return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
+    # return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
+
+    return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'])
 
 
 def insufficient_permissions(e):
