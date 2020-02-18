@@ -78,6 +78,7 @@ class Archivist:
             else:
                 return None
         except Exception:
+            print(traceback.format_exc())
             return None
 
 

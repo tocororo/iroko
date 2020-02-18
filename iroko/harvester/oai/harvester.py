@@ -67,18 +67,17 @@ class OaiHarvester(SourceHarvester):
         """
         try:
             with ZipFile(file_path, "r") as zipOpj:
-                tmp_file = "iroko-harvest-arch-" + str(time.time())
+                tmp_dir = os.path.join(
+                    current_app.config["IROKO_TEMP_DIRECTORY"],"iroko-harvest-arch-" + str(time.time())
+                )
                 zipOpj.extract(
                     OaiHarvesterFileNames.IDENTIFY.value,
-                    os.path.join(
-                        current_app.config["IROKO_TEMP_DIRECTORY"],
-                        tmp_file
-                    )
+                    tmp_dir
                 )
-
+                identify_path = os.path.join(tmp_dir, OaiHarvesterFileNames.IDENTIFY.value)
                 xml = utils.get_xml_from_file(
                     current_app.config["IROKO_TEMP_DIRECTORY"],
-                    tmp_file
+                    identify_path
                 )
 
                 name = xml.find(
@@ -97,16 +96,18 @@ class OaiHarvester(SourceHarvester):
                 source = Source.query.filter_by(id=repo.source_id).first()
 
                 shutil.rmtree(
-                    os.path.join(
-                        current_app.config["IROKO_TEMP_DIRECTORY"],
-                        tmp_file
-                    ),
+                    tmp_dir,
                     True
                 )
 
                 return source
 
-        except Exception:
+        except Exception as e:
+            print(traceback.format_exc())
+            shutil.rmtree(
+                    tmp_dir,
+                    True
+            )
             return None
 
 
