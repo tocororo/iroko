@@ -393,7 +393,8 @@ class MiarHarvester(BaseHarvester):
 
                     source = self._get_source_by_issn(issn)
                     for archive_issn_miar_info in archive_issn_miar:
-                        if archive_issn_miar_info['Indexed\xa0in:']:
+                        if archive_issn_miar_info != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
+                            print(archive_issn_miar_info)
                             dbs_split = archive_issn_miar_info['Indexed\xa0in:'].split(", ")
                             for dbs in dbs_split:
                                 miar_db_type_term = Term.query.filter_by(name = dbs).first()
