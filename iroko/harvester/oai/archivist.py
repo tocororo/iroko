@@ -66,7 +66,7 @@ class Archivist:
                                  str(source.uuid))
                     )
                 ):
-                # TODO: if path exists means that a "merge" between the two files is needed
+                # TODO: if path exists means that a "merge" between the two zip files is needed, now assuming that is the same...
                 shutil.move(
                     file_path,
                     os.path.join(
@@ -81,6 +81,12 @@ class Archivist:
             print(traceback.format_exc())
             return None
 
+    @staticmethod
+    def record_items_from_zip(file_path):
+        arch = Archivist.create_archivist_from_zip(file_path)
+        if arch:
+            arch.record_items()
+            arch.destroy_work_dir()
 
     def __init__(self, source_id):
 
@@ -274,6 +280,12 @@ class Archivist:
             finally:
                 db.session.commit()
 
+
+    def destroy_work_dir(self):
+        """this should be called after record_items, or in any other moment.
+        The object do not handle delete work_dir"""
+
+        shutil.rmtree(self.working_dir, ignore_errors=True)
 
     def _process_format(self, item: HarvestedItem, formater: Formater):
 

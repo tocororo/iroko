@@ -32,9 +32,7 @@ class PrimarySourceHarvester(object):
             itempath = os.path.join(zip_dir, item)
             if os.path.isfile(itempath):
                 print("trying to create an archivist from {0}".format(itempath))
-                arch = Archivist.create_archivist_from_zip(itempath)
-                if arch:
-                    arch.record_items()
+                Archivist.record_items_from_zip(itempath)
 
 
     @staticmethod
