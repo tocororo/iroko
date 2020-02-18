@@ -29,7 +29,7 @@ class MiarHarvester(BaseHarvester):
         self.issn_file = self.work_dir + '/issn.cuba.json'
 
         self.issn_info_miar_dir = os.path.join(self.work_dir, 'miar_info')
-        if not os.path.exists:
+        if not os.path.exists(self.issn_info_miar_dir):
             os.mkdir(self.issn_info_miar_dir)
         self.issn_info_miar = self.work_dir + '/issn.info.miar.json'
 
@@ -276,9 +276,11 @@ class MiarHarvester(BaseHarvester):
         if archive_issn:
             for archive in archive_issn:
                 print('getting miar info of: {0}'.format(archive))
-                res = self.get_info_journal(archive)
-                with open(os.path.join(self.issn_info_miar_dir, archive), 'w+',  encoding=('UTF-8')) as file_issn:
-                    json.dump(res, file_issn)
+                
+                if not os.path.exists(self.issn_info_miar_dir + '/' + archive):
+                    res = self.get_info_journal(archive)
+                    with open(os.path.join(self.issn_info_miar_dir, archive), 'w+',  encoding=('UTF-8')) as file_issn:
+                        json.dump(res, file_issn)
 
             #     result[archive] =
             # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
@@ -370,7 +372,7 @@ class MiarHarvester(BaseHarvester):
         return None
 
 
-    def syncronize_miar_journals(self):
+    def syncronize_miar_journals(self, issn_list_path):
         """
         sincronizar lo que hay en el info de miar con el modelo TermSource donde
         Source es el source dado el issn
@@ -381,16 +383,20 @@ class MiarHarvester(BaseHarvester):
         source = None
         with open(issn_list_path, 'r') as file_issn:
             archive_issn = json.load(file_issn)
-        with open(issn_info_miar, 'r') as file_issn_miar:
-            archive_issn_miar = json.load(file_issn_miar)
+        
         if archive_issn:
             for archive in archive_issn:
                 issn = Issn.query.filter_by(code = archive).first()
                 if issn:
+                    with open(os.path.join(self.issn_info_miar_dir, archive), 'r') as file_issn_miar:
+                        archive_issn_miar = json.load(file_issn_miar)
+
                     source = self._get_source_by_issn(issn)
                     for archive_issn_miar_info in archive_issn_miar:
-                        if archive_issn_miar_info[archive]:
-                            for dbs in archive_issn_miar_info[archive]['Metrics']:
+                        if archive_issn_miar_info != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
+                            print(archive_issn_miar_info)
+                            dbs_split = archive_issn_miar_info['Indexed\xa0in:'].split(", ")
+                            for dbs in dbs_split:
                                 miar_db_type_term = Term.query.filter_by(name = dbs).first()
                                 source_term = TermSources()
                                 source_term.sources_id = source.id
