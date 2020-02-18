@@ -67,7 +67,7 @@ class OaiHarvester(SourceHarvester):
         """
         try:
             with ZipFile(file_path, "r") as zipOpj:
-                tmp_file = "/iroko-harvest-arch-" + str(time.time())
+                tmp_file = "iroko-harvest-arch-" + str(time.time())
                 zipOpj.extract(
                     OaiHarvesterFileNames.IDENTIFY.value,
                     os.path.join(
