@@ -43,8 +43,8 @@ class OaiHarvesterFileNames(Enum):
 
 
 class OaiHarvester(SourceHarvester):
-    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los records, al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar
-    dentro de current_app.config['HARVESTER_DATA_DIRECTORY'] crea una carpeta con el Id del source.
+    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los HarvesterItems, al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar
+    dentro de current_app.config['HARVESTER_DATA_DIRECTORY'] crea una carpeta con el UUID del source.
      con la siguiente forma:
      [source_id]
         - identify.xml
@@ -61,19 +61,27 @@ class OaiHarvester(SourceHarvester):
     """
 
     @staticmethod
-    def get_source_from_zip(file_path):
+    def get_source_from_zip(file_path, copy_to_harvest_dir=True):
         """find the corresponding source given a zip file with harvested data
         return None if no source is found or any exception rise with the zip file
+        if copy_to_harvest_dir,
+            copy the file_path to
+            os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"],
+                                str(source.uuid)))
         """
         try:
             with ZipFile(file_path, "r") as zipOpj:
                 tmp_dir = os.path.join(
                     current_app.config["IROKO_TEMP_DIRECTORY"],"iroko-harvest-arch-" + str(time.time())
                 )
-                zipOpj.extract(
+                try:
+                    zipOpj.extract(
                     OaiHarvesterFileNames.IDENTIFY.value,
                     tmp_dir
                 )
+                except Exception:
+                    return None
+
                 identify_path = os.path.join(tmp_dir, OaiHarvesterFileNames.IDENTIFY.value)
                 xml = utils.get_xml_from_file(
                     current_app.config["IROKO_TEMP_DIRECTORY"],
@@ -95,6 +103,25 @@ class OaiHarvester(SourceHarvester):
                 repo = Repository.query.filter_by(harvest_endpoint=oai_url, identifier=identifier).first()
                 source = Source.query.filter_by(id=repo.source_id).first()
 
+                if(source and copy_to_harvest_dir):
+                    source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
+                    if source_path != file_path:
+                        if not os.path.exists(source_path):
+                            # TODO: if path exists means that a "merge" between the two zip files is needed,
+                            #  now assuming that is the same...
+                            # 1- compare both files
+                            # 2- merge
+                            # 3- rescan
+                            # if os.path.getsize(file_path) != os.path.getsize(source_path):
+                            shutil.rmtree(
+                                source_path,
+                                True
+                            )
+                        shutil.move(
+                            file_path,
+                            source_path
+                        )
+
                 shutil.rmtree(
                     tmp_dir,
                     True
@@ -102,13 +129,25 @@ class OaiHarvester(SourceHarvester):
 
                 return source
 
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
             shutil.rmtree(
                     tmp_dir,
                     True
             )
             return None
+
+
+    @staticmethod
+    def rescan_source_from_zip_file(file_path):
+        """given zip file, finds the corresponding source and harves all items using work_remote = false
+        """
+        source = OaiHarvester.get_source_from_zip(file_path)
+
+        if source:
+            harvester = OaiHarvester(source, work_remote=False)
+            harvester.start_harvest_pipeline()
+
 
 
     def __init__(self, source: Source, work_remote=True, request_wait_time=3):
@@ -121,12 +160,21 @@ class OaiHarvester(SourceHarvester):
         # self.work_remote = work_remote
         # self.request_wait_time = request_wait_time
 
-        p = current_app.config["HARVESTER_DATA_DIRECTORY"]
+        # p = current_app.config["HARVESTER_DATA_DIRECTORY"]
         # p = 'data/sceiba-data'
-        self.harvest_dir = os.path.join(p, str(self.source.id))
+        source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
+        if not os.path.exists(source_path):
+            with ZipFile(source_path, 'w') as file:
+                pass
 
-        if not os.path.exists(self.harvest_dir):
-            os.mkdir(self.harvest_dir)
+        self.harvest_dir = os.path.join(
+            current_app.config["IROKO_TEMP_DIRECTORY"],
+            "iroko-harvest-" + str(self.source.uuid)
+        )
+        shutil.rmtree(self.harvest_dir, ignore_errors=True)
+
+        with ZipFile(source_path, "r") as zipOpj:
+                zipOpj.extractall(self.harvest_dir)
 
         self.oai_dc = DubliCoreElements()
         self.nlm = JournalPublishing()
@@ -143,6 +191,24 @@ class OaiHarvester(SourceHarvester):
             max_retries=max_retries,
             **args
         )
+
+    def start_harvest_pipeline(self, step=0):
+        """default harvest pipeline, identify, discover, process"""
+        if step == 0:
+            self.identity_source()
+        if step <= 1:
+            self.discover_items()
+        self.compress_harvest_dir()
+
+    def compress_harvest_dir(self):
+        """compress the harvest_dir to a zip file in harvest_data dir
+        and deleted harvest_dir """
+        shutil.rmtree(
+            os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid)),
+            ignore_errors=True)
+        utils.ZipHelper.compress_dir(self.harvest_dir, current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
+        shutil.rmtree(self.harvest_dir, ignore_errors=True)
+
 
     def identity_source(self):
         try:
@@ -175,23 +241,6 @@ class OaiHarvester(SourceHarvester):
         finally:
             db.session.commit()
 
-    def process_items(self):
-        if self.repository.status == HarvestedItemStatus.ERROR:
-            raise IrokoHarvesterError(
-                "calling process_items of in a inestable repo. Source.id={0}. Source.repo_status={1}".format(
-                    self.source.id, self.repository.status
-                )
-            )
-        try:
-            self.record_items()
-            self.repository.status = HarvestedItemStatus.RECORDED
-        except Exception as e:
-            self.repository.status = HarvestedItemStatus.ERROR
-            self.repository.error_log = traceback.format_exc()
-            print("error: process_items(self):")
-        finally:
-            db.session.commit()
-
     def _write_file(self, name, content, extra_path=""):
         """helper function, always write to f = open(os.path.join(self.harvest_dir, extra_path, name),"w")"""
 
@@ -200,14 +249,15 @@ class OaiHarvester(SourceHarvester):
         f.close()
 
     def _get_xml_from_file(self, name, extra_path=""):
-        xmlpath = os.path.join(self.harvest_dir, extra_path, name)
-        if not os.path.exists(xmlpath):
-            raise IrokoHarvesterError(
-                "working offline and {0} not exists. Source.id={1}".format(
-                    xmlpath, self.source.id
-                )
-            )
-        return etree.parse(xmlpath, parser=XMLParser)
+        return utils.get_xml_from_file(self.harvest_dir, name, extra_path=extra_path)
+        # xmlpath = os.path.join(self.harvest_dir, extra_path, name)
+        # if not os.path.exists(xmlpath):
+        #     raise IrokoHarvesterError(
+        #         "working offline and {0} not exists. Source.id={1}".format(
+        #             xmlpath, self.source.id
+        #         )
+        #     )
+        # return etree.parse(xmlpath, parser=XMLParser)
 
     def get_identify(self):
         """get_identity, raise IrokoHarvesterError"""
@@ -395,62 +445,3 @@ class OaiHarvester(SourceHarvester):
             except Exception as e:
                 item.error_log = traceback.format_exc()
         time.sleep(self.request_wait_time)
-
-    def record_items(self):
-        """ process all item, create an IrokoRecord and save/update it"""
-
-        items = HarvestedItem.query.filter_by(repository_id=self.source.id).all()
-        for item in items:
-            # if item.status == HarvestedItemStatus.HARVESTED:
-            try:
-                # print('--------------------')
-                # print(item.identifier)
-                dc = self._process_format(item, self.oai_dc)
-                # print(str(self.repository.metadata_formats))
-                nlm = None
-                if "nlm" in self.formats:
-                    nlm = self._process_format(item, self.nlm)
-                    # print(str(nlm))
-                data = self._crate_iroko_dict(item, dc, nlm)
-
-                record, status = IrokoRecord.create_or_update(
-                    data, dbcommit=True, reindex=True
-                )
-                item.status = HarvestedItemStatus.RECORDED
-                item.record = record.id
-                # print(item.record)
-            except Exception as e:
-                item.status = HarvestedItemStatus.ERROR
-                item.error_log = traceback.format_exc()
-
-    def _process_format(self, item: HarvestedItem, formater: Formater):
-
-        xmlpath = os.path.join(
-            self.harvest_dir, str(item.id), formater.getMetadataPrefix() + ".xml"
-        )
-        if not os.path.exists(xmlpath):
-
-            # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
-            return None
-        # TODO: si llego hasta aqui y es none, habria que intentar harvestear de nuevo...
-        # print(xmlpath)
-        xml = etree.parse(xmlpath, parser=XMLParser)
-        return formater.ProcessItem(xml)
-
-    def _crate_iroko_dict(self, item: HarvestedItem, dc, nlm=None):
-
-        data = dc
-        # print(str(data))
-        if nlm is not None:
-            data["creators"] = nlm["creators"]
-            data["contributors"] = nlm["contributors"]
-
-        data["source"] = {"uuid": str(self.source.uuid), "name": str(self.source.name)}
-        spec_code = data["spec"]
-        for s in self.source.sets:
-            if spec_code == s.setSpec:
-                data["spec"] = {"code": str(s.setSpec), "name": str(s.setName)}
-        # aqui iria encontrar los tipos de colaboradores usando nlm...
-        # tambien es posible hacer un request de los textos completos usando dc.relations
-        return data
-

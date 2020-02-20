@@ -103,7 +103,7 @@ THEME_SITENAME = _('sceiba')
 #: Use default frontpage.
 THEME_FRONTPAGE = False
 #: Frontpage title.
-THEME_FRONTPAGE_TITLE = _('sceiba')
+THEME_FRONTPAGE_TITLE = _('Publicaciones Científicas Cubanas')
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo.png'

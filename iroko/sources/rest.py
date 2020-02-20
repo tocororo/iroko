@@ -150,6 +150,8 @@ def source_new_version(uuid):
 
         try:
             with source_editor_permission_factory({'uuid':uuid}).require():
+                # si no esta aprobada significa que siempre es la current.
+                # si esta aprobada el proceso es otro
                 is_current = source.source_status is not SourceStatus.APPROVED
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
                 if not source or not source_version:

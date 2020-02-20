@@ -47,7 +47,7 @@ def rescan():
 @with_appcontext
 def archive_zip_dir(zip_dir):
     """rescanea el directorio """
-    PrimarySourceHarvester.include_zip_files_in_dir(zip_dir)
+    PrimarySourceHarvester.archive_zip_files_in_dir(zip_dir)
 
 
 @harvester.command("rescandir")
@@ -55,7 +55,7 @@ def archive_zip_dir(zip_dir):
 @with_appcontext
 def rescan_dir(source_dir):
     """rescanea un source dir """
-    PrimarySourceHarvester.rescan_and_fix_source_dir(source_dir)
+    PrimarySourceHarvester.rescan_zip_files_in_dir(source_dir)
 
 
 @harvester.command("harvestsource")

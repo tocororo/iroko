@@ -59,21 +59,7 @@ class Archivist:
 
         try:
             source = harvester.OaiHarvester.get_source_from_zip(file_path)
-            if (
-                source and
-                not os.path.exists(
-                    os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"],
-                                 str(source.uuid))
-                    )
-                ):
-                # TODO: if path exists means that a "merge" between the two zip files is needed, now assuming that is the same...
-                shutil.move(
-                    file_path,
-                    os.path.join(
-                        current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(source.uuid)
-                    )
-                )
-
+            if (source):
                 return Archivist(source.id)
             else:
                 return None

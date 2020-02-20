@@ -12,10 +12,51 @@
 
 {%- include "iroko_theme/header_frontpage.html" %}
 
+    <!-- Full Page Intro -->
+
+<div class="view jarallax iroko-jumbo" data-jarallax='{"speed": 0.2}'>
+
+  <!-- Mask & flexbox options-->
+  <div class="mask rgba-white-light d-flex justify-content-center align-items-center">
+      <!-- Content -->
+      <div class="container">
+          <!--Grid row-->
+          <div class="row">
+              <!--Grid column-->
+              <div class="col-md-12 text-center">
+                  <h2 class="text-uppercase pt-md-5 pt-sm-2 pb-md-5 pb-sm-3 pb-5 font-weight-bold wow fadeInDown"
+                      data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}</h2>
+                  <div class="wow fadeInDown" data-wow-delay="0.3s">
+                      {% if not stat %}
+                      <section class="after-loop">
+                          <div class="container">
+                              <div class="row">
+                                   <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50% !important;">
+                                      <h1 class="text-dark">{{records}}</h1>
+                                      <h1 class="text-dark"> Records</h1>
+                                  </a>
+                              </div>
+                          </div>
+                      </section>
+                      {% endif %}
+                  </div>
+              </div>
+              <!--Grid column-->
+          </div>
+          <!--Grid row-->
+
+      </div>
+      <!-- Content -->
+  </div>
+  <!-- Mask & flexbox options-->
+</div>
+
+    <!-- Full Page Intro -->
+
 {%- endblock page_header %}
 
 {%- block page_body %}
-  <section id="products">
+  <section id="products" >
       <h3 class="font-weight-bold black-text py-5 text-center">{{ _('Productos y Servicios') }}</h3>
       <div class="container">
           <section class="p-md-3 mx-md-5">
@@ -149,31 +190,30 @@
 
   <br/>
     <br/> -->
-
-
-    <div class="container mt-5 pt-5 pb-3 px-5 z-depth-1">
-        <h3 class="font-weight-bold black-text text-center">{{ _('Próximamente') }}</h3>
-        <!--Section: Content-->
-        <section class="text-center dark-grey-text">
-          <div class="row text-center d-flex justify-content-center my-5">
-            <div class="col-lg-3 col-md-6 mb-4">
-              <i class="fa fa-users fa-3x mb-4 grey-text"></i>
-              <h5 class="font-weight-normal mb-3">{{ _('Personas') }}</h5>
-              <p class="text-muted mb-0">{{ _('Identificación de personas. ¿Quiénes investigan?') }}</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-              <i class="fa fa-balance-scale fa-3x mb-4 grey-text"></i>
-              <h5 class="font-weight-normal mb-3">{{ _('Evaluación') }}</h5>
-              <p class="text-muted mb-0">{{ _('Evaluaciones a la ciencia desde la metodología cubana') }}</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-              <i class="fa fa-key fa-3x mb-4 grey-text"></i>
-              <h5 class="font-weight-normal mb-3">{{ _('Autenticación single-sign-on') }}</h5>
-              <p class="text-muted mb-0">{{ _('Una misma cuenta en servicio para todos los sistemas que usen nuestro proveedor de autenticación.') }}</p>
-            </div>
-          </div>
-        </section>
+<div class="container mt-5 pt-5 pb-3 px-5 z-depth-1">
+  <h3 class="font-weight-bold black-text text-center">{{ _('Próximamente') }}</h3>
+  <!--Section: Content-->
+  <section class="text-center dark-grey-text">
+    <div class="row text-center d-flex justify-content-center my-5">
+      <div class="col-lg-3 col-md-6 mb-4">
+        <i class="fa fa-users fa-3x mb-4 grey-text"></i>
+        <h5 class="font-weight-normal mb-3">{{ _('Personas') }}</h5>
+        <p class="text-muted mb-0">{{ _('Identificación de personas. ¿Quiénes investigan?') }}</p>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <i class="fa fa-balance-scale fa-3x mb-4 grey-text"></i>
+        <h5 class="font-weight-normal mb-3">{{ _('Evaluación') }}</h5>
+        <p class="text-muted mb-0">{{ _('Evaluaciones a la ciencia desde la metodología cubana') }}</p>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <i class="fa fa-key fa-3x mb-4 grey-text"></i>
+        <h5 class="font-weight-normal mb-3">{{ _('Autenticación single-sign-on') }}</h5>
+        <p class="text-muted mb-0">{{ _('Una misma cuenta en servicio para todos los sistemas que usen nuestro proveedor de autenticación.') }}</p>
+      </div>
     </div>
+  </section>
+</div>
+
 
 
     {% if faqs %}
