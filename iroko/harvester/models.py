@@ -51,7 +51,8 @@ class HarvestedItem(db.Model):
     """The items harvested from a repository"""
 
     __tablename__ = 'iroko_harvest_items'
-
+    __table_args__ = (db.UniqueConstraint('repository_id', 'identifier', name='identifier_in_repository'),
+                     )
     id = db.Column(db.Integer, primary_key=True)
 
     repository_id = db.Column(db.Integer(),
