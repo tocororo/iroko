@@ -4,7 +4,7 @@ from flask_login import current_user
 from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import source_schema
+from iroko.sources.marshmallow import source_schema, source_version_schema, SourceVersionSchema
 from iroko.sources.journals.marshmallow import journal_schema
 from invenio_db import db
 from datetime import datetime
@@ -142,7 +142,7 @@ class Sources:
             raise Exception('Must be authenticated')        
 
         if not source:
-            raise Exception('Source not exist: uuid={0}'.format(source.uuid))            
+            raise Exception('Source not exist')            
         
         # user_id, source_id, comment, data, created_at, is_current
         source_version = TermSources.query.filter_by(sources_id=source.id).first()        
@@ -161,6 +161,7 @@ class Sources:
         db.session.commit()
         return True
 
+    # TODO: revisar esto, no usar
     @classmethod
     def edit_source_version(data, source_version) -> [str, Source, SourceVersion]:
         """ only editors can edit a version, if not approved """
@@ -179,31 +180,30 @@ class Sources:
         return msg, source, source_version
 
     @classmethod
-    def insert_new_source_version(cls, data, source_uuid, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
+    def insert_new_source_version(cls, input_data, source, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
         """Insert new SourceVersion to an existing Source
         """
 
-        #FIXME
         msg = ''
         if not current_user:
             raise Exception('Must be authenticated')
-
-        source = Source.query.filter_by(uuid=source_uuid).first()
-
         if not source:
-            raise Exception('Source not exist: uuid={0}'.format(source_uuid))            
+            raise Exception('No Souce !!')
         
-        # user_id, source_id, comment, data, created_at, is_current
+        # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir.... 
+        version_data:SourceVersionSchema = source_version_schema.load(input_data)
+
+        # user_id, source_id, comment, input_data, created_at, is_current
         new_source_version = SourceVersion()
-        new_source_version.data = data
+        new_source_version.data = version_data.data
         new_source_version.created_at = datetime.now()
         new_source_version.is_current = is_current
         new_source_version.source_id = source.id
-        new_source_version.comment = data["comment"] if "comment" in data else ""
+        new_source_version.comment = version_data.comment
         new_source_version.user_id = current_user.id
 
         if is_current:
-            source.data = data
+            source.data = version_data.data
             sync_term_source_with_data(source)
 
         db.session.add(new_source_version)
@@ -328,7 +328,7 @@ class Sources:
         if not source:
             raise Exception('Not source found')
         
-        for term_source in source.terms:
+        for term_source in source.term_sources:
             
             term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', term_source.term.uuid)
             

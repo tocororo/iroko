@@ -106,8 +106,8 @@ def init_taxonomy():
         init_vocabulary(tax, miar_types)
         init_vocabulary(tax, miar_databases)
         init_vocabulary(tax, unesco_vocab)
-        init_vocabulary(tax, record_sets)
-        init_vocabulary(tax, record_types)
+        # init_vocabulary(tax, record_sets)
+        # init_vocabulary(tax, record_types)
 
         # db.session.commit()
 

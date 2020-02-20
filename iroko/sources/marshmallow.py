@@ -9,6 +9,8 @@ from iroko.taxonomy.marshmallow import term_schema
 
 from marshmallow_enum import EnumField
 
+
+
 class TermSourcesSchema(Schema):
     term_id = fields.Int()
     sources_id = fields.Int()
@@ -17,10 +19,16 @@ class TermSourcesSchema(Schema):
     @post_dump
     def dump_term(self, termSource, **kwargs):
         # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current.
-        msg, term = Terms.get_term_by_id(termSource['term_id']);
+        msg, term = Terms.get_term_by_id(termSource['term_id'])
         termSource['term'] = term_schema.dump(term)
 
         return termSource
+
+class SourceDataSchema(Schema):
+    title = fields.Str()
+    description = fields.Str()
+    term_sources = fields.List(fields.Nested(TermSourcesSchema))
+
 
 
 # TODO: to replace by UserProfilesSchema
@@ -34,7 +42,7 @@ class SourceVersionSchema(Schema):
     comment = fields.Str()
     created_at = fields.DateTime()
     is_current = fields.Boolean()
-    data = fields.Raw(many=False)
+    data = fields.Nested(SourceDataSchema, many=False)
     reviewed = fields.Boolean()
     user = fields.Nested(IrokoUserSchema)
 
@@ -50,17 +58,20 @@ class BaseSourceSchema(Schema):
     source_type = EnumField(SourceType, allow_none=False)
     source_status = EnumField(SourceStatus, allow_none=True)
 
-    terms = fields.List(fields.Nested(TermSourcesSchema))
+    term_sources = fields.List(fields.Nested(TermSourcesSchema))
     versions = fields.Nested(SourceVersionSchema, many=True)
     repository = fields.Nested(RepositorySchema)
 
-    @post_dump
-    def temp_term_sources(self, source, **kwargs):
-        # TODO: cambiar en TermSource sources/models.py, el backref, y quitar esta funcion
-        # cambiar el campo terms por term_sources aqui y en el modelo
-        # source = db.relationship("Source", backref=db.backref("terms"))
-        source['term_sources'] = source['terms']
-        return source
+    # @post_dump
+    # def temp_term_sources(self, source, **kwargs):
+    #     # TODO: cambiar en TermSource sources/models.py, el backref, y quitar esta funcion
+    #     # cambiar el campo terms por term_sources aqui y en el modelo
+    #     # source = db.relationship("Source", backref=db.backref("terms"))
+    #     # source['term_sources'] = source['terms']
+
+    #     # el valor que hay en el data siempre tiene que ser el mismo que en la fuente. 
+    #     source['data']['term_sources'] = source['term_sources']
+    #     return source
 
     @post_dump
     def dump_need_review_version(self, source, **kwargs):
@@ -76,7 +87,7 @@ class BaseSourceSchema(Schema):
 
 
 class SourceSchema(BaseSourceSchema):
-    data = fields.Raw(many=False, allow_none=False)
+    data = fields.Nested(SourceDataSchema, many=False)
 
 class IssnSchema(Schema):
     id = fields.Int(dump_only=True)
