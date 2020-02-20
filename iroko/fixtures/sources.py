@@ -49,18 +49,10 @@ def init_journals():
                     db.session.add(source)
                     db.session.flush()
 
-                    source_version = SourceVersion()
-                    source_version.comment = 'initial version'
-                    source_version.source_id = source.id
-                    source_version.user_id = user.id
-                    source_version.data = data
-                    source_version.is_current = True
-                    source_version.created_at = datetime.date(2019, 1, 1)
-                    db.session.add(source_version)
-                    db.session.flush()
         db.session.commit()
     init_term_sources()
     add_terms_to_data()
+    set_initial_versions()
 
 
 def init_term_sources():
@@ -159,10 +151,26 @@ def add_oaiurls():
 def add_terms_to_data():
     sources = Source.query.order_by('name').all()
     for source in sources:
-        terms = []
-        for ts in source.terms:
-            terms.append({'id': ts.term_id, 'data': ts.data})
+        term_sources = []
+        for ts in source.term_sources:
+            term_sources.append({'id': ts.term_id, 'data': ts.data})
         data = dict(source.data)
-        data['terms'] = terms
+        data['term_sources'] = term_sources
         source.data = data
+    db.session.commit()
+
+def set_initial_versions():
+
+    user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
+    sources = Source.query.order_by('name').all()
+    for source in sources:
+        source_version = SourceVersion()
+        source_version.comment = 'initial version'
+        source_version.source_id = source.id
+        source_version.user_id = user.id
+        source_version.data = source.data
+        source_version.is_current = True
+        source_version.created_at = datetime.date(2019, 1, 1)
+        db.session.add(source_version)
+        db.session.flush()
     db.session.commit()

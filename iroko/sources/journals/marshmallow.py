@@ -1,7 +1,7 @@
 
 from marshmallow import Schema, fields, pre_dump, post_load, post_dump
 
-from iroko.sources.marshmallow import BaseSourceSchema
+from iroko.sources.marshmallow import BaseSourceSchema, SourceDataSchema
 from iroko.harvester.api import SecundarySourceHarvester
 
 
@@ -30,11 +30,9 @@ class ISSNSchema(Schema):
 
 
 
-class JournalDataSchema(Schema):
+class JournalDataSchema(SourceDataSchema):
     """JournalDataSchema specific data for academic journals """
 
-    title = fields.Str()
-    description = fields.Str()
     url = fields.Url()
     issn = fields.Nested(ISSNSchema, many=False)
     rnps = fields.Str()
