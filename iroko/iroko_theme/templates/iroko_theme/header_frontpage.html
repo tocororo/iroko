@@ -8,118 +8,79 @@
 #}
 {%- include "iroko_theme/beta_warning.html" %}
 <header>
-    <style>
-        html,
-        body,
-        header,
-        .view {
-            height: 100%;
-        }
 
-        @media (max-width: 740px) {
-
-            html,
-            body,
-            header,
-            .view {
-                height: 100vh;
-            }
-        }
-
-        .top-nav-collapse {
-            background-color: #82b1ff !important;
-        }
-
-        .navbar:not(.top-nav-collapse) {
-            background: transparent !important;
-        }
-
-        @media (max-width: 991px) {
-            .navbar:not(.top-nav-collapse) {
-                background: #82b1ff !important;
-            }
-        }
-
-
-        .iroko-jumbo {
-            background-image: url('../../static/images/bill-4785179_1920.jpg');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center center;
-        }
-    </style>
     <!--Navbar-->
 
     {%- block navbar %}
     <!--Navbar-->
+    <nav class="navbar navbar-expand-lg bg-transparent scrolling-navbar" style="z-index:1000">
+      <div class="container">
+          {%- block brand %}
 
+          {%- if config.THEME_LOGO %}
+          <a href="/">
+              <img class="navbar-brand" src="{{ url_for('static', filename=config.THEME_LOGO)}}"
+                  alt="{{_(config.THEME_SITENAME)}}" width="200">
+          </a>
+          {%- else %}
+          <a class="navbar-brand" href="/"><strong>{{_(config.THEME_SITENAME)}}</strong></a>
+          {%- endif %}
+
+          {%- endblock brand %}
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse"
+              data-target="#navbarSupportedContent-7" aria-controls="navbarSupportedContent-7"
+              aria-expanded="false" aria-label="Toggle navigation">
+              <i class="fa fa-bars"></i>
+
+          </button>
+          {%- block navbar_inner %}
+          <div class="collapse navbar-collapse" id="navbarSupportedContent-7">
+
+              {%- block navbar_nav %}
+              <ul class="navbar-nav mr-auto">
+                  {%- for item in current_menu.submenu('main').children|sort(attribute='order') if item.visible recursive %}
+                  {%- if item.children %}
+                  <li class="nav-item dropdown{{ ' active' if item.active else ''}}">
+                      <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                          aria-expanded="false" href="{{ item.url }}">{{ item.text|safe }} <b
+                              class="caret"></b></a>
+                      <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
+                  </li>
+                  {%- else %}
+                  <li {{' class="nav-item active"' |safe if item.active and loop.depth == 1 else '' }}>
+                      <a class="nav-link" href="{{ item.url }}">{{ item.text|safe }}</a>
+                  </li>
+                  {%- endif %}
+                  {%- endfor %}
+              </ul>
+              {%- endblock navbar_nav %}
+
+
+              {%- if config.THEME_SEARCHBAR %}
+              {%- block navbar_search %}
+              <!-- <form class="form-inline" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
+                  <div class="md-form my-0">
+                      <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                  </div>
+              </form> -->
+              {%- endblock navbar_search %}
+              {%- endif %}
+
+              {%- block navbar_right %}
+
+              {%- include config.THEME_HEADER_LOGIN_TEMPLATE %}
+
+              {%- endblock navbar_right %}
+
+          </div>
+          {%- endblock navbar_inner %}
+      </div>
+  </nav>
     <!-- Navbar -->
     <!-- Full Page Intro -->
     <div class="view jarallax iroko-jumbo" data-jarallax='{"speed": 0.2}'>
-        <nav class="navbar navbar-expand-lg bg-transparent scrolling-navbar" style="z-index:1">
-            <div class="container">
-                {%- block brand %}
 
-                {%- if config.THEME_LOGO %}
-                <a href="/">
-                    <img class="navbar-brand" src="{{ url_for('static', filename=config.THEME_LOGO)}}"
-                        alt="{{_(config.THEME_SITENAME)}}" width="220">
-                </a>
-                {%- else %}
-                <a class="navbar-brand" href="/"><strong>{{_(config.THEME_SITENAME)}}</strong></a>
-                {%- endif %}
-
-                {%- endblock brand %}
-
-                <button class="navbar-toggler" type="button" data-toggle="collapse"
-                    data-target="#navbarSupportedContent-7" aria-controls="navbarSupportedContent-7"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="fa fa-bars"></i>
-
-                </button>
-                {%- block navbar_inner %}
-                <div class="collapse navbar-collapse" id="navbarSupportedContent-7">
-
-                    {%- block navbar_nav %}
-                    <ul class="navbar-nav mr-auto">
-                        {%- for item in current_menu.submenu('main').children|sort(attribute='order') if item.visible recursive %}
-                        {%- if item.children %}
-                        <li class="nav-item dropdown{{ ' active' if item.active else ''}}">
-                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                                aria-expanded="false" href="{{ item.url }}">{{ item.text|safe }} <b
-                                    class="caret"></b></a>
-                            <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
-                        </li>
-                        {%- else %}
-                        <li {{' class="nav-item active"' |safe if item.active and loop.depth == 1 else '' }}>
-                            <a class="nav-link" href="{{ item.url }}">{{ item.text|safe }}</a>
-                        </li>
-                        {%- endif %}
-                        {%- endfor %}
-                    </ul>
-                    {%- endblock navbar_nav %}
-
-
-                    {%- if config.THEME_SEARCHBAR %}
-                    {%- block navbar_search %}
-                    <form class="form-inline" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
-                        <div class="md-form my-0">
-                            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                        </div>
-                    </form>
-                    {%- endblock navbar_search %}
-                    {%- endif %}
-
-                    {%- block navbar_right %}
-
-                    {%- include config.THEME_HEADER_LOGIN_TEMPLATE %}
-
-                    {%- endblock navbar_right %}
-
-                </div>
-                {%- endblock navbar_inner %}
-            </div>
-        </nav>
         <!-- Mask & flexbox options-->
         <div class="mask rgba-white-light d-flex justify-content-center align-items-center">
             <!-- Content -->
@@ -135,9 +96,9 @@
                             <section class="after-loop">
                                 <div class="container">
                                     <div class="row">
-                                         <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50%;">
+                                         <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50% !important;">
                                             <h1 class="text-dark">4659</h1>
-                                            <h1 class="text-dark">Records</h1> 
+                                            <h1 class="text-dark">Records</h1>
                                         </a>
                                     </div>
                                 </div>

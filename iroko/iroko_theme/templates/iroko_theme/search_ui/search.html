@@ -22,6 +22,9 @@
 {%- endblock javascript %}
 
 {%- block body_inner %}
+
+
+
 <div id="invenio-search">
   <invenio-search
    search-endpoint="{{ config.SEARCH_UI_SEARCH_API }}"
@@ -31,6 +34,8 @@
   {{super()}}
   </invenio-search>
 </div>
+<!--  -->
+
 {%- endblock body_inner %}
 
 {%- block page_header %}
@@ -40,14 +45,18 @@
 
 {%- block page_body %}
 <div class="container search-page">
+
+
     {%- block search_block %}
       <invenio-search-bar class="container d-flex justify-content-start"
         template="{{ url_for('static', filename='templates/search_ui/page_searchbar.html') }}"
         placeholder="{{ search_input_placeholder|default(_('Search')) }}">
       </invenio-search-bar>
     {%- endblock search_block %}
-  <div class="row">
-      
+    <div class="row">
+
+
+
     {%- block search_body %}
     <div class="col-xs-12 col-md-9 col-md-push-3">
       {%- block search_header %}

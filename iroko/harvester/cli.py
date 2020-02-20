@@ -34,11 +34,21 @@ from invenio_db import db
 def harvester():
     """Command related to harevest iroko data."""
 
+
 @harvester.command()
 @with_appcontext
 def rescan():
     """rescanea el directorio """
     PrimarySourceHarvester.rescan_and_fix_harvest_dir()
+
+
+@harvester.command()
+@click.argument('zip_dir')
+@with_appcontext
+def archive_zip_dir(zip_dir):
+    """rescanea el directorio """
+    PrimarySourceHarvester.include_zip_files_in_dir(zip_dir)
+
 
 @harvester.command("rescandir")
 @click.argument('source_dir')

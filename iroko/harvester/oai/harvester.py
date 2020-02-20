@@ -1,12 +1,14 @@
-from os import path, mkdir, listdir
+import os
 
-from time import sleep
+import time
 
 import traceback
 
 import shutil
 
 from enum import Enum
+
+from zipfile import ZipFile
 
 from lxml import etree
 
@@ -58,6 +60,57 @@ class OaiHarvester(SourceHarvester):
     Cuando actualiza la cosecha una fuente, o sea cuando ya se ha cosechado otras veces, se modifica la estructura de carpetas si es necesario, si hay que adicionar items, o si cambiaron algunos,etc
     """
 
+    @staticmethod
+    def get_source_from_zip(file_path):
+        """find the corresponding source given a zip file with harvested data
+        return None if no source is found or any exception rise with the zip file
+        """
+        try:
+            with ZipFile(file_path, "r") as zipOpj:
+                tmp_dir = os.path.join(
+                    current_app.config["IROKO_TEMP_DIRECTORY"],"iroko-harvest-arch-" + str(time.time())
+                )
+                zipOpj.extract(
+                    OaiHarvesterFileNames.IDENTIFY.value,
+                    tmp_dir
+                )
+                identify_path = os.path.join(tmp_dir, OaiHarvesterFileNames.IDENTIFY.value)
+                xml = utils.get_xml_from_file(
+                    current_app.config["IROKO_TEMP_DIRECTORY"],
+                    identify_path
+                )
+
+                name = xml.find(
+                    ".//{" + utils.xmlns.oai + "}repositoryName"
+                ).text
+
+                oai_url = xml.find(
+                    ".//{" + utils.xmlns.oai + "}baseURL"
+                ).text
+
+                identifier = xml.find(
+                    ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
+                ).text
+
+                repo = Repository.query.filter_by(harvest_endpoint=oai_url, identifier=identifier).first()
+                source = Source.query.filter_by(id=repo.source_id).first()
+
+                shutil.rmtree(
+                    tmp_dir,
+                    True
+                )
+
+                return source
+
+        except Exception as e:
+            print(traceback.format_exc())
+            shutil.rmtree(
+                    tmp_dir,
+                    True
+            )
+            return None
+
+
     def __init__(self, source: Source, work_remote=True, request_wait_time=3):
 
         # init_directory=True
@@ -70,10 +123,10 @@ class OaiHarvester(SourceHarvester):
 
         p = current_app.config["HARVESTER_DATA_DIRECTORY"]
         # p = 'data/sceiba-data'
-        self.harvest_dir = path.join(p, str(self.source.id))
+        self.harvest_dir = os.path.join(p, str(self.source.id))
 
-        if not path.exists(self.harvest_dir):
-            mkdir(self.harvest_dir)
+        if not os.path.exists(self.harvest_dir):
+            os.mkdir(self.harvest_dir)
 
         self.oai_dc = DubliCoreElements()
         self.nlm = JournalPublishing()
@@ -140,15 +193,15 @@ class OaiHarvester(SourceHarvester):
             db.session.commit()
 
     def _write_file(self, name, content, extra_path=""):
-        """helper function, always write to f = open(path.join(self.harvest_dir, extra_path, name),"w")"""
+        """helper function, always write to f = open(os.path.join(self.harvest_dir, extra_path, name),"w")"""
 
-        f = open(path.join(self.harvest_dir, extra_path, name), "w")
+        f = open(os.path.join(self.harvest_dir, extra_path, name), "w")
         f.write(content)
         f.close()
 
     def _get_xml_from_file(self, name, extra_path=""):
-        xmlpath = path.join(self.harvest_dir, extra_path, name)
-        if not path.exists(xmlpath):
+        xmlpath = os.path.join(self.harvest_dir, extra_path, name)
+        if not os.path.exists(xmlpath):
             raise IrokoHarvesterError(
                 "working offline and {0} not exists. Source.id={1}".format(
                     xmlpath, self.source.id
@@ -258,15 +311,15 @@ class OaiHarvester(SourceHarvester):
         if not self.work_remote:
             # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
             # db.session.delete?
-            for itemdir in listdir(self.harvest_dir):
-                itempath = path.join(self.harvest_dir, itemdir)
-                if path.isdir(itempath):
-                    shutil.move(itempath, path.join(self.harvest_dir, itemdir) + ".old")
-            for itemdir in listdir(self.harvest_dir):
-                itempath = path.join(self.harvest_dir, itemdir)
-                if path.isdir(itempath):
-                    idpath = path.join(itempath, "id.xml")
-                    if path.exists(idpath):
+            for itemdir in os.listdir(self.harvest_dir):
+                itempath = os.path.join(self.harvest_dir, itemdir)
+                if os.path.isdir(itempath):
+                    shutil.move(itempath, os.path.join(self.harvest_dir, itemdir) + ".old")
+            for itemdir in os.listdir(self.harvest_dir):
+                itempath = os.path.join(self.harvest_dir, itemdir)
+                if os.path.isdir(itempath):
+                    idpath = os.path.join(itempath, "id.xml")
+                    if os.path.exists(idpath):
                         xml = self._get_xml_from_file("id.xml", itemdir)
                         identifier = xml.find(
                             ".//{" + utils.xmlns.oai + "}identifier"
@@ -278,7 +331,7 @@ class OaiHarvester(SourceHarvester):
                         db.session.add(harvest_item)
                         db.session.commit()
                         shutil.move(
-                            itempath, path.join(self.harvest_dir, str(harvest_item.id))
+                            itempath, os.path.join(self.harvest_dir, str(harvest_item.id))
                         )
         else:
             iterator = self.sickle.ListIdentifiers(
@@ -296,8 +349,8 @@ class OaiHarvester(SourceHarvester):
                         harvest_item.identifier = item.identifier
                         db.session.add(harvest_item)
                         db.session.commit()
-                        p = path.join(self.harvest_dir, str(harvest_item.id))
-                        if path.exists(p):
+                        p = os.path.join(self.harvest_dir, str(harvest_item.id))
+                        if os.path.exists(p):
                             raise IrokoHarvesterError(
                                 "Item.id={0}, already a directoy with that id. harvest_item.identifier={1}. Source.id={2}.".format(
                                     harvest_item.id,
@@ -305,20 +358,20 @@ class OaiHarvester(SourceHarvester):
                                     self.source.id,
                                 )
                             )
-                        mkdir(p)
+                        os.mkdir(p)
                     if item.deleted:
                         harvest_item.status = HarvestedItemStatus.DELETED
-                    p = path.join(self.harvest_dir, str(harvest_item.id))
+                    p = os.path.join(self.harvest_dir, str(harvest_item.id))
 
-                    if not path.exists(p):
-                        mkdir(p)
+                    if not os.path.exists(p):
+                        os.mkdir(p)
 
                     self._write_file("id.xml", item.raw, str(harvest_item.id))
 
                     if harvest_item.status != HarvestedItemStatus.DELETED:
                         self._get_all_formats(harvest_item)
                         harvest_item.status = HarvestedItemStatus.HARVESTED
-                    sleep(self.request_wait_time)
+                    time.sleep(self.request_wait_time)
                 except Exception as e:
                     harvest_item.status = HarvestedItemStatus.ERROR
                     harvest_item.error_log = traceback.format_exc()
@@ -338,10 +391,10 @@ class OaiHarvester(SourceHarvester):
                 arguments = {"metadataPrefix": f, "identifier": item.identifier}
                 record = self.sickle.GetRecord(**arguments)
                 self._write_file(f + ".xml", record.raw, str(item.id))
-                sleep(self.request_wait_time)
+                time.sleep(self.request_wait_time)
             except Exception as e:
                 item.error_log = traceback.format_exc()
-        sleep(self.request_wait_time)
+        time.sleep(self.request_wait_time)
 
     def record_items(self):
         """ process all item, create an IrokoRecord and save/update it"""
@@ -372,10 +425,10 @@ class OaiHarvester(SourceHarvester):
 
     def _process_format(self, item: HarvestedItem, formater: Formater):
 
-        xmlpath = path.join(
+        xmlpath = os.path.join(
             self.harvest_dir, str(item.id), formater.getMetadataPrefix() + ".xml"
         )
-        if not path.exists(xmlpath):
+        if not os.path.exists(xmlpath):
 
             # raise IrokoHarvesterError(xmlpath + 'NOT exists!!!. Source:' + self.source.name + " id:" + item.id + " " + item.identifier)
             return None

@@ -9,7 +9,7 @@ from iroko.utils import get_identifier_schema
 from lxml import etree
 
 from iroko.persons.api import IrokoPerson
-from iroko.records import ContributorRole 
+from iroko.records import ContributorRole
 
 import re
 
@@ -27,21 +27,24 @@ class DubliCoreElements(Formater):
         data = {}
         header = xml.find('.//{' + nsmap['oai'] + '}header')
         metadata = xml.find('.//{' + nsmap['oai'] + '}metadata')
-        
-        identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
-        data['original_identifier'] = identifier.text
+
         setSpec = header.find('.//{' + nsmap['oai'] + '}setSpec')
         data['spec'] = setSpec.text
 
-        pids = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
+        identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
+        # data['original_identifier'] = identifier.text
         identifiers = []
+        identifiers.append({'idtype': 'oai','value': identifier.text})
+
+        pids = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
+
         for pid in pids:
             schema = get_identifier_schema(pid)
             if schema:
                 identifiers.append({'idtype': schema,'value': pid})
         # identifiers.insert(0, {'idtype': 'oai','value': identifier.text})
         data['identifiers'] = identifiers
-        
+
         data['title'] = get_sigle_element(metadata, 'title', xmlns=self.xmlns, language='es-ES')
 
         data['creators'] = []
@@ -60,7 +63,7 @@ class DubliCoreElements(Formater):
         keywords = get_sigle_element(metadata, 'subject', xmlns=self.xmlns, language='es-ES')
         if keywords and isinstance(keywords, str):
             data['keywords'] = re.split('; |, ', keywords)
-        
+
         desc = get_sigle_element(metadata, 'description', xmlns=self.xmlns, language='es-ES')
         if desc and desc != '':
             data['description'] = desc
@@ -68,7 +71,7 @@ class DubliCoreElements(Formater):
         data['publisher'] = get_sigle_element(metadata, 'publisher', xmlns=self.xmlns, language='es-ES')
 
         data['publication_date'] = get_sigle_element(metadata, 'date', xmlns=self.xmlns, language='es-ES')
-        
+
         types = get_multiple_elements(metadata, 'type', xmlns=self.xmlns)
         data['types'] = types
 
@@ -101,13 +104,13 @@ class JournalPublishing(Formater):
 
 
     def ProcessItem(self, xml:etree._Element):
-        """given an xml item return a dict, ensure is http://dtd.nlm.nih.gov/publishing/2.3 
+        """given an xml item return a dict, ensure is http://dtd.nlm.nih.gov/publishing/2.3
         is mainly focussed on contributors and authors"""
 
         data = {}
         header = xml.find('.//{' + nsmap['oai'] + '}header')
         metadata = xml.find('.//{' + nsmap['oai'] + '}metadata')
-        
+
         identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
         data['original_identifier'] = identifier.text
         setSpec = header.find('.//{' + nsmap['oai'] + '}setSpec')
@@ -121,7 +124,7 @@ class JournalPublishing(Formater):
         # for contrib in contribs:
         #     p, is_author = IrokoPerson.get_people_from_nlm(contrib)
         #     print(is_author)
-            
+
         #     # TODO: los nombres de los autores se estan uniendo...
         #     if p is not None:
         #         if is_author:
