@@ -56,8 +56,8 @@ def index():
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
-    vocab_stats.append({'records':str(get_record_count())})
-
+    vocab_stats.append({'records':get_record_count()})
+    records = get_record_count()
     sources = IrokoAggs.getAggrs("source.name", 50000)
     vocab_stats.append({'sources':str(len(sources))})
 
@@ -100,6 +100,7 @@ def index():
         vocab_stats=vocab_stats,
         faqs=faqs,
         form=form,
+        records=records,
     )
 
 

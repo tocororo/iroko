@@ -63,18 +63,18 @@ def sync_term_source_with_data(source:Source):
 
     data = dict(source.data)
 
-    if "terms" in data:
+    if "term_sources" in data:
         new_terms = []
-        for tid in data["terms"]:
-            t=Term.query.filter_by(id=tid['id']).first()
+        for ts in data["term_sources"]:
+            t=Term.query.filter_by(id=ts['term_id']).first()
             if t is not None:
                 ts = TermSources()
                 ts.sources_id = source.id
-                ts.term_id = tid['id']
-                ts.data = tid['data']
+                ts.term_id = ts['term_id']
+                ts.data = ts['data']
                 db.session.add(ts)
-                new_terms.append(tid)
-        data["terms"] = new_terms
+                new_terms.append(ts)
+        data["term_sources"] = new_terms
         source.data = data
         db.session.commit()
 

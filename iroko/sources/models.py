@@ -51,6 +51,9 @@ class Source(db.Model):
         return self.name
 
 
+# TODO: medium term, este modelo y todas las implicaciones que tiene, en las relaciones de sql 
+# y en los data que manejamos(source y sourceversion) sera sustituido por "relations", 
+# un campo en marshmallow que trabajaria con neo4j
 class TermSources(db.Model):
     __tablename__ = 'iroko_terms_sources'
 
@@ -59,8 +62,8 @@ class TermSources(db.Model):
     sources_id = db.Column(db.Integer, db.ForeignKey('iroko_sources.id'), primary_key=True)
     data = db.Column(JSONType)
 
-    source = db.relationship("Source", backref=db.backref("terms"))
-    term = db.relationship("Term", backref=db.backref("sources"))
+    source = db.relationship("Source", backref=db.backref("term_sources"))
+    term = db.relationship("Term", backref=db.backref("term_sources"))
 
 
 class SourceVersion(db.Model):

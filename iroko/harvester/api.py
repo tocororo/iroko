@@ -26,14 +26,22 @@ class PrimarySourceHarvester(object):
     ahora mismo hace uso solamente del OAIHarvester"""
 
     @staticmethod
-    def include_zip_files_in_dir(zip_dir):
+    def rescan_zip_files_in_dir(zip_dir):
+        """utilizando todos los zip en el directorio relanza el proceso de harvester usando work_remote=false"""
+        for item in os.listdir(zip_dir):
+            itempath = os.path.join(zip_dir, item)
+            if os.path.isfile(itempath):
+                print("trying to create an archivist from {0}".format(itempath))
+                OaiHarvester.rescan_source_from_zip_file(itempath)
+
+    @staticmethod
+    def archive_zip_files_in_dir(zip_dir):
         """trata de crear un Archivist dado cada uno de los zip en un directorio"""
         for item in os.listdir(zip_dir):
             itempath = os.path.join(zip_dir, item)
             if os.path.isfile(itempath):
-                arch = Archivist.create_archivist_from_zip(itempath)
-                if arch:
-                    arch.record_items()
+                print("trying to create an archivist from {0}".format(itempath))
+                Archivist.record_items_from_zip(itempath)
 
 
     @staticmethod

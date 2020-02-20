@@ -68,7 +68,7 @@ def get_source_by_uuid(uuid):
                 raise Exception('Source not found')
 
         terms = ''
-        for term in source.terms:
+        for term in source.term_sources:
             terms = terms + str(term.term.uuid) + ','
         if terms:
             terms = terms[0:-1]
@@ -143,15 +143,17 @@ def source_new_version(uuid):
             raise Exception('Not source found')
 
         terms = ''
-        for term in source.terms:
+        for term in source.term_sources:
             terms = terms + str(term.term.uuid) + ','
         if terms:
             terms = terms[0:-1]
 
         try:
             with source_editor_permission_factory({'uuid':uuid}).require():
+                # si no esta aprobada significa que siempre es la current.
+                # si esta aprobada el proceso es otro
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, is_current)
+                msg, source, source_version = Sources.insert_new_source_version(input_data, source, is_current)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
@@ -197,6 +199,7 @@ def source_new_version(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
+# TODO: REvistar esto, no usar por el momento...
 @api_blueprint.route('/<id>/version/edit', methods=['POST'])
 @require_api_auth()
 def source_edit_version(id):
@@ -263,7 +266,7 @@ def source_version_set_current(uuid):
             raise Exception('Not source found')
 
         terms = ''
-        for term in source.terms:
+        for term in source.term_sources:
             terms = terms + str(term.term.uuid) + ','
         if terms:
             terms = terms[0:-1]

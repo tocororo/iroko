@@ -59,27 +59,20 @@ class Archivist:
 
         try:
             source = harvester.OaiHarvester.get_source_from_zip(file_path)
-            if (
-                source and
-                not os.path.exists(
-                    os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"],
-                                 str(source.uuid))
-                    )
-                ):
-                # TODO: if path exists means that a "merge" between the two files is needed
-                shutil.move(
-                    file_path,
-                    os.path.join(
-                        current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(source.uuid)
-                    )
-                )
-
+            if (source):
                 return Archivist(source.id)
             else:
                 return None
         except Exception:
+            print(traceback.format_exc())
             return None
 
+    @staticmethod
+    def record_items_from_zip(file_path):
+        arch = Archivist.create_archivist_from_zip(file_path)
+        if arch:
+            arch.record_items()
+            arch.destroy_work_dir()
 
     def __init__(self, source_id):
 
@@ -273,6 +266,12 @@ class Archivist:
             finally:
                 db.session.commit()
 
+
+    def destroy_work_dir(self):
+        """this should be called after record_items, or in any other moment.
+        The object do not handle delete work_dir"""
+
+        shutil.rmtree(self.working_dir, ignore_errors=True)
 
     def _process_format(self, item: HarvestedItem, formater: Formater):
 
