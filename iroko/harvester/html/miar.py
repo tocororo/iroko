@@ -343,7 +343,7 @@ class MiarHarvester(BaseHarvester):
 
         issn = issnModel.code
         data = issnModel.data
-
+        print("buscando el issn {0}".format(issn))
         sources = Source.query.all()
         selected = None
         for item in sources:
@@ -351,11 +351,14 @@ class MiarHarvester(BaseHarvester):
                 for v in ['p', 'e', 'l']:
                     if v in item.data['issn'] \
                         and item.data['issn'][v] == issn:
+                        print("encontrado {0}".format(item.name))
                         return item
 
         for item in data["@graph"]:
             if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
                 title = item["value"]
+                print(title)
+                
                 new_source = Source()
                 new_source.source_type = SourceType.JOURNAL
                 new_source.name = title
@@ -365,9 +368,15 @@ class MiarHarvester(BaseHarvester):
                         'p': issn
                     }
                 }
+                print("noooo existe, se crea uno nuevo con el titulo {0}".format(new_source.name))
                 db.session.add(new_source)
-                db.session.commit()
-                return new_source
+                try:
+                    db.session.commit()
+                    return new_source
+                except Exception:
+                    db.session.rollback()
+                    return None
+
 
         return None
 
@@ -388,22 +397,38 @@ class MiarHarvester(BaseHarvester):
             for archive in archive_issn:
                 issn = Issn.query.filter_by(code = archive).first()
                 if issn:
-                    with open(os.path.join(self.issn_info_miar_dir, archive), 'r') as file_issn_miar:
-                        archive_issn_miar = json.load(file_issn_miar)
-
+                    try:
+                        with open(os.path.join(self.issn_info_miar_dir, archive), 'r') as file_issn_miar:
+                            archive_issn_miar = json.load(file_issn_miar)
+                    except Exception:
+                        return None
                     source = self._get_source_by_issn(issn)
-                    for archive_issn_miar_info in archive_issn_miar:
-                        if archive_issn_miar_info != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
-                            print(archive_issn_miar_info)
-                            dbs_split = archive_issn_miar_info['Indexed\xa0in:'].split(", ")
-                            for dbs in dbs_split:
-                                miar_db_type_term = Term.query.filter_by(name = dbs).first()
-                                source_term = TermSources()
-                                source_term.sources_id = source.id
-                                source_term.term_id = miar_db_type_term.id
-                                db.session.add(source_term)
-                                db.session.commit()
+                    if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
+                        dbs_split = archive_issn_miar['Indexed\xa0in:'].split(", ")
+                        for dbs in dbs_split:
+                            miar_db_type_terms = Term.query.all()
+                            for miar in miar_db_type_terms:
+                                if miar.name.lower().strip() == dbs.lower().strip():
+                                    miar_db_type_term = miar
+                            if miar_db_type_term:
+                                term_source_old = TermSources.query.filter_by(sources_id = source.id,term_id = miar_db_type_term.id).first()
+                                if not term_source_old:
+                                    source_term = TermSources()
+                                    source_term.sources_id = source.id
+                                    source_term.term_id = miar_db_type_term.id
+                                    db.session.add(source_term)
+                                    db.session.commit()
+                            else:
+                                return 'danger'
 
-        return
+        return 'success'
 
 
+# {"title": "Agrotecnia de Cuba", 
+# "description": 
+# "Contiene art\u00edculos, editoriales, metodolog\u00eda, res\u00famenes de tesis y rese\u00f1as de los resultados de investigaciones cient\u00edficas y aplicadas en los campos de la sanidad vegetal y ciencias afines, con \u00e9nfasis en las tecnolog\u00edas que est\u00e1n listas para su generalizaci\u00f3n en la pr\u00e1ctica agraria.", 
+#     "url": "http://www.actaf.co.cu/agrotecnia-de-cuba.html", 
+#     "rnps": "2120", 
+#     "seriadas_cubanas": "http://www.seriadascubanas.cult.cu/publicaci%C3%B3n-seriada/agrotecnia-de-cuba-2", 
+#     "issn": {"p": "1816-8604"}, 
+#     "terms": [{"id": 171, "data": null}, {"id": 1128, "data": null}, {"id": 1127, "data": null}, {"id": 270, "data": null}, {"id": 873, "data": {"url": "http://www.latindex.unam.mx/latindex/ficha?folio=20272"}}]}
