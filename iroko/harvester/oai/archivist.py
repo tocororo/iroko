@@ -38,6 +38,9 @@ from iroko.records.api import IrokoRecord
 
 # In [2]: %autoreload 2
 
+# TODO: Cuando se crea un iroko record, puede ser que haya un error, por validacion de
+# elastic u otro asunto,
+# ese record debe ponerse en el data del harvested item para su posterior analisis...
 
 class Archivist:
     """

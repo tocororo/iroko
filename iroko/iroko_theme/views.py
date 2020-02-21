@@ -15,7 +15,7 @@ import os
 from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file
 from flask_menu import register_menu
 from iroko.sources.api import Sources
-from iroko.sources.marshmallow import source_schema_many
+from iroko.sources.marshmallow.source import source_schema_many
 from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestType

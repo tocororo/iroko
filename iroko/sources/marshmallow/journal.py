@@ -1,13 +1,16 @@
 
 from marshmallow import Schema, fields, pre_dump, post_load, post_dump
 
-from iroko.sources.marshmallow import BaseSourceSchema, SourceDataSchema
+
 from iroko.harvester.api import SecundarySourceHarvester
+
+from iroko.sources.marshmallow.base import SourceDataSchema
 
 
 class IssnOrgSchema:
     issn = fields.Str()
     title = fields.Str()
+
 
 class ISSNSchema(Schema):
     p = fields.Str()
@@ -29,7 +32,6 @@ class ISSNSchema(Schema):
                             return issn
 
 
-
 class JournalDataSchema(SourceDataSchema):
     """JournalDataSchema specific data for academic journals """
 
@@ -44,9 +46,9 @@ class JournalDataSchema(SourceDataSchema):
     year_end = fields.DateTime()
 
 
+# class JournalSchema(BaseSourceSchema):
+#     data = fields.Nested(JournalDataSchema, many=False)
 
-class JournalSchema(BaseSourceSchema):
-    data = fields.Nested(JournalDataSchema, many=False)
-
-journal_schema = JournalSchema()
-journal_schema_many = JournalSchema(many=True)
+journal_data_schema = JournalDataSchema(many=False)
+# journal_schema = JournalSchema(exclude=['versions'])
+# journal_schema_many = JournalSchema(many=True, exclude=['versions'])

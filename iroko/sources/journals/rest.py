@@ -5,11 +5,12 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, request
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.journals.marshmallow import journal_schema, journal_schema_many
+
+from iroko.sources.marshmallow.source import source_schema, source_schema_many
 from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
 from iroko.sources.utils import _load_terms_tree
 from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
-from iroko.sources.marshmallow import source_schema, source_schema_many
+
 from iroko.harvester.api import SecundarySourceHarvester
 
 
@@ -76,11 +77,11 @@ def get_journals():
         else:
             if in_data or in_extra:
                 result.append(source)
-
+    print("---- - - - - - - -  -----------")
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': journal_schema_many.dump(result[offset:offset+limit]),\
+                        {'data': source_schema_many.dump(result[offset:offset+limit]),\
                          'count': len(result)})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 

@@ -218,6 +218,7 @@ class OaiHarvester(SourceHarvester):
         shutil.rmtree(self.harvest_dir, ignore_errors=True)
 
 
+
     def identity_source(self):
         try:
             self.get_identify()
@@ -287,18 +288,19 @@ class OaiHarvester(SourceHarvester):
             self.repository.identifier is not None
             and self.repository.identifier != identifier
         ):
-            raise IrokoHarvesterError(
-                "Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}".format(
-                    self.repository.identifier,
-                    identifier,
-                    self.source.id,
-                    self.work_remote,
-                )
+            # identifiers could be different, but this is not an exception
+            # for now i will put this error log...
+            self.repository.error_log = "Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}".format(
+                self.repository.identifier,
+                identifier,
+                self.source.id,
+                self.work_remote,
             )
 
         self.repository.identifier = identifier
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
+
 
     def get_formats(self):
         """get_formats, raise IrokoHarvesterError"""

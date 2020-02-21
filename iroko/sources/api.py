@@ -4,8 +4,8 @@ from flask_login import current_user
 from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import source_schema, source_version_schema, SourceVersionSchema
-from iroko.sources.journals.marshmallow import journal_schema
+from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema
+
 from invenio_db import db
 from datetime import datetime
 from invenio_access import Permission
@@ -147,7 +147,7 @@ class Sources:
 
         if not source:
             raise Exception('Source not exist')
-        
+
         # user_id, source_id, comment, data, created_at, is_current
         source_version = TermSources.query.filter_by(sources_id=source.id).first()
         source_version.is_current = True
@@ -193,8 +193,8 @@ class Sources:
             raise Exception('Must be authenticated')
         if not source:
             raise Exception('No Souce !!')
-        
-        # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir.... 
+
+        # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir....
         version_data:SourceVersionSchema = source_version_schema.load(input_data)
 
         # user_id, source_id, comment, input_data, created_at, is_current
@@ -331,9 +331,9 @@ class Sources:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Not source found')
-        
+
         for term_source in source.term_sources:
-            
+
             term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', term_source.term.uuid)
 
             if term_gestors:

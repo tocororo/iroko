@@ -5,7 +5,8 @@ from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow import source_schema, source_schema_many, source_schema_no_versions, source_version_schema, source_version_schema_many
+from iroko.sources.marshmallow.source import source_schema, source_schema_many, source_schema_no_versions, source_version_schema, source_version_schema_many
+
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
 from iroko.sources.api import Sources, get_current_user_source_permissions

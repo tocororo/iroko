@@ -153,7 +153,13 @@ def add_terms_to_data():
     for source in sources:
         term_sources = []
         for ts in source.term_sources:
-            term_sources.append({'id': ts.term_id, 'data': ts.data})
+            term_sources.append(
+                {
+                    'term_id': ts.term_id,
+                    'sources_id': source.id,
+                    'data': ts.data
+                }
+            )
         data = dict(source.data)
         data['term_sources'] = term_sources
         source.data = data
