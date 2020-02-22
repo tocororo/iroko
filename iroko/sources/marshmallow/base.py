@@ -1,6 +1,6 @@
 
 
-from marshmallow import Schema, fields, ValidationError, pre_load, post_dump, pre_dump
+from marshmallow import Schema, fields, ValidationError, pre_load, post_dump, pre_dump, INCLUDE
 from iroko.taxonomy.api import Terms
 from iroko.taxonomy.marshmallow import term_schema
 
@@ -34,4 +34,4 @@ class IrokoUserSchema(Schema):
     email = fields.Str()
 
 
-source_data_schema = SourceDataSchema(many=False)
+source_data_schema = SourceDataSchema(many=False, unknown=INCLUDE)

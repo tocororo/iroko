@@ -18,7 +18,7 @@ from iroko.sources.permissions import source_term_gestor_permission_factory, sou
 from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.api import Notifications
 from iroko.notifications.models import NotificationType
-
+import datetime
 
 
 api_blueprint = Blueprint(
@@ -75,7 +75,10 @@ def get_source_by_uuid(uuid):
             terms = terms[0:-1]
 
         if user_has_editor_or_gestor_permissions({'terms': terms, 'uuid':uuid}):
-
+            # # print(source.data)
+            # for v in source.term_sources:
+            #     print(v.term_id, v.sources_id, v.data)
+            #     # print(v.data)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok','source', \
                                 source_schema.dump(source))
@@ -132,6 +135,10 @@ def source_new_version(uuid):
 
     # inserta un nuevo sourceVersion de un source que ya existe
     # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
+    # input_data = request.json
+    # source = Sources.get_source_by_id(uuid=uuid)
+    # Sources.insert_new_source_version(input_data, source, False)
+
     try:
         if not request.is_json:
             raise Exception("No JSON data provided")
@@ -423,6 +430,7 @@ def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """
+    print("## start get sources {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
     try:
         count = int(request.args.get('count')) if request.args.get('count') else 9
         page = int(request.args.get('page')) if request.args.get('page') else 0
@@ -431,22 +439,30 @@ def get_sources_from_user(status):
         offset = count*page
 
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
+        print("## get_sources_from_gestor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)
+        print("## get_sources_from_editor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         in_first = set(sources_gestor)
+        print("## in_first = set(sources_gestor) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         in_second = set(sources_editor)
+        print("## in_second = set(sources_editor) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         in_second_but_not_in_first = in_second - in_first
+        print("## in_second_but_not_in_first = in_second - in_first {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         result = sources_gestor + list(in_second_but_not_in_first)
+        print("## result = sources_gestor + list {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         # TODO: optimizar esta operacion porque puede ser lenta
-        return iroko_json_response(
+        response = iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
             source_schema_many.dump(result[offset:offset+limit])
             )
+        print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        return response
 
     except Exception as e:
         msg = str(e)

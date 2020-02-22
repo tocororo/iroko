@@ -1,5 +1,5 @@
 
-from marshmallow import Schema, fields, ValidationError, pre_load, post_dump, pre_dump
+from marshmallow import Schema, fields, ValidationError, pre_load, post_dump, pre_dump, INCLUDE, EXCLUDE
 from iroko.sources.models import Source, SourceVersion, SourceType, TermSources, SourceStatus
 from invenio_records_rest.schemas.fields import DateString
 from iroko.harvester.marshmallow import RepositorySchema
@@ -16,7 +16,7 @@ class SourceVersionSchema(Schema):
     comment = fields.Str()
     created_at = fields.DateTime()
     is_current = fields.Boolean()
-    data = fields.Nested(SourceDataSchema, many=False)
+    data = fields.Nested(SourceDataSchema, many=False, unknown=INCLUDE)
     reviewed = fields.Boolean()
     user = fields.Nested(IrokoUserSchema)
 
@@ -47,12 +47,15 @@ class SourceSchema(Schema):
 
     @post_dump(pass_original=True)
     def fix_data_field(self, result, source:Source, **kwargs):
-
-        if source.source_type == SourceType.JOURNAL:
-            data = journal_data_schema.dump(source.data)
-        else:
-            data =source_data_schema.dump(source.data)
-        result['data'] = data
+        # este metodo hace lento el dump, solo es necesario cuando se requiere un source,
+        # para una lista, es mejor no hacer el metodo, porque es muy lento.
+        if not kwargs['many']:
+            if source.source_type == SourceType.JOURNAL:
+                print("is a journal !!!!! #######")
+                data = journal_data_schema.dump(source.data)
+            else:
+                data =source_data_schema.dump(source.data)
+            result['data'] = data
         return result
 
     @post_dump
@@ -73,7 +76,7 @@ class IssnSchema(Schema):
     data = fields.Raw(many=False)
 
 
-source_schema_many = SourceSchema(many=True, exclude=['versions'])
+source_schema_many = SourceSchema(many=True, exclude=['versions', 'term_sources', 'data', 'repository'])
 source_schema = SourceSchema()
 source_schema_no_versions = SourceSchema(exclude=['versions'])
 

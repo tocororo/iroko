@@ -4,7 +4,8 @@ from flask_login import current_user
 from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema
+from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema, EXCLUDE, INCLUDE
+
 
 from invenio_db import db
 from datetime import datetime
@@ -195,26 +196,39 @@ class Sources:
             raise Exception('No Souce !!')
 
         # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir....
-        version_data:SourceVersionSchema = source_version_schema.load(input_data)
-
+        # print(input_data)
+        # # version_schema = SourceVersionSchema(exclude=['user_id'])
+        # version_data:SourceVersionSchema = source_version_schema.load(input_data, partial=True, ['comment', 'source_id', 'data']],unknown=INCLUDE)
+        # print("###### load #####")
         # user_id, source_id, comment, input_data, created_at, is_current
+        if is_current:
+            for version in source.versions:
+                version.is_current = False
+            db.session.commit()
         new_source_version = SourceVersion()
-        new_source_version.data = version_data.data
+        new_source_version.data = input_data['data']
         new_source_version.created_at = datetime.now()
         new_source_version.is_current = is_current
         new_source_version.source_id = source.id
-        new_source_version.comment = version_data.comment
+        new_source_version.comment = input_data['comment']
         new_source_version.user_id = current_user.id
-
-        if is_current:
-            source.data = version_data.data
-            sync_term_source_with_data(source)
-
+        print("### new source created")
         db.session.add(new_source_version)
+        print("db.session.add(new_source_version)")
         if is_flush:
             db.session.flush()
+            print("db.session.flush")
         else:
             db.session.commit()
+            print("db.session.commit")
+
+        if is_current:
+            data = dict(input_data['data'])
+            source.data = data
+            db.session.commit()
+            sync_term_source_with_data(source)
+            print("### sync_term_source_with_data(source)")
+
 
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
