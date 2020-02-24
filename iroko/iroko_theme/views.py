@@ -26,7 +26,7 @@ import json
 import mistune
 from iroko.iroko_theme.forms import ContactForm, IrokoSearchForm
 # from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
-
+from flask_cors import cross_origin
 
 blueprint = Blueprint(
     'iroko_theme',
@@ -199,6 +199,10 @@ def unauthorized(e):
 #     # return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
 
 #     return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'])
+
+@blueprint.route('/irokosearch', methods=['GET'])
+def iroko_search():
+    return render_template('iroko_theme/search/index.html')
 
 
 def insufficient_permissions(e):

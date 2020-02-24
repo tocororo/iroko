@@ -196,6 +196,10 @@ class Terms:
             msg = 'Term not exist uuid={0}'.format(uuid)
             return msg, None
 
+    @classmethod
+    def get_terms_by_uuid_list(cls, uuid_list) :
+        terms = Term.query.filter(Term.uuid.in_(uuid_list)).all()
+        return terms
 
     @classmethod
     def get_term_by_id(cls, id) -> Dict[str, Term]:

@@ -57,6 +57,34 @@ class Sources:
         return Source.query.count()
 
     @classmethod
+    def get_sources_by_term_uuid(cls, uuid):
+        if uuid:
+            term = Term.query.filter_by(uuid=uuid).first()
+
+            terms_ids = []
+            if term:
+                # TODO: do something better in the except?
+                try:
+
+                    cls._get_term_tree_list(term, terms_ids)
+
+                    sources_ids = db.session.query(TermSources.sources_id).filter(TermSources.term_id.in_(terms_ids)).all()
+
+                    return Source.query.filter(Source.id.in_(sources_ids)).all()
+                except  Exception:
+                    return None
+        return None
+
+    @classmethod
+    def _get_term_tree_list(cls, term, result):
+        """helper fuction to get all the children terms ids in a list
+            TODO: this function should be in Taxonomy api
+        """
+        result.append(term.id)
+        for child in term.children:
+            cls._get_term_tree_list(child, result)
+
+    @classmethod
     def _check_source_exist(cls, data):
         """ comprobar que no exista otro Title,ISSN, RNPS o URL igual
 

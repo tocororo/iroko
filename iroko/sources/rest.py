@@ -52,12 +52,26 @@ def get_source_by_uuid_no_versions(uuid):
             raise Exception('Source not found')
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','source', \
+                            'ok','sources', \
                             source_schema_no_versions.dump(source))
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+@api_blueprint.route('/relations/<uuid>')
+def get_sources_by_term_uuid(uuid):
+    """Get a sources related with a term UUID"""
+    try:
+        sources = Sources.get_sources_by_term_uuid(uuid)
+        if not sources:
+            raise Exception('Source not found')
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                            'ok','sources', \
+                            source_schema_many.dump(sources))
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 @api_blueprint.route('/<uuid>/versions')
 @require_api_auth()
