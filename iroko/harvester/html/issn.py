@@ -220,10 +220,10 @@ class IssnHarvester(BaseHarvester):
         sincroniza lo que  hay en los ficheros con que trabaja el harvester de issn con el modelo iroko.sources.model.Issn
         """
 
-        with open(self.issn_file, 'r') as file_issn:
+        with open(self.cuban_issn_file, 'r') as file_issn:
             archive_issn = json.load(file_issn)
 
-        with open(self.issn_info_file, 'r') as file_issn_info:
+        with open(self.cuban_issn_info_file, 'r') as file_issn_info:
             archive_issn_info = json.load(file_issn_info)
 
         if archive_issn and archive_issn_info:

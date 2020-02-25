@@ -191,8 +191,8 @@ def source_new_version(uuid):
                         Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','sources', \
-                            {'data': source_schema.dump(source), 'count': 1})
+                            'ok','source', \
+                            source_schema.dump(source))
         except PermissionDenied as e:
             with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():
                 msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True)
@@ -201,7 +201,7 @@ def source_new_version(uuid):
 
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
-                notification.description = _('Gestor has reviewed this soruce: {0}.'.format(source.name))
+                notification.description = _('Gestor has reviewed this source: {0}.'.format(source.name))
                 notification.emiter = _('Sistema')
 
                 msg, users = Sources.get_user_ids_source_editor(source.uuid)
@@ -212,7 +212,7 @@ def source_new_version(uuid):
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','source', \
-                            {'data': source_schema.dump(source), 'count': 1})
+                            source_schema.dump(source))
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
