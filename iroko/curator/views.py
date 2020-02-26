@@ -7,7 +7,7 @@ from flask_login import login_required
 from flask_babelex import lazy_gettext as _
 from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-from iroko.sources.marshmallow import source_schema_many
+from iroko.sources.marshmallow.source import source_schema_many
 from os import listdir, path
 from .forms import VocabularyForm, TermForm, SourceForm
 from .api import create_vocabulary

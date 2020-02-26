@@ -51,8 +51,8 @@ class Source(db.Model):
         return self.name
 
 
-# TODO: medium term, este modelo y todas las implicaciones que tiene, en las relaciones de sql 
-# y en los data que manejamos(source y sourceversion) sera sustituido por "relations", 
+# TODO: medium term, este modelo y todas las implicaciones que tiene, en las relaciones de sql
+# y en los data que manejamos(source y sourceversion) sera sustituido por "relations",
 # un campo en marshmallow que trabajaria con neo4j
 class TermSources(db.Model):
     __tablename__ = 'iroko_terms_sources'

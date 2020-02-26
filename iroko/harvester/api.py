@@ -31,7 +31,7 @@ class PrimarySourceHarvester(object):
         for item in os.listdir(zip_dir):
             itempath = os.path.join(zip_dir, item)
             if os.path.isfile(itempath):
-                print("trying to create an archivist from {0}".format(itempath))
+                print("trying to create an harvester from {0}".format(itempath))
                 OaiHarvester.rescan_source_from_zip_file(itempath)
 
     @staticmethod

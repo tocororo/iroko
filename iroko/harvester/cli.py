@@ -27,7 +27,7 @@ from iroko.harvester.oai.harvester import OaiHarvester
 from iroko.harvester.api import PrimarySourceHarvester, SecundarySourceHarvester
 from iroko.harvester.tasks import harvest_source_task
 from iroko.harvester.models import Repository
-
+from flask import current_app
 from invenio_db import db
 
 @click.group()
@@ -39,14 +39,20 @@ def harvester():
 @with_appcontext
 def rescan():
     """rescanea el directorio """
-    PrimarySourceHarvester.rescan_and_fix_harvest_dir()
+    harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+
+    print("####################### start harvestig from dir")
+    PrimarySourceHarvester.rescan_zip_files_in_dir(harvest_dir)
+
+    print("####################### start archiving")
+    PrimarySourceHarvester.archive_zip_files_in_dir(harvest_dir)
 
 
 @harvester.command()
 @click.argument('zip_dir')
 @with_appcontext
 def archive_zip_dir(zip_dir):
-    """rescanea el directorio """
+    """rescanea el directorio y hace archive """
     PrimarySourceHarvester.archive_zip_files_in_dir(zip_dir)
 
 

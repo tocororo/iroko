@@ -1,13 +1,20 @@
 
-from marshmallow import Schema, fields, pre_dump, post_load, post_dump
+from marshmallow import Schema, fields, pre_dump, post_load, post_dump, INCLUDE
 
-from iroko.sources.marshmallow import BaseSourceSchema, SourceDataSchema
+
 from iroko.harvester.api import SecundarySourceHarvester
 
+from iroko.sources.marshmallow.base import SourceDataSchema
 
-class IssnOrgSchema:
+class SocialNetworksSchema(Schema):
+    facebook = fields.Url()
+    twitter = fields.Url()
+    linkedin = fields.Url()
+
+class IssnOrgSchema(Schema):
     issn = fields.Str()
     title = fields.Str()
+
 
 class ISSNSchema(Schema):
     p = fields.Str()
@@ -29,7 +36,6 @@ class ISSNSchema(Schema):
                             return issn
 
 
-
 class JournalDataSchema(SourceDataSchema):
     """JournalDataSchema specific data for academic journals """
 
@@ -40,13 +46,19 @@ class JournalDataSchema(SourceDataSchema):
     email = fields.Str()
     logo = fields.Str()
     seriadas_cubanas = fields.Url()
-    year_start = fields.DateTime()
-    year_end = fields.DateTime()
+    start_year = fields.Str()
+    end_year = fields.Str()
 
+    subtitle = fields.Str()
+    shortname = fields.Str()
+    purpose = fields.Str()
+    frequency = fields.Str()
 
+    socialNetworks = fields.Nested(SocialNetworksSchema, many=False)
 
-class JournalSchema(BaseSourceSchema):
-    data = fields.Nested(JournalDataSchema, many=False)
+# class JournalSchema(BaseSourceSchema):
+#     data = fields.Nested(JournalDataSchema, many=False)
 
-journal_schema = JournalSchema()
-journal_schema_many = JournalSchema(many=True)
+journal_data_schema = JournalDataSchema(many=False, unknown=INCLUDE)
+# journal_schema = JournalSchema(exclude=['versions'])
+# journal_schema_many = JournalSchema(many=True, exclude=['versions'])

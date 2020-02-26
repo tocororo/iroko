@@ -15,7 +15,7 @@ import os
 from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file
 from flask_menu import register_menu
 from iroko.sources.api import Sources
-from iroko.sources.marshmallow import source_schema_many
+from iroko.sources.marshmallow.source import source_schema_many
 from iroko.sources.models import Source, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestType
@@ -26,7 +26,7 @@ import json
 import mistune
 from iroko.iroko_theme.forms import ContactForm, IrokoSearchForm
 # from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
-
+from flask_cors import cross_origin
 
 blueprint = Blueprint(
     'iroko_theme',
@@ -199,6 +199,10 @@ def unauthorized(e):
 #     # return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
 
 #     return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'])
+
+@blueprint.route('/irokosearch', methods=['GET'])
+def iroko_search():
+    return render_template('iroko_theme/search/index.html')
 
 
 def insufficient_permissions(e):

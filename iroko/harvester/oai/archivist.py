@@ -38,6 +38,9 @@ from iroko.records.api import IrokoRecord
 
 # In [2]: %autoreload 2
 
+# TODO: Cuando se crea un iroko record, puede ser que haya un error, por validacion de
+# elastic u otro asunto,
+# ese record debe ponerse en el data del harvested item para su posterior analisis...
 
 class Archivist:
     """
@@ -233,6 +236,7 @@ class Archivist:
 #     itempath, os.path.join(self.working_dir, str(item.id))
 # )
 
+
     def record_items(self):
         """ process all harvested items of the Source, create an IrokoRecord and save/update it"""
 
@@ -240,26 +244,29 @@ class Archivist:
         for item in items:
             try:
                 # currently supporting dc elements and nlm (to get more info about authors)
-                if item.status != HarvestedItemStatus.DELETED and item.status != HarvestedItemStatus.ERROR:
+                if item.status != HarvestedItemStatus.DELETED:
+                # and item.status != HarvestedItemStatus.ERROR:
                     self.oai_dc = DubliCoreElements()
                     self.nlm = JournalPublishing()
 
                     dc = self._process_format(item, self.oai_dc)
+                    if dc is not None:
+                        nlm = None
+                        if "nlm" in self.formats:
+                            nlm = self._process_format(item, self.nlm)
 
-                    nlm = None
-                    if "nlm" in self.formats:
-                        nlm = self._process_format(item, self.nlm)
-
-                    data = self._crate_iroko_dict(item, dc, nlm)
-                    # print(data)
+                        data = self._crate_iroko_dict(item, dc, nlm)
+                        # print(data)
 
 
-                    record, status = IrokoRecord.create_or_update(
-                        data, dbcommit=True, reindex=True
-                    )
-                    item.status = HarvestedItemStatus.RECORDED
-                    item.record = record.id
-                    print(item.record)
+                        record, status = IrokoRecord.create_or_update(
+                            data, dbcommit=True, reindex=True
+                        )
+                        item.status = HarvestedItemStatus.RECORDED
+                        item.record = record.id
+                        print(item.record)
+                    else:
+                        print("dublin core is none, nothing to do: item: {0}".format(item.identifier))
             except Exception as e:
                 item.status = HarvestedItemStatus.ERROR
                 item.error_log = traceback.format_exc()
@@ -287,11 +294,12 @@ class Archivist:
 
     def _crate_iroko_dict(self, item: HarvestedItem, dc, nlm=None):
 
-        data = dc
+        data = dict(dc)
         # print(str(data))
         if nlm is not None:
             data["creators"] = nlm["creators"]
             data["contributors"] = nlm["contributors"]
+
 
         data["source"] = {"uuid": str(self.source.uuid), "name": str(self.source.name)}
         spec_code = data["spec"]
@@ -319,7 +327,7 @@ class Archivist:
 
         # ts = TermSources.query.filter_by(source_id=self.source.id).all()
         tuus = []
-        for ts in self.source.terms:
+        for ts in self.source.term_sources:
             tuus.append(str(ts.term.uuid))
 
         rs_term = Term.query.filter_by(vocabulary_id=self.voc.id, name=data['spec']['name']).first()

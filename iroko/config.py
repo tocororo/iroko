@@ -25,7 +25,10 @@ from flask_babelex import lazy_gettext as _
 
 from invenio_oauthclient.contrib import orcid
 
+from flask_cors import CORS
+
 from iroko.deployment import *
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -259,6 +262,11 @@ RECORDS_REST_FACETS = {
                     "order": 2,
                 }
             },
+            'iroko_terms':{
+                'terms':{
+                    'field': 'iroko_terms'
+                }
+            },
             # 'spec':{
             #     'terms':{
             #         'field': 'spec.name'
@@ -443,10 +451,37 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 # =======
 
 
+REST_ENABLE_CORS = True
+
 
 OAUTHCLIENT_REMOTE_APPS = dict(
         orcid=orcid.REMOTE_APP,
 )
 
+
+
+APP_DEFAULT_SECURE_HEADERS = {
+    'force_https': True,
+    'force_https_permanent': False,
+    'force_file_save': False,
+    'frame_options': 'sameorigin',
+    'frame_options_allow_from': None,
+    'strict_transport_security': True,
+    'strict_transport_security_preload': False,
+    'strict_transport_security_max_age': 31556926,  # One year in seconds
+    'strict_transport_security_include_subdomains': True,
+    'content_security_policy': {
+        'default-src': ["'self'", "'unsafe-inline'"],
+        'object-src': ["'none'"],
+        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'font-src': ["'self'", "data:"],
+        'img-src': ["'self'", "data:"]
+    },
+    'content_security_policy_report_uri': None,
+    'content_security_policy_report_only': False,
+    'session_cookie_secure': True,
+    'session_cookie_http_only': True
+}
 
 

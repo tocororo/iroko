@@ -8,7 +8,7 @@ import shutil
 
 from enum import Enum
 
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 
 from lxml import etree
 
@@ -69,11 +69,13 @@ class OaiHarvester(SourceHarvester):
             os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"],
                                 str(source.uuid)))
         """
-        try:
-            with ZipFile(file_path, "r") as zipOpj:
-                tmp_dir = os.path.join(
+        tmp_dir = os.path.join(
                     current_app.config["IROKO_TEMP_DIRECTORY"],"iroko-harvest-arch-" + str(time.time())
                 )
+        try:
+
+            with ZipFile(file_path, "r") as zipOpj:
+
                 try:
                     zipOpj.extract(
                     OaiHarvesterFileNames.IDENTIFY.value,
@@ -99,10 +101,14 @@ class OaiHarvester(SourceHarvester):
                 identifier = xml.find(
                     ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
                 ).text
-
-                repo = Repository.query.filter_by(harvest_endpoint=oai_url, identifier=identifier).first()
-                source = Source.query.filter_by(id=repo.source_id).first()
-
+                print("{0}-{1}-{2}".format(name, oai_url, identifier))
+                repo = Repository.query.filter_by(harvest_endpoint=oai_url).first()
+                if repo:
+                    repo.status == None
+                    db.session.commit()
+                    source = Source.query.filter_by(id=repo.source_id).first()
+                else:
+                    return None
                 if(source and copy_to_harvest_dir):
                     source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
                     if source_path != file_path:
@@ -129,8 +135,10 @@ class OaiHarvester(SourceHarvester):
 
                 return source
 
-        except Exception:
-            print(traceback.format_exc())
+        except (BadZipFile, Exception)  as err:
+            print(err)
+            print(err.args)
+
             shutil.rmtree(
                     tmp_dir,
                     True
@@ -204,10 +212,11 @@ class OaiHarvester(SourceHarvester):
         """compress the harvest_dir to a zip file in harvest_data dir
         and deleted harvest_dir """
         shutil.rmtree(
-            os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid)),
+            os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.uuid)),
             ignore_errors=True)
-        utils.ZipHelper.compress_dir(self.harvest_dir, current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
+        utils.ZipHelper.compress_dir(self.harvest_dir, current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.uuid))
         shutil.rmtree(self.harvest_dir, ignore_errors=True)
+
 
 
     def identity_source(self):
@@ -221,6 +230,8 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = HarvestedItemStatus.ERROR
             self.repository.error_log = traceback.format_exc()
             print("error: identity_source(self):")
+            print(e)
+            print(e.args)
         finally:
             db.session.commit()
 
@@ -238,6 +249,8 @@ class OaiHarvester(SourceHarvester):
             self.repository.status = HarvestedItemStatus.ERROR
             self.repository.error_log = traceback.format_exc()
             print("error: discover_items(self):")
+            print(e)
+            print(e.args)
         finally:
             db.session.commit()
 
@@ -275,18 +288,19 @@ class OaiHarvester(SourceHarvester):
             self.repository.identifier is not None
             and self.repository.identifier != identifier
         ):
-            raise IrokoHarvesterError(
-                "Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}".format(
-                    self.repository.identifier,
-                    identifier,
-                    self.source.id,
-                    self.work_remote,
-                )
+            # identifiers could be different, but this is not an exception
+            # for now i will put this error log...
+            self.repository.error_log = "Different identifiers: {0}!={1}. Source.id={2}. work_remote:{3}".format(
+                self.repository.identifier,
+                identifier,
+                self.source.id,
+                self.work_remote,
             )
 
         self.repository.identifier = identifier
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
+
 
     def get_formats(self):
         """get_formats, raise IrokoHarvesterError"""
@@ -305,7 +319,7 @@ class OaiHarvester(SourceHarvester):
             )
             print(self.formats)
 
-        self.repository.data = str(self.formats)
+        self._assing_repository_data_field('formats', self.formats)
 
         # TODO: a medida que se incluyan los otros formatos, lo que tiene que pasar es que si el repo no soporta ninguno de los formatos del harvester entonces es que se manda la excepcion... pero por el momento si no soporta oai_dc, entonces no se puede cosechar
         if "oai_dc" not in self.formats:
@@ -324,20 +338,26 @@ class OaiHarvester(SourceHarvester):
             rsets = []
             for s in items:
                 rsets.append({s.setSpec: s.setName})
-            if not self.repository.data:
-                self.repository.data = {}
-            self.repository.data["sets"] = rsets
+
         else:
             xml = self._get_xml_from_file("sets.xml")
             sets_items = xml.findall(".//{" + utils.xmlns.oai + "}" + "set")
             rsets = []
             for s in sets_items:
-                setSpec = s.find(".//{" + utils.xmlns.oai + "}" + "setSpec")
-                setName = s.find(".//{" + utils.xmlns.oai + "}" + "setName")
+                setSpec = s.find(".//{" + utils.xmlns.oai + "}" + "setSpec").text
+                setName = s.find(".//{" + utils.xmlns.oai + "}" + "setName").text
                 rsets.append({setSpec: setName})
-            if not self.repository.data:
-                self.repository.data = {}
-            self.repository.data["sets"] = rsets
+
+        self._assing_repository_data_field('sets', rsets)
+
+    def _assing_repository_data_field(self, key, value):
+        try:
+            data = dict(self.repository.data)
+        except Exception as ex:
+            data = dict()
+        data[key] = value
+        self.repository.data = data
+
 
     def get_items(self):
         """retrieve all the identifiers of the source, create a directory structure, and save id.xml for each identified retrieved. Check if the repo object identifier is the same that the directory identifier. If a item directory exist, delete it and continue"""
@@ -362,8 +382,11 @@ class OaiHarvester(SourceHarvester):
             # TODO: Eliminar todos los harvesterItems y todos los records y pids asociados a este source...
             # db.session.delete?
             for itemdir in os.listdir(self.harvest_dir):
+            # for itemdir in os.listdir(fix_path):
                 itempath = os.path.join(self.harvest_dir, itemdir)
+
                 if os.path.isdir(itempath):
+                    print(os.path.join(self.harvest_dir, itemdir) + ".old")
                     shutil.move(itempath, os.path.join(self.harvest_dir, itemdir) + ".old")
             for itemdir in os.listdir(self.harvest_dir):
                 itempath = os.path.join(self.harvest_dir, itemdir)
@@ -374,15 +397,21 @@ class OaiHarvester(SourceHarvester):
                         identifier = xml.find(
                             ".//{" + utils.xmlns.oai + "}identifier"
                         )
-                        harvest_item = HarvestedItem()
-                        harvest_item.repository_id = self.source.id
-                        harvest_item.identifier = identifier.text
-                        harvest_item.status = HarvestedItemStatus.HARVESTED
-                        db.session.add(harvest_item)
-                        db.session.commit()
+                        harvest_item = HarvestedItem.query.filter_by(repository_id = self.source.id, identifier = identifier.text).first()
+                        if not harvest_item:
+                            # this item hasn't harvested
+                            harvest_item = HarvestedItem()
+                            harvest_item.repository_id = self.source.id
+                            harvest_item.identifier = identifier.text
+                            harvest_item.status = HarvestedItemStatus.HARVESTED
+                            db.session.add(harvest_item)
+                            db.session.commit()
                         shutil.move(
                             itempath, os.path.join(self.harvest_dir, str(harvest_item.id))
                         )
+                        if harvest_item.status == HarvestedItemStatus.ERROR:
+                            harvest_item.status = HarvestedItemStatus.HARVESTED
+
         else:
             iterator = self.sickle.ListIdentifiers(
                 metadataPrefix=self.oai_dc.metadataPrefix
@@ -401,13 +430,16 @@ class OaiHarvester(SourceHarvester):
                         db.session.commit()
                         p = os.path.join(self.harvest_dir, str(harvest_item.id))
                         if os.path.exists(p):
-                            raise IrokoHarvesterError(
-                                "Item.id={0}, already a directoy with that id. harvest_item.identifier={1}. Source.id={2}.".format(
-                                    harvest_item.id,
-                                    harvest_item.identifier,
-                                    self.source.id,
-                                )
+                            shutil.move(
+                                p, p+ ".old"
                             )
+                            # raise IrokoHarvesterError(
+                            #     "Item.id={0}, already a directoy with that id. harvest_item.identifier={1}. Source.id={2}.".format(
+                            #         harvest_item.id,
+                            #         harvest_item.identifier,
+                            #         self.source.id,
+                            #     )
+                            # )
                         os.mkdir(p)
                     if item.deleted:
                         harvest_item.status = HarvestedItemStatus.DELETED
@@ -425,6 +457,8 @@ class OaiHarvester(SourceHarvester):
                 except Exception as e:
                     harvest_item.status = HarvestedItemStatus.ERROR
                     harvest_item.error_log = traceback.format_exc()
+                    print(e)
+                    print(e.args)
                 finally:
                     db.session.commit()
                     count = count + 1
@@ -444,4 +478,8 @@ class OaiHarvester(SourceHarvester):
                 time.sleep(self.request_wait_time)
             except Exception as e:
                 item.error_log = traceback.format_exc()
+                print(e)
+                print(e.args)
         time.sleep(self.request_wait_time)
+
+

@@ -12,6 +12,7 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, render_template
 
 from iroko.sources.api import Sources
+from iroko.taxonomy.api import Terms
 
 blueprint = Blueprint(
     'iroko_records',
@@ -27,6 +28,7 @@ this file.
 """
 
 def iroko_record_view(pid, record, template=None):
-    
+
     source = Sources.get_source_by_id(uuid= record['source']['uuid'])
-    return render_template(template, pid=pid, record=record, source= source)
+    terms = Terms.get_terms_by_uuid_list(record['iroko_terms'])
+    return render_template(template, pid=pid, record=record, source= source, terms=terms)

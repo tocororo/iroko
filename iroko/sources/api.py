@@ -4,8 +4,9 @@ from flask_login import current_user
 from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow import source_schema, source_version_schema, SourceVersionSchema
-from iroko.sources.journals.marshmallow import journal_schema
+from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema, EXCLUDE, INCLUDE
+
+
 from invenio_db import db
 from datetime import datetime
 from invenio_access import Permission
@@ -54,6 +55,34 @@ class Sources:
     @classmethod
     def count_sources(cls):
         return Source.query.count()
+
+    @classmethod
+    def get_sources_by_term_uuid(cls, uuid):
+        if uuid:
+            term = Term.query.filter_by(uuid=uuid).first()
+
+            terms_ids = []
+            if term:
+                # TODO: do something better in the except?
+                try:
+
+                    cls._get_term_tree_list(term, terms_ids)
+
+                    sources_ids = db.session.query(TermSources.sources_id).filter(TermSources.term_id.in_(terms_ids)).all()
+
+                    return Source.query.filter(Source.id.in_(sources_ids)).all()
+                except  Exception:
+                    return None
+        return None
+
+    @classmethod
+    def _get_term_tree_list(cls, term, result):
+        """helper fuction to get all the children terms ids in a list
+            TODO: this function should be in Taxonomy api
+        """
+        result.append(term.id)
+        for child in term.children:
+            cls._get_term_tree_list(child, result)
 
     @classmethod
     def _check_source_exist(cls, data):
@@ -147,7 +176,7 @@ class Sources:
 
         if not source:
             raise Exception('Source not exist')
-        
+
         # user_id, source_id, comment, data, created_at, is_current
         source_version = TermSources.query.filter_by(sources_id=source.id).first()
         source_version.is_current = True
@@ -193,28 +222,41 @@ class Sources:
             raise Exception('Must be authenticated')
         if not source:
             raise Exception('No Souce !!')
-        
-        # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir.... 
-        version_data:SourceVersionSchema = source_version_schema.load(input_data)
 
+        # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir....
+        # print(input_data)
+        # # version_schema = SourceVersionSchema(exclude=['user_id'])
+        # version_data:SourceVersionSchema = source_version_schema.load(input_data, partial=True, ['comment', 'source_id', 'data']],unknown=INCLUDE)
+        # print("###### load #####")
         # user_id, source_id, comment, input_data, created_at, is_current
+        if is_current:
+            for version in source.versions:
+                version.is_current = False
+            db.session.commit()
         new_source_version = SourceVersion()
-        new_source_version.data = version_data.data
+        new_source_version.data = input_data['data']
         new_source_version.created_at = datetime.now()
         new_source_version.is_current = is_current
         new_source_version.source_id = source.id
-        new_source_version.comment = version_data.comment
+        new_source_version.comment = input_data['comment']
         new_source_version.user_id = current_user.id
-
-        if is_current:
-            source.data = version_data.data
-            sync_term_source_with_data(source)
-
+        print("### new source created")
         db.session.add(new_source_version)
+        print("db.session.add(new_source_version)")
         if is_flush:
             db.session.flush()
+            print("db.session.flush")
         else:
             db.session.commit()
+            print("db.session.commit")
+
+        if is_current:
+            data = dict(input_data['data'])
+            source.data = data
+            db.session.commit()
+            sync_term_source_with_data(source)
+            print("### sync_term_source_with_data(source)")
+
 
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
@@ -331,9 +373,9 @@ class Sources:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Not source found')
-        
+
         for term_source in source.term_sources:
-            
+
             term_gestors = cls.get_userids_for_source_from_action('source_term_gestor_actions', term_source.term.uuid)
 
             if term_gestors:
