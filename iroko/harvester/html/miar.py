@@ -402,25 +402,29 @@ class MiarHarvester(BaseHarvester):
                             archive_issn_miar = json.load(file_issn_miar)
                     except Exception:
                         return None
-                    source = self._get_source_by_issn(issn)
-                    if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
-                        dbs_split = archive_issn_miar['Indexed\xa0in:'].split(", ")
-                        for dbs in dbs_split:
-                            miar_db_type_terms = Term.query.all()
-                            for miar in miar_db_type_terms:
-                                if miar.name.lower().strip() == dbs.lower().strip():
-                                    miar_db_type_term = miar
-                            if miar_db_type_term:
-                                term_source_old = TermSources.query.filter_by(sources_id = source.id,term_id = miar_db_type_term.id).first()
-                                if not term_source_old:
-                                    source_term = TermSources()
-                                    source_term.sources_id = source.id
-                                    source_term.term_id = miar_db_type_term.id
-                                    db.session.add(source_term)
-                                    db.session.commit()
-                            else:
-                                return 'danger'
-
+                    try:
+                        atribute = archive_issn_miar['Indexed\xa0in:']
+                        source = self._get_source_by_issn(issn)
+                        if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE' and archive_issn_miar['Indexed\xa0in:']:
+                            dbs_split = archive_issn_miar['Indexed\xa0in:'].split(", ")
+                            for dbs in dbs_split:
+                                miar_db_type_terms = Term.query.all()
+                                for miar in miar_db_type_terms:
+                                    if miar.name.lower().strip() == dbs.lower().strip():
+                                        miar_db_type_term = miar
+                                if miar_db_type_term:
+                                    term_source_old = TermSources.query.filter_by(sources_id = source.id,term_id = miar_db_type_term.id).first()
+                                    if not term_source_old:
+                                        source_term = TermSources()
+                                        source_term.sources_id = source.id
+                                        source_term.term_id = miar_db_type_term.id
+                                        db.session.add(source_term)
+                                        db.session.commit()
+                                else:
+                                    return 'danger'
+                    except Exception:
+                        continue
+                        
         return 'success'
 
 
