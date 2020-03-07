@@ -1,0 +1,84 @@
+{
+  "mappings": {
+    "source-v1.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "text",
+          "index": false
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "source_uuid": {
+          "type": "keyword"
+        },
+        "identifiers":{
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "source_type": {
+          "type": "keyword"
+        },
+        "source_status": {
+          "type": "keyword"
+        },
+        "title": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "url": {
+          "type": "keyword"
+        },
+        "email": {
+          "type": "keyword"
+        },
+        "start_year": {
+          "type": "keyword"
+        },
+        "end_year": {
+          "type": "keyword"
+        },
+        "subtitle": {
+          "type": "keyword"
+        },
+        "shortname": {
+          "type": "keyword"
+        },
+        "purpose": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "frequency": {
+          "type": "keyword"
+        },
+        "description": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "relations": {
+          "type": "object",
+          "properties": {
+            "uuid": {
+              "type": "keyword"
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

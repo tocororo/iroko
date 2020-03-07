@@ -34,3 +34,19 @@ def iroko_source_oai_fetcher(record_uuid, data):
         pid_type=providers.IrokoSourceOAIProvider.pid_type,
         pid_value=providers.IrokoSourceOAIProvider.get_pid_from_data(data=data)
     )
+
+# TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
+def iroko_source_source_record_fetcher(record_uuid, data):
+    return FetchedPID(
+        provider=providers.IrokoSourceSourceRecordProvider,
+        pid_type=providers.IrokoSourceSourceRecordProvider.pid_type,
+        pid_value=providers.IrokoSourceSourceRecordProvider.get_pid_from_data(data=data)
+    )
+
+def iroko_source_uuid_fetcher(source_uuid, data):
+    pid_field = 'id'
+    return FetchedPID(
+        provider=providers.IrokoSourceUUIDProvider,
+        pid_type=providers.IrokoSourceUUIDProvider.pid_type,
+        pid_value=str(data[pid_field]),
+    )

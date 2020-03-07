@@ -36,6 +36,8 @@ def init_journals():
                     _assing_if_exist(data, record, 'description')
                     _assing_if_exist(data, record, 'url')
                     _assing_if_exist(data, record, 'rnps')
+                    if record.__contains__('rnps'):
+                        data['rnps']= {'p': record['rnps'], 'e': ''}
                     _assing_if_exist(data, record, 'email')
                     _assing_if_exist(data, record, 'logo')
                     _assing_if_exist(data, record, 'seriadas_cubanas')

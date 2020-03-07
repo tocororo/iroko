@@ -19,11 +19,189 @@ from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 from iroko.taxonomy.api import Terms
 
+from invenio_records.api import Record
+from invenio_indexer.api import RecordIndexer
+from invenio_jsonschemas import current_jsonschemas
+from uuid import uuid4
+from elasticsearch.exceptions import NotFoundError
+from invenio_pidstore.errors import PIDDoesNotExistError
+from invenio_pidstore.resolver import Resolver
+
+import iroko.pidstore.fetchers as iroko_fetchers
+import iroko.pidstore.minters as iroko_minters
+import iroko.pidstore.providers as iroko_providers
+
+
+class IrokoSource (Record):
+
+    minter = iroko_minters.iroko_source_uuid_minter
+    fetcher = iroko_fetchers.iroko_source_uuid_fetcher
+    provider = iroko_providers.IrokoSourceUUIDProvider
+
+    source_minter = iroko_minters.iroko_source_source_record_minter
+    source_fetcher = iroko_fetchers.iroko_source_source_record_fetcher
+    source_provider = iroko_providers.IrokoSourceSourceRecordProvider
+
+    object_type = 'rec'
+
+    pid_uuid_field = 'id'
+    _schema = "sources/source-v1.0.0.json"
+
+    @classmethod
+    def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, source_uuid=None, **kwargs):
+        """Create or update IrokoRecord."""
+
+        if source_uuid:
+            source = cls.get_source_by_pid(source_uuid, with_deleted=False)
+            if source:
+                # merged_data = cls._merge_uri(data, record)
+                source.update(data, dbcommit=dbcommit, reindex=reindex)
+                return source, 'updated'
+        else:
+            source = cls.get_record_by_data(data)
+            if source:
+                print("!AAAAAA")
+
+                source.update(data, dbcommit=dbcommit, reindex=reindex)
+                return source, 'updated'
+            created_source = cls.create(data, id_=None, dbcommit=dbcommit, reindex=reindex)
+            return created_source, 'created'
+
+    @classmethod
+    def create(cls, data, id_=None, dbcommit=False, reindex=False, **kwargs):
+        """Create a new SourceRecord."""
+        data['$schema'] = current_jsonschemas.path_to_url(cls._schema)
+        assert cls.minter
+        assert not data.get(cls.pid_uuid_field)
+        if not id_:
+            id_ = uuid4()
+        cls.minter(id_, data)
+        cls.source_minter(id_, data)
+        source = super(IrokoSource, cls).create(data=data, id_=id_, **kwargs)
+        if dbcommit:
+            source.dbcommit(reindex)
+        return source
+
+    @classmethod
+    def delete( cls, data, vendor=None, delindex=True, force=False):
+        """Delete a IrokoRecord record."""
+        assert data.get(cls.pid_uuid_field)
+        pid = data.get(cls.pid_uuid_field)
+        source = cls.get_source_by_pid(pid, with_deleted=False)
+        pid.delete()
+        result = source.delete(force=force)
+        if delindex:
+            try:
+                RecordIndexer().delete(source)
+            except NotFoundError:
+                pass
+        return result
+
+    @classmethod
+    def get_source_by_pid(cls, pid, with_deleted=False):
+        assert cls.provider
+        resolver = Resolver(
+            pid_type=cls.provider.pid_type,
+            object_type=cls.object_type,
+            getter=cls.get_record,
+        )
+        try:
+            persistent_identifier, source = resolver.resolve(str(pid))
+            return source
+            # return super(IrokoRecord, cls).get_record(
+            #     persistent_identifier.object_uuid, with_deleted=with_deleted
+            # )
+        except PIDDoesNotExistError:
+            return None
+
+    @classmethod
+    def get_record_by_data(cls, data):
+        # depending of the providers this method can be more complex, meaning using other external PIDs like url or doi
+        assert cls.source_provider
+        resolver = Resolver(
+            pid_type=cls.source_provider.pid_type,
+            object_type=cls.object_type,
+            getter=cls.get_record,
+        )
+        try:
+            pid = cls.source_provider.get_pid_from_data(data=data)
+            persistent_identifier, record = resolver.resolve(str(pid))
+            return record
+            # return super(IrokoRecord, cls).get_record(
+            #     persistent_identifier.object_uuid, with_deleted=with_deleted
+            # )
+        except PIDDoesNotExistError:
+            return None
+
+    def update(self, data, dbcommit=False, reindex=False):
+        """Update data for record."""
+        super(IrokoSource, self).update(data)
+        super(IrokoSource, self).commit()
+        if dbcommit:
+            self.dbcommit(reindex)
+        return self
+
+    def dbcommit(self, reindex=False, forceindex=False):
+        """Commit changes to db."""
+        db.session.commit()
+        if reindex:
+            self.reindex(forceindex=forceindex)
+
+    def reindex(self, forceindex=False):
+        """Reindex record."""
+        if forceindex:
+            RecordIndexer(version_type="external_gte").index(self)
+        else:
+            RecordIndexer().index(self)
 
 class Sources:
     """API for manipulation of Sources
     Considering SourceVersion: meanining this class use Source and SourceVersion model.
     """
+
+    @classmethod
+    def sync_source_index(cls):
+        """
+        insertar/actualizar todos los Sources (SqlAlchemy) como IrokoSource (Invenio Record)
+        """
+        sources = Source.query.all()
+        for source in sources:
+            data = source.data
+            if not data:
+                data = dict()
+            data['source_uuid']= str(source.uuid)
+            data['name']= source.name
+            data['source_type']= source.source_type.value
+            data['source_status']= source.source_status.value
+            data['relations']= cls._get_relations_to_sync(source.id)
+            src, status = IrokoSource.create_or_update(
+                            data, dbcommit=True, reindex=True)
+
+    @classmethod
+    def _get_relations_to_sync(cls, source_id):
+        relations = TermSources.query.filter_by(sources_id=source_id).all()
+        result = []
+        for rel in relations:
+            term = Term.query.filter_by(id=rel.term_id).first()
+            if rel.data == None:
+                rel.data = dict()
+            result.append(dict(uuid=str(term.uuid), data=rel.data))
+            if term.parent_id:
+                parent = Term.query.filter_by(id=term.parent_id).first()
+                result.extend(cls._get_parent_relations_to_sync(parent))
+        return result
+
+    @classmethod
+    def _get_parent_relations_to_sync(cls, term: Term):
+        result = []
+        if term.parent_id:
+            parent = Term.query.filter_by(id=term.parent_id).first()
+            result.extend(cls._get_parent_relations_to_sync(parent))
+        else:
+            result.append(dict(uuid=str(term.uuid), data=dict()))
+        return result
+
+
     @classmethod
     def get_sources_list_x_status(cls, status='all'):
 
@@ -407,8 +585,6 @@ class Sources:
         print('versiosn', versions)
 
         return versions
-
-
 
 def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     """

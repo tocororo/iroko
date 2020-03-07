@@ -35,13 +35,17 @@ class ISSNSchema(Schema):
                             issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
                             return issn
 
+class RNPSSchema(Schema):
+    p = fields.Str()
+    e = fields.Str()
+
 
 class JournalDataSchema(SourceDataSchema):
     """JournalDataSchema specific data for academic journals """
 
     url = fields.Url()
     issn = fields.Nested(ISSNSchema, many=False)
-    rnps = fields.Str()
+    rnps = fields.Nested(RNPSSchema, many=False)
     # TODO add here email = fields.Email(), and TEST....
     email = fields.Str()
     logo = fields.Str()

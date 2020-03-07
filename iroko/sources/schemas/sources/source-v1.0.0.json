@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost/schemas/sources/source-v1.0.0.json",
+  "title": "Schema Source",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "source_uuid"],
+  "properties": {
+    "id": {
+      "description": "Iroko UUID, pid_type = srcid",
+      "type": "string"
+    },
+    "source_uuid": {
+      "description": "Source UUID of the Iroko table Sources",
+      "type": "string"
+    },
+    "identifiers": {
+      "description": "identificadores de la fuente",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "idtype": {
+            "description": "el tipo de identificador",
+            "type": "string",
+            "enum": [
+              "ark",
+              "arxiv",
+              "doi",
+              "bibcode",
+              "ean8",
+              "ean13",
+              "eissn",
+              "handle",
+              "isbn",
+              "issn",
+              "istc",
+              "lissn",
+              "lsid",
+              "pmid",
+              "pmcid",
+              "purl",
+              "upc",
+              "url",
+              "urn",
+              "orcid",
+              "gnd",
+              "ads",
+              "oai",
+              "rnps",
+              "ernps"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "journal",
+        "student",
+        "popularization",
+        "repository",
+        "website",
+        "other"
+      ]
+    },
+    "source_status": {
+      "type": "string",
+      "enum": ["APPROVED", "TO_REVIEW", "UNOFFICIAL"]
+    },
+    "title": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "logo": {
+      "type": "string"
+    },
+    "seriadas_cubanas": {
+      "type": "string"
+    },
+    "start_year": {
+      "type": "string"
+    },
+    "end_year": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "shortname": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "frequency": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "relations": {
+      "description": "list of UUID of related to this source",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "the uuid of the term related to this source"
+          },
+          "data": {
+            "type": "object",
+            "description": "any other data in the relation",
+            "additionalProperties": true
+          }
+        }
+      },
+      "type": "array"
+    },
+    "issn": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "p": {
+          "type": "string"
+        },
+        "e": {
+          "type": "string"
+        },
+        "l": {
+          "type": "string"
+        },
+        "issn_org": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "issn": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "rnps": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "p": {
+          "type": "string"
+        },
+        "e": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

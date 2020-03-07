@@ -390,18 +390,20 @@ def get_sources_from_editor(status):
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """
     try:
-        count = int(request.args.get('count')) if request.args.get('count') else 9
-        page = int(request.args.get('page')) if request.args.get('page') else 0
+        count = int(request.args.get('size')) if request.args.get('size') else 10
+        page = int(request.args.get('page')) if request.args.get('page') else 1
 
-        limit = count
-        offset = count*page
+        if page < 1:
+            page = 1
+        offset = count*(page - 1)
+        limit = offset+count
 
         msg, sources  = Sources.get_sources_from_editor_current_user(status)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dump(sources[offset:offset+limit])
+            source_schema_many.dump(sources[offset:limit])
             )
 
     except Exception as e:
@@ -417,11 +419,13 @@ def get_sources_from_gestor(status):
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """
     try:
-        count = int(request.args.get('count')) if request.args.get('count') else 9
-        page = int(request.args.get('page')) if request.args.get('page') else 0
+        count = int(request.args.get('size')) if request.args.get('size') else 10
+        page = int(request.args.get('page')) if request.args.get('page') else 1
 
-        limit = count
-        offset = count*page
+        if page < 1:
+            page = 1
+        offset = count*(page - 1)
+        limit = offset+count
 
         msg, sources  = Sources.get_sources_from_gestor_current_user(status)
 
@@ -429,7 +433,7 @@ def get_sources_from_gestor(status):
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dump(sources[offset:offset+limit])
+            source_schema_many.dump(sources[offset:limit])
             )
 
     except Exception as e:
@@ -446,11 +450,13 @@ def get_sources_from_user(status):
     """
     print("## start get sources {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
     try:
-        count = int(request.args.get('count')) if request.args.get('count') else 9
-        page = int(request.args.get('page')) if request.args.get('page') else 0
+        count = int(request.args.get('size')) if request.args.get('size') else 10
+        page = int(request.args.get('page')) if request.args.get('page') else 1
 
-        limit = count
-        offset = count*page
+        if page < 1:
+            page = 1
+        offset = count*(page - 1)
+        limit = offset+count
 
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
         print("## get_sources_from_gestor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
@@ -473,7 +479,7 @@ def get_sources_from_user(status):
             IrokoResponseStatus.SUCCESS,
             msg,
             'sources',
-            source_schema_many.dump(result[offset:offset+limit])
+            {'count': len(result), 'sources': source_schema_many.dump(result[offset:limit])}
             )
         print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response

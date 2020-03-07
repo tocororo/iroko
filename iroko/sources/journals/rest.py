@@ -29,11 +29,13 @@ def get_journals():
 
     and_op = True if request.args.get('op') and request.args.get('op') == 'and' else False
 
-    count = int(request.args.get('count')) if request.args.get('count') else 10
-    page = int(request.args.get('page')) if request.args.get('page') else 0
+    count = int(request.args.get('size')) if request.args.get('size') else 10
+    page = int(request.args.get('page')) if request.args.get('page') else 1
 
-    limit = count
-    offset = count*page
+    if page < 1:
+        page = 1
+    offset = count*(page - 1)
+    limit = offset+count
 
     tids = request.args.get('terms')
     terms = []
@@ -76,12 +78,13 @@ def get_journals():
             result.append(source)
         else:
             if in_data or in_extra:
+                print(source.data)
                 result.append(source)
     print("---- - - - - - - -  -----------")
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
-                        {'data': source_schema_many.dump(result[offset:offset+limit]),\
+                        {'data': source_schema_many.dump(result[offset:limit]),\
                          'count': len(result)})
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 
