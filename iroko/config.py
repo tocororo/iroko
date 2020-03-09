@@ -30,6 +30,7 @@ from flask_cors import CORS
 from iroko.deployment import *
 from iroko.pidstore import pids as pids
 from iroko.records.api import IrokoRecord
+from iroko.records.search import IrokoRecordSearch
 from iroko.sources.search import SourceSearch
 from iroko.sources.api import IrokoSource
 
@@ -195,7 +196,7 @@ RECORDS_REST_ENDPOINTS = dict(
         pid_type=pids.RECORD_PID_TYPE,
         pid_minter=pids.RECORD_PID_MINTER,
         pid_fetcher=pids.RECORD_PID_FETCHER,
-        search_class=RecordsSearch,
+        search_class=IrokoRecordSearch,
         record_class=IrokoRecord,
         indexer_class=RecordIndexer,
         record_loaders= {

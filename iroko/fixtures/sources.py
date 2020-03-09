@@ -13,6 +13,8 @@ from invenio_accounts.models import User
 from iroko.taxonomy.models import Term
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
 from iroko.harvester.models import HarvestType, Repository
+from iroko.sources.api import Sources
+
 
 def init_journals():
     # sources_path = '../../data/journals.json'
@@ -55,6 +57,7 @@ def init_journals():
     init_term_sources()
     add_terms_to_data()
     set_initial_versions()
+    Sources.sync_source_index()
 
 
 def init_term_sources():
