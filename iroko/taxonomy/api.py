@@ -13,7 +13,7 @@ from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from iroko.taxonomy.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
-
+from sqlalchemy import func, desc
 
 
 #TODO: Revisar lanzamientos de excepciones
@@ -144,6 +144,15 @@ class Vocabularies:
             print(str(e))
 
         return msg, done
+   
+    @classmethod
+    def get_term_tree_list(cls, term, result):
+        """helper fuction to get all the children terms ids in a list            
+        """
+        result.append(term.id)
+        for child in term.children:
+            cls.get_term_tree_list(child, result)
+
 
 class Terms:
     """Manage Terms"""
@@ -391,6 +400,9 @@ class Terms:
             return lista
         except Exception as error:
             return []
+
+    
+    
 
     # @classmethod
     # def dump_term(cls, term:Term, level_to_reach: int, current_level: int):

@@ -58,9 +58,25 @@ def get_source_by_uuid_no_versions(uuid):
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+
 @api_blueprint.route('/relations/<uuid>')
 def get_sources_by_term_uuid(uuid):
-    """Get a sources related with a term UUID"""
+    """List all the sources filtered by some relations with terms, 
+    also by type and status,
+    
+    Receive 
+    
+    <agg_level> do the job from this specific level of the terms tree until all its sons
+
+    <status> params: 'all', 'approved', 'to_review', 'unofficial'
+
+    <type> params: 'all', 'journal', 'student', 'popularization', 'repository', 'website'
+
+    <count> params: '0' for False, '1' for True
+
+    <temrs> params: terms_uuid that each source should has
+    
+    """
     try:
         sources = Sources.get_sources_by_term_uuid(uuid)
         if not sources:
@@ -72,6 +88,42 @@ def get_sources_by_term_uuid(uuid):
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/count/<vocabulary_id>')
+def sources_count_by_vocabulary(vocabulary_id):
+    """List all the terms name from vocabulary_id and count of filtered by some relations with terms, 
+    also by type and status,
+    
+    Receive 
+    
+    <agg_level> do the job from this specific level of the terms tree until all its sons
+
+    <status> params: 'all', 'approved', 'to_review', 'unofficial'
+
+    <type> params: 'all', 'journal', 'student', 'popularization', 'repository', 'website'
+
+    <count> params: '0' for False, '1' for True
+
+    <temrs> params: terms_uuid that each source should has
+    
+    """
+    try:
+        count_list  = Sources.get_sources_count_by_vocabulary(vocabulary_id)
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            'ok',
+            'sources count',
+            {
+                'counts':count_list,
+                'total':len(count_list)}
+            )
+
+    except Exception as e:
+        msg = str(e)
+    
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 @api_blueprint.route('/<uuid>/versions')
 @require_api_auth()
@@ -142,6 +194,7 @@ def source_new():
     # source_status = REview
     # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
     # Aqui no se trata la parte que tiene en ver con repo!!!!
+
 
 @api_blueprint.route('/<uuid>/edit', methods=['POST'])
 @require_api_auth()

@@ -5,8 +5,6 @@ from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
 from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema, EXCLUDE, INCLUDE
-
-
 from invenio_db import db
 from datetime import datetime
 from invenio_access import Permission
@@ -18,6 +16,7 @@ from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid, sync
 from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 from iroko.taxonomy.api import Terms
+from sqlalchemy import func, desc
 
 
 class Sources:
@@ -58,31 +57,34 @@ class Sources:
 
     @classmethod
     def get_sources_by_term_uuid(cls, uuid):
-        if uuid:
-            term = Term.query.filter_by(uuid=uuid).first()
+        if not uuid:
+            raise Exception('Must specify an uuid')
+
+        term = Term.query.filter_by(uuid=uuid).first()
+
+        if not term:
+            raise Exception('No term found associated to uuid:{0}'.format(uuid))
 
             terms_ids = []
-            if term:
-                # TODO: do something better in the except?
+            if term:                
                 try:
 
-                    cls._get_term_tree_list(term, terms_ids)
+                    Terms.get_term_tree_list(term, terms_ids)
 
                     sources_ids = db.session.query(TermSources.sources_id).filter(TermSources.term_id.in_(terms_ids)).all()
 
                     return Source.query.filter(Source.id.in_(sources_ids)).all()
-                except  Exception:
-                    return None
+                except  Exception as e:
+                    raise e
         return None
-
+    
     @classmethod
-    def _get_term_tree_list(cls, term, result):
-        """helper fuction to get all the children terms ids in a list
-            TODO: this function should be in Taxonomy api
-        """
-        result.append(term.id)
-        for child in term.children:
-            cls._get_term_tree_list(child, result)
+    def get_sources_count_by_vocabulary(cls, term_id):
+        #cls.get_term_tree_list(term, terms_ids)
+        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(TermSources).filter(Term.vocabulary_id==vocabulary_id).order_by(desc('total')).group_by(Term.id).all()        
+        #print(list_counts)
+
+        return list_counts
 
     @classmethod
     def _check_source_exist(cls, data):
@@ -408,7 +410,7 @@ class Sources:
 
         return versions
 
-
+    
 
 def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     """
