@@ -13,6 +13,8 @@ from invenio_accounts.models import User
 from iroko.taxonomy.models import Term
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
 from iroko.harvester.models import HarvestType, Repository
+from iroko.sources.api import Sources
+
 
 def init_journals():
     # sources_path = '../../data/journals.json'
@@ -36,6 +38,8 @@ def init_journals():
                     _assing_if_exist(data, record, 'description')
                     _assing_if_exist(data, record, 'url')
                     _assing_if_exist(data, record, 'rnps')
+                    if record.__contains__('rnps'):
+                        data['rnps']= {'p': record['rnps'], 'e': ''}
                     _assing_if_exist(data, record, 'email')
                     _assing_if_exist(data, record, 'logo')
                     _assing_if_exist(data, record, 'seriadas_cubanas')
@@ -53,6 +57,7 @@ def init_journals():
     init_term_sources()
     add_terms_to_data()
     set_initial_versions()
+    Sources.sync_source_index()
 
 
 def init_term_sources():

@@ -80,7 +80,7 @@ class MetadataSchemaV1(StrictKeysMixin):
     publication_date = DateString()
     contributors = Nested(ContributorSchemaV1, many=True)
     references = Nested(ReferenceSchemaV1, many=True)
-    iroko_terms = fields.List(SanitizedUnicode(), many=True)
+    terms = fields.List(SanitizedUnicode(), many=True)
     status = fields.Str()
 
 

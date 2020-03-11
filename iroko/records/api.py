@@ -16,7 +16,6 @@ import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.providers as iroko_providers
 
-from iroko.config import SEARCH_ELASTIC_HOSTS
 
 from invenio_jsonschemas import current_jsonschemas
 
@@ -32,7 +31,7 @@ class IrokoAggs:
     @staticmethod
     def getAggrs(field, size=100):
         # Define a default Elasticsearch client
-        client = connections.create_connection(hosts=SEARCH_ELASTIC_HOSTS)
+        client = connections.create_connection(hosts=current_app.config["SEARCH_ELASTIC_HOSTS"])
         query_body = {
             "size": 0,
             "aggs": {

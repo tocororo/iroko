@@ -50,26 +50,29 @@ def get_notifications():
         """
         List all notifications
         """
-        count = int(request.args.get('count')) if request.args.get('count') else 9
-        page = int(request.args.get('page')) if request.args.get('page') else 0
+        count = int(request.args.get('size')) if request.args.get('size') else 10
+        page = int(request.args.get('page')) if request.args.get('page') else 1
 
-        limit = count
-        offset = count*page
+        if page < 1:
+            page = 1
+        offset = count*(page - 1)
+        limit = offset+count
+
 
         result = Notification.query.filter_by(receiver_id = current_user.id).order_by('viewed').all()
         result1 = Notification.query.filter_by(receiver_id = current_user.id,viewed = False).all()
-        
+
         count_not_viewed = len(result1)
         count_total = len(result)
-        
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             'ok','notifications', \
-                            {'data':notification_schema_many.dump(result[offset:offset+limit]), 'total': count_total, 'total_not_view': count_not_viewed})                    
+                            {'data':notification_schema_many.dump(result[offset:limit]), 'total': count_total, 'total_not_view': count_not_viewed})
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-                            
-    
+
+
 
 
 @api_blueprint.route('/<id>', methods=['GET'])
@@ -81,7 +84,7 @@ def notification_get(id):
         msg, notif = Notifications.get_notification(id)
         if not notif:
             raise Exception('Notification not found')
-        
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                             msg,'notification', \
                             notification_schema.dump(notif))
@@ -136,7 +139,7 @@ def notification_edit(id):
 @api_blueprint.route('/viewed/<id>')
 @require_api_auth()
 def notification_viewed(id):
-    
+
     # FIXME: get the user is trying to perform this action!!!!
     try:
         with notification_viewed_permission_factory({'id':id}).require():
@@ -174,7 +177,7 @@ def notification_new():
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         msg,'notification', \
                         notification_schema.dump(notif))
-    
+
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)

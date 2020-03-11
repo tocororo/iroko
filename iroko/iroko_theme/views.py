@@ -189,7 +189,7 @@ def unauthorized(e):
 # def iroko_search():
 
 #     # form = IrokoSearchForm()
-#     # search_hidden_params={'iroko_terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
+#     # search_hidden_params={'terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
 #     # search_extra_params={}
 #     # inst = ""
 #     # if form.validate_on_submit():

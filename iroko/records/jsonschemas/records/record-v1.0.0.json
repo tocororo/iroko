@@ -315,7 +315,7 @@
       },
       "type": "array"
     },
-    "iroko_terms": {
+    "terms": {
       "description": "UUID of related iroko terms",
       "items": {
         "type": "string"

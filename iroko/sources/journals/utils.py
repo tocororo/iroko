@@ -28,11 +28,12 @@ def _filter_data_args(source:Source, data_args, and_op):
     #  En todo caso se puede generalizar para cualquier nombre dentro de data.... lo que habria que pasar la forma de evaluacion o algo asi (por el caso de issn)
 
     if source.data is None:
-        return True
+        return False
     if _no_params(data_args):
         return True
 
-    title = data_args['title'].lower() in str(source.name).lower()
+    title = data_args['title'].lower() in str(source.data['title']).lower() \
+        if 'title' in source.data else False
     description = data_args['description'] in source.data['description'] \
         if 'description' in source.data else False
     url = data_args['url'] in source.data['url'] if 'url' in source.data else False

@@ -28,6 +28,11 @@ from invenio_oauthclient.contrib import orcid
 from flask_cors import CORS
 
 from iroko.deployment import *
+from iroko.pidstore import pids as pids
+from iroko.records.api import IrokoRecord
+from iroko.records.search import IrokoRecordSearch
+from iroko.sources.search import SourceSearch
+from iroko.sources.api import IrokoSource
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -106,7 +111,7 @@ THEME_SITENAME = _('sceiba')
 #: Use default frontpage.
 THEME_FRONTPAGE = False
 #: Frontpage title.
-THEME_FRONTPAGE_TITLE = _('Publicaciones Científicas Cubanas')
+THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
@@ -179,48 +184,83 @@ RECORDS_UI_ENDPOINTS = {
     },
 }
 
+_RECORD_CONVERTER = (
+    'pid(docid, record_class="iroko.records.api:IrokoRecord")'
+)
+_SOURCE_CONVERTER = (
+    'pid(pitmid, record_class="iroko.sources.api:IrokoSource")'
+)
 
-RECORDS_REST_ENDPOINTS = {
-    'irouid': {
-        'pid_type': 'irouid',
-        'pid_minter': 'irouid',
-        'pid_fetcher': 'irouid',
-        'default_endpoint_prefix': True,
-        'search_class': RecordsSearch,
-        'indexer_class': RecordIndexer,
-        'search_index': 'records',
-        'search_type': None,
-        'record_serializers': {
-            'application/json': ('iroko.records.serializers'
-                                 ':json_v1_response'),
+RECORDS_REST_ENDPOINTS = dict(
+    irouid= dict(
+        pid_type=pids.RECORD_PID_TYPE,
+        pid_minter=pids.RECORD_PID_MINTER,
+        pid_fetcher=pids.RECORD_PID_FETCHER,
+        search_class=IrokoRecordSearch,
+        record_class=IrokoRecord,
+        indexer_class=RecordIndexer,
+        record_loaders= {
+            "application/json": ("iroko.records.loaders"
+                                 ":json_v1"),
         },
-        'search_serializers': {
-            'application/json': ('iroko.records.serializers'
-                                 ':json_v1_search'),
+        record_serializers= {
+            "application/json": ("iroko.records.serializers"
+                                 ":json_v1_response"),
         },
-        'record_loaders': {
-            'application/json': ('iroko.records.loaders'
-                                 ':json_v1'),
+        search_serializers= {
+            "application/json": ("iroko.records.serializers"
+                                 ":json_v1_search"),
         },
-        'list_route': '/records/',
-        'item_route': '/records/<pid(irouid):pid_value>',
-        'default_media_type': 'application/json',
-        'max_result_window': 10000,
-        'error_handlers': { },
-        'create_permission_factory_imp': allow_all,
-        'read_permission_factory_imp': check_elasticsearch,
-        'update_permission_factory_imp': allow_all,
-        'delete_permission_factory_imp': allow_all,
-        'list_permission_factory_imp': allow_all,
-        'suggesters': {
-            'title': {
-                'completion': {
+        list_route= "/records/",
+        item_route= "/records/<{0}:pid_value>".format(_RECORD_CONVERTER),
+        default_media_type= "application/json",
+        max_result_window= 10000,
+        error_handlers= dict(),
+        create_permission_factory_imp= allow_all,
+        read_permission_factory_imp= check_elasticsearch,
+        update_permission_factory_imp= allow_all,
+        delete_permission_factory_imp= allow_all,
+        list_permission_factory_imp= allow_all,
+        suggesters= dict(
+            title= dict(
+                completion= {
                     'field': 'suggest_title'
                 }
-            }
-        }
-    },
-}
+            )
+        )
+    ),
+    srcid= dict(
+        pid_type=pids.SOURCE_PID_TYPE,
+        pid_minter=pids.SOURCE_PID_MINTER,
+        pid_fetcher=pids.SOURCE_PID_FETCHER,
+        search_class=SourceSearch,
+        record_class=IrokoSource,
+        indexer_class=RecordIndexer,
+        record_loaders= {
+            "application/json": ("iroko.sources.marshmallow.source_v1"
+                                 ":source_loader_v1"),
+        },
+        record_serializers= {
+            "application/json": ("iroko.sources.marshmallow.source_v1"
+                                 ":source_v1_response"),
+        },
+        search_serializers= {
+            "application/json": ("iroko.sources.marshmallow.source_v1"
+                                 ":source_v1_search"),
+        },
+        list_route= "/sources/",
+        item_route= "/sources/<{0}:pid_value>".format(_SOURCE_CONVERTER),
+        default_media_type= "application/json",
+        max_result_window= 10000,
+        error_handlers= dict(),
+        create_permission_factory_imp= allow_all,
+        read_permission_factory_imp= check_elasticsearch,
+        update_permission_factory_imp= allow_all,
+        delete_permission_factory_imp= allow_all,
+        list_permission_factory_imp= allow_all,
+    )
+)
+
 
 """REST API for iroko."""
 
@@ -238,10 +278,10 @@ RECORDS_REST_FACETS = {
             # 'spec': terms_filter('spec.name'),
             'sources': terms_filter('source.name'),
             'status': terms_filter('status'),
-            'iroko_terms': terms_filter('iroko_terms'),
+            'terms': terms_filter('terms'),
             # 'publication_date': range_filter('publication_date', format='yyyy', end_date_math='/y')
         },
-        'aggs':{
+        "aggs":{
             'keywords':{
                 'terms':{
                     'field': 'keywords',
@@ -262,9 +302,9 @@ RECORDS_REST_FACETS = {
                     "order": 2,
                 }
             },
-            'iroko_terms':{
+            'terms':{
                 'terms':{
-                    'field': 'iroko_terms'
+                    'field': 'terms'
                 }
             },
             # 'spec':{
@@ -292,6 +332,26 @@ RECORDS_REST_FACETS = {
             #         'format': 'yyyy'
             #     }
             # }
+        }
+    },
+    'sources': {
+        "filters": {
+            'source_type': terms_filter('source_type'),
+            'source_status': terms_filter('source_status'),
+        },
+        "aggs":{
+            'source_type':{
+                'terms':{
+                    'field': 'source_type',
+                    'size' : 5
+                }
+            },
+            'source_status':{
+                'terms':{
+                    'field': 'source_status',
+                    'size' : 5
+                }
+            },
         }
     }
 }
@@ -459,6 +519,7 @@ OAUTHCLIENT_REMOTE_APPS = dict(
 )
 
 
+OAUTH2_PROVIDER_TOKEN_EXPIRES_IN = 86400
 
 APP_DEFAULT_SECURE_HEADERS = {
     'force_https': True,

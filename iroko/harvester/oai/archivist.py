@@ -333,7 +333,7 @@ class Archivist:
         rs_term = Term.query.filter_by(vocabulary_id=self.voc.id, name=data['spec']['name']).first()
         if rs_term:
             tuus.append(str(rs_term.uuid))
-        data['iroko_terms'] = tuus
+        data['terms'] = tuus
 
 
     def _udate_record_type(self, data):

@@ -100,7 +100,7 @@
           "type": "date",
           "format": "date"
         },
-        "iroko_terms": {
+        "terms": {
           "type": "keyword"
         },
         "status": {
