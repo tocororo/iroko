@@ -75,6 +75,11 @@ class ProfileForm(FlaskForm):
         blank_text=_('Select Institution')        
     )
 
+    institution_rol = StringField(
+        _('Role'),
+        description=_('Role in the Institution'),
+        filters=[strip_filter], )
+
     def validate_username(form, field):
         """Wrap username validator for WTForms."""
         try:            
@@ -140,7 +145,7 @@ def register_form_factory(Form):
     class CsrfDisabledProfileForm(ProfileForm):
         """Subclass of ProfileForm to disable CSRF token in the inner form.
 
-        This class will always be a inner form field of the parent class
+        This class will always be a cinner form field of the parent class
         `Form`. The parent will add/remove the CSRF token in the form.
         """
 

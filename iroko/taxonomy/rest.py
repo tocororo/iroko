@@ -323,4 +323,3 @@ def taxonomy_current_user_permissions():
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-
