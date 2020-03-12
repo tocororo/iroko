@@ -48,7 +48,7 @@ def init_api(state):
 
 
 @api_blueprint.route('/me', methods=['GET'])
-#@require_api_auth()
+@require_api_auth()
 # @require_oauth_scopes(email_scope.id_)
 def get_user_info():
     try:
