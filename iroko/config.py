@@ -338,6 +338,7 @@ RECORDS_REST_FACETS = {
         "filters": {
             'source_type': terms_filter('source_type'),
             'source_status': terms_filter('source_status'),
+            'relations': terms_filter('relations.uuid')
         },
         "aggs":{
             'source_type':{

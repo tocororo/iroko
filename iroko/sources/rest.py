@@ -58,33 +58,55 @@ def get_source_by_uuid_no_versions(uuid):
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+@api_blueprint.route('/relations/<uuid>/count')
+def get_sources_clasification(uuid):
+    """
+    Return the counts of sources using <uuid> argument as the base relations.
+    receive the argument level, meaning, how deep will go in the tree of related terms
+    level=0 means, only the received term, level=1 means the terms and its children.
+    result in the form
+    relations : {
+        <termuuil>: {
+            doc_count: number,
+            <termname>: string,
+            children: {
+                <termuuil>: {
+                    doc_count: number,
+                    <termname>: string,
+                    children:
+                }
+                ...
+            }
+        }
+    }
+    """
+    # try:
+    level = int(request.args.get('level')) if request.args.get('level') else 0
+
+    result = Sources.count_sources_clasified_by_term(uuid, level)
+    if not result:
+        raise Exception('Source not found')
+    return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','relations', result.data)
+    # except Exception as e:
+    #     return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
 
 @api_blueprint.route('/relations/<uuid>')
 def get_sources_by_term_uuid(uuid):
-    """List all the sources filtered by some relations with terms, 
-    also by type and status,
-    
-    Receive 
-    
-    <agg_level> do the job from this specific level of the terms tree until all its sons
+    """same as above but get the list instead of the count...
 
-    <status> params: 'all', 'approved', 'to_review', 'unofficial'
-
-    <type> params: 'all', 'journal', 'student', 'popularization', 'repository', 'website'
-
-    <count> params: '0' for False, '1' for True
-
-    <temrs> params: terms_uuid that each source should has
-    
     """
     try:
-        sources = Sources.get_sources_by_term_uuid(uuid)
-        if not sources:
-            raise Exception('Source not found')
+        # TODO: rewrite this... Not implemented
+        raise Exception('Not implemented')
+        # sources = Sources.get_sources_by_term_uuid(uuid)
+        # if not sources:
+        #     raise Exception('Source not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','sources', \
-                            source_schema_many.dump(sources))
+        # return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+        #                     'ok','sources', \
+        #                     source_schema_many.dump(sources))
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -92,11 +114,11 @@ def get_sources_by_term_uuid(uuid):
 
 @api_blueprint.route('/count/<vocabulary_id>')
 def sources_count_by_vocabulary(vocabulary_id):
-    """List all the terms name from vocabulary_id and count of filtered by some relations with terms, 
+    """List all the terms name from vocabulary_id and count of filtered by some relations with terms,
     also by type and status,
-    
-    Receive 
-    
+
+    Receive
+
     <agg_level> do the job from this specific level of the terms tree until all its sons
 
     <status> params: 'all', 'approved', 'to_review', 'unofficial'
@@ -106,7 +128,7 @@ def sources_count_by_vocabulary(vocabulary_id):
     <count> params: '0' for False, '1' for True
 
     <temrs> params: terms_uuid that each source should has
-    
+
     """
     try:
         count_list  = Sources.get_sources_count_by_vocabulary(vocabulary_id)
@@ -121,7 +143,7 @@ def sources_count_by_vocabulary(vocabulary_id):
 
     except Exception as e:
         msg = str(e)
-    
+
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 

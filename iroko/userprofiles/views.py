@@ -99,31 +99,34 @@ def profile():
 
 def profile_form_factory():
     """Create a profile form."""
+    t_biography = ''
+    t_institution = ''
+    t_institution_rol = ''
     if current_userprofile_json_metadata:
-                t_biography = current_userprofile_json_metadata["biography"] 
-                msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])  
-                t_institution_rol = current_userprofile_json_metadata["institution_rol"]   
+                t_biography = current_userprofile_json_metadata["biography"]
+                msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
+                t_institution_rol = current_userprofile_json_metadata["institution_rol"]
 
-    if current_app.config['USERPROFILES_EMAIL_ENABLED']: 
+    if current_app.config['USERPROFILES_EMAIL_ENABLED']:
         return EmailProfileForm(
             formdata=None,
             username=current_userprofile.username,
-            full_name=current_userprofile.full_name,   
+            full_name=current_userprofile.full_name,
             biography=t_biography if t_biography else '',
             institution=t_institution.id if t_institution else 0,
-            institution_rol=t_institution_rol if t_institution_rol else '',   
+            institution_rol=t_institution_rol if t_institution_rol else '',
             email=current_user.email,
-            email_repeat=current_user.email,            
+            email_repeat=current_user.email,
             prefix='profile', )
     else:
 
         return ProfileForm(
             formdata=None,
             username=current_userprofile.username,
-            full_name=current_userprofile.full_name,  
+            full_name=current_userprofile.full_name,
             biography=t_biography if t_biography else '',
             institution=t_institution.id if t_institution else 0,
-            institution_rol=t_institution_rol if t_institution_rol else '',   
+            institution_rol=t_institution_rol if t_institution_rol else '',
             prefix='profile', )
 
 
@@ -139,20 +142,20 @@ def handle_verification_form(form):
 
 def handle_profile_form(form):
     """Handle profile update form."""
-    form.process(formdata=request.form)        
+    form.process(formdata=request.form)
     if form.validate_on_submit():
         email_changed = False
         with db.session.begin_nested():
-            # Update profile.            
+            # Update profile.
             current_userprofile.username = form.username.data
-            current_userprofile.full_name = form.full_name.data            
+            current_userprofile.full_name = form.full_name.data
             data = dict()
             data["biography"] = form.biography.data
             data["institution_id"] = form.institution.data.id
-            data["institution_rol"] = form.institution_rol.data            
+            data["institution_rol"] = form.institution_rol.data
             current_userprofile.json_metadata = data
-           
-            #db.session.add(current_userprofile)            
+
+            #db.session.add(current_userprofile)
 
             # Update email
             if current_app.config['USERPROFILES_EMAIL_ENABLED'] and \
@@ -161,7 +164,7 @@ def handle_profile_form(form):
                 current_user.confirmed_at = None
                 db.session.add(current_user)
                 email_changed = True
-        db.session.commit()        
+        db.session.commit()
 
         if email_changed:
             send_confirmation_instructions(current_user)
