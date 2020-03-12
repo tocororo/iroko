@@ -16,6 +16,20 @@ from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
 from .validators import validate_username
 from sqlalchemy_utils.types import JSONType
+import enum
+
+
+class JournalRol(enum.Enum):
+    ADMINISTRATOR = "Administrator"
+    JOURNALMANAGER = "Journal Manager"
+    AUTHOR = "Author"
+    EDITOR = "Editor"
+    SECTIONEDITOR = "Section Editor"
+    REVIEWER = "Reviewer"
+    COPYEDITOR = "Copyeditor"
+    LAYOUTEDITOR = "Layout Editor"
+    PROOFREADER = "Proofreader" #CORRECTOR DE PRUEBAS
+    READER = "Reader"
 
 
 class AnonymousUserProfile():

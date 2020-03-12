@@ -395,7 +395,7 @@ class Terms:
     @classmethod
     def get_terms_by_vocabulary_name(cls, vocabulary_name):
         try:
-            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name)
+            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(Term.name)
             print(lista[0].id)
             return lista
         except Exception as error:

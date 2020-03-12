@@ -8,6 +8,7 @@ class UserProfilesSchema(Schema):
 
     biography = fields.Str()
     institution_id = fields.Integer()
+    institution_rol = fields.Str()
 
 userprofile_schema_many = UserProfilesSchema(many=True)
 userprofile_schema = UserProfilesSchema()
