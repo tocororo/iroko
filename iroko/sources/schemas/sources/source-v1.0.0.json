@@ -122,6 +122,10 @@
             "type": "string",
             "description": "the uuid of the term related to this source"
           },
+          "name": {
+            "type": "string",
+            "description": "the name of the term related to this source"
+          },
           "data": {
             "type": "object",
             "description": "any other data in the relation",

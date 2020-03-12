@@ -31,6 +31,11 @@ import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.providers as iroko_providers
 
+from iroko.sources.search import SourceSearch
+from invenio_rest.serializer import result_wrapper
+
+from flask import jsonify
+
 
 class IrokoSource (Record):
 
@@ -174,6 +179,23 @@ class Sources:
             data['source_type']= source.source_type.value
             data['source_status']= source.source_status.value
             data['relations']= cls._get_relations_to_sync(source.id)
+            # TODO: add identifiers
+            ids = []
+            if 'issn' in data and 'p' in data['issn']:
+                ids.append(dict(idtype='issn', value=data['issn']['p']))
+            if 'issn' in data and 'e' in data['issn']:
+                ids.append(dict(idtype='issn', value=data['issn']['e']))
+            if 'issn' in data and 'l' in data['issn']:
+                ids.append(dict(idtype='issn', value=data['issn']['']))
+            if 'rnps' in data and 'p' in data['rnps']:
+                ids.append(dict(idtype='rnps', value=data['rnps']['p']))
+            if 'rnps' in data and 'e' in data['rnps']:
+                ids.append(dict(idtype='ernps', value=data['rnps']['e']))
+            if 'url' in data:
+                ids.append(dict(idtype='url', value=data['url']))
+            if 'oai' in data:
+                ids.append(dict(idtype='oai', value=data['oai']))
+            data['identifiers'] = ids
             src, status = IrokoSource.create_or_update(
                             data, dbcommit=True, reindex=True)
 
@@ -185,7 +207,7 @@ class Sources:
             term = Term.query.filter_by(id=rel.term_id).first()
             if rel.data == None:
                 rel.data = dict()
-            result.append(dict(uuid=str(term.uuid), data=rel.data))
+            result.append(dict(uuid=str(term.uuid), data=rel.data, name=str(term.name)))
             if term.parent_id:
                 parent = Term.query.filter_by(id=term.parent_id).first()
                 result.extend(cls._get_parent_relations_to_sync(parent))
@@ -196,6 +218,7 @@ class Sources:
         result = []
         if term.parent_id:
             parent = Term.query.filter_by(id=term.parent_id).first()
+            result.append(dict(uuid=str(term.uuid), data=dict()))
             result.extend(cls._get_parent_relations_to_sync(parent))
         else:
             result.append(dict(uuid=str(term.uuid), data=dict()))
@@ -233,6 +256,73 @@ class Sources:
     @classmethod
     def count_sources(cls):
         return Source.query.count()
+
+    @classmethod
+    def count_sources_clasified_by_term(cls, uuid, level):
+        """
+
+        """
+        if uuid:
+            term = Term.query.filter_by(uuid=uuid).first()
+            if term:
+                aggs = dict()
+                aggs[str(term.uuid)]= {
+                    "filter": {
+                        "term": {
+                            "relations.uuid": term.uuid
+                        }
+                    }
+                }
+                query_body = {
+                    "aggs": aggs
+                }
+                result = SourceSearch.from_dict(query_body).execute()
+
+                children = []
+                if level > 0:
+                    children = cls._count_term_children(term, level, 1)
+                    children.sort(key=lambda k: int(k['count']), reverse=True)
+                res = dict(
+                    name= term.name,
+                    uuid= str(term.uuid),
+                    count= str(result.aggregations[str(term.uuid)]["doc_count"]),
+                    children= children
+                )
+                return result_wrapper(res)
+        return None
+
+    @classmethod
+    def _count_term_children(cls, term, level_to_reach, current_level):
+        # TODO: esto seguramente tiene una mejor manera de hacerse con la query de elasticsearch...
+        aggs = dict()
+        children = Term.query.filter_by(parent_id=term.id).all()
+        for child in children:
+            # terms.append(child.uuid)
+            aggs[str(child.uuid)]= {
+                "filter": {
+                    "term": {
+                        "relations.uuid": child.uuid
+                    }
+                }
+            }
+        query_body = {
+            "aggs": aggs
+        }
+        result = SourceSearch.from_dict(query_body).execute()
+        res = []
+        for child in children:
+            children = []
+            if level_to_reach > current_level:
+                children = cls._count_term_children(child ,level_to_reach, current_level+1)
+                children.sort(key=lambda k: int(k['count']), reverse=True)
+            res.append(dict(
+                name= child.name,
+                uuid= str(child.uuid),
+                count= str(result.aggregations[str(child.uuid)]["doc_count"]),
+                children= children
+            ))
+        return result_wrapper(res)
+
 
     @classmethod
     def get_sources_by_term_uuid(cls, uuid):

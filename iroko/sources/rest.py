@@ -58,10 +58,45 @@ def get_source_by_uuid_no_versions(uuid):
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+@api_blueprint.route('/relations/<uuid>/count')
+def get_sources_clasification(uuid):
+    """
+    Return the counts of sources using <uuid> argument as the base relations.
+    receive the argument level, meaning, how deep will go in the tree of related terms
+    level=0 means, only the received term, level=1 means the terms and its children.
+    result in the form
+    relations : {
+        <termuuil>: {
+            doc_count: number,
+            <termname>: string,
+            children: {
+                <termuuil>: {
+                    doc_count: number,
+                    <termname>: string,
+                    children:
+                }
+                ...
+            }
+        }
+    }
+    """
+    # try:
+    level = int(request.args.get('level')) if request.args.get('level') else 0
+
+    result = Sources.count_sources_clasified_by_term(uuid, level)
+    if not result:
+        raise Exception('Source not found')
+    return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','relations', result.data)
+    # except Exception as e:
+    #     return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
 @api_blueprint.route('/relations/<uuid>')
 def get_sources_by_term_uuid(uuid):
     """Get a sources related with a term UUID"""
     try:
+        # TODO: rewrite this...
         sources = Sources.get_sources_by_term_uuid(uuid)
         if not sources:
             raise Exception('Source not found')
