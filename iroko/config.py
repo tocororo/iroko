@@ -545,4 +545,15 @@ APP_DEFAULT_SECURE_HEADERS = {
     'session_cookie_http_only': True
 }
 
+#
+# Variables para OAIServer
+#
+
+OAISERVER_ADMIN_EMAILS = [
+    'rafael.martinez@upr.edu.cu',
+    'eduardo.arencibia@upr.edu.cu'
+]
+
+OAISERVER_RECORD_INDEX = 'marc21'
+OAISERVER_ID_PREFIX = 'oai:example:'
 
