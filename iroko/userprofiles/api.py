@@ -41,12 +41,10 @@ def _get_current_userprofile():
     return profile
 
 
-def _get_current_userprofile_json_metadata():
-    print("Elemento: ", current_userprofile.json_metadata)
+def _get_current_userprofile_json_metadata():    
     if current_userprofile.json_metadata:
         try:
-            data = userprofile_schema.load(current_userprofile.json_metadata)
-            print(data)
+            data = userprofile_schema.load(current_userprofile.json_metadata)            
             return data
         except ValidationError as err:
             pass

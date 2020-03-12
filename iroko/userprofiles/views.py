@@ -154,8 +154,8 @@ def handle_profile_form(form):
             data["institution_id"] = form.institution.data.id
             data["institution_rol"] = form.institution_rol.data
             current_userprofile.json_metadata = data
-
-            #db.session.add(current_userprofile)
+            #print(current_userprofile.json_metadata)
+            db.session.add(current_userprofile)
 
             # Update email
             if current_app.config['USERPROFILES_EMAIL_ENABLED'] and \

@@ -34,6 +34,7 @@ class JournalRol(enum.Enum):
 
 class AnonymousUserProfile():
     """Anonymous user profile."""
+    json_metadata = db.Column( JSONType )
 
     @property
     def is_anonymous(self):
