@@ -22,7 +22,7 @@ from wtforms.validators import DataRequired, EqualTo, StopValidation, \
 from flask_admin.form.widgets import Select2Widget
 from iroko.taxonomy.api import Terms
 
-from .api import current_userprofile
+from .api import current_userprofile, current_userprofile_json_metadata
 from .models import UserProfile
 from .validators import USERNAME_RULES, validate_username
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -69,7 +69,7 @@ class ProfileForm(FlaskForm):
 
     institution = QuerySelectField(
         label=_('Institution'),    
-        query_factory=lambda: Terms.get_terms_by_vocabulary_name('institutions'),        
+        query_factory=lambda: Terms.get_terms_by_vocabulary_name('institutions'),            
         widget=Select2Widget(),
         allow_blank=True,        
         blank_text=_('Select Institution')        
@@ -97,9 +97,15 @@ class ProfileForm(FlaskForm):
         except NoResultFound:
             return
     
-    # def __init__(self, formdata=None, **kwargs):
-    #     super(ProfileForm, self).__init__(formdata, **kwargs)
-    #     self.institution.choices = [(c.id, c.name) for c in Terms.get_terms_by_vocabulary_name('institutions')]
+    def __init__(self, formdata=None, **kwargs):
+        super(ProfileForm, self).__init__(formdata, **kwargs)
+        print("en constructor profile")
+        if not current_userprofile.is_anonymous and current_userprofile_json_metadata:            
+            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])  
+            if institution:
+                self.institution.data = institution
+                print("name= ", institution.name)
+                print("id= ", institution.id)
 
 
 

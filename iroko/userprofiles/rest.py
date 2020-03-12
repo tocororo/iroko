@@ -48,21 +48,22 @@ def init_api(state):
 
 
 @api_blueprint.route('/me', methods=['GET'])
-@require_api_auth()
+#@require_api_auth()
 # @require_oauth_scopes(email_scope.id_)
 def get_user_info():
     try:
+        biography = ""
+        institution_name = ""
+        institution_id = 0
+        institution_rol = ""
+        print("en me", current_userprofile_json_metadata)
         if current_userprofile_json_metadata:
             biography = current_userprofile_json_metadata["biography"]
             msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
-            institution_name = institution.name
-            institution_id = institution.id
+            if institution:
+                institution_name = institution.name
+                institution_id = institution.id
             institution_rol = current_userprofile_json_metadata["institution_rol"]
-        else:
-            biography = ""
-            institution_name = ""
-            institution_id = 0
-            institution_rol = ""
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok', 'userprofile', \

@@ -439,3 +439,30 @@ def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
 
     return 'actions', {'vocabulary_editor_actions': vocabularies_ids}
 
+
+def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
+    """
+    Checks from ActionUsers if current_user has taxonomy_full_editor_actions,
+    that way it has full permissions over vocabularies and terms
+    if not, then:
+        checks if it has vocabulary_editor_actions,
+        then collect the ids of the vocabularies it has permission on
+
+    and gives dict of texts
+    
+    """
+    vocabularies_ids = []
+    if is_current_user_taxonomy_admin():
+        return 'actions', {'taxonomy_full_editor_actions': None}
+    else:
+        actions = ActionUsers.query.filter_by(
+            user=current_user,
+            exclude=False,
+            action='vocabulary_editor_actions').all()
+
+        for action in actions:
+            vocabularies_ids.append(action.argument)
+
+    return 'actions', {'vocabulary_editor_actions': vocabularies_ids}
+
+
