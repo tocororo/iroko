@@ -15,6 +15,20 @@ from invenio_accounts.models import User
 from iroko.taxonomy.models import Term
 
 
+class JournalRol(enum.Enum):
+    ADMINISTRATOR = "Administrator"
+    JOURNALMANAGER = "Journal Manager"
+    AUTHOR = "Author"
+    EDITOR = "Editor"
+    SECTIONEDITOR = "Section Editor"
+    REVIEWER = "Reviewer"
+    COPYEDITOR = "Copyeditor"
+    LAYOUTEDITOR = "Layout Editor"
+    PROOFREADER = "Proofreader" #CORRECTOR DE PRUEBAS
+    READER = "Reader"
+
+
+
 class SourceType(enum.Enum):
     JOURNAL = "journal"
     STUDENT = "student"
