@@ -67,8 +67,7 @@ class ProfileForm(FlaskForm):
     
     avatar = FileField(_(
         'Avatar'), 
-        description=_('An imagen for representing yourself'),      
-        validators=[FileAllowed(IMAGES, _('Images only...'))]  
+        description=_('An imagen for representing yourself')        
         )    
     
     biography = TextAreaField(
