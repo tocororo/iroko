@@ -10,6 +10,7 @@
 
 from __future__ import absolute_import, print_function
 
+import os
 from flask import Blueprint, current_app, flash, render_template, request
 from flask_babelex import lazy_gettext as _
 from flask_breadcrumbs import register_breadcrumb
@@ -17,13 +18,14 @@ from flask_login import current_user, login_required
 from flask_menu import register_menu
 from flask_security.confirmable import send_confirmation_instructions
 from invenio_db import db
-
+from werkzeug.utils import secure_filename
 from .api import current_userprofile, current_userprofile_json_metadata
 from .forms import EmailProfileForm, ProfileForm, VerificationForm, \
     confirm_register_form_factory, register_form_factory
 from .models import UserProfile
 from .marshmallow import userprofile_schema, UserProfilesSchema
 from iroko.taxonomy.api import Terms
+import base64
 
 
 blueprint = Blueprint(
@@ -57,9 +59,6 @@ def init_ui(state):
     # Register blueprint for templates
     app.register_blueprint(
         blueprint, url_prefix=app.config['USERPROFILES_PROFILE_URL'])
-
-
-
 
 
 @blueprint.app_template_filter()
@@ -100,21 +99,23 @@ def profile():
 def profile_form_factory():
     """Create a profile form."""
     t_biography = ''
-    t_institution = ''
+    t_institution = 0
     t_institution_rol = ''
+    t_avatar = ''
     if current_userprofile_json_metadata:
-                t_biography = current_userprofile_json_metadata["biography"]
-                msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
-                t_institution_rol = current_userprofile_json_metadata["institution_rol"]
+                t_biography = current_userprofile_json_metadata["biography"] if "biography" in current_userprofile_json_metadata.keys() else ""
+                msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"]) if "institution_id" in current_userprofile_json_metadata.keys() else 0
+                t_institution_rol = current_userprofile_json_metadata["institution_rol"] if "institution_rol" in current_userprofile_json_metadata.keys() else ""
+                t_avatar = current_userprofile_json_metadata["avatar"] if "avatar" in current_userprofile_json_metadata.keys() else ""
 
     if current_app.config['USERPROFILES_EMAIL_ENABLED']:
         return EmailProfileForm(
             formdata=None,
             username=current_userprofile.username,
             full_name=current_userprofile.full_name,
-            biography=t_biography if t_biography else '',
-            institution=t_institution.id if t_institution else 0,
-            institution_rol=t_institution_rol if t_institution_rol else '',
+            biography=t_biography,            
+            institution=t_institution.id if t_institution is not 0 else 0,
+            avatar=base64.b64decode(str('t_avatar')) if t_avatar is not '' else None,
             email=current_user.email,
             email_repeat=current_user.email,
             prefix='profile', )
@@ -124,9 +125,10 @@ def profile_form_factory():
             formdata=None,
             username=current_userprofile.username,
             full_name=current_userprofile.full_name,
-            biography=t_biography if t_biography else '',
-            institution=t_institution.id if t_institution else 0,
-            institution_rol=t_institution_rol if t_institution_rol else '',
+            biography=t_biography,
+            institution=t_institution.id if t_institution is not 0 else 0,
+            avatar=base64.b64decode(str('t_avatar')) if t_avatar is not '' else None,
+            institution_rol=t_institution_rol,
             prefix='profile', )
 
 
@@ -153,6 +155,25 @@ def handle_profile_form(form):
             data["biography"] = form.biography.data
             data["institution_id"] = form.institution.data.id
             data["institution_rol"] = form.institution_rol.data
+            data["avatar"] = ""
+            print("fichero= ", form.avatar.data)  
+            
+            print("aquiiiiii", request)
+                
+            # if f:
+            #     filename = secure_filename(f.filename)       
+            #     print("otro= ", filename)
+
+            if form.avatar.data:
+                filename = secure_filename(form.avatar.data.filename)
+                path_avatar = os.path.join(current_app.config.get('UPLOADED_PHOTOS_DEST'), filename)
+                print("path= ", path_avatar)
+                form.avatar.data.save(path_avatar)
+
+                with open(path_avatar, "r") as file_avatar:
+                    encoded_avatar = base64.b64encode(file_avatar)
+                    data["avatar"] = encoded_avatar
+        
             current_userprofile.json_metadata = data
             #print(current_userprofile.json_metadata)
             db.session.add(current_userprofile)

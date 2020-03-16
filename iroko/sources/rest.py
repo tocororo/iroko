@@ -9,7 +9,7 @@ from iroko.sources.marshmallow.source import source_schema, source_schema_many, 
 
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from marshmallow import ValidationError
-from iroko.sources.api import Sources, get_current_user_source_permissions
+from iroko.sources.api import Sources, get_current_user_source_permissions, IrokoSource
 from invenio_i18n.selectors import get_locale
 from invenio_oauth2server import require_api_auth
 from iroko.decorators import source_admin_required
@@ -18,6 +18,7 @@ from iroko.sources.permissions import source_term_gestor_permission_factory, sou
 from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.api import Notifications
 from iroko.notifications.models import NotificationType
+from iroko.taxonomy.api import Terms
 import datetime
 
 
@@ -590,3 +591,36 @@ def get_editor_source_versions(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/info/<uuid>', methods=['GET'])
+#@require_api_auth()
+def get_sources_by_term_statics(uuid):
+    # esta api rest debe dar los tres ultimos ingresos
+    # cant de revistas de ese termino
+    # cant de instituciones
+    # cant de records
+    # uuid del MES: bb40299a-44bb-43be-a979-cd67dbb923d7
+
+    try:        
+        ordered = True if request.args.get('size') and int(request.args.get('size')) is not 0 else False
+        sources = Sources.get_sources_list_x_status(term_uuid=uuid, ordered_by_date=ordered)
+        three = sources[0:3]        
+        msg, mes = Terms.get_term(uuid)
+        institutions = []
+        Terms.get_term_tree_list_by_level(mes, institutions, 1, 1)
+        
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                        'ok','home_statics', \
+                        {
+                            'soources_count': len(sources),
+                            'ultimas':source_schema_many.dump(three),                            
+                            'institutions_count' : len(institutions)
+                        })
+        
+        #last_approved = Sources.
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+

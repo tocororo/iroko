@@ -35,6 +35,12 @@ from invenio_rest.serializer import result_wrapper
 
 from flask import jsonify
 
+from flask import current_app
+
+from elasticsearch_dsl.connections import connections
+
+from elasticsearch_dsl import Search, Q
+
 
 class IrokoSource (Record):
 
@@ -51,6 +57,7 @@ class IrokoSource (Record):
     pid_uuid_field = 'id'
     _schema = "sources/source-v1.0.0.json"
 
+            
     @classmethod
     def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, source_uuid=None, **kwargs):
         """Create or update IrokoRecord."""
@@ -225,12 +232,25 @@ class Sources:
 
 
     @classmethod
-    def get_sources_list_x_status(cls, status='all'):
+    def get_sources_list_x_status(cls, status='all', ordered_by_date=False, term_uuid=None):
 
-        if status == 'all':
-            return list(map(lambda x: x, db.session.query(Source).all()))
-        else:
-            return list(map(lambda x: x, db.session.query(Source).filter(Source.source_status==status.upper()).all()))
+        query = db.session.query(Source)
+
+        if status is not 'all':
+            query = query.filter(Source.source_status==status.upper())
+        
+        if term_uuid:
+            msg, term = Terms.get_term(term_uuid)
+            if term:
+                terms_ids = []
+                Terms.get_term_tree_list(term, terms_ids)                
+                query = query.join(TermSources).filter(TermSources.term_id.in_(terms_ids))
+
+        if ordered_by_date:
+            query = query.join(SourceVersion).filter(SourceVersion.is_current==True).order_by(SourceVersion.created_at.desc())
+        
+        return list(map(lambda x: x, query.all()))        
+        
 
     @classmethod
     def get_sources_id_list(cls):
@@ -257,7 +277,7 @@ class Sources:
         return Source.query.count()
 
     @classmethod
-    def count_sources_clasified_by_term(cls, uuid, level):
+    def count_sources_clasified_by_term(cls, uuid, level=0):
         """
 
         """

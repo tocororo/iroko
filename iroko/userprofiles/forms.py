@@ -12,21 +12,25 @@ from __future__ import absolute_import, print_function
 
 from flask_babelex import lazy_gettext as _
 from flask_login import current_user
+from flask import current_app
 from flask_security.forms import email_required, email_validator, \
     unique_user_email
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, RecaptchaField
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 from sqlalchemy.orm.exc import NoResultFound
 from wtforms import FormField, StringField, SubmitField, TextField, TextAreaField, SelectField, validators
 from wtforms.validators import DataRequired, EqualTo, StopValidation, \
     ValidationError
 from flask_admin.form.widgets import Select2Widget
 from iroko.taxonomy.api import Terms
-
 from .api import current_userprofile, current_userprofile_json_metadata
 from .models import UserProfile
 from .validators import USERNAME_RULES, validate_username
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from flask_admin.form.widgets import Select2Widget
+
+photos = UploadSet('photos', IMAGES)
 
 
 def strip_filter(text):
@@ -60,6 +64,12 @@ class ProfileForm(FlaskForm):
         # NOTE: Form label
         _('Full name'),
         filters=[strip_filter], )
+    
+    avatar = FileField(_(
+        'Avatar'), 
+        description=_('An imagen for representing yourself'),      
+        validators=[FileAllowed(IMAGES, _('Images only...'))]  
+        )    
     
     biography = TextAreaField(
         _('Biography'),
@@ -98,14 +108,11 @@ class ProfileForm(FlaskForm):
             return
     
     def __init__(self, formdata=None, **kwargs):
-        super(ProfileForm, self).__init__(formdata, **kwargs)
-        print("en constructor profile")
+        super(ProfileForm, self).__init__(formdata, **kwargs)        
         if not current_userprofile.is_anonymous and current_userprofile_json_metadata:            
             msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])  
             if institution:
-                self.institution.data = institution
-                print("name= ", institution.name)
-                print("id= ", institution.id)
+                self.institution.data = institution          
 
 
 

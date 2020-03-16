@@ -145,13 +145,6 @@ class Vocabularies:
 
         return msg, done
    
-    @classmethod
-    def get_term_tree_list(cls, term, result):
-        """helper fuction to get all the children terms ids in a list            
-        """
-        result.append(term.id)
-        for child in term.children:
-            cls.get_term_tree_list(child, result)
 
 
 class Terms:
@@ -181,20 +174,20 @@ class Terms:
         return 'ok', vocab, terms
 
 
-    # @classmethod
-    # def get_terms_tree_by_vocabulary(cls, vocabulary_id, level: int)-> [str, Vocabulary, list]:
-    #     """If level < 0, means all the levels of the tree"""
-    #     msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
-    #     if not vocab:
-    #         raise Exception(msg)
+    @classmethod
+    def get_terms_tree_by_vocabulary(cls, vocabulary_id, level: int)-> [str, Vocabulary, list]:
+        """If level < 0, means all the levels of the tree"""
+        msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
+        if not vocab:
+            raise Exception(msg)
 
-    #     msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
+        msg, terms = Terms.get_first_level_terms_by_vocabulary(vocabulary_id)
 
-    #     terms_full = []
-    #     for term in terms:
-    #         terms_full.append(term_node_schema.dump_term_node(term, level, 0))
+        terms_full = []
+        for term in terms:
+            terms_full.append(term_node_schema.dump_term_node(term, level, 0))
 
-    #     return 'ok', vocab, terms_full
+        return 'ok', vocab, terms_full
 
     @classmethod
     def get_term(cls, uuid) -> Dict[str, Term]:
@@ -402,7 +395,30 @@ class Terms:
             return []
 
     
+    @classmethod
+    def get_term_tree_list(cls, term, result):
+        """helper fuction to get all the children terms ids in a list            
+        """
+        result.append(term.id)
+        for child in term.children:
+            cls.get_term_tree_list(child, result)
     
+
+    @classmethod
+    def get_term_tree_list_by_level(cls, term, result, start_level=0, level=0):
+        """
+        retornar una lista en result comenzando en el start_level abajo del term
+        recibido y debe avanzar level cantidad abajo de ese nivel           
+        """
+        new_start = 0
+        if start_level == 0:
+            result.append(term.id)
+        if start_level > 0 :
+            new_start = start_level - 1
+        if level > 0:            
+            for child in term.children:
+                cls.get_term_tree_list_by_level(child, result, new_start, level-1)
+
 
     # @classmethod
     # def dump_term(cls, term:Term, level_to_reach: int, current_level: int):

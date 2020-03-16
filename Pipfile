@@ -17,6 +17,7 @@ bokeh = ""
 marshmallow-enum = "*"
 werkzeug = "==0.16.1"
 pytest = "==4.6.4"
+flask_uploads = "==0.2.1"
 
 [dev-packages]
 check-manifest = ">=0.35"
