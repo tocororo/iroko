@@ -31,6 +31,9 @@ from flask.cli import with_appcontext
 
 from .taxonomy import init_taxonomy
 from .sources import init_journals, add_oaiurls
+from .issn import issn_harvester
+from .miar import miar_harvester
+
 
 
 @click.group()
@@ -44,11 +47,16 @@ def init():
     """Init the system with fixtures."""
     init_taxonomy()
     init_journals()
+    issn_harvester.syncronize_files_issn_model()
+    miar_harvester.syncronize_miar_databases()
+    miar_harvester.syncronize_miar_journals(issn_harvester.cuban_issn_file)
+
 
 @fixtures.command()
 @with_appcontext
 def oaiurls():
     add_oaiurls()
+
 
 
 

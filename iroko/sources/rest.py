@@ -19,6 +19,7 @@ from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.api import Notifications
 from iroko.notifications.models import NotificationType
 from iroko.taxonomy.api import Terms
+from iroko.records.api import IrokoAggs
 import datetime
 
 
@@ -604,13 +605,14 @@ def get_sources_by_term_statics(uuid):
     # uuid del MES: bb40299a-44bb-43be-a979-cd67dbb923d7
 
     try:        
-        ordered = True if request.args.get('size') and int(request.args.get('size')) is not 0 else False
-        sources = Sources.get_sources_list_x_status(term_uuid=uuid, ordered_by_date=ordered)
+        ordered = True if request.args.get('ordered') and int(request.args.get('ordered')) is not 0 else False
+        status = request.args.get('status') if request.args.get('status') else 'all'
+        sources = Sources.get_sources_list_x_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
         three = sources[0:3]        
         msg, mes = Terms.get_term(uuid)
         institutions = []
         Terms.get_term_tree_list_by_level(mes, institutions, 1, 1)
-        
+        records = IrokoAggs.getAggrs("source.uuid", 50000)
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','home_statics', \

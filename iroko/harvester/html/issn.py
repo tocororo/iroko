@@ -11,6 +11,8 @@ from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 from iroko.sources.models import Issn
 from invenio_db import db
+
+
 class IssnHarvester(BaseHarvester):
     """
     TODO: Document this better!!!
