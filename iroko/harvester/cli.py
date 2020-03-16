@@ -144,7 +144,7 @@ def miar(recheck):
 
 @harvester.command()
 @with_appcontext
-def syncronize_iisn_miar_db():
+def syncronize():
     work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
     issn_harvester = IssnHarvester(work_dir)    
     miar_harvester = MiarHarvester(work_dir)
