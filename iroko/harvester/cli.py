@@ -27,6 +27,8 @@ from iroko.harvester.oai.harvester import OaiHarvester
 from iroko.harvester.api import PrimarySourceHarvester, SecundarySourceHarvester
 from iroko.harvester.tasks import harvest_source_task
 from iroko.harvester.models import Repository
+from iroko.harvester.html.issn import IssnHarvester
+from iroko.harvester.html.miar import MiarHarvester
 from flask import current_app
 from invenio_db import db
 
@@ -138,3 +140,15 @@ def issn(remoteissns, remoteinfo, info):
 def miar(recheck):
     """get all info from miar"""
     SecundarySourceHarvester.harvest_miar(recheck)
+
+
+@harvester.command()
+@with_appcontext
+def syncronize_iisn_miar_db():
+    work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+    issn_harvester = IssnHarvester(work_dir)    
+    miar_harvester = MiarHarvester(work_dir)
+
+    issn_harvester.syncronize_files_issn_model()
+    miar_harvester.syncronize_miar_databases()
+    miar_harvester.syncronize_miar_journals(issn_harvester.cuban_issn_file)
