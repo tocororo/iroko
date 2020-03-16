@@ -354,7 +354,7 @@ class Sources:
             raise Exception('No term found associated to uuid:{0}'.format(uuid))
 
             terms_ids = []
-            if term:                
+            if term:
                 try:
 
                     Terms.get_term_tree_list(term, terms_ids)
@@ -365,11 +365,11 @@ class Sources:
                 except  Exception as e:
                     raise e
         return None
-    
+
     @classmethod
     def get_sources_count_by_vocabulary(cls, term_id):
         #cls.get_term_tree_list(term, terms_ids)
-        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(TermSources).filter(Term.vocabulary_id==vocabulary_id).order_by(desc('total')).group_by(Term.id).all()        
+        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(TermSources).filter(Term.vocabulary_id==vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
         #print(list_counts)
 
         return list_counts
@@ -459,6 +459,7 @@ class Sources:
         finally:
             return dict(done, msg), new_source
 
+    # TODO: Revisar esto...
     @classmethod
     def set_source_current(cls, data, source) -> Dict[str, Source]:
         if not current_user:

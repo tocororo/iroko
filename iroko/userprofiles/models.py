@@ -19,19 +19,6 @@ from sqlalchemy_utils.types import JSONType
 import enum
 
 
-class JournalRol(enum.Enum):
-    ADMINISTRATOR = "Administrator"
-    JOURNALMANAGER = "Journal Manager"
-    AUTHOR = "Author"
-    EDITOR = "Editor"
-    SECTIONEDITOR = "Section Editor"
-    REVIEWER = "Reviewer"
-    COPYEDITOR = "Copyeditor"
-    LAYOUTEDITOR = "Layout Editor"
-    PROOFREADER = "Proofreader" #CORRECTOR DE PRUEBAS
-    READER = "Reader"
-
-
 class AnonymousUserProfile():
     """Anonymous user profile."""
     json_metadata = db.Column( JSONType )

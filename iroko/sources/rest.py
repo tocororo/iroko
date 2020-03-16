@@ -347,6 +347,7 @@ def source_edit_version(id):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
+# TODO: Revisar esto...
 @api_blueprint.route('/<uuid>/current', methods=['POST'])
 @require_api_auth()
 def source_version_set_current(uuid):

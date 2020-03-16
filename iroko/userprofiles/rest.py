@@ -32,7 +32,7 @@ from invenio_oauth2server import require_api_auth
 from iroko.userprofiles import models, marshmallow, api
 from iroko.userprofiles.api import current_userprofile, current_userprofile_json_metadata
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from .views import init_common 
+from .views import init_common
 from iroko.taxonomy.api import Terms
 
 
@@ -58,20 +58,20 @@ def get_user_info():
         institution_rol = ""
         print("en me", current_userprofile_json_metadata)
         if current_userprofile_json_metadata:
-            biography = current_userprofile_json_metadata["biography"] 
-            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])  
+            biography = current_userprofile_json_metadata["biography"]
+            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
             if institution:
                 institution_name = institution.name
                 institution_id = institution.id
-            institution_rol = current_userprofile_json_metadata["institution_rol"] 
+            institution_rol = current_userprofile_json_metadata["institution_rol"]
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok', 'userprofile', \
-                                { 
-                                    'email': current_user.email, 
-                                    'id': current_user.id,                                
+                                {
+                                    'email': current_user.email,
+                                    'id': current_user.id,
                                     'username': current_userprofile.username,
-                                    'full_name':current_userprofile.full_name,   
+                                    'full_name':current_userprofile.full_name,
                                     'biography':biography,
                                     'institution_id':institution_id,
                                     'institution':institution_name,

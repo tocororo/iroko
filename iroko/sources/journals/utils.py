@@ -45,7 +45,12 @@ def _filter_data_args(source:Source, data_args, and_op):
         issn_l = data_args['issn'].lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn']else False
         issn = issn_p or issn_e or issn_l
 
-    rnps = data_args['rnps'].lower() in source.data['rnps'].lower() if 'rnps' in source.data else False
+    rnps = False
+    if 'rnps' in source.data:
+        rnps_p = data_args['rnps'].lower() in source.data['rnps']['p'].lower() if 'p' in source.data['rnps'] else False
+        rnps_e = data_args['rnps'].lower() in source.data['rnps']['e'].lower() if 'e' in source.data['rnps'] else False
+        rnps = rnps_p or rnps_e
+
     year_start = data_args['year_start'].lower() in source.data['year_start'].lower() if 'year_start' in source.data else False
     year_end = data_args['year_end'].lower() in source.data['year_end'].lower() if 'year_end' in source.data else False
 
