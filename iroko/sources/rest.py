@@ -596,7 +596,7 @@ def get_editor_source_versions(uuid):
 
 
 @api_blueprint.route('/info/<uuid>', methods=['GET'])
-#@require_api_auth()
+@require_api_auth()
 def get_sources_by_term_statics(uuid):
     # esta api rest debe dar los tres ultimos ingresos
     # cant de revistas de ese termino
@@ -605,7 +605,7 @@ def get_sources_by_term_statics(uuid):
     # uuid del MES: bb40299a-44bb-43be-a979-cd67dbb923d7
 
     try:        
-        ordered = True if request.args.get('ordered') and int(request.args.get('ordered')) is not 0 else False
+        ordered = False if request.args.get('ordered') and int(request.args.get('ordered')) == 0 else True
         status = request.args.get('status') if request.args.get('status') else 'all'
         sources = Sources.get_sources_list_x_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
         three = sources[0:3]        
@@ -619,7 +619,8 @@ def get_sources_by_term_statics(uuid):
                         {
                             'soources_count': len(sources),
                             'ultimas':source_schema_many.dump(three),                            
-                            'institutions_count' : len(institutions)
+                            'institutions_count':len(institutions),
+                            'records':len(records)
                         })
         
         #last_approved = Sources.
