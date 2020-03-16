@@ -96,6 +96,23 @@ def init_taxonomy():
         record_types.human_name = 'Tipos de Articulos'
         db.session.add(record_types)
 
+        # record_set is clasified as record_type
+        extra_institutions = Vocabulary()
+        extra_institutions.name = 'extra_institutions'
+        extra_institutions.human_name = 'Instituciones si REUP'
+        db.session.add(extra_institutions)
+
+        subject_cover = Vocabulary()
+        subject_cover.name = 'subject_cover'
+        subject_cover.human_name = 'Cobertura tematica'
+        db.session.add(subject_cover)
+
+        countries = Vocabulary()
+        countries.name = 'countries'
+        countries.human_name = 'Paises'
+        db.session.add(countries)
+
+
         db.session.commit()
         init_vocabulary(tax, institutions)
         init_vocabulary(tax, subjects)

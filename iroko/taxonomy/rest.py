@@ -182,22 +182,22 @@ def get_terms_tree(vocabulary_id):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-# @api_blueprint.route('/term/<id>')
-# @require_api_auth()
-# def term_get_by_id(id):
-#     """Get a term given the id but not in deep
-#     Helper endpoint
-#     """
-#     try:
-#         msg, term = Terms.get_term_by_id(id)
-#         if not term:
-#             raise Exception(msg)
+@api_blueprint.route('/term/id/<id>')
+@require_api_auth()
+def term_get_tree_by_id(id):
+    """same as term_get_tree but receive id
+    """
+    try:
+        level = int(request.args.get('level')) if request.args.get('level') else 0
+        msg, term = Terms.get_term_by_id(id)
+        if not term:
+            raise Exception(msg)
 
-#         return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', Terms.dump_term(term, 0, 0))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term_node', term_node_schema.dump_term_node(term, level, 0))
 
-#     except Exception as e:
-#         msg = str(e)
-#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/<uuid>')

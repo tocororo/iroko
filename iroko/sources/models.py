@@ -15,26 +15,30 @@ from invenio_accounts.models import User
 from iroko.taxonomy.models import Term
 
 
-class JournalRol(enum.Enum):
-    ADMINISTRATOR = "Administrator"
-    JOURNALMANAGER = "Journal Manager"
-    AUTHOR = "Author"
-    EDITOR = "Editor"
-    SECTIONEDITOR = "Section Editor"
-    REVIEWER = "Reviewer"
-    COPYEDITOR = "Copyeditor"
-    LAYOUTEDITOR = "Layout Editor"
-    PROOFREADER = "Proofreader" #CORRECTOR DE PRUEBAS
-    READER = "Reader"
+class SourceInstitutionRole(enum.Enum):
+    MAIN: "MAIN"
+    COLABORATOR: "COLABORATOR"
 
+class SourcePersonRol(enum.Enum):
+    ADMINISTRATOR = "ADMINISTRATOR"
+    JOURNALMANAGER = "JOURNALMANAGER"
+    AUTHOR = "AUTHOR"
+    EDITOR = "EDITOR"
+    SECTIONEDITOR = "SECTIONEDITOR"
+    REVIEWER = "REVIEWER"
+    COPYEDITOR = "COPYEDITOR"
+    LAYOUTEDITOR = "LAYOUTEDITOR"
+    PROOFREADER = "PROOFREADER" #CORRECTOR DE PRUEBAS
+    READER = "READER"
 
 
 class SourceType(enum.Enum):
-    JOURNAL = "journal"
-    STUDENT = "student"
-    POPULARIZATION = "popularization"
-    REPOSITORY = "repository"
-    WEBSITE = "website"
+    JOURNAL = "JOURNAL"
+    STUDENT = "STUDENT"
+    POPULARIZATION = "POPULARIZATION"
+    REPOSITORY = "REPOSITORY"
+    WEBSITE = "WEBSITE"
+    OTHER = "OTHER"
 
 
 class SourceStatus(enum.Enum):

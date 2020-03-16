@@ -64,12 +64,12 @@
     "source_type": {
       "type": "string",
       "enum": [
-        "journal",
-        "student",
-        "popularization",
-        "repository",
-        "website",
-        "other"
+        "JOURNAL",
+        "STUDENT",
+        "POPULARIZATION",
+        "REPOSITORY",
+        "WEBSITE",
+        "OTHER"
       ]
     },
     "source_status": {
