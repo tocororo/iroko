@@ -521,7 +521,7 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-@require_api_auth()
+# @require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
@@ -535,7 +535,9 @@ def get_sources_from_user(status):
             page = 1
         offset = count*(page - 1)
         limit = offset+count
-
+        print(offset)
+        print(limit)
+        print(status)
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
         print("## get_sources_from_gestor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)
@@ -564,8 +566,9 @@ def get_sources_from_user(status):
 
     except Exception as e:
         msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 
 @api_blueprint.route('/editor/<uuid>/versions', methods=['GET'])
@@ -604,11 +607,11 @@ def get_sources_by_term_statics(uuid):
     # cant de records
     # uuid del MES: bb40299a-44bb-43be-a979-cd67dbb923d7
 
-    try:        
+    try:
         ordered = False if request.args.get('ordered') and int(request.args.get('ordered')) == 0 else True
         status = request.args.get('status') if request.args.get('status') else 'all'
         sources = Sources.get_sources_list_x_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
-        three = sources[0:3]        
+        three = sources[0:3]
         msg, mes = Terms.get_term(uuid)
         institutions = []
         Terms.get_term_tree_list_by_level(mes, institutions, 1, 1)
@@ -618,11 +621,11 @@ def get_sources_by_term_statics(uuid):
                         'ok','home_statics', \
                         {
                             'soources_count': len(sources),
-                            'ultimas':source_schema_many.dump(three),                            
+                            'ultimas':source_schema_many.dump(three),
                             'institutions_count':len(institutions),
                             'records':len(records)
                         })
-        
+
         #last_approved = Sources.
 
     except Exception as e:

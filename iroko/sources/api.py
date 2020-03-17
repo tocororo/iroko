@@ -57,7 +57,7 @@ class IrokoSource (Record):
     pid_uuid_field = 'id'
     _schema = "sources/source-v1.0.0.json"
 
-            
+
     @classmethod
     def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, source_uuid=None, **kwargs):
         """Create or update IrokoRecord."""
@@ -236,21 +236,21 @@ class Sources:
 
         query = db.session.query(Source)
 
-        if status is not 'all':
+        if status != 'all':
             query = query.filter(Source.source_status==status.upper())
-        
+
         if term_uuid:
             msg, term = Terms.get_term(term_uuid)
             if term:
                 terms_ids = []
-                Terms.get_term_tree_list(term, terms_ids)                
+                Terms.get_term_tree_list(term, terms_ids)
                 query = query.join(TermSources).filter(TermSources.term_id.in_(terms_ids))
 
         if ordered_by_date:
             query = query.join(SourceVersion).filter(SourceVersion.is_current==True).order_by(SourceVersion.created_at.desc())
-        
-        return list(map(lambda x: x, query.all()))        
-        
+
+        return list(map(lambda x: x, query.all()))
+
 
     @classmethod
     def get_sources_id_list(cls):
