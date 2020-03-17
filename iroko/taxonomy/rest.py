@@ -225,6 +225,26 @@ def term_get_tree(uuid):
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
+@api_blueprint.route('/term/inlist', methods=['GET'])
+def get_term_in_list():
+    try:
+        ids = request.args.get('ids') if request.args.get('ids') else ''
+
+        idsstr = ids.split(',')
+        print(ids)
+        print(idsstr)
+        idlist = []
+        for i in idsstr:
+            idlist.append(int(i))
+
+        terms = Terms.get_terms_by_id_list(idlist)
+        if not terms:
+            raise Exception('no terms in list')
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','term', term_schema_many.dump(terms))
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 @api_blueprint.route('/term/edit/<uuid>', methods=['POST'])
 @require_api_auth()

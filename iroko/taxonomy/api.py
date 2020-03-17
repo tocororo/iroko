@@ -144,7 +144,7 @@ class Vocabularies:
             print(str(e))
 
         return msg, done
-   
+
 
 
 class Terms:
@@ -202,6 +202,12 @@ class Terms:
     def get_terms_by_uuid_list(cls, uuid_list) :
         terms = Term.query.filter(Term.uuid.in_(uuid_list)).all()
         return terms
+
+    @classmethod
+    def get_terms_by_id_list(cls, id_list) :
+        terms = Term.query.filter(Term.id.in_(id_list)).all()
+        return terms
+
 
     @classmethod
     def get_term_by_id(cls, id) -> Dict[str, Term]:
@@ -394,28 +400,28 @@ class Terms:
         except Exception as error:
             return []
 
-    
+
     @classmethod
     def get_term_tree_list(cls, term, result):
-        """helper fuction to get all the children terms ids in a list            
+        """helper fuction to get all the children terms ids in a list
         """
         result.append(term.id)
         for child in term.children:
             cls.get_term_tree_list(child, result)
-    
+
 
     @classmethod
     def get_term_tree_list_by_level(cls, term, result, start_level=0, level=0):
         """
         retornar una lista en result comenzando en el start_level abajo del term
-        recibido y debe avanzar level cantidad abajo de ese nivel           
+        recibido y debe avanzar level cantidad abajo de ese nivel
         """
         new_start = 0
         if start_level == 0:
             result.append(term.id)
         if start_level > 0 :
             new_start = start_level - 1
-        if level > 0:            
+        if level > 0:
             for child in term.children:
                 cls.get_term_tree_list_by_level(child, result, new_start, level-1)
 
@@ -465,7 +471,7 @@ def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
         then collect the ids of the vocabularies it has permission on
 
     and gives dict of texts
-    
+
     """
     vocabularies_ids = []
     if is_current_user_taxonomy_admin():
