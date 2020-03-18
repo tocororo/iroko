@@ -54,33 +54,5 @@ def _load_term_children_uuid(term):
         return children
 
 
-def sync_term_source_with_data(source:Source):
-    """The model TermSources map the relations of Source with any term. In source.data[terms] are all the term ids related to the source, this is done this way to simplify the consumer apps and version handling. This function use source.data to sync term-source relations, meaning that new relations in source.data will be included in TermSource table, and relations in TermSource not present in source.data will be removed."""
-    # print("not implemented")
-
-    TermSources.query.filter_by(sources_id=source.id).delete()
-    print("delete")
-    db.session.commit()
-    print("commit")
-    data = dict(source.data)
-
-    if "term_sources" in data:
-        # new_terms = []
-        for ts in data["term_sources"]:
-            print(ts)
-            t=Term.query.filter_by(id=ts['term_id']).first()
-            if t is not None:
-                new_ts = TermSources()
-                print("new")
-                new_ts.sources_id = source.id
-                new_ts.term_id = t.id
-                new_ts.data = ts['data']
-                db.session.add(new_ts)
-                # new_terms.append(new_ts)
-                print("append ")
-        # schema = TermSourcesSchema(many=True)
-        # data["term_sources"] = schema.dump(new_terms)
-        # source.data = data
-        db.session.commit()
 
 

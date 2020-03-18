@@ -1,6 +1,10 @@
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
+
+import traceback
+
+
 from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
@@ -68,11 +72,11 @@ def get_sources_clasification(uuid):
     level=0 means, only the received term, level=1 means the terms and its children.
     result in the form
     relations : {
-        <termuuil>: {
+        <termuuid>: {
             doc_count: number,
             <termname>: string,
             children: {
-                <termuuil>: {
+                <termuuid>: {
                     doc_count: number,
                     <termname>: string,
                     children:
@@ -153,6 +157,10 @@ def sources_count_by_vocabulary(vocabulary_id):
 @require_api_auth()
 def get_source_by_uuid(uuid):
     """Get a source and its versions by UUID, with permission checking"""
+    # source = Sources.get_source_by_id(uuid=uuid)
+    # return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+    #                             'ok','source', \
+    #                             source_schema.dump(source))
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
@@ -176,6 +184,7 @@ def get_source_by_uuid(uuid):
         raise PermissionDenied('No tiene permiso')
 
     except Exception as e:
+        print(traceback.format_exc())
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -252,7 +261,7 @@ def source_new_version(uuid):
                 # si no esta aprobada significa que siempre es la current.
                 # si esta aprobada el proceso es otro
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = Sources.insert_new_source_version(input_data, source, is_current)
+                msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
@@ -521,7 +530,7 @@ def get_sources_from_gestor(status):
 
 
 @api_blueprint.route('/me/sources/<status>')
-# @require_api_auth()
+@require_api_auth()
 def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'

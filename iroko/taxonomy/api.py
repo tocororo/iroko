@@ -218,6 +218,34 @@ class Terms:
             msg = 'Term not exist id={0}'.format(id)
             return msg, None
 
+    # @classmethod
+    # def update_or_create_term(cls, input_data, term_id=None) -> Dict[str, Term]:
+    #     """
+    #     given a term data, try to update if id, uuid or name is present,
+    #     otherwise create a new term.
+    #     """
+    #     data = term_schema.load(input_data)
+    #     print("****** LOADED term")
+    #     term = None
+    #     # if 'uuid' in data:
+    #     #     term = Term.query.filter_by(uuid=data['uuid']).first()
+    #     # elif term is None and 'id' in data:
+    #     #     term = Term.query.filter_by(id=data['id']).first()
+    #     if term_id:
+    #         term = Term.query.filter_by(id=term_id).first()
+    #     elif term is None and 'name' in data:
+    #         term = Term.query.filter_by(name=data['name']).first()
+    #     print("********* term is {0}".format(term))
+    #     if term is None and 'name' in data:
+    #         print('********IS NEW')
+    #         return cls.new_term(data)
+    #     if term and 'uuid' in data:
+    #         print('********IS UPDATE')
+    #         return cls.edit_term(data['uuid'], data)
+
+    #     return "error", None
+
+
     @classmethod
     def edit_term(cls, uuid, input_data) -> Dict[str, Term]:
         msg = ''
