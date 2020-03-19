@@ -12,10 +12,11 @@ from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor, is_current_user_source_admin
 from invenio_access.utils import get_identity
-from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid, sync_term_source_with_data
+from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid
 from sqlalchemy_utils.types import UUIDType
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
 from iroko.taxonomy.api import Terms
+from iroko.taxonomy.marshmallow import term_schema
 from sqlalchemy import func, desc
 
 from invenio_records.api import Record
@@ -57,7 +58,7 @@ class IrokoSource (Record):
     pid_uuid_field = 'id'
     _schema = "sources/source-v1.0.0.json"
 
-            
+
     @classmethod
     def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, source_uuid=None, **kwargs):
         """Create or update IrokoRecord."""
@@ -236,21 +237,21 @@ class Sources:
 
         query = db.session.query(Source)
 
-        if status is not 'all':
+        if status != 'all':
             query = query.filter(Source.source_status==status.upper())
-        
+
         if term_uuid:
             msg, term = Terms.get_term(term_uuid)
             if term:
                 terms_ids = []
-                Terms.get_term_tree_list(term, terms_ids)                
+                Terms.get_term_tree_list(term, terms_ids)
                 query = query.join(TermSources).filter(TermSources.term_id.in_(terms_ids))
 
         if ordered_by_date:
             query = query.join(SourceVersion).filter(SourceVersion.is_current==True).order_by(SourceVersion.created_at.desc())
-        
-        return list(map(lambda x: x, query.all()))        
-        
+
+        return list(map(lambda x: x, query.all()))
+
 
     @classmethod
     def get_sources_id_list(cls):
@@ -462,6 +463,7 @@ class Sources:
     # TODO: Revisar esto...
     @classmethod
     def set_source_current(cls, data, source) -> Dict[str, Source]:
+        return "", None
         if not current_user:
             raise Exception('Must be authenticated')
 
@@ -472,13 +474,14 @@ class Sources:
         source_version = TermSources.query.filter_by(sources_id=source.id).first()
         source_version.is_current = True
         source.data = data
-        sync_term_source_with_data(source)
+        # cls._fix_update_term_source_relations(source)
 
         db.session.commit()
 
         msg = 'Source id={0} is now current'.format(source_version.id)
         return msg, source
 
+    # TODO: this method is much more complex... a lot of things will happend here
     @classmethod
     def set_source_approved(cls, source):
         source.source_status = SourceStatus.APPROVED
@@ -488,7 +491,9 @@ class Sources:
     # TODO: revisar esto, no usar
     @classmethod
     def edit_source_version(data, source_version) -> [str, Source, SourceVersion]:
-        """ only editors can edit a version, if not approved """
+        """ only editors can edit a version, if not approved
+         no usar"""
+        return "", None
         if source_version.reviewed:
             raise Exception('Sources is already reviewed.')
         source = source_version.source
@@ -498,21 +503,19 @@ class Sources:
         source_version.is_current = source.source_status is not SourceStatus.APPROVED
         if source_version.is_current:
             source.data = data
-            sync_term_source_with_data(source)
+            # cls._fix_update_term_source_relations(source)
         db.session.commit()
         msg = 'SourceVersion edited id={0}'.format(source_version.id)
         return msg, source, source_version
 
     @classmethod
-    def insert_new_source_version(cls, input_data, source, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
+    def insert_new_source_version(cls, input_data, uuid, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
         """Insert new SourceVersion to an existing Source
         """
-
         msg = ''
         if not current_user:
             raise Exception('Must be authenticated')
-        if not source:
-            raise Exception('No Souce !!')
+
 
         # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir....
         # print(input_data)
@@ -520,12 +523,16 @@ class Sources:
         # version_data:SourceVersionSchema = source_version_schema.load(input_data, partial=True, ['comment', 'source_id', 'data']],unknown=INCLUDE)
         # print("###### load #####")
         # user_id, source_id, comment, input_data, created_at, is_current
+
+        source = cls.get_source_by_id(uuid=uuid)
+        if not source:
+            raise Exception('No Souce !!')
+
         if is_current:
             for version in source.versions:
                 version.is_current = False
             db.session.commit()
         new_source_version = SourceVersion()
-        new_source_version.data = input_data['data']
         new_source_version.created_at = datetime.now()
         new_source_version.is_current = is_current
         new_source_version.source_id = source.id
@@ -534,23 +541,112 @@ class Sources:
         print("### new source created")
         db.session.add(new_source_version)
         print("db.session.add(new_source_version)")
-        if is_flush:
-            db.session.flush()
-            print("db.session.flush")
-        else:
-            db.session.commit()
-            print("db.session.commit")
+        # if is_flush:
+        #     db.session.flush()
+        #     print("db.session.flush")
+        # else:
+        #     db.session.commit()
+        #     print("db.session.commit")
 
+        data = dict(input_data['data'])
         if is_current:
-            data = dict(input_data['data'])
-            source.data = data
-            db.session.commit()
-            sync_term_source_with_data(source)
-            print("### sync_term_source_with_data(source)")
+
+            print("### cls._fix_update_term_source_relations(source)")
+            print( data)
+            relations = cls._fix_update_term_source_relations(source, data)
+            data['term_sources'] = relations
+            print(data)
+            print("### cls._fix_update_term_source_relations(source)")
+
+        new_source_version.data = data
+        source.data = data
+        db.session.commit()
+
 
 
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
+
+
+    @classmethod
+    def _fix_update_term_source_relations(cls, source:Source, data):
+        """
+        The model TermSources map the relations of Source with any term. In source.data[term_sources] are all the term ids related to the source, this is done this way to simplify the consumer apps and version handling. This function use source.data to sync term-source relations, meaning that new relations in source.data will be included in TermSource table, and relations in TermSource not present in source.data will be removed.
+
+        also: update the terms in the relations of the source (term_sources),
+        this is for institutional data...
+        """
+
+        # TODO: esto es un parche... es para actualizar los datos de los terminos en la relacion
+        # pero al hacerlo de esta manera en realidad se permite que se actualice cualquier cosa...
+        # habria que filtrar por vocabulario o algo por el estilo...
+
+        TermSources.query.filter_by(sources_id=source.id).delete()
+        print("delete")
+        db.session.commit()
+        print("commit")
+
+
+        fixed_relations = []
+        if "term_sources" in data:
+            for ts in data["term_sources"]:
+                print(ts)
+                if 'term' in ts:
+                    term_data = ts['term']
+                    term = None
+                    if 'term_id' in ts and ts['term_id'] != '':
+                        try:
+                            term_id = int(ts['term_id'])
+                            term = Term.query.filter_by(id=term_id).first()
+                            print('****** EDIT')
+                            print(term)
+                            if term:
+                                msg, term = Terms.edit_term(term.uuid, term_data)
+                                print(msg)
+                        except Exception as e:
+                            term = None
+                    elif 'name' in term_data:
+                        term = Term.query.filter_by(name=term_data['name']).first()
+                        print('****** NEW')
+                        print(term)
+                        if term is None:
+                            msg, term = Terms.new_term(term_data)
+                            print(msg)
+                        else:
+                            msg, term = Terms.edit_term(term.uuid, term_data)
+                            print(msg)
+                    if term:
+                        fixed_relations.append(dict(
+                            source_id=source.id,
+                            term_id= term.id,
+                            data=ts['data']
+                        ))
+                else :
+                    fixed_relations.append(dict(ts))
+                    # ts = term_schema.dump(term)
+        print(fixed_relations)
+
+        real_relations = []
+        for f_relation in fixed_relations:
+            print(f_relation)
+            real_term = Term.query.filter_by(id=f_relation['term_id']).first()
+            if real_term is not None:
+                new_relation = TermSources()
+                print("new")
+                new_relation.sources_id = source.id
+                new_relation.term_id = real_term.id
+                new_relation.data = f_relation['data']
+                db.session.add(new_relation)
+                real_relations.append(dict(
+                    source_id=source.id,
+                    term_id= real_term.id,
+                    data=f_relation['data']
+                ))
+                print("append ")
+        db.session.commit()
+        return real_relations
+
+
 
     @classmethod
     def grant_source_editor_permission(cls, user_id, source_uuid, is_flush=True) -> Dict[str, bool]:
@@ -699,6 +795,8 @@ class Sources:
 
         return versions
 
+
+
 def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     """
     Checks from ActionUsers if current_user has source_full_gestor_actions,
@@ -749,4 +847,6 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
 
 
     return 'actions', {'source_gestor_actions':sources_gestor_ids, 'source_editor_actions': sources_editor_ids}
+
+
 

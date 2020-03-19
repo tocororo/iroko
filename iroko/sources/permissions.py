@@ -5,7 +5,7 @@ from invenio_access import Permission
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
-from invenio_access.utils import get_identity 
+from invenio_access.utils import get_identity
 from flask_principal import PermissionDenied
 from functools import partial
 from flask_principal import ActionNeed
@@ -42,22 +42,22 @@ source_term_gestor_actions = ObjectSourceTermGestor(None)
 
 def is_current_user_source_admin():
     its = False
-    try:
+    # try:
         # from sqlalchemy import or_
-        # #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first() 
+        # #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_gestor_actions")).first()
         # admin = db.session.query(ActionUsers).filter_by(
-        #     user_id=current_user.id, 
+        #     user_id=current_user.id,
         #     exclude=False,
-        #     action='source_full_gestor_actions').first() 
+        #     action='source_full_gestor_actions').first()
 
-        permission = Permission(source_full_gestor_actions)
-        current_identity = get_identity(current_user)
-        if permission.allows(current_identity):
-            its = True
+    permission = Permission(source_full_gestor_actions)
+    current_identity = get_identity(current_user)
+    if permission.allows(current_identity):
+        its = True
 
-    except Exception as e:        
-        print(str(e))
-    
+    # except Exception as e:
+    #     print(str(e))
+
     return its
 
 
@@ -83,7 +83,7 @@ def source_term_gestor_permission_factory(obj):
     current_identity = get_identity(current_user)
     if permission.allows(current_identity):
         return permission
-    
+
     permiso = None
     permiso = Permission(ObjectSourceGestor(obj['uuid']))
     if permiso:
@@ -92,9 +92,9 @@ def source_term_gestor_permission_factory(obj):
     aux = obj['terms']
     terms = aux.split(',')
     permiso = None
-    
+
     for term_uuid in terms:
-        try:            
+        try:
             permiso = Permission(ObjectSourceTermGestor(term_uuid))
             if permiso:
                 return permiso
@@ -108,7 +108,7 @@ def user_has_editor_or_gestor_permissions(obj):
     current_identity = get_identity(current_user)
     if permission.allows(current_identity):
         return permission
-    
+
     permiso = None
     permiso = Permission(ObjectSourceGestor(obj['uuid']))
     if permiso:
@@ -117,17 +117,17 @@ def user_has_editor_or_gestor_permissions(obj):
     aux = obj['terms']
     terms = aux.split(',')
     permiso = None
-    
+
     for term_uuid in terms:
-        try:            
+        try:
             permiso = Permission(ObjectSourceTermGestor(term_uuid))
             if permiso:
                 return permiso
         except Exception as e:
             raise e
-    
+
     return Permission(ObjectSourceEditor(obj['uuid']))
-    
+
 
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior

@@ -163,7 +163,7 @@ class TermNodeSchema(Schema):
 term_node_schema_many = TermNodeSchema(many=True)
 term_node_schema = TermNodeSchema(many=False)
 
-term_schema_many = TermSchema(many=True, only=('id', 'uuid', 'name'))
+term_schema_many = TermSchema(many=True)
 term_schema = TermSchema(many=False)
 term_schema_no_clases = TermSchema(many=False, exclude=('class_ids','clasified_ids'))
 vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'name', 'human_name', 'description'))

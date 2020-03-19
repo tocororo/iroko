@@ -144,7 +144,7 @@ class Vocabularies:
             print(str(e))
 
         return msg, done
-   
+
 
 
 class Terms:
@@ -204,6 +204,12 @@ class Terms:
         return terms
 
     @classmethod
+    def get_terms_by_id_list(cls, id_list) :
+        terms = Term.query.filter(Term.id.in_(id_list)).all()
+        return terms
+
+
+    @classmethod
     def get_term_by_id(cls, id) -> Dict[str, Term]:
         term = Term.query.filter_by(id=id).first()
         if term:
@@ -211,6 +217,34 @@ class Terms:
         else:
             msg = 'Term not exist id={0}'.format(id)
             return msg, None
+
+    # @classmethod
+    # def update_or_create_term(cls, input_data, term_id=None) -> Dict[str, Term]:
+    #     """
+    #     given a term data, try to update if id, uuid or name is present,
+    #     otherwise create a new term.
+    #     """
+    #     data = term_schema.load(input_data)
+    #     print("****** LOADED term")
+    #     term = None
+    #     # if 'uuid' in data:
+    #     #     term = Term.query.filter_by(uuid=data['uuid']).first()
+    #     # elif term is None and 'id' in data:
+    #     #     term = Term.query.filter_by(id=data['id']).first()
+    #     if term_id:
+    #         term = Term.query.filter_by(id=term_id).first()
+    #     elif term is None and 'name' in data:
+    #         term = Term.query.filter_by(name=data['name']).first()
+    #     print("********* term is {0}".format(term))
+    #     if term is None and 'name' in data:
+    #         print('********IS NEW')
+    #         return cls.new_term(data)
+    #     if term and 'uuid' in data:
+    #         print('********IS UPDATE')
+    #         return cls.edit_term(data['uuid'], data)
+
+    #     return "error", None
+
 
     @classmethod
     def edit_term(cls, uuid, input_data) -> Dict[str, Term]:
@@ -394,28 +428,28 @@ class Terms:
         except Exception as error:
             return []
 
-    
+
     @classmethod
     def get_term_tree_list(cls, term, result):
-        """helper fuction to get all the children terms ids in a list            
+        """helper fuction to get all the children terms ids in a list
         """
         result.append(term.id)
         for child in term.children:
             cls.get_term_tree_list(child, result)
-    
+
 
     @classmethod
     def get_term_tree_list_by_level(cls, term, result, start_level=0, level=0):
         """
         retornar una lista en result comenzando en el start_level abajo del term
-        recibido y debe avanzar level cantidad abajo de ese nivel           
+        recibido y debe avanzar level cantidad abajo de ese nivel
         """
         new_start = 0
         if start_level == 0:
             result.append(term.id)
         if start_level > 0 :
             new_start = start_level - 1
-        if level > 0:            
+        if level > 0:
             for child in term.children:
                 cls.get_term_tree_list_by_level(child, result, new_start, level-1)
 
@@ -465,7 +499,7 @@ def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
         then collect the ids of the vocabularies it has permission on
 
     and gives dict of texts
-    
+
     """
     vocabularies_ids = []
     if is_current_user_taxonomy_admin():

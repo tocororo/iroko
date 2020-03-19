@@ -1,6 +1,10 @@
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
+
+import traceback
+
+
 from flask_babelex import lazy_gettext as _
 from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
 from flask_login import login_required
@@ -68,11 +72,11 @@ def get_sources_clasification(uuid):
     level=0 means, only the received term, level=1 means the terms and its children.
     result in the form
     relations : {
-        <termuuil>: {
+        <termuuid>: {
             doc_count: number,
             <termname>: string,
             children: {
-                <termuuil>: {
+                <termuuid>: {
                     doc_count: number,
                     <termname>: string,
                     children:
@@ -153,6 +157,10 @@ def sources_count_by_vocabulary(vocabulary_id):
 @require_api_auth()
 def get_source_by_uuid(uuid):
     """Get a source and its versions by UUID, with permission checking"""
+    # source = Sources.get_source_by_id(uuid=uuid)
+    # return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+    #                             'ok','source', \
+    #                             source_schema.dump(source))
     try:
         source = Sources.get_source_by_id(uuid=uuid)
         if not source:
@@ -176,6 +184,7 @@ def get_source_by_uuid(uuid):
         raise PermissionDenied('No tiene permiso')
 
     except Exception as e:
+        print(traceback.format_exc())
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -252,7 +261,7 @@ def source_new_version(uuid):
                 # si no esta aprobada significa que siempre es la current.
                 # si esta aprobada el proceso es otro
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = Sources.insert_new_source_version(input_data, source, is_current)
+                msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
@@ -535,7 +544,9 @@ def get_sources_from_user(status):
             page = 1
         offset = count*(page - 1)
         limit = offset+count
-
+        print(offset)
+        print(limit)
+        print(status)
         msg, sources_gestor  = Sources.get_sources_from_gestor_current_user(status)
         print("## get_sources_from_gestor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         msg, sources_editor  = Sources.get_sources_from_editor_current_user(status)
@@ -564,8 +575,9 @@ def get_sources_from_user(status):
 
     except Exception as e:
         msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 
 @api_blueprint.route('/editor/<uuid>/versions', methods=['GET'])
@@ -604,11 +616,11 @@ def get_sources_by_term_statics(uuid):
     # cant de records
     # uuid del MES: bb40299a-44bb-43be-a979-cd67dbb923d7
 
-    try:        
+    try:
         ordered = False if request.args.get('ordered') and int(request.args.get('ordered')) == 0 else True
         status = request.args.get('status') if request.args.get('status') else 'all'
         sources = Sources.get_sources_list_x_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
-        three = sources[0:3]        
+        three = sources[0:3]
         msg, mes = Terms.get_term(uuid)
         institutions = []
         Terms.get_term_tree_list_by_level(mes, institutions, 1, 1)
@@ -618,11 +630,11 @@ def get_sources_by_term_statics(uuid):
                         'ok','home_statics', \
                         {
                             'soources_count': len(sources),
-                            'ultimas':source_schema_many.dump(three),                            
+                            'ultimas':source_schema_many.dump(three),
                             'institutions_count':len(institutions),
                             'records':len(records)
                         })
-        
+
         #last_approved = Sources.
 
     except Exception as e:
