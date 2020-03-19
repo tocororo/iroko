@@ -244,7 +244,8 @@ class MiarHarvester(BaseHarvester):
                             arr.append(url.split('/'+issn+'/')[1])
                         except Exception:
                             pass
-                    arr.append(elem.text)
+                    else:
+                        arr.append(elem.text)
                 dictionary[label]= arr
             #     a = element1[1].xpath('.//a')
             #     dictionary[element1[0].text_content()] = a[0].text
@@ -297,7 +298,7 @@ class MiarHarvester(BaseHarvester):
                     res, text = self.get_info_journal(archive)
                     with open(os.path.join(self.issn_info_miar_dir, archive), 'w+',  encoding=('UTF-8')) as file_issn:
                         json.dump(res, file_issn)
-                    with open(os.path.join(self.issn_info_miar_dir, archive, '-html'), 'w+',  encoding=('UTF-8')) as file_issn:
+                    with open(os.path.join(self.issn_info_miar_dir, archive + '-html'), 'w+',  encoding=('UTF-8')) as file_issn:
                         file_issn.write(text)
 
             #     result[archive] =
