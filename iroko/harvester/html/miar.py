@@ -230,7 +230,7 @@ class MiarHarvester(BaseHarvester):
         element_history = doc1.xpath('.//div[@id="mod_versiones"]//a')
 
         if len(element_not_found) > 0:
-            return element_not_found[0].text
+            return element_not_found[0].text, html_text
 
         #Info ISSN in actual year
         for e in element:
