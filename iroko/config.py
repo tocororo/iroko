@@ -555,6 +555,6 @@ OAISERVER_ADMIN_EMAILS = [
     'eduardo.arencibia@upr.edu.cu'
 ]
 
-OAISERVER_RECORD_INDEX = 'marc21'
-OAISERVER_ID_PREFIX = 'oai:example:'
-
+OAISERVER_RECORD_INDEX = '_all'
+OAISERVER_ID_PREFIX = 'oai:localhost:records/'
+OAISERVER_QUERY_PARSER_FIELDS = ["title_statement"]
