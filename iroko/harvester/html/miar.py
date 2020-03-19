@@ -10,6 +10,7 @@ from random import randint
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.harvester.base import BaseHarvester
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
+from iroko.sources.api import Sources
 from iroko.sources.models import Issn
 from iroko.sources.models import Source, SourceType, TermSources
 from invenio_db import db
@@ -276,7 +277,7 @@ class MiarHarvester(BaseHarvester):
         if archive_issn:
             for archive in archive_issn:
                 print('getting miar info of: {0}'.format(archive))
-                
+
                 if not os.path.exists(self.issn_info_miar_dir + '/' + archive):
                     res = self.get_info_journal(archive)
                     with open(os.path.join(self.issn_info_miar_dir, archive), 'w+',  encoding=('UTF-8')) as file_issn:
@@ -323,13 +324,22 @@ class MiarHarvester(BaseHarvester):
                         miar_dbs.vocabulary_id = miar_db_vocab.id
                         miar_dbs.description = archive_dbs_info['url']
                         miar_dbs.data = archive_dbs_info['info']
+                        miar_dbs.parent_id = miar_db_type_term.id
                         db.session.add(miar_dbs)
-                        db.session.flush()
-                        miar_classification = TermClasification()
-                        miar_classification.term_class_id = miar_db_type_term.id
-                        miar_classification.term_clasified_id = miar_dbs.id
-                        db.session.add(miar_classification)
-                        db.session.commit()
+                    else:
+                        miar_db_term.name = archive_dbs_info['name']
+                        miar_db_term.vocabulary_id = miar_db_vocab.id
+                        miar_db_term.description = archive_dbs_info['url']
+                        miar_db_term.data = archive_dbs_info['info']
+                        miar_db_term.parent_id = miar_db_type_term.id
+
+                    db.session.commit()
+                        # db.session.flush()
+
+                        # miar_classification = TermClasification()
+                        # miar_classification.term_class_id = miar_db_type_term.id
+                        # miar_classification.term_clasified_id = miar_dbs.id
+                        # db.session.add(miar_classification)
 
             return 'success'
         else:
@@ -358,7 +368,7 @@ class MiarHarvester(BaseHarvester):
             if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
                 title = item["value"]
                 print(title)
-                
+
                 new_source = Source()
                 new_source.source_type = SourceType.JOURNAL
                 new_source.name = title
@@ -392,7 +402,7 @@ class MiarHarvester(BaseHarvester):
         source = None
         with open(issn_list_path, 'r') as file_issn:
             archive_issn = json.load(file_issn)
-        
+
         if archive_issn:
             for archive in archive_issn:
                 issn = Issn.query.filter_by(code = archive).first()
@@ -403,36 +413,47 @@ class MiarHarvester(BaseHarvester):
                     except Exception:
                         return None
                     try:
+                        miar_db_vocab = Vocabulary.query.filter_by(name = 'miar_databases').first()
+
                         atribute = archive_issn_miar['Indexed\xa0in:']
-                        source = self._get_source_by_issn(issn)
+
                         if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE' and archive_issn_miar['Indexed\xa0in:']:
                             dbs_split = archive_issn_miar['Indexed\xa0in:'].split(", ")
+
+                            source = self._get_source_by_issn(issn)
+
                             for dbs in dbs_split:
-                                miar_db_type_terms = Term.query.all()
+                                miar_db_type_terms = Term.query.filter_by(vocabulary_id=miar_db_vocab.id).all()
+                                to_add = []
                                 for miar in miar_db_type_terms:
                                     if miar.name.lower().strip() == dbs.lower().strip():
-                                        miar_db_type_term = miar
-                                if miar_db_type_term:
-                                    term_source_old = TermSources.query.filter_by(sources_id = source.id,term_id = miar_db_type_term.id).first()
-                                    if not term_source_old:
-                                        source_term = TermSources()
-                                        source_term.sources_id = source.id
-                                        source_term.term_id = miar_db_type_term.id
-                                        db.session.add(source_term)
-                                        db.session.commit()
-                                else:
-                                    return 'danger'
+                                        to_add.append(miar)
+                                Sources.add_term_relations(source, to_add)
+
+
+                                # if miar_db_type_term:
+                                #     term_source_old = TermSources.query.filter_by(sources_id = source.id,term_id = miar_db_type_term.id).first()
+                                #     if not term_source_old:
+                                #         # TODO; un metodo en el Sources api,  que adicione relations a un source
+                                #         source_term = TermSources()
+                                #         source_term.sources_id = source.id
+                                #         source_term.term_id = miar_db_type_term.id
+                                #         db.session.add(source_term)
+                                #         db.session.commit()
+                                # else:
+                                #     return 'danger'
+
                     except Exception:
                         continue
-                        
+
         return 'success'
 
 
-# {"title": "Agrotecnia de Cuba", 
-# "description": 
-# "Contiene art\u00edculos, editoriales, metodolog\u00eda, res\u00famenes de tesis y rese\u00f1as de los resultados de investigaciones cient\u00edficas y aplicadas en los campos de la sanidad vegetal y ciencias afines, con \u00e9nfasis en las tecnolog\u00edas que est\u00e1n listas para su generalizaci\u00f3n en la pr\u00e1ctica agraria.", 
-#     "url": "http://www.actaf.co.cu/agrotecnia-de-cuba.html", 
-#     "rnps": "2120", 
-#     "seriadas_cubanas": "http://www.seriadascubanas.cult.cu/publicaci%C3%B3n-seriada/agrotecnia-de-cuba-2", 
-#     "issn": {"p": "1816-8604"}, 
+# {"title": "Agrotecnia de Cuba",
+# "description":
+# "Contiene art\u00edculos, editoriales, metodolog\u00eda, res\u00famenes de tesis y rese\u00f1as de los resultados de investigaciones cient\u00edficas y aplicadas en los campos de la sanidad vegetal y ciencias afines, con \u00e9nfasis en las tecnolog\u00edas que est\u00e1n listas para su generalizaci\u00f3n en la pr\u00e1ctica agraria.",
+#     "url": "http://www.actaf.co.cu/agrotecnia-de-cuba.html",
+#     "rnps": "2120",
+#     "seriadas_cubanas": "http://www.seriadascubanas.cult.cu/publicaci%C3%B3n-seriada/agrotecnia-de-cuba-2",
+#     "issn": {"p": "1816-8604"},
 #     "terms": [{"id": 171, "data": null}, {"id": 1128, "data": null}, {"id": 1127, "data": null}, {"id": 270, "data": null}, {"id": 873, "data": {"url": "http://www.latindex.unam.mx/latindex/ficha?folio=20272"}}]}

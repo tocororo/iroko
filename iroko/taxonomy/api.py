@@ -1,5 +1,7 @@
 from typing import Dict
 
+import enum
+
 from invenio_db import db
 from sqlalchemy import exc as sqlalchemyExc
 from invenio_access.utils import get_identity
@@ -15,6 +17,22 @@ from invenio_accounts.models import User
 from iroko.taxonomy.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
 from sqlalchemy import func, desc
 
+
+class VocabulariesInmutableNames(enum.Enum):
+    INTITUTION = '1',
+    SUBJECTS = '2',
+    PROVINCES = '3',
+    DATABASES = '4',
+    MES_GROUPS = '5',
+    LICENCES = '6',
+    MIAR_TYPES = '7',
+    MIAR_DATABASES = '8',
+    UNESCO_VOCAB = '9',
+    RECOD_SETS = '10',
+    RECORD_TYPES = '11',
+    EXTRA_INSTITUTIONS = '12',
+    SUBJECT_COVER = '13',
+    COUNTRIES = '14'
 
 #TODO: Revisar lanzamientos de excepciones
 
