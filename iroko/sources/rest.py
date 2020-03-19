@@ -610,6 +610,8 @@ def get_editor_source_versions(uuid):
 @api_blueprint.route('/info/<uuid>', methods=['GET'])
 @require_api_auth()
 def get_sources_by_term_statics(uuid):
+    #TODO Mejorar esta api si se quiere que sea realmente generica
+    #TODO verificar los tipos de soruces, pues luego si hay repositorios del MES o del uuid se contaran
     # esta api rest debe dar los tres ultimos ingresos
     # cant de revistas de ese termino
     # cant de instituciones
@@ -629,8 +631,8 @@ def get_sources_by_term_statics(uuid):
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','home_statics', \
                         {
-                            'soources_count': len(sources),
-                            'ultimas':source_schema_many.dump(three),
+                            'sources_count': len(sources),
+                            'last_sources':source_schema_many.dump(three),
                             'institutions_count':len(institutions),
                             'records':len(records)
                         })
