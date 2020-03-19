@@ -562,7 +562,7 @@ def get_sources_from_user(status):
 
         result = sources_gestor + list(in_second_but_not_in_first)
         print("## result = sources_gestor + list {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
-
+        # result.sort(key=lambda k: int(k['name']), reverse=True)
         # TODO: optimizar esta operacion porque puede ser lenta
         response = iroko_json_response(
             IrokoResponseStatus.SUCCESS,

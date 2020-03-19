@@ -12,7 +12,7 @@ from iroko.harvester.base import BaseHarvester
 from iroko.taxonomy.models import Vocabulary, Term, TermClasification
 from iroko.sources.api import Sources
 from iroko.sources.models import Issn
-from iroko.sources.models import Source, SourceType, TermSources
+from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
 from invenio_db import db
 
 
@@ -233,11 +233,26 @@ class MiarHarvester(BaseHarvester):
         #Info ISSN in actual year
         for e in element:
             element1 = e.xpath('.//div//div')
-            if(element1[1].xpath('.//a')):
-                a = element1[1].xpath('.//a')
-                dictionary[element1[0].text_content()] = a[0].text
+            label = element1[0].text_content()
+
+            if(element1[1].xpath('.//a') and len(element1[1].xpath('.//a')) > 0):
+                arr = []
+                for elem in element1[1].xpath('.//a'):
+                    url = elem.get('href')
+                    if 'indizadaen' in url:
+                        try:
+                            arr.append(url.split('/'+issn+'/')[1])
+                        except Exception:
+                            pass
+                    arr.append(elem.text)
+                dictionary[label]= arr
+            #     a = element1[1].xpath('.//a')
+            #     dictionary[element1[0].text_content()] = a[0].text
+            # elif(count(element1[1].xpath('.//a')) > 1)
+            #     for elem in element1[1].xpath('.//a'):
+            #         dictionary[element1[0].text_content()] = elem[0].text
             else:
-                dictionary[element1[0].text_content()] = element1[1].text_content().split(sep='\n')[1]
+                dictionary[label] = element1[1].text_content().split(sep='\n')[1]
 
         #Info ISSN in past years
         for e_h in element_history:
@@ -251,7 +266,7 @@ class MiarHarvester(BaseHarvester):
             print('sleep: {0}'.format(sleep_time))
             time.sleep(sleep_time)
 
-        return dictionary
+        return dictionary, response.text
 
     def get_info_icds(self, url: str, dictionary:dict, sess:requests.Session, icds_year: str):
 
@@ -263,7 +278,7 @@ class MiarHarvester(BaseHarvester):
             dictionary[str(icds_year)] = element[0].text
             print(dictionary[str(icds_year)])
 
-    def collect_miar_info(self, issn_list_path):
+    def collect_miar_info(self):
         """
         el fichero issn_list_path debe tener la forma ['issn1', 'issn2', ...]
         crear un nuevo fichero donde:
@@ -271,7 +286,7 @@ class MiarHarvester(BaseHarvester):
             { issn : get_info_journal }
         """
         result = dict()
-        with open(issn_list_path, 'r') as file_issn:
+        with open(self.issn_file, 'r') as file_issn:
             archive_issn = json.load(file_issn)
 
         if archive_issn:
@@ -279,9 +294,11 @@ class MiarHarvester(BaseHarvester):
                 print('getting miar info of: {0}'.format(archive))
 
                 if not os.path.exists(self.issn_info_miar_dir + '/' + archive):
-                    res = self.get_info_journal(archive)
+                    res, text = self.get_info_journal(archive)
                     with open(os.path.join(self.issn_info_miar_dir, archive), 'w+',  encoding=('UTF-8')) as file_issn:
                         json.dump(res, file_issn)
+                    with open(os.path.join(self.issn_info_miar_dir, archive, '-html'), 'w+',  encoding=('UTF-8')) as file_issn:
+                        file_issn.write(text)
 
             #     result[archive] =
             # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
@@ -317,20 +334,21 @@ class MiarHarvester(BaseHarvester):
                     db.session.flush()
                     miar_db_type_term = miar_types
                 for archive_dbs_info in archive_dbs['dbs']:
-                    miar_db_term = Term.query.filter_by(name = archive_dbs_info['name']).first()
+                    name = archive_dbs_info['url'].split('/ID/')[1]
+                    miar_db_term = Term.query.filter_by(name = name).first()
                     if not miar_db_term:
                         miar_dbs = Term()
-                        miar_dbs.name = archive_dbs_info['name']
+                        miar_dbs.name = name
                         miar_dbs.vocabulary_id = miar_db_vocab.id
                         miar_dbs.description = archive_dbs_info['url']
-                        miar_dbs.data = archive_dbs_info['info']
+                        miar_dbs.data = archive_dbs_info
                         miar_dbs.parent_id = miar_db_type_term.id
                         db.session.add(miar_dbs)
                     else:
-                        miar_db_term.name = archive_dbs_info['name']
+                        miar_db_term.name = name
                         miar_db_term.vocabulary_id = miar_db_vocab.id
                         miar_db_term.description = archive_dbs_info['url']
-                        miar_db_term.data = archive_dbs_info['info']
+                        miar_db_term.data = archive_dbs_info
                         miar_db_term.parent_id = miar_db_type_term.id
 
                     db.session.commit()
@@ -362,8 +380,10 @@ class MiarHarvester(BaseHarvester):
                     if v in item.data['issn'] \
                         and item.data['issn'][v] == issn:
                         print("encontrado {0}".format(item.name))
+                        if item.source_status is None:
+                            item.source_status = SourceStatus.UNOFFICIAL
                         return item
-
+        db.session.commit()
         for item in data["@graph"]:
             if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
                 title = item["value"]
@@ -372,6 +392,7 @@ class MiarHarvester(BaseHarvester):
                 new_source = Source()
                 new_source.source_type = SourceType.JOURNAL
                 new_source.name = title
+                new_source.source_status = SourceStatus.UNOFFICIAL
                 new_source.data = {
                     'title': title,
                     'issn': {
@@ -427,8 +448,11 @@ class MiarHarvester(BaseHarvester):
                                 to_add = []
                                 for miar in miar_db_type_terms:
                                     if miar.name.lower().strip() == dbs.lower().strip():
+                                        print("add {0}".format(dbs))
                                         to_add.append(miar)
-                                Sources.add_term_relations(source, to_add)
+                                for t in to_add:
+                                    print("{0}-{1}".format(t.id, t.name))
+                                Sources.add_term_relations(source.uuid, to_add)
 
 
                                 # if miar_db_type_term:

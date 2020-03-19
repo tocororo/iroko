@@ -621,25 +621,27 @@ class Sources:
                 else :
                     fixed_relations.append(dict(ts))
                     # ts = term_schema.dump(term)
-        # print(fixed_relations)
+        print(fixed_relations)
 
         real_relations = []
         for f_relation in fixed_relations:
             # print(f_relation)
             real_term = Term.query.filter_by(id=f_relation['term_id']).first()
             if real_term is not None:
-                new_relation = TermSources()
-                # print("new")
-                new_relation.sources_id = source.id
-                new_relation.term_id = real_term.id
-                new_relation.data = f_relation['data']
-                db.session.add(new_relation)
-                real_relations.append(dict(
-                    source_id=source.id,
-                    term_id= real_term.id,
-                    data=f_relation['data']
-                ))
-                # print("append ")
+                existing_relation = TermSources.query.filter_by(sources_id=source.id, term_id=real_term.id).first()
+                if existing_relation is None:
+                    new_relation = TermSources()
+                    # print("new")
+                    new_relation.sources_id = source.id
+                    new_relation.term_id = real_term.id
+                    new_relation.data = f_relation['data']
+                    db.session.add(new_relation)
+                    real_relations.append(dict(
+                        source_id=source.id,
+                        term_id= real_term.id,
+                        data=f_relation['data']
+                    ))
+                    print("append ")
         db.session.commit()
         return real_relations
 
@@ -657,12 +659,12 @@ class Sources:
         return False
 
     @classmethod
-    def add_term_relations(cls, source:Source, terms):
+    def add_term_relations(cls, uuid, terms):
         """
         add term_source relations to data and current_version data.
         and sync relations...
         """
-
+        source = Source.query.filter_by(uuid=uuid)
         if source:
             current_version = SourceVersion.query.filter_by(is_current=True).first()
             data = dict(source.data)
@@ -689,6 +691,8 @@ class Sources:
                 if current_version:
                     current_version.data = data
                 source.data = data
+                print(data)
+                print(source.data)
                 db.session.commit()
 
 
