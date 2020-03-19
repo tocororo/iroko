@@ -2,9 +2,12 @@
 from marshmallow import Schema, fields, pre_dump, post_load, post_dump, INCLUDE
 
 
-from iroko.harvester.api import SecundarySourceHarvester
+# from iroko.harvester.api import SecundarySourceHarvester
 
 from iroko.sources.marshmallow.base import SourceDataSchema
+
+from iroko.sources.models import Issn
+
 
 class SocialNetworksSchema(Schema):
     facebook = fields.Url()
@@ -27,13 +30,22 @@ class ISSNSchema(Schema):
     @post_dump
     def fill_issn_org(self, issn, **kwargs):
         # TODO: replace this by database query !!!
-        issns_with_info = SecundarySourceHarvester.get_cuban_issns()
+        # issns_with_info = SecundarySourceHarvester.get_cuban_issns()
         for v in ['p','e','l']:
-            if v in issn and issn[v] in issns_with_info.keys():
-                    for item in issns_with_info[issn[v]]["@graph"]:
+            if v in issn:
+                issn_org = Issn.query.filter_by(code = issn[v]).first()
+                if issn_org:
+                    data = dict(issn_org.data)
+                    for item in data["@graph"]:
                         if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
                             issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
                             return issn
+
+                    #              and issn[v] in issns_with_info.keys():
+                    # for item in issns_with_info[issn[v]]["@graph"]:
+                    #     if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
+                    #         issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
+                    #         return issn
 
 class RNPSSchema(Schema):
     p = fields.Str()

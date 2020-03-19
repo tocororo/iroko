@@ -30,13 +30,15 @@ import json
 from flask import current_app
 
 from invenio_db import db
-from ..taxonomy.models import Vocabulary, Term
+from iroko.taxonomy.models import Vocabulary, Term
 
 def init_taxonomy():
     """Init taxonomy"""
     delete_all_vocabs()
 #     tax_path = '../../data/taxonomy.json' .
-    path = current_app.config['INIT_TAXONOMY_JSON_PATH']
+    datadir = current_app.config['IROKO_DATA_DIRECTORY']
+    path = os.path.join(datadir, 'taxonomy.json')
+    countries_path = os.path.join(datadir, 'countries.json')
 
     with open(path) as f:
         tax = json.load(f)
@@ -114,15 +116,19 @@ def init_taxonomy():
 
 
         db.session.commit()
+
+        init_cuntries(countries_path, countries)
+
         init_vocabulary(tax, institutions)
         init_vocabulary(tax, subjects)
         init_vocabulary(tax, provinces)
-        init_vocabulary(tax, data_bases)
+        # init_vocabulary(tax, data_bases)
         init_vocabulary(tax, grupo_mes)
         init_vocabulary(tax, licences)
         init_vocabulary(tax, miar_types)
         init_vocabulary(tax, miar_databases)
         init_vocabulary(tax, unesco_vocab)
+        init_vocabulary(tax, subject_cover)
         # init_vocabulary(tax, record_sets)
         # init_vocabulary(tax, record_types)
 
@@ -142,6 +148,16 @@ def init_vocabulary(tax, vocab):
                 parent = Term.query.filter_by(name=parent_name).first()
                 nterm.parent_id = parent.id
         db.session.add(nterm)
+        db.session.commit()
+
+def init_cuntries(path, vocab):
+    with open(path) as f:
+        countries = json.load(f)
+        for country in countries:
+            nterm = Term()
+            nterm.name = country['text']
+            nterm.vocabulary_id = vocab.id
+            db.session.add(nterm)
         db.session.commit()
 
 def delete_all_vocabs():

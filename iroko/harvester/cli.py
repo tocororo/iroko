@@ -144,11 +144,20 @@ def miar(recheck):
 
 @harvester.command()
 @with_appcontext
-def syncronize():
-    work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
-    issn_harvester = IssnHarvester(work_dir)    
-    miar_harvester = MiarHarvester(work_dir)
+def syncissn():
+    work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
+    issn_harvester = IssnHarvester(work_dir)
 
     issn_harvester.syncronize_files_issn_model()
+
+@harvester.command()
+@with_appcontext
+def syncmiar():
+    work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
+    miar_harvester = MiarHarvester(work_dir)
+    issn_harvester = IssnHarvester(work_dir)
+
     miar_harvester.syncronize_miar_databases()
+    print("************** database names sync finish")
     miar_harvester.syncronize_miar_journals(issn_harvester.cuban_issn_file)
+    print("************** database names sync finish")

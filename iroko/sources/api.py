@@ -4,6 +4,7 @@ from flask_login import current_user
 from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
+from iroko.taxonomy.api import VocabulariesInmutableNames
 from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema, EXCLUDE, INCLUDE
 from invenio_db import db
 from datetime import datetime
@@ -444,7 +445,7 @@ class Sources:
 
             #transactions are taking place but, however, are not written to disk yet...
             #so we can use new_source.id for granting editor permission
-            db.session.flush()
+            db.session.commit()
             cls.grant_source_editor_permission(current_user.id, new_source.uuid)
             cls.insert_new_source_version(new_source.data, new_source.id, True, is_flush=True)
 
@@ -549,24 +550,24 @@ class Sources:
         #     print("db.session.commit")
 
         data = dict(input_data['data'])
-        if is_current:
+        new_source_version.data = data
 
+        if is_current:
             print("### cls._fix_update_term_source_relations(source)")
             print( data)
             relations = cls._fix_update_term_source_relations(source, data)
             data['term_sources'] = relations
             print(data)
             print("### cls._fix_update_term_source_relations(source)")
+            new_source_version.data = data
+            source.data = data
 
-        new_source_version.data = data
-        source.data = data
         db.session.commit()
 
 
 
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
-
 
     @classmethod
     def _fix_update_term_source_relations(cls, source:Source, data):
@@ -576,10 +577,6 @@ class Sources:
         also: update the terms in the relations of the source (term_sources),
         this is for institutional data...
         """
-
-        # TODO: esto es un parche... es para actualizar los datos de los terminos en la relacion
-        # pero al hacerlo de esta manera en realidad se permite que se actualice cualquier cosa...
-        # habria que filtrar por vocabulario o algo por el estilo...
 
         TermSources.query.filter_by(sources_id=source.id).delete()
         print("delete")
@@ -591,7 +588,7 @@ class Sources:
         if "term_sources" in data:
             for ts in data["term_sources"]:
                 print(ts)
-                if 'term' in ts:
+                if cls.is_term_editable_by_source(ts):
                     term_data = ts['term']
                     term = None
                     if 'term_id' in ts and ts['term_id'] != '':
@@ -624,15 +621,15 @@ class Sources:
                 else :
                     fixed_relations.append(dict(ts))
                     # ts = term_schema.dump(term)
-        print(fixed_relations)
+        # print(fixed_relations)
 
         real_relations = []
         for f_relation in fixed_relations:
-            print(f_relation)
+            # print(f_relation)
             real_term = Term.query.filter_by(id=f_relation['term_id']).first()
             if real_term is not None:
                 new_relation = TermSources()
-                print("new")
+                # print("new")
                 new_relation.sources_id = source.id
                 new_relation.term_id = real_term.id
                 new_relation.data = f_relation['data']
@@ -642,10 +639,57 @@ class Sources:
                     term_id= real_term.id,
                     data=f_relation['data']
                 ))
-                print("append ")
+                # print("append ")
         db.session.commit()
         return real_relations
 
+    @classmethod
+    def is_term_editable_by_source(cls, relation):
+        # TODO: esto es un parche... es para actualizar los datos de los terminos en la relacion
+        # pero al hacerlo de esta manera en realidad se permite que se actualice cualquier cosa...
+        # habria que filtrar por vocabulario o algo por el estilo...
+
+        if 'term' in relation:
+            data = relation['term']
+            if 'vocabulary_id' in data:
+                vid = data['vocabulary_id']
+                return vid == VocabulariesInmutableNames.INTITUTION or VocabulariesInmutableNames.EXTRA_INSTITUTIONS
+        return False
+
+    @classmethod
+    def add_term_relations(cls, source:Source, terms):
+        """
+        add term_source relations to data and current_version data.
+        and sync relations...
+        """
+
+        if source:
+            current_version = SourceVersion.query.filter_by(is_current=True).first()
+            data = dict(source.data)
+            relations = []
+            if "term_sources" in data:
+                for rel in data["term_sources"]:
+                    if 'term_id' in rel and rel['term_id'] != '':
+                        to_add = True
+                        for term in terms:
+                            if str(term.id) == rel['term_id']:
+                                to_add = False
+                        if to_add:
+                            relations.append(rel)
+                for term in terms:
+                    relations.append(dict(
+                            source_id=source.id,
+                            term_id= term.id,
+                            data=dict()
+                        )
+                    )
+                data['term_sources'] = relations
+                relations = cls._fix_update_term_source_relations(source, data)
+                data['term_sources'] = relations
+                if current_version:
+                    current_version.data = data
+                source.data = data
+                db.session.commit()
 
 
     @classmethod
