@@ -222,6 +222,8 @@ class MiarHarvester(BaseHarvester):
         print('sleep: {0}'.format(sleep_time))
         time.sleep(sleep_time)
 
+        html_text = response.text
+
         doc1 = html.fromstring(response.text)
         element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
         element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
@@ -267,7 +269,7 @@ class MiarHarvester(BaseHarvester):
             print('sleep: {0}'.format(sleep_time))
             time.sleep(sleep_time)
 
-        return dictionary, response.text
+        return dictionary, html_text
 
     def get_info_icds(self, url: str, dictionary:dict, sess:requests.Session, icds_year: str):
 
