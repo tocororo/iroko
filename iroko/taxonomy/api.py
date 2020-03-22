@@ -17,22 +17,7 @@ from invenio_accounts.models import User
 from iroko.taxonomy.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
 from sqlalchemy import func, desc
 
-
-class VocabulariesInmutableNames(enum.Enum):
-    INTITUTION = '1',
-    SUBJECTS = '2',
-    PROVINCES = '3',
-    DATABASES = '4',
-    MES_GROUPS = '5',
-    LICENCES = '6',
-    MIAR_TYPES = '7',
-    MIAR_DATABASES = '8',
-    UNESCO_VOCAB = '9',
-    RECOD_SETS = '10',
-    RECORD_TYPES = '11',
-    EXTRA_INSTITUTIONS = '12',
-    SUBJECT_COVER = '13',
-    COUNTRIES = '14'
+from iroko.utils import string_as_identifier
 
 #TODO: Revisar lanzamientos de excepciones
 
@@ -44,9 +29,12 @@ class Vocabularies:
         return Vocabulary.query.all()
 
     @classmethod
-    def get_vocabulary(cls, id) -> Dict[str, Vocabulary]:
+    def get_vocabulary(cls, name, id=None) -> Dict[str, Vocabulary]:
 
-        vocab = Vocabulary.query.filter_by(id=id).first()
+        if id is not None:
+            vocab = Vocabulary.query.filter_by(id=id).first()
+        elif name is not None:
+            vocab = Vocabulary.query.filter_by(name=name).first()
         if vocab:
             return 'ok', vocab
         else:
@@ -55,9 +43,9 @@ class Vocabularies:
 
 
     @classmethod
-    def edit_vocabulary(cls, id ,data) -> Dict[str, Vocabulary]:
+    def edit_vocabulary(cls, name ,data) -> Dict[str, Vocabulary]:
 
-        msg, vocab = cls.get_vocabulary(id)
+        msg, vocab = cls.get_vocabulary(name)
         if vocab:
             try:
                 valid_data = vocabulary_schema.load(data)
@@ -65,7 +53,7 @@ class Vocabularies:
                 vocab.description = valid_data['description']
                 vocab.data = valid_data['data']
                 db.session.commit()
-                msg = 'New Vocabulary UPDATED name={0}'.format(vocab.name)
+                msg = 'New Vocabulary UPDATED name={0}'.format(vocab.identifier)
             except Exception as err:
                 msg = 'ERROR {0} - {1}'.format(err, data)
             finally:
@@ -82,15 +70,15 @@ class Vocabularies:
             vocab = Vocabulary.query.filter_by(name=data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
-                vocab.name = data['name']
+                vocab.identifier = string_as_identifier(data['name'])
                 vocab.human_name = data['human_name']
                 vocab.description = data['description']
                 vocab.data = data['data']
                 db.session.add(vocab)
                 db.session.commit()
-                msg = 'New Vocabulary CREATED name={0}'.format(vocab.name)
+                msg = 'New Vocabulary CREATED name={0}'.format(vocab.identifier)
             else:
-                msg = 'Vocabulary already exist name={0}'.format(vocab.name)
+                msg = 'Vocabulary already exist name={0}'.format(vocab.identifier)
                 vocab = None
         except Exception as err:
             msg = 'ERROR {0} - {1}'.format(err, data)
@@ -104,7 +92,7 @@ class Vocabularies:
         done = False
         msg = ''
         try:
-            vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+            vocabulary = Vocabulary.query.filter_by(name=vocabulary_id).first()
             user = User.query.filter_by(id=user_id).first()
             if not vocabulary:
                 msg = 'Vocabulary not found'
@@ -127,14 +115,14 @@ class Vocabularies:
         done = False
         msg = ''
         try:
-            vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+            vocabulary = Vocabulary.query.filter_by(name=vocabulary_id).first()
             user = User.query.filter_by(id=user_id).first()
             if not vocabulary:
                 msg = 'Vocabulary not found'
             elif not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.deny(ObjectVocabularyEditor(vocabulary.id), user=user))
+                db.session.add(ActionUsers.deny(ObjectVocabularyEditor(vocabulary.name), user=user))
                 db.session.commit()
                 msg = 'Editor Permission granted over {0}'.format(vocabulary.name)
                 done = True
@@ -152,10 +140,10 @@ class Vocabularies:
             if is_current_user_taxonomy_admin():
                 done= True
             else:
-                vocabulary = Vocabulary.query.filter_by(id=vocabulary_id).first()
+                vocabulary = Vocabulary.query.filter_by(name=vocabulary_id).first()
                 user = User.query.filter_by(id=user_id)
                 user_identity = get_identity(user)
-                permission = Permission(ObjectVocabularyEditor(vocabulary.id))
+                permission = Permission(ObjectVocabularyEditor(vocabulary.name))
                 done = permission.allows(user_identity)
         except Exception as e:
             msg = str(e)
@@ -271,7 +259,7 @@ class Terms:
             data = term_schema.load(input_data)
             term = Term.query.filter_by(uuid=uuid).first()
             term.vocabulary_id = data['vocabulary_id']
-            term.name = data['name']
+            term.name = string_as_identifier(data['name'])
             term.description = data['description']
             term.parent_id = data['parent_id']
             term.data = data['data']
@@ -303,7 +291,7 @@ class Terms:
             print(valid_data)
             term = Term()
             term.vocabulary_id = valid_data['vocabulary_id']
-            term.name = valid_data['name']
+            term.name = string_as_identifier(valid_data['name'])
             term.description = valid_data['description']
             term.parent_id = valid_data['parent_id']
             term.data = valid_data['data']

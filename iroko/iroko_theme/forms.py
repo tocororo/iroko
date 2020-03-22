@@ -21,5 +21,5 @@ class IrokoSearchForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(IrokoSearchForm, self).__init__()
         voc = Vocabulary.query.filter_by(name='institutions').first()
-        self.institutions.choices=[(str(choice.uuid), choice.name) for choice in Term.query.filter_by(vocabulary_id=voc.id, parent_id=None).all()]
+        self.institutions.choices=[(str(choice.uuid), choice.name) for choice in Term.query.filter_by(vocabulary_id=voc.identifier, parent_id=None).all()]
 

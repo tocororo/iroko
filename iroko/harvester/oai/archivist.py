@@ -213,11 +213,11 @@ class Archivist:
         rsets = []
         for s in sets_items:
             setName = s.find(".//{" + utils.xmlns.oai + "}" + "setName").text
-            term = Term.query.filter_by(vocabulary_id=self.voc.id, name=setName).first()
+            term = Term.query.filter_by(vocabulary_id=self.voc.identifier, name=setName).first()
             if not term:
                 term = Term()
                 term.name = setName
-                term.vocabulary_id = self.voc.id
+                term.vocabulary_id = self.voc.identifier
                 db.session.add(term)
         db.session.commit()
 
@@ -330,7 +330,7 @@ class Archivist:
         for ts in self.source.term_sources:
             tuus.append(str(ts.term.uuid))
 
-        rs_term = Term.query.filter_by(vocabulary_id=self.voc.id, name=data['spec']['name']).first()
+        rs_term = Term.query.filter_by(vocabulary_id=self.voc.identifier, name=data['spec']['name']).first()
         if rs_term:
             tuus.append(str(rs_term.uuid))
         data['terms'] = tuus

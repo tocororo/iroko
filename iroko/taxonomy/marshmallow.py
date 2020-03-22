@@ -30,7 +30,7 @@ class TermSchema(Schema):
     # this field depend on the vocabulary of the term, can be anything
     data = fields.Raw(allow_none=True)
 
-    vocabulary_id = fields.Int(required=True)
+    vocabulary_id = fields.Str(required=True)
 
     # ids of terms clasified by this term
     class_ids = fields.List(fields.Int())

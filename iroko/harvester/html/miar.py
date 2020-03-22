@@ -15,6 +15,8 @@ from iroko.sources.models import Issn
 from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
 from invenio_db import db
 
+from iroko.utils import IrokoVocabularyIdentifiers
+
 
 class MiarHarvester(BaseHarvester):
 
@@ -322,39 +324,41 @@ class MiarHarvester(BaseHarvester):
         with open(self.miar_dbs_file, 'r') as file_dbs:
             archive = json.load(file_dbs)
 
-        miar_db_type_vocab = Vocabulary.query.filter_by(name = 'miar_types').first()
-        miar_db_vocab = Vocabulary.query.filter_by(name = 'miar_databases').first()
-
         if archive:
             for archive_dbs in archive:
                 miar_db_type_term = Term.query.filter_by(name = archive_dbs['name']).first()
                 if not miar_db_type_term:
                     miar_types = Term()
-                    miar_types.name = archive_dbs['name']
-                    miar_types.vocabulary_id = miar_db_type_vocab.id
-                    miar_types.description = archive_dbs['url']
+                    miar_types.name = archive_dbs['url']
+                    miar_types.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
+                    miar_types.description = archive_dbs['name']
                     db.session.add(miar_types)
                     db.session.flush()
                     miar_db_type_term = miar_types
                 for archive_dbs_info in archive_dbs['dbs']:
-                    name = archive_dbs_info['url'].split('/ID/')[1]
-                    miar_db_term = Term.query.filter_by(name = name).first()
-                    if not miar_db_term:
-                        miar_dbs = Term()
-                        miar_dbs.name = name
-                        miar_dbs.vocabulary_id = miar_db_vocab.id
-                        miar_dbs.description = archive_dbs_info['url']
-                        miar_dbs.data = archive_dbs_info
-                        miar_dbs.parent_id = miar_db_type_term.id
-                        db.session.add(miar_dbs)
-                    else:
-                        miar_db_term.name = name
-                        miar_db_term.vocabulary_id = miar_db_vocab.id
-                        miar_db_term.description = archive_dbs_info['url']
-                        miar_db_term.data = archive_dbs_info
-                        miar_db_term.parent_id = miar_db_type_term.id
+                    try:
+                        name = archive_dbs_info['url'].split('/ID/')[1]
+                        description = archive_dbs_info['name']
+                        miar_db_term = Term.query.filter_by(name = name).first()
+                        if not miar_db_term:
+                            miar_dbs = Term()
+                            miar_dbs.name = name
+                            miar_dbs.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
+                            miar_dbs.description = description
+                            miar_dbs.data = archive_dbs_info
+                            miar_dbs.parent_id = miar_db_type_term.id
+                            db.session.add(miar_dbs)
+                        else:
+                            miar_db_term.name = name
+                            miar_db_term.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
+                            miar_db_term.description = description
+                            miar_db_term.data = archive_dbs_info
+                            miar_db_term.parent_id = miar_db_type_term.id
 
-                    db.session.commit()
+                        db.session.commit()
+                    except Exception:
+                        pass
+
                         # db.session.flush()
 
                         # miar_classification = TermClasification()
@@ -437,17 +441,20 @@ class MiarHarvester(BaseHarvester):
                     except Exception:
                         return None
                     try:
-                        miar_db_vocab = Vocabulary.query.filter_by(name = 'miar_databases').first()
+                        # atribute = archive_issn_miar['Indexed\xa0in:']
 
-                        atribute = archive_issn_miar['Indexed\xa0in:']
+                        if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
+                            dbs_split = []
+                            if archive_issn_miar['Indexed\xa0in:']:
+                                dbs_split.extend(archive_issn_miar['Indexed\xa0in:'].split(", "))
+                            if archive_issn_miar['Evaluated\xa0in:']:
+                                dbs_split.extend(archive_issn_miar['Evaluated\xa0in:'].split(", "))
 
-                        if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE' and archive_issn_miar['Indexed\xa0in:']:
-                            dbs_split = archive_issn_miar['Indexed\xa0in:'].split(", ")
-
+                            print(dbs_split)
                             source = self._get_source_by_issn(issn)
 
                             for dbs in dbs_split:
-                                miar_db_type_terms = Term.query.filter_by(vocabulary_id=miar_db_vocab.id).all()
+                                miar_db_type_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
                                 to_add = []
                                 for miar in miar_db_type_terms:
                                     if miar.name.lower().strip() == dbs.lower().strip():

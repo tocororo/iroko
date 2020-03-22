@@ -2,7 +2,7 @@ from invenio_access import action_factory
 from invenio_access.models import ActionRoles, ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
-from invenio_access.utils import get_identity 
+from invenio_access.utils import get_identity
 from invenio_access import Permission
 from flask_login import current_user
 
@@ -22,7 +22,7 @@ def vocabulary_editor_permission_factory(obj):
             return permission
     except Exception as e:
         msg = str(e)
-    return Permission(ObjectVocabularyEditor(obj['id']))
+    return Permission(ObjectVocabularyEditor(obj['name']))
 
 
 taxonomy_full_editor_permission = Permission(taxonomy_full_editor_actions)

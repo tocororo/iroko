@@ -40,16 +40,10 @@ def fixtures():
 
 @fixtures.command()
 @with_appcontext
-def init():
+def initdata():
     """Init the system with fixtures."""
     init_taxonomy()
-    init_journals()    
-
-
-@fixtures.command()
-@with_appcontext
-def oaiurls():
-    add_oaiurls()
+    init_journals()
 
 
 

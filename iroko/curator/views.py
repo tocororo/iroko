@@ -38,7 +38,7 @@ def add_vocabulary():
     if form.validate_on_submit():
         new_vocab = Vocabulary()
         if form.name.data:
-            new_vocab.name = form.name.data
+            new_vocab.identifier = form.name.data
         if form.description.data:
             new_vocab.description = form.description.data
 
@@ -131,18 +131,18 @@ def edit_vocabulary(id=None):
 
     if request.method == 'GET':
         form.id.data = vocab.id
-        form.name.data = vocab.name
+        form.name.data = vocab.identifier
         form.description.data = vocab.description
 
     if form.validate_on_submit():
         # changes = {}
-        # if form.name.data and form.name.data != vocab.name:
+        # if form.name.data and form.name.data != vocab.identifier:
         #     changes['name'] = form.name.data
         # if form.description.data and form.description.data != vocab.description:
         #     changes['description'] = form.description.data
         #db.session.query(Vocabulary).filter(Vocabulary.id == id).update(changes)
 
-        vocab.name = form.name.data
+        vocab.identifier = form.name.data
         vocab.description = form.description.data
 
         db.session.commit()
@@ -177,7 +177,7 @@ def edit_term(id=None):
         aux_term.description = form.description.data
 
         data_base_vocab = Vocabulary.query.filter_by(name='data_bases').first()
-        if aux_term.vocabulary_id == data_base_vocab.id:
+        if aux_term.vocabulary_id == data_base_vocab.identifier:
             group = TermClasification.query.filter_by(term_base_id=aux_term.id).first()
             if group:
                 if form.vocabulary.data != data_base_vocab.id:

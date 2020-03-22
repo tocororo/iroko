@@ -19,6 +19,7 @@ from iroko.sources.api import Sources
 def init_journals():
     # sources_path = '../../data/journals.json'
     delete_all_sources()
+    print('delete all source and relations')
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
     with open(path) as fsource, open(path_tax) as ftax:
@@ -57,8 +58,8 @@ def init_journals():
     init_term_sources()
     add_terms_to_data()
     set_initial_versions()
+    add_oaiurls()
     Sources.sync_source_index()
-
 
 def init_term_sources():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -77,30 +78,33 @@ def init_term_sources():
                         add_term_source(source, record, record['institution'], tax, 'institutions')
                     if record.__contains__('licence'):
                         add_term_source(source, record, record['licence'], tax, 'licences')
-                    if record.__contains__('source_category'):
-                        add_term_source(source, record, record['source_category'], tax, 'grupo_mes')
 
-                    for subid in record["subjects"]:
-                        add_term_source(source, record, subid, tax, 'subjects')
+                    # if record.__contains__('source_category'):
+                    #     add_term_source(source, record, record['source_category'], tax, 'grupo_mes')
 
-                    for ref in record["referecences"]:
-                        if ref.__contains__('url'):
-                            add_term_source(source, record, ref['name'], tax, 'data_bases', {'url': ref['url']})
-                        else:
-                            add_term_source(source, record, ref['name'], tax, 'data_bases')
+                    # for subid in record["subjects"]:
+                    #     add_term_source(source, record, subid, tax, 'subjects')
+
+                    # for ref in record["referecences"]:
+                    #     if ref.__contains__('url'):
+                    #         add_term_source(source, record, ref['name'], tax, 'data_bases', {'url': ref['url']})
+                    #     else:
+                    #         add_term_source(source, record, ref['name'], tax, 'data_bases')
 
         db.session.commit()
 
 def delete_all_sources():
-    s = Source.query.all()
-    for so in s:
-        db.session.delete(so)
-
     ts = TermSources.query.all()
     for t in ts:
         db.session.delete(t)
-
     db.session.commit()
+
+    s = Source.query.all()
+    for so in s:
+        db.session.delete(so)
+    db.session.commit()
+
+
 
 def _assing_if_exist(data, record, field):
     if record.__contains__(field):
@@ -116,11 +120,12 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
     name = tax[tax_key][tid]["name"]
     term = Term.query.filter_by(name=name).first()
     # TODO TermSources deberia trabajar con los UUIDs
-    ts = TermSources()
-    ts.sources_id = source.id
-    ts.term_id = term.id
-    ts.data = data
-    db.session.add(ts)
+    if (term):
+        ts = TermSources()
+        ts.sources_id = source.id
+        ts.term_id = term.id
+        ts.data = data
+        db.session.add(ts)
 
 def remove_nulls(d):
     return {k: v for k, v in d.items() if v is not None}

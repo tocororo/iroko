@@ -1,26 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-# This file is part of INSPIRE.
-# Copyright (C) 2014-2017 CERN.
-#
-# INSPIRE is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# INSPIRE is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with INSPIRE. If not, see <http://www.gnu.org/licenses/>.
-#
-# In applying this license, CERN does not waive the privileges and immunities
-# granted to it by virtue of its status as an Intergovernmental Organization
-# or submit itself to any jurisdiction.
-
-"""Functions for searching ES and returning the results."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -31,136 +8,185 @@ from flask import current_app
 
 from invenio_db import db
 from iroko.taxonomy.models import Vocabulary, Term
+from iroko.sources.models import TermSources
+
+from rdflib import Graph, URIRef
+from rdflib.namespace import SKOS
+
+from iroko.utils import IrokoVocabularyIdentifiers, string_as_identifier
+
+from iroko.harvester.html.miar import MiarHarvester
+
+import re
+
 
 def init_taxonomy():
     """Init taxonomy"""
     delete_all_vocabs()
+    print('delete all vocabs and terms')
 #     tax_path = '../../data/taxonomy.json' .
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
+
+    init_cuntries(os.path.join(datadir, 'countries.json'))
+    init_unesco(os.path.join(datadir, 'unesco-thesaurus.rdf'))
+    init_indexes()
+
     path = os.path.join(datadir, 'taxonomy.json')
-    countries_path = os.path.join(datadir, 'countries.json')
 
     with open(path) as f:
         tax = json.load(f)
         institutions = Vocabulary()
-        institutions.name = 'institutions'
+        institutions.identifier = IrokoVocabularyIdentifiers.CUBAN_INTITUTIONS.value
         institutions.human_name = 'Instituciones Cubanas'
         db.session.add(institutions)
 
-        subjects = Vocabulary()
-        subjects.name = 'subjects'
-        subjects.human_name = 'Materias'
-        db.session.add(subjects)
+        extra_institutions = Vocabulary()
+        extra_institutions.identifier = IrokoVocabularyIdentifiers.EXTRA_INSTITUTIONS.value
+        extra_institutions.human_name = 'Instituciones sin REUP'
+        db.session.add(extra_institutions)
 
         provinces = Vocabulary()
-        provinces.name = 'provinces'
+        provinces.identifier = IrokoVocabularyIdentifiers.CUBAN_PROVINCES.value
         provinces.human_name = 'Provincias Cubanas'
         db.session.add(provinces)
 
-        data_bases = Vocabulary()
-        data_bases.name = 'data_bases'
-        data_bases.human_name = 'Bases de Datos e Indizadores'
-        db.session.add(data_bases)
-
         grupo_mes = Vocabulary()
-        grupo_mes.name = 'grupo_mes'
+        grupo_mes.identifier = IrokoVocabularyIdentifiers.INDEXES_CLASIFICATION.value
         grupo_mes.human_name = 'Clasificaciones de Bases de Datos e Indizadores'
         db.session.add(grupo_mes)
 
         licences = Vocabulary()
-        licences.name = 'licences'
+        licences.identifier = IrokoVocabularyIdentifiers.LICENCES.value
         licences.human_name = 'Licencias'
         db.session.add(licences)
 
-        miar_types = Vocabulary()
-        miar_types.name = 'miar_types'
-        miar_types.human_name = 'MIAR Databases Types'
-        db.session.add(miar_types)
-
-        miar_databases = Vocabulary()
-        miar_databases.name = 'miar_databases'
-        miar_databases.human_name = 'MIAR Data Bases'
-        db.session.add(miar_databases)
-
-        unesco_vocab = Vocabulary()
-        unesco_vocab.name = 'unesco_vocab'
-        unesco_vocab.human_name = 'Materias (UNESCO)'
-        db.session.add(unesco_vocab)
-
         record_sets = Vocabulary()
-        record_sets.name = 'record_sets'
+        record_sets.identifier = IrokoVocabularyIdentifiers.RECOD_SETS.value
         record_sets.human_name = 'Conjuntos de Articulos'
         db.session.add(record_sets)
 
         # record_set is clasified as record_type
         record_types = Vocabulary()
-        record_types.name = 'record_types'
+        record_types.identifier = IrokoVocabularyIdentifiers.RECORD_TYPES.value
         record_types.human_name = 'Tipos de Articulos'
         db.session.add(record_types)
 
-        # record_set is clasified as record_type
-        extra_institutions = Vocabulary()
-        extra_institutions.name = 'extra_institutions'
-        extra_institutions.human_name = 'Instituciones si REUP'
-        db.session.add(extra_institutions)
-
-        subject_cover = Vocabulary()
-        subject_cover.name = 'subject_cover'
-        subject_cover.human_name = 'Cobertura tematica'
-        db.session.add(subject_cover)
-
-        countries = Vocabulary()
-        countries.name = 'countries'
-        countries.human_name = 'Paises'
-        db.session.add(countries)
-
-
         db.session.commit()
 
-        init_cuntries(countries_path, countries)
+        init_vocabulary(tax, 'institutions', institutions)
+        init_vocabulary(tax, 'provinces',provinces)
+        init_vocabulary(tax, 'grupo_mes', grupo_mes)
+        init_vocabulary(tax, 'licences', licences)
 
-        init_vocabulary(tax, institutions)
-        init_vocabulary(tax, subjects)
-        init_vocabulary(tax, provinces)
-        # init_vocabulary(tax, data_bases)
-        init_vocabulary(tax, grupo_mes)
-        init_vocabulary(tax, licences)
-        init_vocabulary(tax, miar_types)
-        init_vocabulary(tax, miar_databases)
-        init_vocabulary(tax, unesco_vocab)
-        init_vocabulary(tax, subject_cover)
-        # init_vocabulary(tax, record_sets)
-        # init_vocabulary(tax, record_types)
 
-        # db.session.commit()
-
-def init_vocabulary(tax, vocab):
+def init_vocabulary(tax, tax_name, vocab):
     """init a vocabulary"""
 
-    # add all parents
-    for k, term in tax[vocab.name].items():
+    for k, term in tax[tax_name].items():
         nterm = Term()
-        nterm.name = term['name']
-        nterm.vocabulary_id = vocab.id
+        nterm.name = string_as_identifier(term['name'])
+        nterm.description = term['name']
+        nterm.vocabulary_id = vocab.identifier
         if term['parents'][0] != '0':
-            if tax[vocab.name][term['parents'][0]]:
-                parent_name = tax[vocab.name][term['parents'][0]]['name']
+            if tax[tax_name][term['parents'][0]]:
+                parent_name = string_as_identifier(tax[tax_name][term['parents'][0]]['name'])
                 parent = Term.query.filter_by(name=parent_name).first()
                 nterm.parent_id = parent.id
         db.session.add(nterm)
         db.session.commit()
 
-def init_cuntries(path, vocab):
+def init_cuntries(path):
+    vocab = Vocabulary()
+    vocab.identifier = IrokoVocabularyIdentifiers.COUNTRIES.value
+    vocab.human_name = 'Paises'
+    db.session.add(vocab)
+    db.session.commit()
+
     with open(path) as f:
         countries = json.load(f)
         for country in countries:
             nterm = Term()
-            nterm.name = country['text']
-            nterm.vocabulary_id = vocab.id
+            nterm.name = country['key']
+            nterm.description = country['text']
+            nterm.vocabulary_id = vocab.identifier
             db.session.add(nterm)
         db.session.commit()
 
+def init_unesco(path):
+
+    subjects = Vocabulary()
+    subjects.identifier = IrokoVocabularyIdentifiers.SUBJECTS.value
+    subjects.human_name = 'Cobertura tematica'
+    db.session.add(subjects)
+
+    db.session.commit()
+
+    groups = [
+        {
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain1',
+            'description': 'Educación'
+        },{
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain2',
+            'description': 'Ciencia'
+        },{
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain3',
+            'description': 'Cultura'
+        },{
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain4',
+            'description': 'Ciencias sociales y humanas'
+        },{
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain5',
+            'description': 'Información y comunicación'
+        },{
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain6',
+            'description': 'Política, derecho y economía'
+        }
+    ]
+
+    graph = Graph()
+    graph.load(path)
+
+    for t in groups:
+        term = Term()
+        term.name = t['name']
+        term.description = t['description']
+        term.vocabulary_id = subjects.identifier
+        db.session.add(term)
+        db.session.commit()
+        _add_group_terms(graph, t['name'], term, subjects)
+        db.session.commit()
+
+
+def _add_group_terms(graph, top_group, parent, vocab):
+    for group in graph.objects(subject=URIRef(top_group), predicate=SKOS.term('member')):
+        for concept in graph.objects(subject=group, predicate=SKOS.term('member')):
+            pref, label = graph.preferredLabel(subject=concept, lang='es')[0]
+            print('---->>', concept, label)
+            term = Term()
+            term.name = str(concept)
+            term.description = str(label)
+            term.parent_id = parent.id
+            term.vocabulary_id = vocab.identifier
+            db.session.add(term)
+
+def init_indexes():
+
+    indexes = Vocabulary()
+    indexes.identifier = IrokoVocabularyIdentifiers.INDEXES.value
+    indexes.human_name = 'Indices, Bases de Datos'
+    db.session.add(indexes)
+    db.session.commit()
+
+    work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
+    miar_harvester = MiarHarvester(work_dir)
+    miar_harvester.syncronize_miar_databases()
+
 def delete_all_vocabs():
+    ts = TermSources.query.all()
+    for t in ts:
+        db.session.delete(t)
+    db.session.commit()
+
     s = Vocabulary.query.all()
     for so in s:
         db.session.delete(so)

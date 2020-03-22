@@ -22,7 +22,7 @@ tests_require = [
     'pytest-cov>=2.7.1',
     'pytest-invenio>=1.2.1,<1.3.0',
     'pytest-pep8>=1.0.6',
-    'pytest>=4.6.4,<5.0.0',
+    'pytest>=4.6.4',
 ]
 
 db_version = '>=1.0.4,<1.1.0'

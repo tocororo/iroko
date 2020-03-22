@@ -39,7 +39,7 @@ class VocabularyForm(FlaskForm):
     name = StringField(
         _('Name'),
         description=_('Name for the new vocabulary'),
-        validators=[validators.DataRequired(), Unique(Vocabulary, Vocabulary.name)]
+        validators=[validators.DataRequired(), Unique(Vocabulary, Vocabulary.identifier)]
     )
     description = StringField(
         _('Description'),
@@ -81,7 +81,7 @@ class TermForm(FlaskForm):
         group_mes_vocab = Vocabulary.query.filter_by(name='grupo_mes').first()
 
         self.vocabulary.choices=[(choice.id, choice.name) for choice in Vocabulary.query.all()]
-        self.group.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.id).all()]
+        self.group.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.identifier).all()]
         self.parent.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.order_by('name').all()]
 
     def validate_group(self, field):

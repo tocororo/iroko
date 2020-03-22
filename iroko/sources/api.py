@@ -4,7 +4,6 @@ from flask_login import current_user
 from sqlalchemy import and_, or_, not_, desc, asc
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
 from iroko.taxonomy.models import Term
-from iroko.taxonomy.api import VocabulariesInmutableNames
 from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema, EXCLUDE, INCLUDE
 from invenio_db import db
 from datetime import datetime
@@ -43,6 +42,7 @@ from elasticsearch_dsl.connections import connections
 
 from elasticsearch_dsl import Search, Q
 
+from iroko.utils import IrokoVocabularyIdentifiers
 
 class IrokoSource (Record):
 
@@ -369,7 +369,7 @@ class Sources:
         return None
 
     @classmethod
-    def get_sources_count_by_vocabulary(cls, term_id):
+    def get_sources_count_by_vocabulary(cls, vocabulary_id):
         #cls.get_term_tree_list(term, terms_ids)
         list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(TermSources).filter(Term.vocabulary_id==vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
         #print(list_counts)
@@ -491,7 +491,7 @@ class Sources:
 
     # TODO: revisar esto, no usar
     @classmethod
-    def edit_source_version(data, source_version) -> [str, Source, SourceVersion]:
+    def edit_source_version(cls, data, source_version) -> [str, Source, SourceVersion]:
         """ only editors can edit a version, if not approved
          no usar"""
         return "", None
@@ -655,7 +655,7 @@ class Sources:
             data = relation['term']
             if 'vocabulary_id' in data:
                 vid = data['vocabulary_id']
-                return vid == VocabulariesInmutableNames.INTITUTION or VocabulariesInmutableNames.EXTRA_INSTITUTIONS
+                return vid == IrokoVocabularyIdentifiers.CUBAN_INTITUTIONS.value or IrokoVocabularyIdentifiers.EXTRA_INSTITUTIONS.value
         return False
 
     @classmethod

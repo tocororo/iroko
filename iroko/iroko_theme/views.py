@@ -88,7 +88,7 @@ def index():
     vocab_stats.append({'Keywords':str(len(keywords))})
 
     for vocab in vocabularies:
-        vocab_stats.append({vocab.name:str(Term.query.filter_by(vocabulary_id=vocab.id).count())})
+        vocab_stats.append({vocab.identifier:str(Term.query.filter_by(vocabulary_id=vocab.identifier).count())})
 
     form = ContactForm()
     if form.validate_on_submit():

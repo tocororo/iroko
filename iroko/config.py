@@ -558,3 +558,7 @@ OAISERVER_ADMIN_EMAILS = [
 OAISERVER_RECORD_INDEX = '_all'
 OAISERVER_ID_PREFIX = 'oai:localhost:records/'
 OAISERVER_QUERY_PARSER_FIELDS = ["title_statement"]
+
+
+# Iroko Vocabularies
+

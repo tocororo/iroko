@@ -243,3 +243,5 @@ class IssnHarvester(BaseHarvester):
             return 'success'
         else:
             return 'error'
+        # TODO: bascicamente aqui lo que hay que hacer es interpretar lo que hay en el json-ld de issn.org
+        # y maperar contra el modelo de Source que tenemos creado, o sea, ver los issn (p, e y l....)

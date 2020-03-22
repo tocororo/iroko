@@ -23,3 +23,7 @@
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 """Iroko taxonomy."""
+
+
+# TODO: the hole module should be renamed to vocabularies, and should support skos....
+

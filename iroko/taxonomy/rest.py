@@ -170,7 +170,7 @@ def get_terms_tree(vocabulary_id):
     try:
         level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
 
-        vocab = Vocabulary.query.filter_by(id=vocabulary_id).first()
+        vocab = Vocabulary.query.filter_by(name=vocabulary_id).first()
         terms = vocab.terms.filter_by(parent_id=None).all()
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -257,7 +257,7 @@ def term_edit(uuid):
         if not term:
             raise Exception(msg)
 
-        with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
+        with vocabulary_editor_permission_factory({'name': term.vocabulary_id}).require():
             # print(term.vocabulary_id)
             # user = current_user
             if not request.is_json:
@@ -286,7 +286,7 @@ def term_edit(uuid):
 def term_delete(uuid):
     try:
         msg, term = Terms.get_term(uuid)
-        with vocabulary_editor_permission_factory({'id': term.vocabulary_id}).require():
+        with vocabulary_editor_permission_factory({'name': term.vocabulary_id}).require():
             msg, deleted = Terms.delete_term(uuid)
             if deleted:
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
@@ -308,7 +308,7 @@ def term_new():
 
         input_data = request.json
 
-        with vocabulary_editor_permission_factory({'id': input_data['vocabulary_id']}).require():
+        with vocabulary_editor_permission_factory({'name': input_data['vocabulary_id']}).require():
             msg, term = Terms.new_term(input_data)
             if not term:
                 raise Exception(msg)

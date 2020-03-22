@@ -33,7 +33,6 @@ import uuid
 
 from invenio_db import db
 
-# TODO: add data field to Vocabulary and Term
 
 class Vocabulary(db.Model):
     """Define a Vocabulary"""
@@ -41,7 +40,7 @@ class Vocabulary(db.Model):
     __tablename__ = 'iroko_vocab'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
+    identifier = db.Column(db.String, nullable=False, unique=True)
     human_name = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String)
 
@@ -51,7 +50,7 @@ class Vocabulary(db.Model):
 
     def __str__(self):
         """Representation."""
-        return self.name
+        return self.identifier
 
 
 class Term(db.Model):
@@ -59,11 +58,12 @@ class Term(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(UUIDType, default=uuid.uuid4)
+    # TODO: reemplazar name por identifier y ponerlo unico.
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
 
-    vocabulary_id = db.Column(db.Integer(),
-                        db.ForeignKey('iroko_vocab.id', ondelete='CASCADE'),
+    vocabulary_id = db.Column(db.String(),
+                        db.ForeignKey('iroko_vocab.identifier', ondelete='CASCADE'),
                         nullable=False, index=True)
     vocabulary = db.relationship("Vocabulary",
                             backref=db.backref("terms",cascade="all, delete-orphan", lazy='dynamic'))

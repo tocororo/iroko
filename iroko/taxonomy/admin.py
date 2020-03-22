@@ -33,7 +33,7 @@ class VocabularyModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'human_name', 'description')
+    list_all = ('id', 'identifier', 'human_name', 'description')
 
     column_list = list_all
 
@@ -41,14 +41,14 @@ class VocabularyModelView(ModelView):
 
     column_filters = list_all
 
-    form_columns = ('name', 'human_name', 'description')
+    form_columns = ('identifier', 'human_name', 'description')
 
 class TermModelView(ModelView):
     """View for managing terms."""
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'vocabulary','uuid')
+    list_all = ('id', 'name', 'description', 'vocabulary','uuid')
 
     column_list = list_all
 

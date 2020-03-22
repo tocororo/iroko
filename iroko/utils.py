@@ -5,7 +5,7 @@ from flask import jsonify
 from flask import g, request
 from uuid import UUID
 # from invenio_app import babel
-
+import re
 # def get_sources_by_terms(tids):
 #     """sources by a list of terms"""
 #     termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(TermSources.sources_id).all()
@@ -17,6 +17,20 @@ class IrokoResponseStatus(enum.Enum):
     FAIL = "fail"
     ERROR = "error"
     NOT_FOUND = "not found"
+
+
+class IrokoVocabularyIdentifiers(enum.Enum):
+    COUNTRIES = 'COUNTRIES'
+    CUBAN_PROVINCES = 'CUBAN_PROVINCES',
+    LICENCES = 'LICENCES',
+    CUBAN_INTITUTIONS = 'CUBAN_INTITUTIONS',
+    EXTRA_INSTITUTIONS = 'EXTRA_INSTITUTIONS',
+    SUBJECTS = 'SUBJECTS',
+    INDEXES = 'INDEXES',
+    INDEXES_CLASIFICATION = 'INDEXES_CLASIFICATION',
+    RECOD_SETS = 'RECOD_SETS',
+    RECORD_TYPES = 'RECORD_TYPES',
+
 
 
 def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):
@@ -91,15 +105,15 @@ def validate_uuid4(uuid_string):
     try:
         val = UUID(uuid_string, version=4)
     except ValueError:
-        # If it's a value error, then the string 
+        # If it's a value error, then the string
         # is not a valid hex code for a UUID.
         return False
 
-    # If the uuid_string is a valid hex code, 
+    # If the uuid_string is a valid hex code,
     # but an invalid uuid4,
-    # the UUID.__init__ will convert it to a 
+    # the UUID.__init__ will convert it to a
     # valid uuid4. This is bad for validation purposes.
-    
+
     return val.hex == uuid_string or str(val) == uuid_string
 
 
@@ -109,3 +123,6 @@ def validate_integer(int_string):
         return True
     except ValueError as e:
         return False
+
+def string_as_identifier(value: str):
+    return re.sub('\W+|^(?=\d)','_', value.lower())
