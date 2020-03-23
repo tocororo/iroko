@@ -227,14 +227,14 @@ setup(
         ],
         'invenio_pidstore.fetchers': [
             'irouid = iroko.pidstore.fetchers:iroko_uuid_fetcher',
-            'srcoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
-            'srcsrc = iroko.pidstore.fetchers:iroko_source_source_record_fetcher',
+            'recoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
+            'srcsrc = iroko.pidstore.fetchers:iroko_source_identifiers_fetcher',
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
         ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
-            'srcoai = iroko.pidstore.minters:iroko_source_oai_minter',
-            'srcsrc = iroko.pidstore.minters:iroko_source_source_record_minter',
+            'recoai = iroko.pidstore.minters:iroko_source_oai_minter',
+            'srcsrc = iroko.pidstore.minters:iroko_source_identifiers_minter',
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
         ],
         'invenio_db.alembic': [

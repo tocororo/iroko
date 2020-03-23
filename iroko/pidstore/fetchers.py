@@ -6,6 +6,9 @@ from collections import namedtuple
 from flask import current_app
 
 import iroko.pidstore.providers as providers
+import iroko.pidstore.pids as pids
+from iroko.utils import identifiers_schemas
+
 
 FetchedPID = namedtuple('FetchedPID', ['provider', 'pid_type', 'pid_value'])
 """A pid fetcher."""
@@ -19,9 +22,6 @@ def iroko_uuid_fetcher(record_uuid, data):
     :returns: A :data:`invenio_pidstore.fetchers.FetchedPID` instance.
     """
     # pid_field = current_app.config['PIDSTORE_RECID_FIELD']
-    print("AAAAAAAAAAAAAAAAAAAA")
-    print(str(data))
-    print(str(record_uuid))
     pid_field = 'id'
     return FetchedPID(
         provider=providers.IrokoUUIDProvider,
@@ -37,18 +37,34 @@ def iroko_source_oai_fetcher(record_uuid, data):
         pid_value=providers.IrokoSourceOAIProvider.get_pid_from_data(data=data)
     )
 
-# TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
-def iroko_source_source_record_fetcher(record_uuid, data):
-    return FetchedPID(
-        provider=providers.IrokoSourceSourceRecordProvider,
-        pid_type=providers.IrokoSourceSourceRecordProvider.pid_type,
-        pid_value=providers.IrokoSourceSourceRecordProvider.get_pid_from_data(data=data)
-    )
+
+def iroko_source_identifiers_fetcher(record_uuid, data, pid_type):
+    assert data, "no data"
+    assert pids.IDENTIFIERS_FIELD in data
+    for schema in identifiers_schemas:
+        if schema == pid_type:
+            return FetchedPID(
+                provider=providers.IrokoSourceIdentifiersProvider,
+                pid_type=pid_type,
+                pid_value=data[pids.IDENTIFIERS_FIELD][schema]
+                )
 
 def iroko_source_uuid_fetcher(source_uuid, data):
-    pid_field = 'id'
+    assert data, "no data"
+    assert pids.SOURCE_UUID_FIELD in data, "no source uuid in data"
     return FetchedPID(
         provider=providers.IrokoSourceUUIDProvider,
-        pid_type=providers.IrokoSourceUUIDProvider.pid_type,
-        pid_value=str(data[pid_field]),
+        pid_type=pids.SOURCE_UUID_PID_TYPE,
+        pid_value=str(data[pids.SOURCE_UUID_FIELD]),
     )
+
+
+
+# # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
+# def iroko_source_source_record_fetcher(record_uuid, data):
+#     return FetchedPID(
+#         provider=providers.IrokoSourceSourceRecordProvider,
+#         pid_type=providers.IrokoSourceSourceRecordProvider.pid_type,
+#         pid_value=providers.IrokoSourceSourceRecordProvider.get_pid_from_data(data=data)
+#     )
+

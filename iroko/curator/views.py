@@ -17,6 +17,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_security import current_user
 from iroko.curator.permissions import vocabulary_create_permission, source_create_permission
 
+from iroko.utils import IrokoVocabularyIdentifiers
 
 blueprint = Blueprint(
     'iroko_curator',
@@ -176,7 +177,7 @@ def edit_term(id=None):
         aux_term.name = form.name.data
         aux_term.description = form.description.data
 
-        data_base_vocab = Vocabulary.query.filter_by(name='data_bases').first()
+        data_base_vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
         if aux_term.vocabulary_id == data_base_vocab.identifier:
             group = TermClasification.query.filter_by(term_base_id=aux_term.id).first()
             if group:

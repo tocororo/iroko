@@ -7,6 +7,7 @@ from iroko.sources.models import Source, TermSources, SourceType
 from iroko.taxonomy.models import Vocabulary, Term
 from invenio_db import db
 
+from iroko.utils import IrokoVocabularyIdentifiers
 
 class MultiCheckboxField(SelectMultipleField):
     widget			= ListWidget(prefix_label=False)
@@ -47,7 +48,7 @@ class VocabularyForm(FlaskForm):
     )
 
     # def validate_name(self, field):
-    #     if Vocabulary.query.filter_by(name=field.data).first():
+    #     if Vocabulary.query.filter_by(identifier=field.data).first():
     #         raise validators.ValidationError(_('Name must not exist'))
 
 
@@ -78,14 +79,14 @@ class TermForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(TermForm, self).__init__()
-        group_mes_vocab = Vocabulary.query.filter_by(name='grupo_mes').first()
+        group_mes_vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES_CLASIFICATION.value).first()
 
         self.vocabulary.choices=[(choice.id, choice.name) for choice in Vocabulary.query.all()]
         self.group.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.identifier).all()]
         self.parent.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.order_by('name').all()]
 
     def validate_group(self, field):
-        data_bases = Vocabulary.query.filter_by(name='data_bases').first()
+        data_bases = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
         if self.vocabulary.data == data_bases.id and field.data == 0:  # 4 is the data_bases id
             raise validators.ValidationError(_('You must asign a MES group if database'))
         if field.data != 0 and not Term.query.filter_by(id=field.data).first():

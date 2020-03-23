@@ -72,7 +72,7 @@ class SourceSchema(Schema):
 
 class IssnSchema(Schema):
     id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
+    code = fields.Str(required=True)
     data = fields.Raw(many=False)
 
 

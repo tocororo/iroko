@@ -3,6 +3,8 @@ import uuid
 from invenio_pidstore.models import PIDStatus
 from invenio_pidstore.providers.base import BaseProvider
 import iroko.pidstore.pids as pids
+from iroko.utils import identifiers_schemas
+
 
 class IrokoUUIDProvider(BaseProvider):
     """Document identifier provider."""
@@ -29,58 +31,6 @@ class IrokoUUIDProvider(BaseProvider):
         kwargs.setdefault('status', cls.default_status)
         return super(IrokoUUIDProvider, cls).create(
             object_type=object_type, object_uuid=object_uuid, **kwargs)
-
-class IrokoSourceUUIDProvider(BaseProvider):
-    """Document identifier provider."""
-
-    pid_type = pids.SOURCE_PID_TYPE
-    """Type of persistent identifier."""
-
-    pid_provider = None
-    """Provider name.
-    The provider name is not recorded in the PID since the provider does not
-    provide any additional features besides creation of record ids.
-    """
-
-    default_status = PIDStatus.REGISTERED
-    """Record IDs are by default registered immediately.
-    Default: :attr:`invenio_pidstore.models.PIDStatus.REGISTERED`
-    """
-
-    @classmethod
-    def create(cls, object_type=None, object_uuid=None, **kwargs):
-        """Create a new record identifier from the depoist PID value."""
-        if 'pid_value' not in kwargs:
-            kwargs.setdefault('pid_value', str(uuid.uuid4()))
-        kwargs.setdefault('status', cls.default_status)
-        return super(IrokoSourceUUIDProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs)
-
-
-class IrokoSourceSourceRecordProvider(BaseProvider):
-    """Provider to relate Iroko's table Source, with IrokoSource in invenio Records ."""
-    # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
-
-    pid_type = pids.SOURCE_IROKO_SOURCE_PID_TYPE
-
-    pid_provider = None
-
-    default_status = PIDStatus.REGISTERED
-
-    @classmethod
-    def create(cls, object_type=None, object_uuid=None, data=None, **kwargs):
-        """Create a new record identifier from the depoist PID value."""
-        pid_value = cls.get_pid_from_data(data)
-        kwargs.setdefault('pid_value', pid_value)
-        kwargs.setdefault('status', cls.default_status)
-        return super(IrokoSourceSourceRecordProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs)
-
-    @classmethod
-    def get_pid_from_data(cls, data=None):
-        assert data, "no data"
-        assert 'source_uuid' in data, "no source uuid in data"
-        return data['source_uuid']
 
 
 class IrokoSourceOAIProvider(BaseProvider):
@@ -122,5 +72,116 @@ class IrokoSourceOAIProvider(BaseProvider):
         assert oai_id, "no oai in idenfitiers in data, or not value for it"
 
         return data['source']['uuid'] + '-' + oai_id
+
+
+class IrokoSourceIdentifiersProvider(BaseProvider):
+    default_status = PIDStatus.REGISTERED
+
+    @classmethod
+    def create_identifiers(cls, object_type=None, object_uuid=None, data=None,  **kwargs):
+
+        assert data, "no data"
+        assert pids.IDENTIFIERS_FIELD in data
+        # assert pids.SOURCE_UUID_FIELD in data
+        pIDs = []
+        # provider = super(IrokoSourceIdentifiersProvider, cls).create(
+        #             pid_type=pids.SOURCE_UUID_PID_TYPE,
+        #             pid_value=data[pids.SOURCE_UUID_FIELD],
+        #             object_type=object_type,
+        #             object_uuid=object_uuid,
+        #             status=cls.default_status,
+        #             **kwargs
+        #         )
+        # pIDs.append(provider.pid)
+        for ids in data[pids.IDENTIFIERS_FIELD]:
+            if ids['idtype'] in identifiers_schemas:
+                provider = super(IrokoSourceIdentifiersProvider, cls).create(
+                    pid_type=ids['idtype'],
+                    pid_value=ids['value'],
+                    object_type=object_type,
+                    object_uuid=object_uuid,
+                    status=cls.default_status,
+                    **kwargs
+                )
+                pIDs.append(provider.pid)
+        return pIDs
+
+    @classmethod
+    def create_pid(cls, pid_type, object_type=None, object_uuid=None, data=None,  **kwargs):
+        assert data, "no data"
+        assert pids.IDENTIFIERS_FIELD in data
+        assert pid_type
+        assert pid_type in identifiers_schemas
+        for ids in data[pids.IDENTIFIERS_FIELD]:
+            if ids['idtype'] == pid_type:
+                provider = super(IrokoSourceIdentifiersProvider, cls).create(
+                    pid_type=ids['idtype'],
+                    pid_value=ids['value'],
+                    object_type=object_type,
+                    object_uuid=object_uuid,
+                    status=cls.default_status,
+                    **kwargs
+                )
+                return provider.pid
+
+
+class IrokoSourceUUIDProvider(BaseProvider):
+    """Document identifier provider."""
+
+    pid_type = pids.SOURCE_UUID_PID_TYPE
+    """Type of persistent identifier."""
+
+    pid_provider = None
+    """Provider name.
+    The provider name is not recorded in the PID since the provider does not
+    provide any additional features besides creation of record ids.
+    """
+
+    default_status = PIDStatus.REGISTERED
+    """Record IDs are by default registered immediately.
+    Default: :attr:`invenio_pidstore.models.PIDStatus.REGISTERED`
+    """
+
+    @classmethod
+    def create(cls, object_type=None, object_uuid=None, data=None, **kwargs):
+        assert data, "no data"
+        assert pids.SOURCE_UUID_FIELD in data
+        pIDs = []
+        return super(IrokoSourceUUIDProvider, cls).create(
+                    pid_type=pids.SOURCE_UUID_PID_TYPE,
+                    pid_value=data[pids.SOURCE_UUID_FIELD],
+                    object_type=object_type,
+                    object_uuid=object_uuid,
+                    status=cls.default_status,
+                    **kwargs
+                )
+
+
+
+# class IrokoSourceSourceRecordProvider(BaseProvider):
+#     """Provider to relate Iroko's table Source, with IrokoSource in invenio Records ."""
+#     # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
+
+#     pid_type = pids.SOURCE_UUID_PID_TYPE
+
+#     pid_provider = None
+
+#     default_status = PIDStatus.REGISTERED
+
+#     @classmethod
+#     def create(cls, object_type=None, object_uuid=None, data=None, **kwargs):
+#         """Create a new record identifier from the depoist PID value."""
+#         pid_value = cls.get_pid_from_data(data)
+#         kwargs.setdefault('pid_value', pid_value)
+#         kwargs.setdefault('status', cls.default_status)
+#         return super(IrokoSourceSourceRecordProvider, cls).create(
+#             object_type=object_type, object_uuid=object_uuid, **kwargs)
+
+#     @classmethod
+#     def get_pid_from_data(cls, data=None):
+#         assert data, "no data"
+#         assert 'source_uuid' in data, "no source uuid in data"
+#         return data['source_uuid']
+
 
 

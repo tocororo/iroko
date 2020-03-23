@@ -33,6 +33,8 @@ from iroko.harvester.base import SourceHarvester, Formater
 
 from iroko.records.api import IrokoRecord
 
+from iroko.utils import IrokoVocabularyIdentifiers
+
 # PAra que la consola haga autoreaload
 # In [1]: %load_ext autoreload
 
@@ -205,7 +207,7 @@ class Archivist:
         use the sets in the oai repo to create terms in the recod_sets vocabulary
         term in this vocabulary later can be merge manually in order to get another classification of articles
         """
-        self.voc = Vocabulary.query.filter_by(name='record_sets').first()
+        self.voc = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.RECOD_SETS.value).first()
 
         xml = utils.get_xml_from_file(self.working_dir, harvester.OaiHarvesterFileNames.SETS.value)
 

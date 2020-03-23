@@ -24,12 +24,14 @@ from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
 from uuid import uuid4
 from elasticsearch.exceptions import NotFoundError
-from invenio_pidstore.errors import PIDDoesNotExistError
+from invenio_pidstore.errors import PIDDoesNotExistError, PIDAlreadyExists
 from invenio_pidstore.resolver import Resolver
+from invenio_pidstore.models import PersistentIdentifier
 
 import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.providers as iroko_providers
+import iroko.pidstore.pids as pids
 
 from iroko.sources.search import SourceSearch
 from invenio_rest.serializer import result_wrapper
@@ -42,64 +44,71 @@ from elasticsearch_dsl.connections import connections
 
 from elasticsearch_dsl import Search, Q
 
-from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.utils import IrokoVocabularyIdentifiers, identifiers_schemas
 
 class IrokoSource (Record):
 
-    minter = iroko_minters.iroko_source_uuid_minter
-    fetcher = iroko_fetchers.iroko_source_uuid_fetcher
-    provider = iroko_providers.IrokoSourceUUIDProvider
-
-    source_minter = iroko_minters.iroko_source_source_record_minter
-    source_fetcher = iroko_fetchers.iroko_source_source_record_fetcher
-    source_provider = iroko_providers.IrokoSourceSourceRecordProvider
-
-    object_type = 'rec'
-
-    pid_uuid_field = 'id'
     _schema = "sources/source-v1.0.0.json"
 
-
     @classmethod
-    def create_or_update(cls, data, id_=None, dbcommit=False, reindex=False, source_uuid=None, **kwargs):
+    def create_or_update(cls, source_uuid , data, id_=None, dbcommit=False, reindex=False, **kwargs):
         """Create or update IrokoRecord."""
 
-        if source_uuid:
-            source = cls.get_source_by_pid(source_uuid, with_deleted=False)
-            if source:
-                # merged_data = cls._merge_uri(data, record)
-                source.update(data, dbcommit=dbcommit, reindex=reindex)
-                return source, 'updated'
-        else:
-            source = cls.get_record_by_data(data)
-            if source:
-                print("!AAAAAA")
+        assert source_uuid
 
+        resolver = Resolver(
+            pid_type=pids.SOURCE_UUID_PID_TYPE,
+            object_type=pids.SOURCE_TYPE,
+            getter=cls.get_record,
+        )
+        try:
+            persistent_identifier, source = resolver.resolve(str(source_uuid))
+            if source:
+                print("{0}={1} found".format(pids.SOURCE_UUID_PID_TYPE, source_uuid))
                 source.update(data, dbcommit=dbcommit, reindex=reindex)
                 return source, 'updated'
-            created_source = cls.create(data, id_=None, dbcommit=dbcommit, reindex=reindex)
-            return created_source, 'created'
+        except Exception:
+            pass
+            # source = cls.get_source_by_pid(source_uuid, with_deleted=False)
+        if pids.IDENTIFIERS_FIELD in data:
+            for schema in identifiers_schemas:
+                if schema in data[pids.IDENTIFIERS_FIELD]:
+                    resolver.pid_type=schema
+                    try:
+                        persistent_identifier, source = resolver.resolve(str(data[pids.IDENTIFIERS_FIELD][schema]))
+                        if source:
+                            print("{0}={1} found".format(schema, str(data[pids.IDENTIFIERS_FIELD][schema])))
+                            source.update(data, dbcommit=dbcommit, reindex=reindex)
+                            return source, 'updated'
+                    except Exception:
+                        pass
+            # source = cls.get_record_by_data(data)
+        print("no pids found, create source")
+        created_source = cls.create(data, id_=source_uuid, dbcommit=dbcommit, reindex=reindex)
+        return created_source, 'created'
 
     @classmethod
-    def create(cls, data, id_=None, dbcommit=False, reindex=False, **kwargs):
+    def create(cls, data, id_, dbcommit=False, reindex=False, **kwargs):
         """Create a new SourceRecord."""
         data['$schema'] = current_jsonschemas.path_to_url(cls._schema)
-        assert cls.minter
-        assert not data.get(cls.pid_uuid_field)
-        if not id_:
-            id_ = uuid4()
-        cls.minter(id_, data)
-        cls.source_minter(id_, data)
+        assert pids.SOURCE_UUID_FIELD in data
+        assert id_
+
+        iroko_minters.iroko_source_uuid_minter(id_, data)
+        iroko_minters.iroko_source_identifiers_minter(id_, data)
+
         source = super(IrokoSource, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:
-            source.dbcommit(reindex)
+            db.session.commit()
+            if reindex:
+                RecordIndexer().index(source)
         return source
 
     @classmethod
     def delete( cls, data, vendor=None, delindex=True, force=False):
         """Delete a IrokoRecord record."""
-        assert data.get(cls.pid_uuid_field)
-        pid = data.get(cls.pid_uuid_field)
+        assert data.get(pids.SOURCE_UUID_FIELD)
+        pid = data.get(pids.SOURCE_UUID_FIELD)
         source = cls.get_source_by_pid(pid, with_deleted=False)
         pid.delete()
         result = source.delete(force=force)
@@ -112,10 +121,9 @@ class IrokoSource (Record):
 
     @classmethod
     def get_source_by_pid(cls, pid, with_deleted=False):
-        assert cls.provider
         resolver = Resolver(
-            pid_type=cls.provider.pid_type,
-            object_type=cls.object_type,
+            pid_type=pids.SOURCE_UUID_PID_TYPE,
+            object_type=pids.SOURCE_TYPE,
             getter=cls.get_record,
         )
         try:
@@ -127,32 +135,44 @@ class IrokoSource (Record):
         except PIDDoesNotExistError:
             return None
 
-    @classmethod
-    def get_record_by_data(cls, data):
-        # depending of the providers this method can be more complex, meaning using other external PIDs like url or doi
-        assert cls.source_provider
-        resolver = Resolver(
-            pid_type=cls.source_provider.pid_type,
-            object_type=cls.object_type,
-            getter=cls.get_record,
-        )
-        try:
-            pid = cls.source_provider.get_pid_from_data(data=data)
-            persistent_identifier, record = resolver.resolve(str(pid))
-            return record
-            # return super(IrokoRecord, cls).get_record(
-            #     persistent_identifier.object_uuid, with_deleted=with_deleted
-            # )
-        except PIDDoesNotExistError:
-            return None
+    # @classmethod
+    # def get_record_by_data(cls, data):
+    #     # depending of the providers this method can be more complex, meaning using other external PIDs like url or doi
+    #     assert cls.source_provider
+    #     resolver = Resolver(
+    #         pid_type=cls.source_provider.pid_type,
+    #         object_type=cls.object_type,
+    #         getter=cls.get_record,
+    #     )
+    #     try:
+    #         pid = cls.source_provider.get_pid_from_data(data=data)
+    #         persistent_identifier, record = resolver.resolve(str(pid))
+    #         return record
+    #         # return super(IrokoRecord, cls).get_record(
+    #         #     persistent_identifier.object_uuid, with_deleted=with_deleted
+    #         # )
+    #     except PIDDoesNotExistError:
+    #         return None
 
     def update(self, data, dbcommit=False, reindex=False):
         """Update data for record."""
         super(IrokoSource, self).update(data)
         super(IrokoSource, self).commit()
+        print('update pids?')
+        self.update_pids(data)
         if dbcommit:
             self.dbcommit(reindex)
         return self
+
+    def update_pids(self, data):
+        if pids.IDENTIFIERS_FIELD in data:
+            for ids in data[pids.IDENTIFIERS_FIELD]:
+                if ids['idtype'] in identifiers_schemas:
+                    try:
+                        pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
+                    except PIDDoesNotExistError:
+                        print('!!!!!!!')
+                        iroko_providers.IrokoSourceIdentifiersProvider.create_pid(ids['idtype'], object_type=pids.SOURCE_TYPE, object_uuid=self.id, data=data)
 
     def dbcommit(self, reindex=False, forceindex=False):
         """Commit changes to db."""
@@ -182,30 +202,12 @@ class Sources:
             data = source.data
             if not data:
                 data = dict()
-            data['source_uuid']= str(source.uuid)
+            data[pids.SOURCE_UUID_FIELD]= str(source.uuid)
             data['name']= source.name
             data['source_type']= source.source_type.value
             data['source_status']= source.source_status.value
             data['relations']= cls._get_relations_to_sync(source.id)
-            # TODO: add identifiers
-            ids = []
-            if 'issn' in data and 'p' in data['issn']:
-                ids.append(dict(idtype='issn', value=data['issn']['p']))
-            if 'issn' in data and 'e' in data['issn']:
-                ids.append(dict(idtype='issn', value=data['issn']['e']))
-            if 'issn' in data and 'l' in data['issn']:
-                ids.append(dict(idtype='issn', value=data['issn']['']))
-            if 'rnps' in data and 'p' in data['rnps']:
-                ids.append(dict(idtype='rnps', value=data['rnps']['p']))
-            if 'rnps' in data and 'e' in data['rnps']:
-                ids.append(dict(idtype='ernps', value=data['rnps']['e']))
-            if 'url' in data:
-                ids.append(dict(idtype='url', value=data['url']))
-            if 'oai' in data:
-                ids.append(dict(idtype='oai', value=data['oai']))
-            data['identifiers'] = ids
-            src, status = IrokoSource.create_or_update(
-                            data, dbcommit=True, reindex=True)
+            src, status = IrokoSource.create_or_update(source.uuid, data, dbcommit=True, reindex=True)
 
     @classmethod
     def _get_relations_to_sync(cls, source_id):
@@ -232,7 +234,6 @@ class Sources:
             result.append(dict(uuid=str(term.uuid), data=dict()))
         return result
 
-
     @classmethod
     def get_sources_list_x_status(cls, status='all', ordered_by_date=False, term_uuid=None):
 
@@ -252,7 +253,6 @@ class Sources:
             query = query.join(SourceVersion).filter(SourceVersion.is_current==True).order_by(SourceVersion.created_at.desc())
 
         return list(map(lambda x: x, query.all()))
-
 
     @classmethod
     def get_sources_id_list(cls):
@@ -344,7 +344,6 @@ class Sources:
             ))
         return result_wrapper(res)
 
-
     @classmethod
     def get_sources_by_term_uuid(cls, uuid):
         if not uuid:
@@ -409,7 +408,6 @@ class Sources:
 
         return False, None
 
-
 #  TODO: probar with db.session.begin_nested():
 # aqui en este fichero y en otros..
 
@@ -464,6 +462,8 @@ class Sources:
     # TODO: Revisar esto...
     @classmethod
     def set_source_current(cls, data, source) -> Dict[str, Source]:
+        # TODO: cuando es current, se actualiza el source record en el indice
+        # y se actualizan los identificadores persistentes..
         return "", None
         if not current_user:
             raise Exception('Must be authenticated')
@@ -483,8 +483,11 @@ class Sources:
         return msg, source
 
     # TODO: this method is much more complex... a lot of things will happend here
+    # TODO: aprobar es como cuando es current, se actualiza el source record en el indice
+        # y se actualizan los identificadores persistentes..
     @classmethod
     def set_source_approved(cls, source):
+
         source.source_status = SourceStatus.APPROVED
         db.session.commit()
         return True
@@ -694,7 +697,6 @@ class Sources:
                 print(data)
                 print(source.data)
                 db.session.commit()
-
 
     @classmethod
     def grant_source_editor_permission(cls, user_id, source_uuid, is_flush=True) -> Dict[str, bool]:

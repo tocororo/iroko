@@ -56,21 +56,19 @@ def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):
 #     # example.  The best match wins.
 #     return request.accept_languages.best_match(['de', 'fr', 'en'])
 
-
-def get_identifier_schema(pid):
-    identifiers_schemas = [
+identifiers_schemas = [
         "ark",
         "arxiv",
         "doi",
         "bibcode",
         "ean8",
         "ean13",
-        "eissn",
         "handle",
         "isbn",
-        "issn",
-        "istc",
+        "pissn",
         "lissn",
+        "eissn",
+        "istc",
         "lsid",
         "pmid",
         "pmcid",
@@ -80,8 +78,15 @@ def get_identifier_schema(pid):
         "urn",
         "orcid",
         "gnd",
-        "ads"
+        "ads",
+        "oai",
+        "prnps",
+        "ernps",
+        "oaiurl"
     ]
+
+def get_identifier_schema(pid):
+
     for schema in identifiers_schemas:
         if schema in pid:
             return schema

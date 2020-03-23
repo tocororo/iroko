@@ -14,13 +14,17 @@ RECORD_PID_FETCHER = "irouid"
 """Fetcher PID for Source."""
 
 
-RECORD_SOURCE_OAI_PID_TYPE = "srcoai"
-SOURCE_IROKO_SOURCE_PID_TYPE = "srcsrc"
+RECORD_SOURCE_OAI_PID_TYPE = "recoai"
 
 
-SOURCE_PID_TYPE = "srcid"
+IDENTIFIERS_FIELD = "identifiers"
+SOURCE_UUID_FIELD = "source_uuid"
+
+SOURCE_TYPE = "src"
+
+SOURCE_UUID_PID_TYPE = "srcid"
 """Persistent Identifier for Source."""
-SOURCE_PID_MINTER = "srcid"
+SOURCE_UUID_PID_MINTER = "srcid"
 """Minter PID for Source."""
-SOURCE_PID_FETCHER = "srcid"
+SOURCE_UUID_PID_FETCHER = "srcid"
 """Fetcher PID for Source."""

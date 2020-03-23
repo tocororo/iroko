@@ -34,7 +34,7 @@ class Vocabularies:
         if id is not None:
             vocab = Vocabulary.query.filter_by(id=id).first()
         elif name is not None:
-            vocab = Vocabulary.query.filter_by(name=name).first()
+            vocab = Vocabulary.query.filter_by(identifier=name).first()
         if vocab:
             return 'ok', vocab
         else:
@@ -67,7 +67,7 @@ class Vocabularies:
         msg = ''
         try:
             data = vocabulary_schema.load(input_data)
-            vocab = Vocabulary.query.filter_by(name=data['name']).first()
+            vocab = Vocabulary.query.filter_by(identifier=data['name']).first()
             if not vocab:
                 vocab = Vocabulary()
                 vocab.identifier = string_as_identifier(data['name'])
@@ -92,7 +92,7 @@ class Vocabularies:
         done = False
         msg = ''
         try:
-            vocabulary = Vocabulary.query.filter_by(name=vocabulary_id).first()
+            vocabulary = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
             user = User.query.filter_by(id=user_id).first()
             if not vocabulary:
                 msg = 'Vocabulary not found'
@@ -115,7 +115,7 @@ class Vocabularies:
         done = False
         msg = ''
         try:
-            vocabulary = Vocabulary.query.filter_by(name=vocabulary_id).first()
+            vocabulary = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
             user = User.query.filter_by(id=user_id).first()
             if not vocabulary:
                 msg = 'Vocabulary not found'
@@ -140,7 +140,7 @@ class Vocabularies:
             if is_current_user_taxonomy_admin():
                 done= True
             else:
-                vocabulary = Vocabulary.query.filter_by(name=vocabulary_id).first()
+                vocabulary = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
                 user = User.query.filter_by(id=user_id)
                 user_identity = get_identity(user)
                 permission = Permission(ObjectVocabularyEditor(vocabulary.name))

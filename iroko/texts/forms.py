@@ -12,17 +12,17 @@ class MultiCheckboxField(SelectMultipleField):
 
 class FaqForm(FlaskForm):
     question = StringField(
-        _('Question'), 
-        description=_('Common question people can ask theirself'), 
+        _('Question'),
+        description=_('Common question people can ask theirself'),
         validators=[validators.DataRequired()]
     )
     answer = TextAreaField(
         _('Answer'),
         description=_('A sumarized answer for that question')
     )
-    
+
     # def validate_name(self, field):
-    #     if Vocabulary.query.filter_by(name=field.data).first():
+    #     if Vocabulary.query.filter_by(identifier=field.data).first():
     #         raise validators.ValidationError(_('Name must not exist'))
 
 

@@ -230,9 +230,9 @@ RECORDS_REST_ENDPOINTS = dict(
         )
     ),
     srcid= dict(
-        pid_type=pids.SOURCE_PID_TYPE,
-        pid_minter=pids.SOURCE_PID_MINTER,
-        pid_fetcher=pids.SOURCE_PID_FETCHER,
+        pid_type=pids.SOURCE_UUID_PID_TYPE,
+        pid_minter=pids.SOURCE_UUID_PID_MINTER,
+        pid_fetcher=pids.SOURCE_UUID_PID_FETCHER,
         search_class=SourceSearch,
         record_class=IrokoSource,
         indexer_class=RecordIndexer,

@@ -24,9 +24,6 @@ class RelationSchemaV1(Schema):
 
 class SourceDataSchemaV1(JournalDataSchema):
 
-    id = PersistentIdentifier()
-    source_uuid = fields.UUID(dump_only=True)
-    identifiers = fields.Nested(IdentifierSchemaV1, many=True)
     name = fields.Str(allow_none=False)
 
     source_type = fields.Str(allow_none=False)

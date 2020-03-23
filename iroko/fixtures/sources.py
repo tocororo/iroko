@@ -14,7 +14,9 @@ from iroko.taxonomy.models import Term
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
 from iroko.harvester.models import HarvestType, Repository
 from iroko.sources.api import Sources
-
+from iroko.sources.marshmallow.journal import JournalDataSchema
+from iroko.pidstore.pids import IDENTIFIERS_FIELD
+from iroko.utils import string_as_identifier
 
 def init_journals():
     # sources_path = '../../data/journals.json'
@@ -22,11 +24,13 @@ def init_journals():
     print('delete all source and relations')
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
-    with open(path) as fsource, open(path_tax) as ftax:
+    path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
+
+    with open(path) as fsource, open(path_oai) as foai:
         data = json.load(fsource, object_hook=remove_nulls)
-        tax = json.load(ftax)
+        urls = json.load(foai)
+
         inserted= {}
-        user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
         if isinstance(data, dict):
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
@@ -34,21 +38,41 @@ def init_journals():
                     source = Source()
                     source.source_type = SourceType.JOURNAL
                     source.name = record['title']
-                    data = {}
+                    data = dict()
+                    ids = []
+
                     _assing_if_exist(data, record, 'title')
                     _assing_if_exist(data, record, 'description')
-                    _assing_if_exist(data, record, 'url')
-                    _assing_if_exist(data, record, 'rnps')
-                    if record.__contains__('rnps'):
-                        data['rnps']= {'p': record['rnps'], 'e': ''}
                     _assing_if_exist(data, record, 'email')
                     _assing_if_exist(data, record, 'logo')
                     _assing_if_exist(data, record, 'seriadas_cubanas')
+
+                    if 'url' in record:
+                        data['url'] = record['url']
+                        ids.append(dict(idtype='url', value=record['url']))
+
+                    if 'rnps' in record:
+                        data['rnps']= {'p': record['rnps'], 'e': ''}
+                        ids.append(dict(idtype='prnps', value=record['rnps']))
+
                     issn= {}
-                    _assing_if_exist(issn, record['issn'], 'p')
-                    _assing_if_exist(issn, record['issn'], 'e')
-                    _assing_if_exist(issn, record['issn'], 'l')
+                    if 'p' in record['issn']:
+                        issn['p']=record['issn']['p']
+                        ids.append(dict(idtype='pissn', value=record['issn']['p']))
+                    if 'e' in record['issn']:
+                        issn['e']=record['issn']['e']
+                        ids.append(dict(idtype='eissn', value=record['issn']['e']))
+                    if 'l' in record['issn']:
+                        issn['l']=record['issn']['l']
+                        ids.append(dict(idtype='lissn', value=record['issn']['l']))
                     data['issn']= issn
+
+                    for url in urls:
+                        if url['id'] == k:
+                            data['oaiurl'] = url['url']
+                            ids.append(dict(idtype='oaiurl', value=url['url']))
+
+                    data[IDENTIFIERS_FIELD] = ids
                     source.data = data
                     source.source_status = SourceStatus.UNOFFICIAL
                     db.session.add(source)
@@ -58,7 +82,7 @@ def init_journals():
     init_term_sources()
     add_terms_to_data()
     set_initial_versions()
-    add_oaiurls()
+    init_repositories()
     Sources.sync_source_index()
 
 def init_term_sources():
@@ -99,15 +123,14 @@ def delete_all_sources():
         db.session.delete(t)
     db.session.commit()
 
+    # TODO: delete persistentidentifiers and record metadata
     s = Source.query.all()
     for so in s:
         db.session.delete(so)
     db.session.commit()
 
-
-
 def _assing_if_exist(data, record, field):
-    if record.__contains__(field):
+    if field in record:
         data[field]= record[field]
 
 def get_term_by_name(name):
@@ -117,7 +140,7 @@ def get_term_by_name(name):
 def add_term_source(source, record, tid, tax, tax_key, data=None):
 
     # tid = record[record_key]
-    name = tax[tax_key][tid]["name"]
+    name = string_as_identifier(tax[tax_key][tid]["name"])
     term = Term.query.filter_by(name=name).first()
     # TODO TermSources deberia trabajar con los UUIDs
     if (term):
@@ -130,7 +153,7 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
 def remove_nulls(d):
     return {k: v for k, v in d.items() if v is not None}
 
-def add_oaiurls():
+def init_repositories():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
     with open(path) as fsource, open(path_oai) as foai:

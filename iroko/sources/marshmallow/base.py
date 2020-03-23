@@ -4,6 +4,15 @@ from marshmallow import Schema, fields, ValidationError, pre_load, post_dump, pr
 from iroko.taxonomy.api import Terms
 from iroko.taxonomy.marshmallow import term_schema
 
+from invenio_records_rest.schemas import StrictKeysMixin
+from invenio_records_rest.schemas.fields import SanitizedUnicode
+
+
+class IdentifierSchema(StrictKeysMixin):
+    """Ids schema."""
+
+    idtype = SanitizedUnicode()
+    value = SanitizedUnicode()
 
 
 class TermSourcesSchema(Schema):
@@ -27,6 +36,8 @@ class SourceDataSchema(Schema):
     title = fields.Str()
     description = fields.Str()
     term_sources = fields.List(fields.Nested(TermSourcesSchema))
+    source_uuid = fields.UUID(dump_only=True)
+    identifiers = fields.Nested(IdentifierSchema, many=True)
 
 
 # TODO: to replace by UserProfilesSchema

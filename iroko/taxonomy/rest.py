@@ -170,7 +170,7 @@ def get_terms_tree(vocabulary_id):
     try:
         level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
 
-        vocab = Vocabulary.query.filter_by(name=vocabulary_id).first()
+        vocab = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
         terms = vocab.terms.filter_by(parent_id=None).all()
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \

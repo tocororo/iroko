@@ -95,6 +95,7 @@ def init_vocabulary(tax, tax_name, vocab):
         db.session.add(nterm)
         db.session.commit()
 
+
 def init_cuntries(path):
     vocab = Vocabulary()
     vocab.identifier = IrokoVocabularyIdentifiers.COUNTRIES.value
@@ -111,6 +112,7 @@ def init_cuntries(path):
             nterm.vocabulary_id = vocab.identifier
             db.session.add(nterm)
         db.session.commit()
+
 
 def init_unesco(path):
 

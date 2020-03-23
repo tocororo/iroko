@@ -4,12 +4,8 @@
   "title": "Schema Source",
   "type": "object",
   "additionalProperties": true,
-  "required": ["id", "source_uuid"],
+  "required": ["identifiers", "source_uuid"],
   "properties": {
-    "id": {
-      "description": "Iroko UUID, pid_type = srcid",
-      "type": "string"
-    },
     "source_uuid": {
       "description": "Source UUID of the Iroko table Sources",
       "type": "string"
@@ -30,12 +26,12 @@
               "bibcode",
               "ean8",
               "ean13",
-              "eissn",
               "handle",
               "isbn",
-              "issn",
-              "istc",
+              "pissn",
               "lissn",
+              "eissn",
+              "istc",
               "lsid",
               "pmid",
               "pmcid",
@@ -47,8 +43,9 @@
               "gnd",
               "ads",
               "oai",
-              "rnps",
-              "ernps"
+              "prnps",
+              "ernps",
+              "oaiurl"
             ]
           },
           "value": {

@@ -8,9 +8,6 @@
           "type": "text",
           "index": false
         },
-        "id": {
-          "type": "keyword"
-        },
         "source_uuid": {
           "type": "keyword"
         },
