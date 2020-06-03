@@ -1,57 +1,38 @@
-from typing import Dict
-from flask_babelex import lazy_gettext as _
-from flask_login import current_user
-from sqlalchemy import and_, or_, not_, desc, asc
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
-from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow.source import source_schema, source_version_schema, SourceVersionSchema, EXCLUDE, INCLUDE
-from invenio_db import db
 from datetime import datetime
-from invenio_access import Permission
-from invenio_access.models import ActionRoles, ActionUsers
-from invenio_accounts.models import User
-from iroko.sources.permissions import ObjectSourceEditor, ObjectSourceGestor, is_current_user_source_admin
-from invenio_access.utils import get_identity
-from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid
-from sqlalchemy_utils.types import UUIDType
-from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data, _no_params, _filter_data_args, _filter_extra_args
-from iroko.taxonomy.api import Terms
-from iroko.taxonomy.marshmallow import term_schema
-from sqlalchemy import func, desc
+from typing import Dict
 
-from invenio_records.api import Record
+from elasticsearch.exceptions import NotFoundError
+from flask_login import current_user
+from invenio_access.models import ActionUsers
+from invenio_accounts.models import User
+from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
-from uuid import uuid4
-from elasticsearch.exceptions import NotFoundError
-from invenio_pidstore.errors import PIDDoesNotExistError, PIDAlreadyExists
-from invenio_pidstore.resolver import Resolver
+from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.models import PersistentIdentifier
-
-import iroko.pidstore.fetchers as iroko_fetchers
-import iroko.pidstore.minters as iroko_minters
-import iroko.pidstore.providers as iroko_providers
-import iroko.pidstore.pids as pids
-
-from iroko.sources.search import SourceSearch
+from invenio_pidstore.resolver import Resolver
+from invenio_records.api import Record
 from invenio_rest.serializer import result_wrapper
+from sqlalchemy import func, desc
 
-from flask import jsonify
-
-from flask import current_app
-
-from elasticsearch_dsl.connections import connections
-
-from elasticsearch_dsl import Search, Q
-
+import iroko.pidstore.minters as iroko_minters
+import iroko.pidstore.pids as pids
+import iroko.pidstore.providers as iroko_providers
+from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
+from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion
+from iroko.sources.permissions import ObjectSourceEditor, is_current_user_source_admin
+from iroko.sources.search import SourceSearch
+from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid
+from iroko.taxonomy.api import Terms
+from iroko.taxonomy.models import Term
 from iroko.utils import IrokoVocabularyIdentifiers, identifiers_schemas
 
-class IrokoSource (Record):
 
+class IrokoSource(Record):
     _schema = "sources/source-v1.0.0.json"
 
     @classmethod
-    def create_or_update(cls, source_uuid , data, id_=None, dbcommit=False, reindex=False, **kwargs):
+    def create_or_update(cls, source_uuid, data, dbcommit=False, reindex=False, **kwargs):
         """Create or update IrokoRecord."""
 
         assert source_uuid
@@ -73,7 +54,7 @@ class IrokoSource (Record):
         if pids.IDENTIFIERS_FIELD in data:
             for schema in identifiers_schemas:
                 if schema in data[pids.IDENTIFIERS_FIELD]:
-                    resolver.pid_type=schema
+                    resolver.pid_type = schema
                     try:
                         persistent_identifier, source = resolver.resolve(str(data[pids.IDENTIFIERS_FIELD][schema]))
                         if source:
@@ -95,7 +76,7 @@ class IrokoSource (Record):
         assert id_
 
         iroko_minters.iroko_source_uuid_minter(id_, data)
-        iroko_minters.iroko_source_identifiers_minter(id_, data)
+        iroko_minters.iroko_record_identifiers_minter(id_, data)
 
         source = super(IrokoSource, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:
@@ -105,19 +86,21 @@ class IrokoSource (Record):
         return source
 
     @classmethod
-    def delete( cls, data, vendor=None, delindex=True, force=False):
+    def delete(cls, data, delindex=True, force=False):
         """Delete a IrokoRecord record."""
         assert data.get(pids.SOURCE_UUID_FIELD)
         pid = data.get(pids.SOURCE_UUID_FIELD)
         source = cls.get_source_by_pid(pid, with_deleted=False)
-        pid.delete()
-        result = source.delete(force=force)
-        if delindex:
-            try:
-                RecordIndexer().delete(source)
-            except NotFoundError:
-                pass
-        return result
+        # pid.delete()
+        if source:
+            result = source.delete(force=force)
+            if delindex:
+                try:
+                    RecordIndexer().delete(source)
+                except NotFoundError:
+                    pass
+            return result
+        return False
 
     @classmethod
     def get_source_by_pid(cls, pid, with_deleted=False):
@@ -172,7 +155,9 @@ class IrokoSource (Record):
                         pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
                     except PIDDoesNotExistError:
                         print('!!!!!!!')
-                        iroko_providers.IrokoSourceIdentifiersProvider.create_pid(ids['idtype'], object_type=pids.SOURCE_TYPE, object_uuid=self.id, data=data)
+                        iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'],
+                                                                                   object_type=pids.SOURCE_TYPE,
+                                                                                   object_uuid=self.id, data=data)
 
     def dbcommit(self, reindex=False, forceindex=False):
         """Commit changes to db."""
@@ -186,6 +171,7 @@ class IrokoSource (Record):
             RecordIndexer(version_type="external_gte").index(self)
         else:
             RecordIndexer().index(self)
+
 
 class Sources:
     """API for manipulation of Sources
@@ -202,11 +188,11 @@ class Sources:
             data = source.data
             if not data:
                 data = dict()
-            data[pids.SOURCE_UUID_FIELD]= str(source.uuid)
-            data['name']= source.name
-            data['source_type']= source.source_type.value
-            data['source_status']= source.source_status.value
-            data['relations']= cls._get_relations_to_sync(source.id)
+            data[pids.SOURCE_UUID_FIELD] = str(source.uuid)
+            data['name'] = source.name
+            data['source_type'] = source.source_type.value
+            data['source_status'] = source.source_status.value
+            data['relations'] = cls._get_relations_to_sync(source.id)
             src, status = IrokoSource.create_or_update(source.uuid, data, dbcommit=True, reindex=True)
 
     @classmethod
@@ -240,7 +226,7 @@ class Sources:
         query = db.session.query(Source)
 
         if status != 'all':
-            query = query.filter(Source.source_status==status.upper())
+            query = query.filter(Source.source_status == status.upper())
 
         if term_uuid:
             msg, term = Terms.get_term(term_uuid)
@@ -250,21 +236,23 @@ class Sources:
                 query = query.join(TermSources).filter(TermSources.term_id.in_(terms_ids))
 
         if ordered_by_date:
-            query = query.join(SourceVersion).filter(SourceVersion.is_current==True).order_by(SourceVersion.created_at.desc())
+            query = query.join(SourceVersion).filter(SourceVersion.is_current == True).order_by(
+                SourceVersion.created_at.desc())
 
         return list(map(lambda x: x, query.all()))
 
     @classmethod
     def get_sources_id_list(cls):
-        #ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
-        return list(map(lambda x: int(x.id), db.session.query(Source.id).filter(Source.source_status==SourceStatus.APPROVED).all()))
+        # ids = list(map(lambda x: int(x.id), session.query(Source.id).filter(Source.DDDDDD==trigger).all()))
+        return list(map(lambda x: int(x.id),
+                        db.session.query(Source.id).filter(Source.source_status == SourceStatus.APPROVED).all()))
 
     @classmethod
-    def get_source_by_id(cls, id=None, uuid= None):
+    def get_source_by_id(cls, id=None, uuid=None):
         if id is not None:
             return Source.query.filter_by(id=id).first()
         if uuid is not None:
-            #uuid = UUIDType(uuid)
+            # uuid = UUIDType(uuid)
             return Source.query.filter_by(uuid=uuid).first()
         return None
 
@@ -287,7 +275,7 @@ class Sources:
             term = Term.query.filter_by(uuid=uuid).first()
             if term:
                 aggs = dict()
-                aggs[str(term.uuid)]= {
+                aggs[str(term.uuid)] = {
                     "filter": {
                         "term": {
                             "relations.uuid": term.uuid
@@ -304,10 +292,10 @@ class Sources:
                     children = cls._count_term_children(term, level, 1)
                     children.sort(key=lambda k: int(k['count']), reverse=True)
                 res = dict(
-                    name= term.name,
-                    uuid= str(term.uuid),
-                    count= str(result.aggregations[str(term.uuid)]["doc_count"]),
-                    children= children
+                    name=term.name,
+                    uuid=str(term.uuid),
+                    count=str(result.aggregations[str(term.uuid)]["doc_count"]),
+                    children=children
                 )
                 return result_wrapper(res)
         return None
@@ -319,7 +307,7 @@ class Sources:
         children = Term.query.filter_by(parent_id=term.id).all()
         for child in children:
             # terms.append(child.uuid)
-            aggs[str(child.uuid)]= {
+            aggs[str(child.uuid)] = {
                 "filter": {
                     "term": {
                         "relations.uuid": child.uuid
@@ -334,13 +322,13 @@ class Sources:
         for child in children:
             children = []
             if level_to_reach > current_level:
-                children = cls._count_term_children(child ,level_to_reach, current_level+1)
+                children = cls._count_term_children(child, level_to_reach, current_level + 1)
                 children.sort(key=lambda k: int(k['count']), reverse=True)
             res.append(dict(
-                name= child.name,
-                uuid= str(child.uuid),
-                count= str(result.aggregations[str(child.uuid)]["doc_count"]),
-                children= children
+                name=child.name,
+                uuid=str(child.uuid),
+                count=str(result.aggregations[str(child.uuid)]["doc_count"]),
+                children=children
             ))
         return result_wrapper(res)
 
@@ -360,7 +348,8 @@ class Sources:
 
                     Terms.get_term_tree_list(term, terms_ids)
 
-                    sources_ids = db.session.query(TermSources.sources_id).filter(TermSources.term_id.in_(terms_ids)).all()
+                    sources_ids = db.session.query(TermSources.sources_id).filter(
+                        TermSources.term_id.in_(terms_ids)).all()
 
                     return Source.query.filter(Source.id.in_(sources_ids)).all()
                 except  Exception as e:
@@ -369,9 +358,10 @@ class Sources:
 
     @classmethod
     def get_sources_count_by_vocabulary(cls, vocabulary_id):
-        #cls.get_term_tree_list(term, terms_ids)
-        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(TermSources).filter(Term.vocabulary_id==vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
-        #print(list_counts)
+        # cls.get_term_tree_list(term, terms_ids)
+        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(
+            TermSources).filter(Term.vocabulary_id == vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
+        # print(list_counts)
 
         return list_counts
 
@@ -381,6 +371,7 @@ class Sources:
 
             :returns: boolean, Source
         """
+
         # TODO: Replace this function by Pidstore for sources.
         # esto cambiaria la filosofia un poco, hay que definir diferentes PIDs para los sources, y eso depende del tipo de source, aqui nada mas se estan reflejando los de revistas y lo hace mirando en el data, lo que no es la mejor manera.
         title = data['title'] if 'title' in data else ''
@@ -393,7 +384,7 @@ class Sources:
             return True, source
 
         result = []
-        #sources = Source.query.filter(or_(Source.source_status==SourceStatus.APPROVED, Source.source_status==SourceStatus.TO_REVIEW)).all()
+        # sources = Source.query.filter(or_(Source.source_status==SourceStatus.APPROVED, Source.source_status==SourceStatus.TO_REVIEW)).all()
         sources = Source.query.all()
 
         for item in sources:
@@ -408,56 +399,86 @@ class Sources:
 
         return False, None
 
-#  TODO: probar with db.session.begin_nested():
-# aqui en este fichero y en otros..
-
     @classmethod
-    def insert_new_source(cls, json_data) -> Dict[Dict[bool, str], Source]:
+    def insert_new_source(cls, json_data, source_status=SourceStatus.TO_REVIEW, user=None) -> Dict[
+        Dict[bool, str], Source]:
         """Insert new Source and an associated SourceVersion
             return [success, message, source]
         """
-        #FIXME
-
-        if not current_user:
-            raise Exception('Must be authenticated')
+        # FIXME
+        #  TODO: probar with db.session.begin_nested():
+        # aqui en este fichero y en otros..
+        msg = ''
+        if not user:
+            if not current_user:
+                raise Exception('Must be authenticated')
+            user_id = current_user.id
+        else:
+            user_id = user.id
+        print('user {0}'.format(user_id))
         try:
-            exist, source = cls._check_source_exist(json_data['data'])
+            print('try')
+            # exist, source = cls._check_source_exist(json_data['data'])
+            pid = pids.get_pid_by_data(json_data['data'])
+            print(pid)
+            if pid:
+                print('pid={0}'.format(pid))
+                source = cls.get_source_by_id(uuid=pid.object_uuid)
 
-            if exist:
+                if not source:
+                    raise Exception('pid {0}={1} is associated with object {2}'.format(pid.pid_type, pid.pid_value,
+                                                                                       pid.object_uuid))
+
                 if source.source_status is SourceStatus.UNOFFICIAL:
                     return cls.insert_new_source_version(json_data, source.uuid, True)
+                    raise Exception('Source already exist uuid={0}. Call insert_new_source_version'.format(source.uuid))
 
-                msg = 'Source already exist id={0}. Call insert_new_source_version'.format(source.id)
-                #return dict(False, msg), None
-                raise Exception(msg)
+            elif pids.check_data_identifiers(json_data['data']):
+                print('elif pids.check_data_identifiers(json_data):')
 
-            valid_data = source_schema.load(json_data)
+                # valid_data = source_schema.load(json_data)
+                valid_data = json_data
 
-            new_source = Source()
-            new_source.name = valid_data['name']
-            new_source.source_type = valid_data['source_type']
-            new_source.source_status = SourceStatus.TO_REVIEW
-            new_source.data = valid_data['data']
-            # print(new_source)
-            db.session.add(new_source)
+                new_source = Source()
+                new_source.name = valid_data['name']
+                new_source.source_type = valid_data['source_type']
+                new_source.source_status = source_status
+                new_source.data = valid_data['data']
+                # print(new_source)
+                db.session.add(new_source)
 
-            #transactions are taking place but, however, are not written to disk yet...
-            #so we can use new_source.id for granting editor permission
-            db.session.commit()
-            cls.grant_source_editor_permission(current_user.id, new_source.uuid)
-            cls.insert_new_source_version(new_source.data, new_source.id, True, is_flush=True)
+                # transactions are taking place but, however, are not written to disk yet...
+                # so we can use new_source.id for granting editor permission
+                db.session.commit()
+                print('new source')
+                try:
+                    data = new_source.data
+                    data[pids.SOURCE_UUID_FIELD] = str(new_source.uuid)
+                    data['name'] = new_source.name
+                    data['source_type'] = new_source.source_type.value
+                    data['source_status'] = new_source.source_status.value
+                    data['relations'] = cls._get_relations_to_sync(new_source.id)
+                    data['data'] = valid_data
+                    IrokoSource.create_or_update(new_source.uuid, data, dbcommit=True, reindex=True)
+                    print('index')
+                    cls.grant_source_editor_permission(user_id, new_source.uuid)
+                    print('permision')
+                    cls.insert_new_source_version(new_source.data, new_source.uuid, is_current=True, is_flush=True,
+                                                  user=user)
+                    print('version')
+                except Exception as e:
+                    Source.query.filter_by(uuid=new_source.uuid).delete()
+                    db.session.commit()
+                    raise (e)
 
-            db.session.commit()
+                db.session.commit()
 
-            msg = 'New Source created id={0}'.format(new_source.id)
-            done = True
+                msg = 'New Source created id={0}'.format(new_source.id)
+                return msg, new_source
 
         except Exception as e:
-            msg = 'ERROR {0} - {1}'.format(e, json_data)
-            new_source = None
-            done = False
-        finally:
-            return dict(done, msg), new_source
+            msg = 'ERROR {0} - {1} - Exception: {2}'.format(e, json_data, str(e))
+            return msg, None
 
     # TODO: Revisar esto...
     @classmethod
@@ -484,7 +505,7 @@ class Sources:
 
     # TODO: this method is much more complex... a lot of things will happend here
     # TODO: aprobar es como cuando es current, se actualiza el source record en el indice
-        # y se actualizan los identificadores persistentes..
+    # y se actualizan los identificadores persistentes..
     @classmethod
     def set_source_approved(cls, source):
 
@@ -513,13 +534,17 @@ class Sources:
         return msg, source, source_version
 
     @classmethod
-    def insert_new_source_version(cls, input_data, uuid, is_current:bool, is_flush=False) -> [str, Source, SourceVersion]:
+    def insert_new_source_version(cls, input_data, uuid, is_current=False, is_flush=False, user=None) -> [str, Source,
+                                                                                                          SourceVersion]:
         """Insert new SourceVersion to an existing Source
         """
         msg = ''
-        if not current_user:
-            raise Exception('Must be authenticated')
-
+        if not user:
+            if not current_user:
+                raise Exception('Must be authenticated')
+            user_id = current_user.id
+        else:
+            user_id = user.id
 
         # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir....
         # print(input_data)
@@ -541,7 +566,7 @@ class Sources:
         new_source_version.is_current = is_current
         new_source_version.source_id = source.id
         new_source_version.comment = input_data['comment']
-        new_source_version.user_id = current_user.id
+        new_source_version.user_id = user_id
         print("### new source created")
         db.session.add(new_source_version)
         print("db.session.add(new_source_version)")
@@ -557,7 +582,7 @@ class Sources:
 
         if is_current:
             print("### cls._fix_update_term_source_relations(source)")
-            print( data)
+            print(data)
             relations = cls._fix_update_term_source_relations(source, data)
             data['term_sources'] = relations
             print(data)
@@ -567,13 +592,11 @@ class Sources:
 
         db.session.commit()
 
-
-
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
 
     @classmethod
-    def _fix_update_term_source_relations(cls, source:Source, data):
+    def _fix_update_term_source_relations(cls, source: Source, data):
         """
         The model TermSources map the relations of Source with any term. In source.data[term_sources] are all the term ids related to the source, this is done this way to simplify the consumer apps and version handling. This function use source.data to sync term-source relations, meaning that new relations in source.data will be included in TermSource table, and relations in TermSource not present in source.data will be removed.
 
@@ -585,7 +608,6 @@ class Sources:
         print("delete")
         db.session.commit()
         print("commit")
-
 
         fixed_relations = []
         if "term_sources" in data:
@@ -618,10 +640,10 @@ class Sources:
                     if term:
                         fixed_relations.append(dict(
                             source_id=source.id,
-                            term_id= term.id,
+                            term_id=term.id,
                             data=ts['data']
                         ))
-                else :
+                else:
                     fixed_relations.append(dict(ts))
                     # ts = term_schema.dump(term)
         print(fixed_relations)
@@ -641,7 +663,7 @@ class Sources:
                     db.session.add(new_relation)
                     real_relations.append(dict(
                         source_id=source.id,
-                        term_id= real_term.id,
+                        term_id=real_term.id,
                         data=f_relation['data']
                     ))
                     print("append ")
@@ -683,10 +705,10 @@ class Sources:
                             relations.append(rel)
                 for term in terms:
                     relations.append(dict(
-                            source_id=source.id,
-                            term_id= term.id,
-                            data=dict()
-                        )
+                        source_id=source.id,
+                        term_id=term.id,
+                        data=dict()
+                    )
                     )
                 data['term_sources'] = relations
                 relations = cls._fix_update_term_source_relations(source, data)
@@ -703,7 +725,7 @@ class Sources:
         done = False
         msg = ''
         try:
-            #source = Source.query.filter_by(id=source_id).first()
+            # source = Source.query.filter_by(id=source_id).first()
             # if not source:
             #     msg = 'source not found'
 
@@ -726,15 +748,15 @@ class Sources:
         return msg, done
 
     @classmethod
-    def get_sources_from_editor_current_user(cls, status='all')-> Dict[str, list]:
+    def get_sources_from_editor_current_user(cls, status='all') -> Dict[str, list]:
         """
             param status: 'all', 'approved', 'to_review', 'unofficial' """
-
 
         sources = cls.get_arguments_for_source_from_action(current_user, 'source_editor_actions')
 
         if not status == 'all':
-            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources), Source.source_status==status.upper()).all()
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources),
+                                                               Source.source_status == status.upper()).all()
         else:
             sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources)).all()
 
@@ -744,7 +766,7 @@ class Sources:
         return 'none', []
 
     @classmethod
-    def get_sources_from_gestor_current_user(cls, status='all')-> Dict[str, list]:
+    def get_sources_from_gestor_current_user(cls, status='all') -> Dict[str, list]:
         """
             param status: 'all', 'approved', 'to_review', 'unofficial'
         """
@@ -754,7 +776,8 @@ class Sources:
 
         sources_ids_directly = cls.get_arguments_for_source_from_action(current_user, 'source_gestor_actions')
         if not status == 'all':
-            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly), Source.source_status==status.upper()).all()
+            sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly),
+                                                               Source.source_status == status.upper()).all()
         else:
             sources_directly = db.session.query(Source).filter(Source.uuid.in_(sources_ids_directly)).all()
 
@@ -764,12 +787,14 @@ class Sources:
         if terms_uuids:
             all_terms = _load_terms_tree_by_uuid(terms_uuids)
             if not status == 'all':
-                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms), Source.source_status==status.upper()).all()
+                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms),
+                                                                                          Source.source_status == status.upper()).all()
             else:
-                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(Term.uuid.in_(all_terms)).all()
+                sources_by_term = db.session.query(Source).join(TermSources, Term).filter(
+                    Term.uuid.in_(all_terms)).all()
 
         if sources_directly or sources_by_term:
-            return 'ok', sources_directly+sources_by_term
+            return 'ok', sources_directly + sources_by_term
 
         return 'none', []
 
@@ -777,22 +802,26 @@ class Sources:
     def get_userids_for_source_from_action(cls, paction, p_argument=None):
 
         if p_argument:
-            user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(argument=str(p_argument),exclude=False,action=paction).all()))
+            user_ids = list(map(lambda x: x.user.id,
+                                db.session.query(ActionUsers).filter_by(argument=str(p_argument), exclude=False,
+                                                                        action=paction).all()))
         else:
-            user_ids = list(map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(exclude=False,action=paction).all()))
+            user_ids = list(
+                map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(exclude=False, action=paction).all()))
 
         return user_ids
 
     @classmethod
     def get_arguments_for_source_from_action(cls, puser, paction):
 
-        arguments = list(map(lambda x: x.argument, db.session.query(ActionUsers).filter_by(user=puser,exclude=False,action=paction).all()))
+        arguments = list(map(lambda x: x.argument,
+                             db.session.query(ActionUsers).filter_by(user=puser, exclude=False, action=paction).all()))
 
         return arguments
 
     @classmethod
     def get_user_ids_source_editor(cls, uuid) -> Dict[str, list]:
-        #TODO validate uuid
+        # TODO validate uuid
         gestors = cls.get_userids_for_source_from_action('source_editor_actions', uuid)
         if gestors:
             return 'ok', gestors
@@ -801,7 +830,7 @@ class Sources:
 
     @classmethod
     def get_user_ids_source_gestor(cls, uuid) -> Dict[str, list]:
-        #TODO validate uuid
+        # TODO validate uuid
         gestors = cls.get_userids_for_source_from_action('source_gestor_actions', uuid)
 
         if gestors:
@@ -826,7 +855,7 @@ class Sources:
                 if term_gestors:
                     return 'ok', term_gestors
 
-        #para obtener al full_gestor por si no hay alguien mas
+        # para obtener al full_gestor por si no hay alguien mas
         admins = cls.get_userids_for_source_from_action('source_full_gestor_actions')
         if admins:
             return 'ok', admins
@@ -840,11 +869,11 @@ class Sources:
         # tendria que simplemente editar la fuente, no la versions y asi agregar nuevas versiones
         #
 
-        versions = SourceVersion.query.filter_by(source_id=source.id, user=current_user, reviewed=False).order_by(desc(SourceVersion.created_at)).all()
+        versions = SourceVersion.query.filter_by(source_id=source.id, user=current_user, reviewed=False).order_by(
+            desc(SourceVersion.created_at)).all()
         print('versiosn', versions)
 
         return versions
-
 
 
 def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
@@ -895,8 +924,4 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     for action in actions:
         sources_editor_ids.append(action.argument)
 
-
-    return 'actions', {'source_gestor_actions':sources_gestor_ids, 'source_editor_actions': sources_editor_ids}
-
-
-
+    return 'actions', {'source_gestor_actions': sources_gestor_ids, 'source_editor_actions': sources_editor_ids}

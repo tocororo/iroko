@@ -1,0 +1,5 @@
+from invenio_records_rest.loaders import marshmallow_loader
+
+from iroko.organizations.marshmallow.organization_v1 import OrganizationSchemaV1
+
+organization_loader_v1 = marshmallow_loader(OrganizationSchemaV1)

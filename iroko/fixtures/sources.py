@@ -4,19 +4,20 @@
 
 from __future__ import absolute_import, division, print_function
 
-from flask import current_app
-import json
 import datetime
+import json
 
-from invenio_db import db
+from flask import current_app
 from invenio_accounts.models import User
-from iroko.taxonomy.models import Term
-from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
+from invenio_db import db
+
+import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
-from iroko.sources.api import Sources
-from iroko.sources.marshmallow.journal import JournalDataSchema
-from iroko.pidstore.pids import IDENTIFIERS_FIELD
+from iroko.sources.api import Sources, IrokoSource
+from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
+from iroko.taxonomy.models import Term
 from iroko.utils import string_as_identifier
+
 
 def init_journals():
     # sources_path = '../../data/journals.json'
@@ -25,6 +26,7 @@ def init_journals():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
     path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
+    user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
 
     with open(path) as fsource, open(path_oai) as foai:
         data = json.load(fsource, object_hook=remove_nulls)
@@ -35,9 +37,10 @@ def init_journals():
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
-                    source = Source()
-                    source.source_type = SourceType.JOURNAL
-                    source.name = record['title']
+                    print(record['title'])
+                    source = dict()
+                    source['source_type'] = SourceType.JOURNAL.value
+                    source['name'] = record['title']
                     data = dict()
                     ids = []
 
@@ -72,18 +75,22 @@ def init_journals():
                             data['oaiurl'] = url['url']
                             ids.append(dict(idtype='oaiurl', value=url['url']))
 
-                    data[IDENTIFIERS_FIELD] = ids
-                    source.data = data
-                    source.source_status = SourceStatus.UNOFFICIAL
-                    db.session.add(source)
-                    db.session.flush()
+                    data[pids.IDENTIFIERS_FIELD] = ids
+                    source['data']= data
+                    msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
+                    print(msg)
 
-        db.session.commit()
-    init_term_sources()
-    add_terms_to_data()
-    set_initial_versions()
-    init_repositories()
-    Sources.sync_source_index()
+                    # source.data = data
+                    # source.source_status = SourceStatus.UNOFFICIAL
+                    # db.session.add(source)
+                    # db.session.flush()
+
+    #     db.session.commit()
+    # init_term_sources()
+    # add_terms_to_data()
+    # set_initial_versions()
+    # init_repositories()
+    # Sources.sync_source_index()
 
 def init_term_sources():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -126,6 +133,7 @@ def delete_all_sources():
     # TODO: delete persistentidentifiers and record metadata
     s = Source.query.all()
     for so in s:
+        IrokoSource.delete(data={pids.SOURCE_UUID_FIELD: so.uuid})
         db.session.delete(so)
     db.session.commit()
 

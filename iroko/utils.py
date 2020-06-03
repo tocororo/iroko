@@ -1,11 +1,13 @@
 from __future__ import absolute_import, print_function
 
 import enum
-from flask import jsonify
-from flask import g, request
-from uuid import UUID
 # from invenio_app import babel
 import re
+from uuid import UUID
+
+from flask import jsonify
+
+
 # def get_sources_by_terms(tids):
 #     """sources by a list of terms"""
 #     termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(TermSources.sources_id).all()
@@ -82,7 +84,13 @@ identifiers_schemas = [
         "oai",
         "prnps",
         "ernps",
-        "oaiurl"
+        "oaiurl",
+        "grid",
+        "wikidata",
+        "ror",
+        "isni",
+        "orgref",
+        "reup"
     ]
 
 def get_identifier_schema(pid):

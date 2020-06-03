@@ -1,17 +1,19 @@
 
 """Document fetchers."""
 
-from collections import namedtuple
+from invenio_pidstore.fetchers import FetchedPID
 
-from flask import current_app
-
-import iroko.pidstore.providers as providers
 import iroko.pidstore.pids as pids
+import iroko.pidstore.providers as providers
 from iroko.utils import identifiers_schemas
 
 
-FetchedPID = namedtuple('FetchedPID', ['provider', 'pid_type', 'pid_value'])
-"""A pid fetcher."""
+def organization_uuid_fetcher(org_uuid, data):
+    return FetchedPID(
+        provider=providers.OrganizationUUIDProvider,
+        pid_type=providers.OrganizationUUIDProvider.pid_type,
+        pid_value=str(data[pids.ORGANIZATION_PID_FIELD]),
+    )
 
 
 def iroko_uuid_fetcher(record_uuid, data):
@@ -38,16 +40,17 @@ def iroko_source_oai_fetcher(record_uuid, data):
     )
 
 
-def iroko_source_identifiers_fetcher(record_uuid, data, pid_type):
+def iroko_record_identifiers_fetcher(record_uuid, data, pid_type):
     assert data, "no data"
     assert pids.IDENTIFIERS_FIELD in data
     for schema in identifiers_schemas:
         if schema == pid_type:
             return FetchedPID(
-                provider=providers.IrokoSourceIdentifiersProvider,
+                provider=providers.IrokoRecordsIdentifiersProvider,
                 pid_type=pid_type,
                 pid_value=data[pids.IDENTIFIERS_FIELD][schema]
                 )
+
 
 def iroko_source_uuid_fetcher(source_uuid, data):
     assert data, "no data"
@@ -57,7 +60,6 @@ def iroko_source_uuid_fetcher(source_uuid, data):
         pid_type=pids.SOURCE_UUID_PID_TYPE,
         pid_value=str(data[pids.SOURCE_UUID_FIELD]),
     )
-
 
 
 # # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020

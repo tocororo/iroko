@@ -1,7 +1,9 @@
 """Iroko Providers."""
 import uuid
+
 from invenio_pidstore.models import PIDStatus
 from invenio_pidstore.providers.base import BaseProvider
+
 import iroko.pidstore.pids as pids
 from iroko.utils import identifiers_schemas
 
@@ -31,6 +33,13 @@ class IrokoUUIDProvider(BaseProvider):
         kwargs.setdefault('status', cls.default_status)
         return super(IrokoUUIDProvider, cls).create(
             object_type=object_type, object_uuid=object_uuid, **kwargs)
+
+
+class OrganizationUUIDProvider(IrokoUUIDProvider):
+
+    pid_type = pids.ORGANIZATION_PID_TYPE
+    pid_provider = None
+    default_status = PIDStatus.REGISTERED
 
 
 class IrokoSourceOAIProvider(BaseProvider):
@@ -74,7 +83,7 @@ class IrokoSourceOAIProvider(BaseProvider):
         return data['source']['uuid'] + '-' + oai_id
 
 
-class IrokoSourceIdentifiersProvider(BaseProvider):
+class IrokoRecordsIdentifiersProvider(BaseProvider):
     default_status = PIDStatus.REGISTERED
 
     @classmethod
@@ -84,7 +93,7 @@ class IrokoSourceIdentifiersProvider(BaseProvider):
         assert pids.IDENTIFIERS_FIELD in data
         # assert pids.SOURCE_UUID_FIELD in data
         pIDs = []
-        # provider = super(IrokoSourceIdentifiersProvider, cls).create(
+        # provider = super(IrokoRecordsIdentifiersProvider, cls).create(
         #             pid_type=pids.SOURCE_UUID_PID_TYPE,
         #             pid_value=data[pids.SOURCE_UUID_FIELD],
         #             object_type=object_type,
@@ -95,7 +104,7 @@ class IrokoSourceIdentifiersProvider(BaseProvider):
         # pIDs.append(provider.pid)
         for ids in data[pids.IDENTIFIERS_FIELD]:
             if ids['idtype'] in identifiers_schemas:
-                provider = super(IrokoSourceIdentifiersProvider, cls).create(
+                provider = super(IrokoRecordsIdentifiersProvider, cls).create(
                     pid_type=ids['idtype'],
                     pid_value=ids['value'],
                     object_type=object_type,
@@ -114,7 +123,7 @@ class IrokoSourceIdentifiersProvider(BaseProvider):
         assert pid_type in identifiers_schemas
         for ids in data[pids.IDENTIFIERS_FIELD]:
             if ids['idtype'] == pid_type:
-                provider = super(IrokoSourceIdentifiersProvider, cls).create(
+                provider = super(IrokoRecordsIdentifiersProvider, cls).create(
                     pid_type=ids['idtype'],
                     pid_value=ids['value'],
                     object_type=object_type,

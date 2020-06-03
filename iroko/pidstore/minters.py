@@ -1,9 +1,19 @@
 
 """Iroko minters."""
 
-from flask import current_app
-import iroko.pidstore.providers as providers
 import iroko.pidstore.pids as pids
+import iroko.pidstore.providers as providers
+
+
+def organization_uuid_minter(org_uuid, data):
+    assert pids.ORGANIZATION_PID_FIELD not in data
+    provider = providers.OrganizationUUIDProvider.create(
+        object_type=pids.ORGANIZATION_TYPE,
+        object_uuid=org_uuid
+    )
+    data[pids.ORGANIZATION_PID_FIELD] = provider.pid.pid_value
+    return provider.pid
+
 
 def iroko_uuid_minter(record_uuid, data):
     """Mint loan identifiers."""
@@ -28,8 +38,8 @@ def iroko_source_oai_minter(record_uuid, data):
     return provider.pid
 
 
-def iroko_source_identifiers_minter(source_uuid, data):
-    prsIDs = providers.IrokoSourceIdentifiersProvider.create_identifiers(
+def iroko_record_identifiers_minter(source_uuid, data):
+    prsIDs = providers.IrokoRecordsIdentifiersProvider.create_identifiers(
         object_type=pids.SOURCE_TYPE,
         object_uuid=source_uuid,
         data=data

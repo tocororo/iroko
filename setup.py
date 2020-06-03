@@ -11,7 +11,6 @@ import os
 
 from setuptools import find_packages, setup
 
-
 readme = open('README.rst').read()
 
 tests_require = [
@@ -185,10 +184,12 @@ setup(
          ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas',
+            'organizations = iroko.organizations.schemas',
             'sources = iroko.sources.schemas'
         ],
         'invenio_search.mappings': [
             'records = iroko.records.mappings',
+            'organizations = iroko.organizations.mappings',
             'sources = iroko.sources.mappings'
         ],
         'invenio_admin.views': [
@@ -227,15 +228,17 @@ setup(
         ],
         'invenio_pidstore.fetchers': [
             'irouid = iroko.pidstore.fetchers:iroko_uuid_fetcher',
+            'recids = iroko.pidstore.fetchers:iroko_record_identifiers_fetcher',
             'recoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
-            'srcsrc = iroko.pidstore.fetchers:iroko_source_identifiers_fetcher',
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
+            'orgid = iroko.pidstore.fetchers:organization_uuid_fetcher',
         ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
+            'recids = iroko.pidstore.minters:iroko_record_identifiers_minter',
             'recoai = iroko.pidstore.minters:iroko_source_oai_minter',
-            'srcsrc = iroko.pidstore.minters:iroko_source_identifiers_minter',
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
+            'orgid = iroko.pidstore.minters:organization_uuid_minter',
         ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
