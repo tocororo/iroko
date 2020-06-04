@@ -338,7 +338,9 @@ RECORDS_REST_FACETS = dict(
     organizations=dict(
         filters=dict(
             status=terms_filter('status'),
-            types=terms_filter('types')
+            types=terms_filter('types'),
+            country=terms_filter('country'),
+            state=terms_filter('state'),
         ),
         aggs=dict(
             status=dict(
@@ -350,6 +352,18 @@ RECORDS_REST_FACETS = dict(
             types=dict(
                 terms=dict(
                     field='types',
+                    size=5
+                )
+            ),
+            country=dict(
+                terms=dict(
+                    field='addresses.country',
+                    size=5
+                )
+            ),
+            state = dict(
+                terms=dict(
+                    field='addresses.state',
                     size=5
                 )
             )

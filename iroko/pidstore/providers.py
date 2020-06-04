@@ -5,7 +5,7 @@ from invenio_pidstore.models import PIDStatus
 from invenio_pidstore.providers.base import BaseProvider
 
 import iroko.pidstore.pids as pids
-from iroko.utils import identifiers_schemas
+from iroko.pidstore.pids import identifiers_schemas
 
 
 class IrokoUUIDProvider(BaseProvider):

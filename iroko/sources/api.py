@@ -18,6 +18,7 @@ from sqlalchemy import func, desc
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as iroko_providers
+from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion
 from iroko.sources.permissions import ObjectSourceEditor, is_current_user_source_admin
@@ -25,7 +26,7 @@ from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree, _load_terms_tree_by_uuid
 from iroko.taxonomy.api import Terms
 from iroko.taxonomy.models import Term
-from iroko.utils import IrokoVocabularyIdentifiers, identifiers_schemas
+from iroko.utils import IrokoVocabularyIdentifiers
 
 
 class IrokoSource(Record):
@@ -76,7 +77,7 @@ class IrokoSource(Record):
         assert id_
 
         iroko_minters.iroko_source_uuid_minter(id_, data)
-        iroko_minters.iroko_record_identifiers_minter(id_, data)
+        iroko_minters.iroko_record_identifiers_minter(id_, data, pids.SOURCE_TYPE)
 
         source = super(IrokoSource, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:

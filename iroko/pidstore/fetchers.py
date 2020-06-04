@@ -5,7 +5,7 @@ from invenio_pidstore.fetchers import FetchedPID
 
 import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as providers
-from iroko.utils import identifiers_schemas
+from iroko.pidstore.pids import identifiers_schemas
 
 
 def organization_uuid_fetcher(org_uuid, data):

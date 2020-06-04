@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from elasticsearch.exceptions import NotFoundError
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
@@ -10,7 +12,7 @@ from invenio_records.api import Record
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as iroko_providers
-from iroko.utils import identifiers_schemas
+from iroko.pidstore.pids import identifiers_schemas
 
 
 class OrganizationRecord(Record):
@@ -20,7 +22,7 @@ class OrganizationRecord(Record):
     def create_or_update(cls, org_uuid, data, dbcommit=False, reindex=False, **kwargs):
         """Create or update OrganizationRecord."""
 
-        assert org_uuid
+        # assert org_uuid
 
         resolver = Resolver(
             pid_type=pids.ORGANIZATION_PID_TYPE,
@@ -37,16 +39,17 @@ class OrganizationRecord(Record):
             pass
         if pids.IDENTIFIERS_FIELD in data:
             for schema in identifiers_schemas:
-                if schema in data[pids.IDENTIFIERS_FIELD]:
-                    resolver.pid_type = schema
-                    try:
-                        persistent_identifier, org = resolver.resolve(str(data[pids.IDENTIFIERS_FIELD][schema]))
-                        if org:
-                            print("{0}={1} found".format(schema, str(data[pids.IDENTIFIERS_FIELD][schema])))
-                            org.update(data, dbcommit=dbcommit, reindex=reindex)
-                            return org, 'updated'
-                    except Exception:
-                        pass
+                for identifier in data[pids.IDENTIFIERS_FIELD]:
+                    if schema == identifier[pids.IDENTIFIERS_FIELD_TYPE]:
+                        resolver.pid_type = schema
+                        try:
+                            persistent_identifier, org = resolver.resolve(str(identifier[pids.IDENTIFIERS_FIELD_VALUE]))
+                            if org:
+                                print("{0}={1} found".format(schema, str(identifier[pids.IDENTIFIERS_FIELD_VALUE])))
+                                org.update(data, dbcommit=dbcommit, reindex=reindex)
+                                return org, 'updated'
+                        except Exception:
+                            pass
         print("no pids found, creating organization")
         created_org = cls.create(data, id_=org_uuid, dbcommit=dbcommit, reindex=reindex)
         return created_org, 'created'
@@ -55,10 +58,11 @@ class OrganizationRecord(Record):
     def create(cls, data, id_, dbcommit=False, reindex=False, **kwargs):
         """Create a new OrganizationRecord."""
         data['$schema'] = current_jsonschemas.path_to_url(cls._schema)
-        assert id_
+        if not id_:
+            id_ = uuid4()
 
         iroko_minters.organization_uuid_minter(id_, data)
-        iroko_minters.iroko_record_identifiers_minter(id_, data)
+        iroko_minters.iroko_record_identifiers_minter(id_, data, pids.ORGANIZATION_TYPE)
 
         source = super(OrganizationRecord, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:

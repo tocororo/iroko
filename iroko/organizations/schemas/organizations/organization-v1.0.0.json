@@ -4,7 +4,11 @@
   "title": "Organization Schema, use https://www.grid.ac/format as a base",
   "type": "object",
   "additionalProperties": true,
-  "required": ["identifiers", "id", "name"],
+  "required": [
+    "identifiers",
+    "id",
+    "name"
+  ],
   "properties": {
     "id": {
       "type": "string",
@@ -22,10 +26,11 @@
             "type": "string",
             "enum": [
               "grid",
-              "wikidata",
+              "wkdata",
               "ror",
               "isni",
               "orgref",
+              "fudref",
               "reup"
             ]
           },
@@ -84,7 +89,7 @@
       "description": "URL of the wikipedia page for the institute"
     },
     "email_address": {
-      "type": "string",
+      "type":  "string",
       "description": "A contact email address for the institute"
     },
     "ip_addresses": {
@@ -130,16 +135,39 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "description": "Related Iroko Organization UUID",
-            "type": "string"
+          "identifiers": {
+            "type": "array",
+            "description": "Related Organization Identifiers",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "idtype": {
+                  "description": "identifier type",
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "wikidata",
+                    "ror",
+                    "isni",
+                    "orgref",
+                    "fundref",
+                    "reup"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "type": {
             "description": "The relationship type.",
             "type": "string",
             "enum": [
               "parent",
-              "related"
+              "related",
+              "child"
             ]
           },
           "label": {
@@ -210,7 +238,7 @@
             "description": "The linked GeoNames data. We put this like GRID, but we need to see if is really necessary or practicall for us.",
             "properties": {
               "id": {
-                "type": "string",
+                "type": "number",
                 "description": "The GeoNames ID"
               },
               "city": {

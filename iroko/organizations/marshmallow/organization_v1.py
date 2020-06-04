@@ -12,7 +12,7 @@ class OrganizationLabelSchema(Schema):
 
 
 class OrganizationRelationshipSchema(Schema):
-    id = PersistentIdentifier()
+    identifiers = fields.Nested(IdentifierSchemaV1, many=True)
     type = fields.Str(allow_none=False)
     label = fields.Str(allow_none=False)
 

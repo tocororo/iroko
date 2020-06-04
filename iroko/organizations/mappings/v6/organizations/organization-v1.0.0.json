@@ -11,7 +11,7 @@
         "id": {
           "type": "keyword"
         },
-        "identifiers":{
+        "identifiers": {
           "type": "object",
           "properties": {
             "idtype": {
@@ -39,6 +39,26 @@
         },
         "established": {
           "type": "keyword"
+        },
+        "addresses": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "keyword"
+            },
+            "country": {
+              "type": "keyword"
+            },
+            "state": {
+              "type": "keyword"
+            },
+            "country_code": {
+              "type": "keyword"
+            },
+            "state_code": {
+              "type": "keyword"
+            }
+          }
         }
       }
     }

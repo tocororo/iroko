@@ -1,17 +1,16 @@
 
 
-from iroko.harvester.base import Formater
-from iroko.harvester.oai import nsmap
-
-from iroko.harvester.utils import get_sigle_element, get_multiple_elements
-from iroko.utils import get_identifier_schema
+import re
 
 from lxml import etree
 
+from iroko.harvester.base import Formater
+from iroko.harvester.oai import nsmap
+from iroko.harvester.utils import get_sigle_element, get_multiple_elements
 from iroko.persons.api import IrokoPerson
+from iroko.pidstore.pids import get_identifier_schema
 from iroko.records import ContributorRole
 
-import re
 
 class DubliCoreElements(Formater):
 

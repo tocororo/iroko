@@ -1,29 +1,19 @@
-
-import copy
 from uuid import uuid4
 
 from elasticsearch.exceptions import NotFoundError
-
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.connections import connections
+from flask import current_app
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
+from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.resolver import Resolver
-from invenio_pidstore import current_pidstore
-
 from invenio_records.api import Record
 
 import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.providers as iroko_providers
-
-
-from invenio_jsonschemas import current_jsonschemas
-
-from flask import current_app
-
-from elasticsearch_dsl.connections import connections
-
-from elasticsearch_dsl import Search, Q
 
 
 class IrokoAggs:

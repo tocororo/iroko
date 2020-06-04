@@ -38,10 +38,10 @@ def iroko_source_oai_minter(record_uuid, data):
     return provider.pid
 
 
-def iroko_record_identifiers_minter(source_uuid, data):
+def iroko_record_identifiers_minter(uuid, data, object_type):
     prsIDs = providers.IrokoRecordsIdentifiersProvider.create_identifiers(
-        object_type=pids.SOURCE_TYPE,
-        object_uuid=source_uuid,
+        object_type=object_type,
+        object_uuid=uuid,
         data=data
     )
     return prsIDs

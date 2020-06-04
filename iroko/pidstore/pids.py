@@ -6,7 +6,6 @@
 from invenio_pidstore.errors import PIDDoesNotExistError, PIDAlreadyExists
 from invenio_pidstore.models import PersistentIdentifier
 
-from iroko.utils import identifiers_schemas
 
 """Iroko App PIDs."""
 
@@ -75,3 +74,52 @@ def check_data_identifiers(data):
             except PIDDoesNotExistError:
                 pass
     return True
+
+
+
+
+identifiers_schemas = [
+        "ark",
+        "arxiv",
+        "doi",
+        "bibcode",
+        "ean8",
+        "ean13",
+        "handle",
+        "isbn",
+        "pissn",
+        "lissn",
+        "eissn",
+        "istc",
+        "lsid",
+        "pmid",
+        "pmcid",
+        "purl",
+        "upc",
+        "url",
+        "urn",
+        "orcid",
+        "gnd",
+        "ads",
+        "oai",
+        "prnps",
+        "ernps",
+        "oaiurl",
+        "grid",
+        "wkdata",
+        "ror",
+        "isni",
+        "fudref",
+        "orgref",
+        "reup"
+    ]
+
+def get_identifier_schema(pid):
+
+    for schema in identifiers_schemas:
+        if schema in pid:
+            return schema
+    if 'http' in pid or 'https' in pid:
+        return 'url'
+    return None
+
