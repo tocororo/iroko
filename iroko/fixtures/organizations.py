@@ -1,4 +1,7 @@
 import json
+import os
+from flask import current_app
+
 
 from iroko.organizations.api import OrganizationRecord
 
@@ -85,7 +88,9 @@ def load_redirect(grid):
 
 
 def load_grid():
-    with open("data/organizations/grid.json") as grid_path:
+    datadir = current_app.config['IROKO_DATA_DIRECTORY']
+
+    with open(os.path.join(datadir, 'grid.json')) as grid_path:
         grid = json.load(grid_path, object_hook=remove_nulls)
         load_active(grid)
         load_redirect(grid)
