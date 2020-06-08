@@ -120,6 +120,7 @@ def politicas():
 
 
 
+
 # @blueprint.route('/faq')
 # @register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
 # def faq():
