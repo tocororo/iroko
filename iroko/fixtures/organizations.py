@@ -66,7 +66,7 @@ def load_active(grid):
             ids.extend(_get_ids(inst, 'ROR', 'ror'))
             data['identifiers'] = ids
             try:
-                OrganizationRecord.create_or_update(None, data, True)
+                OrganizationRecord.create_or_update(None, data, dbcommit=True, reindex=True)
             except Exception as e:
                 print(e)
                 print("------------")
