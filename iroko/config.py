@@ -352,13 +352,13 @@ RECORDS_REST_FACETS = dict(
             types=dict(
                 terms=dict(
                     field='types',
-                    size=5
+                    size=8
                 )
             ),
             country=dict(
                 terms=dict(
                     field='addresses.country',
-                    size=5
+                    size=8
                 )
             ),
             state = dict(

@@ -420,6 +420,7 @@ class Sources:
         try:
             print('try')
             # exist, source = cls._check_source_exist(json_data['data'])
+            print(json_data)
             pid = pids.get_pid_by_data(json_data['data'])
             print(pid)
             if pid:
