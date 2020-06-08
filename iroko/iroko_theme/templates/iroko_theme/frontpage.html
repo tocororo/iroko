@@ -82,7 +82,7 @@
                           posibilidades ayudando a que encuentres información que necesites dentro
                           de Sceiba ') }}
                       </p>
-                      <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Acceder') }}</a>
+                      <a class="btn btn-secundary font-weight-bold text-danger" href="search">{{ _('Acceder') }}</a>
                     </div>
                   </div>
                 </div>
@@ -91,7 +91,7 @@
               <div class="col-lg-6 col-md-6">
                 <div class="card">
                   <div class="card-header white">
-                    <h4 class="font-weight-bold mb-0">{{ _('Catálogo') }}</h4>
+                    <h4 class="font-weight-bold mb-0">{{ _('Registro de Publicaciones Científicas') }}</h4>
                   </div>
                   <div class="card-body">
                     <p class="card-text">
@@ -101,13 +101,13 @@
                       Incluye el registro de dichas fuentes y su manejo por los editores
                         y gestores del sistema. ') }}
                     </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Acceder') }}</a>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mto">{{ _('Acceder') }}</a>
                   </div>
                 </div>
               </div>
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mto">
                           <img class="img-fluid"
                           src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
                           alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catalog')}}">
@@ -118,7 +118,7 @@
             <div class="row mb-5 d-flex align-items-center justify-content-end">
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mto">
                           <img class="img-fluid"
                           src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
                           alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomy')}}">
@@ -136,7 +136,7 @@
                         {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y
                         la unicidad en las búsquedas.... ') }}
                     </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Acceder') }}</a>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mto">{{ _('Acceder') }}</a>
                   </div>
                 </div>
               </div>
@@ -154,13 +154,13 @@
                       controlados en el sistema. Estos datos se protegen según política de privacidad del sistema
                       y es compartido según los términos de servicio. Contacte al administrador para más detalles') }}
                     </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="#">{{ _('Contáctanos') }}</a>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="#divcontacto">{{ _('Contáctanos') }}</a>
                   </div>
                 </div>
               </div>
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="#divcontacto">
                           <img class="img-fluid"
                           src="{{ url_for('static', filename='images/api_icon_129131.png')}}"
                           alt="{{_('Sceiba APIs')}}" title="{{_('Sceiba APIs')}}">
@@ -200,6 +200,11 @@
         <h5 class="font-weight-normal mb-3">{{ _('Personas') }}</h5>
         <p class="text-muted mb-0">{{ _('Identificación de personas. ¿Quiénes investigan?') }}</p>
       </div>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <i class="fa fa-sitemap fa-3x mb-4 grey-text"></i>
+        <h5 class="font-weight-normal mb-3">{{ _('Organizaciones') }}</h5>
+        <p class="text-muted mb-0">{{ _('Identificación de Organizaciones. Listado de organizaciones cubanas') }}</p>
+      </div>      
       <div class="col-lg-3 col-md-6 mb-4">
         <i class="fa fa-balance-scale fa-3x mb-4 grey-text"></i>
         <h5 class="font-weight-normal mb-3">{{ _('Evaluación') }}</h5>
