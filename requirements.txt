@@ -105,7 +105,6 @@ invenio-theme==1.1.4
 ipaddress==1.0.23
 ipython==7.11.1
 ipython-genutils==0.2.0
--e git+git@10.2.4.28:iroko.git@db22245b18348c16fda387548ff273706c5efc92#egg=iroko
 isodate==0.6.0
 isort==4.3.21
 itsdangerous==1.1.0
