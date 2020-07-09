@@ -76,6 +76,8 @@ def init_journals():
                             ids.append(dict(idtype='oaiurl', value=url['url']))
 
                     data[pids.IDENTIFIERS_FIELD] = ids
+                    IrokoSource.delete_pids_without_object(data[pids.IDENTIFIERS_FIELD])
+
                     source['data']= data
                     msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
                     print(msg)
@@ -89,7 +91,7 @@ def init_journals():
     # init_term_sources()
     # add_terms_to_data()
     # set_initial_versions()
-    # init_repositories()
+    init_repositories()
     # Sources.sync_source_index()
 
 def init_term_sources():
@@ -129,13 +131,16 @@ def delete_all_sources():
     for t in ts:
         db.session.delete(t)
     db.session.commit()
-
+    SourceVersion.query.delete()
+    Repository.query.delete()
     # TODO: delete persistentidentifiers and record metadata
     s = Source.query.all()
     for so in s:
         IrokoSource.delete(data={pids.SOURCE_UUID_FIELD: so.uuid})
+        IrokoSource.delete_pids_without_object(so.data[pids.IDENTIFIERS_FIELD])
         db.session.delete(so)
     db.session.commit()
+
 
 def _assing_if_exist(data, record, field):
     if field in record:

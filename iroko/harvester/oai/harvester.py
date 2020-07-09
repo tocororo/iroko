@@ -1,35 +1,22 @@
 import os
-
-import time
-
-import traceback
-
 import shutil
-
+import time
+import traceback
 from enum import Enum
-
 from zipfile import ZipFile, BadZipFile
 
+from flask import current_app
+from invenio_db import db
 from lxml import etree
-
 from sickle import Sickle
 
-from flask import current_app
-
-from iroko.harvester.base import SourceHarvester, Formater
-
-from iroko.sources.models import Source
-
-from iroko.records.api import IrokoRecord
-
-from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository
-
-from invenio_db import db
-
-from iroko.harvester.oai import nsmap, request_headers
-from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
-from iroko.harvester.errors import IrokoHarvesterError
 import iroko.harvester.utils as utils
+from iroko.harvester.base import SourceHarvester
+from iroko.harvester.errors import IrokoHarvesterError
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository, HarvestType
+from iroko.harvester.oai import request_headers
+from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
+from iroko.sources.models import Source
 
 XMLParser = etree.XMLParser(
     remove_blank_text=True, recover=True, resolve_entities=False
@@ -191,6 +178,11 @@ class OaiHarvester(SourceHarvester):
         self.repository = Repository.query.filter_by(source_id=self.source.id).first()
         if not self.repository:
             repository = Repository()
+            repository.harvest_endpoint = self.source.data['oaiurl']
+            repository.harvest_type = HarvestType.OAI
+            repository.source_id = self.source.id
+            db.session.add(repository)
+            db.session.commit()
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
         args = {"headers": request_headers, "timeout": 15, "verify": False}
         self.sickle = Sickle(

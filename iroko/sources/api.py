@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 from typing import Dict
 
@@ -8,12 +9,13 @@ from invenio_accounts.models import User
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
-from invenio_pidstore.errors import PIDDoesNotExistError
-from invenio_pidstore.models import PersistentIdentifier
+from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError
+from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 from invenio_rest.serializer import result_wrapper
 from sqlalchemy import func, desc
+from sqlalchemy.orm.exc import NoResultFound
 
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.pids as pids
@@ -49,9 +51,22 @@ class IrokoSource(Record):
                 print("{0}={1} found".format(pids.SOURCE_UUID_PID_TYPE, source_uuid))
                 source.update(data, dbcommit=dbcommit, reindex=reindex)
                 return source, 'updated'
-        except Exception:
+        except (PIDDeletedError, NoResultFound) as ex:
+            identifier = dict()
+            identifier[pids.IDENTIFIERS_FIELD_TYPE] = pids.SOURCE_UUID_PID_TYPE
+            identifier[pids.IDENTIFIERS_FIELD_VALUE] = str(source_uuid)
+            cls.delete_pids_without_object([identifier])
+            print('#### cls.delete_pids_without_object(data[pids.IDENTIFIERS_FIELD])')
+        except PIDDoesNotExistError as pidno:
+            print("PIDDoesNotExistError:  {0} == {1}".format(pids.SOURCE_UUID_PID_TYPE, str(source_uuid)))
+        except Exception as e:
+            print('-------------------------------')
+            # print(str(e))
+            print(traceback.format_exc())
+            print('-------------------------------')
             pass
             # source = cls.get_source_by_pid(source_uuid, with_deleted=False)
+        print('!!!!!!!!!!!!!!!!!!!!!!! ',data)
         if pids.IDENTIFIERS_FIELD in data:
             for schema in identifiers_schemas:
                 if schema in data[pids.IDENTIFIERS_FIELD]:
@@ -62,12 +77,43 @@ class IrokoSource(Record):
                             print("{0}={1} found".format(schema, str(data[pids.IDENTIFIERS_FIELD][schema])))
                             source.update(data, dbcommit=dbcommit, reindex=reindex)
                             return source, 'updated'
-                    except Exception:
+                    except PIDDoesNotExistError as pidno:
+                            print("PIDDoesNotExistError:  {0} == {1}".format(schema, str(data[pids.IDENTIFIERS_FIELD][schema])))
+                    except (PIDDeletedError, NoResultFound) as ex:
+                        cls.delete_pids_without_object(data[pids.IDENTIFIERS_FIELD])
+                    except Exception as e:
+                        print('-------------------------------')
+                        # print(str(e))
+                        print(traceback.format_exc())
+                        print('-------------------------------')
                         pass
             # source = cls.get_record_by_data(data)
         print("no pids found, create source")
         created_source = cls.create(data, id_=source_uuid, dbcommit=dbcommit, reindex=reindex)
         return created_source, 'created'
+
+    @classmethod
+    def delete_pids_without_object(cls, pid_list):
+        try:
+            print('pids list: ')
+            print(pid_list)
+            if pid_list and len(pid_list) > 0:
+                for identifier in pid_list:
+                    pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                    pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                    # print('pid type deleting: ')
+                    # print(pid_type)
+                    # print(pid_value)
+                    pid_item = PersistentIdentifier.get(pid_type, pid_value)
+                    pid_item.status = PIDStatus.NEW
+                    # print('getting pid item: ')
+
+                    if pid_item.delete():
+                        db.session.commit()
+                        # print("***************** DELETED!!!!")
+        except Exception as e:
+            print("-------- DELETING PID ERROR ------------")
+            print(traceback.format_exc())
 
     @classmethod
     def create(cls, data, id_, dbcommit=False, reindex=False, **kwargs):
@@ -76,10 +122,13 @@ class IrokoSource(Record):
         assert pids.SOURCE_UUID_FIELD in data
         assert id_
 
+        print('%%%%%%%%%')
         iroko_minters.iroko_source_uuid_minter(id_, data)
+        print('%%%%%%%%%')
         iroko_minters.iroko_record_identifiers_minter(id_, data, pids.SOURCE_TYPE)
-
+        print('%%%%%%%%%')
         source = super(IrokoSource, cls).create(data=data, id_=id_, **kwargs)
+        print('%%%%%%%%%')
         if dbcommit:
             db.session.commit()
             if reindex:
@@ -94,12 +143,14 @@ class IrokoSource(Record):
         source = cls.get_source_by_pid(pid, with_deleted=False)
         # pid.delete()
         if source:
-            result = source.delete(force=force)
+            result = super(IrokoSource, source).delete(force=force)
+            # result = source.delete(force=force)
             if delindex:
                 try:
                     RecordIndexer().delete(source)
                 except NotFoundError:
                     pass
+
             return result
         return False
 
@@ -116,6 +167,11 @@ class IrokoSource(Record):
             # return super(IrokoRecord, cls).get_record(
             #     persistent_identifier.object_uuid, with_deleted=with_deleted
             # )
+        except (PIDDeletedError, NoResultFound) as ex:
+            identifier = dict()
+            identifier[pids.IDENTIFIERS_FIELD_TYPE] = pids.SOURCE_UUID_PID_TYPE
+            identifier[pids.IDENTIFIERS_FIELD_VALUE] = str(pid)
+            cls.delete_pids_without_object([identifier])
         except PIDDoesNotExistError:
             return None
 
@@ -410,77 +466,94 @@ class Sources:
         #  TODO: probar with db.session.begin_nested():
         # aqui en este fichero y en otros..
         msg = ''
+        source = None
         if not user:
             if not current_user:
                 raise Exception('Must be authenticated')
             user_id = current_user.id
         else:
             user_id = user.id
+
+        # IrokoSource.create_or_update(None, json_data, dbcommit=True, reindex=False)
+        # return "IrokoSource.create_or_update"
+
         print('user {0}'.format(user_id))
         try:
             print('try')
             # exist, source = cls._check_source_exist(json_data['data'])
             print(json_data)
+            # valid_data = source_schema.load(json_data)
+            valid_data = json_data
+
             pid = pids.get_pid_by_data(json_data['data'])
             print(pid)
             if pid:
                 print('pid={0}'.format(pid))
                 source = cls.get_source_by_id(uuid=pid.object_uuid)
+                print(source)
 
                 if not source:
-                    raise Exception('pid {0}={1} is associated with object {2}'.format(pid.pid_type, pid.pid_value,
-                                                                                       pid.object_uuid))
+                    msg, source = cls._insert_new_source_helper(user_id, user,valid_data, source_status, pid.object_uuid)
+                    # raise Exception('pid {0}={1} is associated with object {2}'.format(pid.pid_type, pid.pid_value,
+                    #                                                                    pid.object_uuid))
 
                 if source.source_status is SourceStatus.UNOFFICIAL:
-                    return cls.insert_new_source_version(json_data, source.uuid, True)
-                    raise Exception('Source already exist uuid={0}. Call insert_new_source_version'.format(source.uuid))
+                    msg, source, version = cls.insert_new_source_version(json_data, source.uuid, True, user=user)
+                    # raise Exception('Source already exist uuid={0}. Call insert_new_source_version'.format(source.uuid))
 
             elif pids.check_data_identifiers(json_data['data']):
                 print('elif pids.check_data_identifiers(json_data):')
 
-                # valid_data = source_schema.load(json_data)
-                valid_data = json_data
-
-                new_source = Source()
-                new_source.name = valid_data['name']
-                new_source.source_type = valid_data['source_type']
-                new_source.source_status = source_status
-                new_source.data = valid_data['data']
-                # print(new_source)
-                db.session.add(new_source)
-
-                # transactions are taking place but, however, are not written to disk yet...
-                # so we can use new_source.id for granting editor permission
-                db.session.commit()
-                print('new source')
-                try:
-                    data = new_source.data
-                    data[pids.SOURCE_UUID_FIELD] = str(new_source.uuid)
-                    data['name'] = new_source.name
-                    data['source_type'] = new_source.source_type.value
-                    data['source_status'] = new_source.source_status.value
-                    data['relations'] = cls._get_relations_to_sync(new_source.id)
-                    data['data'] = valid_data
-                    IrokoSource.create_or_update(new_source.uuid, data, dbcommit=True, reindex=True)
-                    print('index')
-                    cls.grant_source_editor_permission(user_id, new_source.uuid)
-                    print('permision')
-                    cls.insert_new_source_version(new_source.data, new_source.uuid, is_current=True, is_flush=True,
-                                                  user=user)
-                    print('version')
-                except Exception as e:
-                    Source.query.filter_by(uuid=new_source.uuid).delete()
-                    db.session.commit()
-                    raise (e)
-
-                db.session.commit()
-
-                msg = 'New Source created id={0}'.format(new_source.id)
-                return msg, new_source
+                msg, source = cls._insert_new_source_helper(user_id, user, valid_data, source_status)
+                msg, source, version = cls.insert_new_source_version(json_data, source.uuid, True, user=user)
 
         except Exception as e:
             msg = 'ERROR {0} - {1} - Exception: {2}'.format(e, json_data, str(e))
-            return msg, None
+
+        return msg, source
+
+    @classmethod
+    def _insert_new_source_helper(cls,user_id, user, valid_data, source_status, source_uuid=None):
+        new_source = Source()
+        if source_uuid is not None:
+            new_source.uuid = source_uuid
+        new_source.name = valid_data['name']
+        new_source.source_type = valid_data['source_type']
+        new_source.source_status = source_status
+        new_source.data = valid_data['data']
+        print(new_source)
+        db.session.add(new_source)
+
+        # transactions are taking place but, however, are not written to disk yet...
+        # so we can use new_source.id for granting editor permission
+        db.session.commit()
+        print(new_source)
+        print('new source')
+        try:
+            data = valid_data['data']
+            data[pids.SOURCE_UUID_FIELD] = str(new_source.uuid)
+            data['name'] = new_source.name
+            data['source_type'] = new_source.source_type.value
+            data['source_status'] = new_source.source_status.value
+            data['relations'] = cls._get_relations_to_sync(new_source.id)
+            cls.grant_source_editor_permission(user_id, new_source.uuid)
+            print('permision')
+            IrokoSource.create_or_update(new_source.uuid, data, dbcommit=True, reindex=False)
+            print('index')
+
+            # cls.insert_new_source_version(new_source.data, new_source.uuid, is_current=True, is_flush=False,
+            #                               user=user)
+            # print('version')
+        except Exception as e:
+            Source.query.filter_by(uuid=new_source.uuid).delete()
+            db.session.commit()
+            raise (e)
+
+        db.session.commit()
+
+        msg = 'New Source created id={0}'.format(new_source.id)
+        return msg, new_source
+
 
     # TODO: Revisar esto...
     @classmethod
@@ -536,7 +609,7 @@ class Sources:
         return msg, source, source_version
 
     @classmethod
-    def insert_new_source_version(cls, input_data, uuid, is_current=False, is_flush=False, user=None) -> [str, Source,
+    def insert_new_source_version(cls, input_data, uuid, is_current=False, is_flush=False, user=None, comment='no comment') -> [str, Source,
                                                                                                           SourceVersion]:
         """Insert new SourceVersion to an existing Source
         """
@@ -567,21 +640,22 @@ class Sources:
         new_source_version.created_at = datetime.now()
         new_source_version.is_current = is_current
         new_source_version.source_id = source.id
-        new_source_version.comment = input_data['comment']
+        new_source_version.comment = comment
         new_source_version.user_id = user_id
         print("### new source created")
         db.session.add(new_source_version)
         print("db.session.add(new_source_version)")
-        # if is_flush:
-        #     db.session.flush()
-        #     print("db.session.flush")
-        # else:
-        #     db.session.commit()
-        #     print("db.session.commit")
-
+        if is_flush:
+            db.session.flush()
+            print("db.session.flush")
+        else:
+            db.session.commit()
+            print("db.session.commit")
+        print("#### gggggg")
         data = dict(input_data['data'])
+        print("#### gggggg")
         new_source_version.data = data
-
+        print("#### gggggg")
         if is_current:
             print("### cls._fix_update_term_source_relations(source)")
             print(data)
@@ -591,9 +665,9 @@ class Sources:
             print("### cls._fix_update_term_source_relations(source)")
             new_source_version.data = data
             source.data = data
-
+        print("#### gggggg")
         db.session.commit()
-
+        print("#### gggggg")
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
 

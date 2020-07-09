@@ -2,30 +2,26 @@
 
 from __future__ import absolute_import, print_function
 
+import datetime
 import traceback
 
-
+from flask import Blueprint, request
 from flask_babelex import lazy_gettext as _
-from flask import Blueprint, current_app, jsonify, request, json, render_template, flash, url_for, redirect
-from flask_login import login_required
-from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.sources.marshmallow.source import source_schema, source_schema_many, source_schema_no_versions, source_version_schema, source_version_schema_many
-
-from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
-from marshmallow import ValidationError
-from iroko.sources.api import Sources, get_current_user_source_permissions, IrokoSource
-from invenio_i18n.selectors import get_locale
-from invenio_oauth2server import require_api_auth
-from iroko.decorators import source_admin_required
 from flask_principal import PermissionDenied
-from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, source_gestor_permission_factory, user_has_editor_or_gestor_permissions
-from iroko.notifications.marshmallow import NotificationSchema
-from iroko.notifications.api import Notifications
-from iroko.notifications.models import NotificationType
-from iroko.taxonomy.api import Terms
-from iroko.records.api import IrokoAggs
-import datetime
+from invenio_oauth2server import require_api_auth
 
+from iroko.notifications.api import Notifications
+from iroko.notifications.marshmallow import NotificationSchema
+from iroko.notifications.models import NotificationType
+from iroko.records.api import IrokoAggs
+from iroko.sources.api import Sources, get_current_user_source_permissions
+from iroko.sources.marshmallow.source import source_schema, source_schema_many, source_schema_no_versions, \
+    source_version_schema, source_version_schema_many
+from iroko.sources.models import SourceStatus
+from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, \
+    source_gestor_permission_factory, user_has_editor_or_gestor_permissions
+from iroko.taxonomy.api import Terms
+from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 api_blueprint = Blueprint(
     'iroko_api_sources',
@@ -245,6 +241,9 @@ def source_new_version(uuid):
 
         input_data = request.json
 
+        comment = 'no comment'
+        if 'comment' in input_data:
+            comment = input_data['comment']
         source = Sources.get_source_by_id(uuid=uuid)
 
         if not source:
@@ -261,7 +260,7 @@ def source_new_version(uuid):
                 # si no esta aprobada significa que siempre es la current.
                 # si esta aprobada el proceso es otro
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current)
+                msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current, comment=comment)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
@@ -281,7 +280,7 @@ def source_new_version(uuid):
                             source_schema.dump(source))
         except PermissionDenied as e:
             with source_term_gestor_permission_factory({'terms': terms, 'uuid':uuid}).require():
-                msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True)
+                msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True, comment=comment)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
