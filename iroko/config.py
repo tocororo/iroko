@@ -432,13 +432,13 @@ RECORDS_REST_DEFAULT_SORT: {
 SUPPORT_EMAIL = "info@iroko.tocororo.cu"
 #: Disable email sending by default.
 MAIL_SUPPRESS_SEND = True
-MAIL_SERVER = "correo.upr.edu.cu"
-MAIL_PORT = 465
+MAIL_SERVER = SMTP_SERVER
+MAIL_PORT = SMTP_PORT
 MAIL_USE_TLS = False
 MAIL_USE_SSL = True
-MAIL_USERNAME = "rafael.martinez@upr.edu.cu"
-MAIL_PASSWORD = "Rme.2019"
-MAIL_DEFAULT_SENDER = 'rafael.martinez@upr.edu.cu'
+MAIL_USERNAME = SMTP_USERNAME
+MAIL_PASSWORD = SMTP_PASSWORD
+MAIL_DEFAULT_SENDER = SMTP_DEFAULT_SENDER
 # MAIL_MAX_EMAILS = default None
 # MAIL_ASCII_ATTACHMENTS = default False
 
