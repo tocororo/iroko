@@ -113,6 +113,8 @@ TAXONOMY_LOGO_ADMIN = 'images/checklist_icon_129189.png'
 THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
 THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
 
+THEME_CONTACT_TEMPLATE = 'iroko_theme/contact.html'
+
 # Search configuration
 # ===================
 
@@ -160,6 +162,10 @@ SEARCH_UI_JSTEMPLATE_SELECT_BOX = 'templates/search_ui/selectbox.html'
 
 SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
 """Configure the toggle button template."""
+
+# Static page
+# ==================
+# INIT_STATIC_JSON_PATH = 'static/texts'
 
 # Records configuration
 # ===================
