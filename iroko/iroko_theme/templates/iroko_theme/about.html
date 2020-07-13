@@ -11,52 +11,20 @@
   <div class="container py-5 my-5 z-depth-1">
       <section class="p-md-3 mx-md-5">
         <h2 class="text-center mx-auto font-weight-bold mb-5 pb-2">{{ _('Nuestro Equipo') }}</h2>
+
+        <!-- UPR -->
         <div class="row">
-
-          <!-- marc -->
-          <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-                 src="{{ url_for('static', filename='images/team/Marc_GOOVAERTS .jpg') }}"
-                 aria-label="Marc Goovaerts "
-                 title="Marc Goovaerts "
-                 style="object-fit: cover;"/>
-                 
-            <h4>Marc Goovaerts </h4>
-            <p class="font-weight-normal">{{ _('Lider del Projecto Elinf y Projecto Joint') }}</p>
-            <p class="text-muted mb-lg-0">
-                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
-            </p>
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/upr.png')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="http://wwww.upr.edu.cu" target="block" class="text-dark h3">
+              Universidad de Pinar del Río "Hermanos Saíz Montes de Oca"
+            </a>
           </div>
-
-          <!-- rafael -->
-          <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-            src="{{ url_for('static', filename='images/team/Rafael-Martinez-Estevez.jpg') }}"
-                 aria-label="Rafael Martínez Estévez"
-                 title="Rafael Martínez Estévez"
-                 style="object-fit: cover;"/>
-                 
-            <h4>Rafael Martínez Estévez</h4>
-            <p class="font-weight-normal">{{ _('Lider del Proyecto Tocororo y miembro del Departamente de Sistemas y Tecnologías de la Información perteneciente al CRAI de la Universidad de Pinar del Río') }}</p>
-            <p class="text-muted mb-lg-0">
-                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
-            </p>
-          </div>
-
-          <!-- yohanis -->
-          <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-                 src="{{ url_for('static', filename='images/team/Yohannis-Marti.jpg') }}"
-                 aria-label="Yohannis Martí Lahera"
-                 title="Yohannis Martí Lahera"
-                 style="object-fit: cover;"/>
-                 
-            <h4>Yohannis Martí Lahera</h4>
-            <p class="font-weight-normal">{{ _('Directora de la Biblioteca Universidad de la Habana') }}</p>
-            <p class="text-muted mb-lg-0">
-                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
-            </p>
-          </div>
+        </div>
+        <div class="row">
 
           <!-- Carmen -->
           <div class="col-md-3 col-sm-6 text-center">
@@ -67,7 +35,7 @@
                 style="object-fit: cover;"/>
 
             <h4>María del Carmen Martínez Díaz</h4>
-            <p class="font-weight-normal">{{ _('Directora del Centro de Recursos para el Aprendizaje y la Investigación de la Universidad de Pinar del Río (CRAI)') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -82,7 +50,22 @@
                  style="object-fit: cover;"/>
                  
             <h4>Mabel Rodríguez Poo</h4>
-            <p class="font-weight-normal">{{ _('Jefa del Departamente de Sistemas y Tecnologías de la Información perteneciente al CRAI de la Universidad de Pinar del Río') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- rafael -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            src="{{ url_for('static', filename='images/team/Rafael-Martinez-Estevez.jpg') }}"
+                 aria-label="Rafael Martínez Estévez"
+                 title="Rafael Martínez Estévez"
+                 style="object-fit: cover;"/>
+                 
+            <h4>Rafael Martínez Estévez</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -97,7 +80,7 @@
                  style="object-fit: cover;"/>
                  
             <h4>Edel Abreu Hernández</h4>
-            <p class="font-weight-normal">{{ _('Miembro del Proyecto Tocororo y miembro del Departamento de Sistemas y Tecnologías de la Información') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -112,7 +95,7 @@
                  style="object-fit: cover;"/>
                  
             <h4>Eduardo Arencibia Cabeza</h4>
-            <p class="font-weight-normal">{{ _('Miembro del Proyecto Tocororo y miembro del Departamento de Sistemas y Tecnologías de la Información') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -127,7 +110,7 @@
                  style="object-fit: cover;"/>
                  
             <h4>Luis Enrique Cabezas Curbelo</h4>
-            <p class="font-weight-normal">{{ _('Miembro del Proyecto Tocororo y miembro del Departamento de Sistemas y Tecnologías de la Información') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -142,7 +125,7 @@
                  style="object-fit: cover;"/>
                  
             <h4>Reinier Lorenzo Cabezas</h4>
-            <p class="font-weight-normal">{{ _('Miembro del Proyecto Tocororo y miembro del Departamento de Sistemas y Tecnologías de la Información') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -157,7 +140,22 @@
                  style="object-fit: cover;"/>
                  
             <h4>Diego Miguel Ferreiro Garcia</h4>
-            <p class="font-weight-normal">{{ _('Miembro del Proyecto Tocororo y miembro del Departamento de Sistemas y Tecnologías de la Información') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- Erdin -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/erdin-espinosa.jpg') }}"
+                  aria-label="Erdin Espinosa"
+                  title="Erdin Espinosa"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Erdin Espinosa</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -172,7 +170,7 @@
                  style="object-fit: cover;"/>
                  
             <h4>Alejandro Cabrera Mendez</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -182,18 +180,30 @@
 
         <hr>
 
+        <!-- UH -->
+        <div class="row">
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/uh.png')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="http://wwww.uh.cu" target="block" class="text-dark h3">
+              Universidad de La Habana
+            </a>
+          </div>
+        </div>
         <div class="row">
 
-          <!-- Raf Guns -->
+          <!-- yohanis -->
           <div class="col-md-3 col-sm-6 text-center">
             <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-                 src="{{ url_for('static', filename='images/team/Raf-Guns.jpg') }}"
-                 aria-label="Raf Guns"
-                 title="Raf Guns"
+                 src="{{ url_for('static', filename='images/team/Yohannis-Marti.jpg') }}"
+                 aria-label="Yohannis Martí Lahera"
+                 title="Yohannis Martí Lahera"
                  style="object-fit: cover;"/>
                  
-            <h4>Raf Guns</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
+            <h4>Yohannis Martí Lahera</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -208,37 +218,7 @@
                  style="object-fit: cover;"/>
                  
             <h4>Alina Ruiz Jhones</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
-            <p class="text-muted mb-lg-0">
-                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
-            </p>
-          </div>
-
-          <!-- Eduardo Fuentes -->
-          <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-                 src="{{ url_for('static', filename='images/team/Eduardo-Fuentes-Navarro.jpg') }}"
-                 aria-label="Eduardo Fuentes Navarro"
-                 title="Eduardo Fuentes Navarro"
-                 style="object-fit: cover;"/>
-                 
-            <h4>Eduardo Fuentes Navarro</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
-            <p class="text-muted mb-lg-0">
-                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
-            </p>
-          </div>
-
-          <!-- Josmel -->
-          <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-                 src="{{ url_for('static', filename='images/team/Josmel-Pacheco-Mendoza.jpg') }}"
-                 aria-label="Josmel Pacheco Mendoza"
-                 title="Josmel Pacheco Mendoza"
-                 style="object-fit: cover;"/>
-                 
-            <h4>Josmel Pacheco Mendoza</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
@@ -253,95 +233,314 @@
                  style="object-fit: cover;"/>
                  
             <h4>Pedro Andres Urra Gonzalez</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
           </div>
 
-          <!-- Tim -->
+        </div>
+
+        <hr>
+        <!-- hasselt -->
+        <div class="row">
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/hasselt.png')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="https://www.uhasselt.be/" target="block" class="text-dark h3">
+              Hasselt University
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <!-- marc -->
           <div class="col-md-3 col-sm-6 text-center">
             <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
-                 src="{{ url_for('static', filename='images/team/Tim-Engels.jpg') }}"
-                 aria-label="Tim Engels"
-                 title="Tim Engels"
-                 style="object-fit: cover;"/>
-                 
-            <h4>Tim Engels</h4>
-            <p class="font-weight-normal">{{ _('Estudiante de la carrera Ingeniería en Informática de la Universidad de Pinar del Río') }}</p>
+                  src="{{ url_for('static', filename='images/team/Marc_GOOVAERTS .jpg') }}"
+                  aria-label="Marc Goovaerts "
+                  title="Marc Goovaerts "
+                  style="object-fit: cover;"/>
+                  
+            <h4>Marc Goovaerts </h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- Sadia Vancauwenbergh -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/Sadia-VANCAUWENBERGH.jpg') }}"
+                  aria-label="Sadia Vancauwenbergh"
+                  title="Sadia Vancauwenbergh"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Sadia Vancauwenbergh</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- Stephanie FRERE -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/Stephanie-FRERE.jpg') }}"
+                  aria-label="Stephanie Frere"
+                  title="Stephanie Frere"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Stephanie Frere</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- Ann Peters -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/ann-peters.jpg') }}"
+                  aria-label="Ann Peters"
+                  title="Ann Peters"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Ann Peters</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+        </div>
+
+        <hr>
+
+        <!-- antwerpent -->
+        <div class="row">
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/antwerpent.png')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="https://www.uantwerpen.be/" target="block" class="text-dark h3">
+              University of Antwerp
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <!-- Raf Guns -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/Raf-Guns.jpg') }}"
+                  aria-label="Raf Guns"
+                  title="Raf Guns"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Raf Guns</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
           </div>
           
+          <!-- Tim -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/Tim-Engels.jpg') }}"
+                  aria-label="Tim Engels"
+                  title="Tim Engels"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Tim Engels</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
         </div>
+
+        <hr>
+
+        <!-- La Molina -->
+        <div class="row">
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/lamolina.jpg')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="http://www.lamolina.edu.pe/" target="block" class="text-dark h3">
+              Universidad Nacional Agraria La Molina 
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <!-- Eduardo Fuentes -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/Eduardo-Fuentes-Navarro.jpg') }}"
+                  aria-label="Eduardo Fuentes Navarro"
+                  title="Eduardo Fuentes Navarro"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Eduardo Fuentes Navarro</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- Carmen Velezmoro Sanchez -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/CARMEN-VELEZMORO-SANCHEZ.jpg') }}"
+                  aria-label="Carmen Velezmoro Sanchez"
+                  title="Carmen Velezmoro Sanchez"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Carmen Velezmoro Sanchez</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+        </div>
+
+        <hr>
+
+        <!-- Usil -->
+        <div class="row">
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/usil.png')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="https://www.usil.edu.pe/" target="block" class="text-dark h3">
+              Universidad San Ignacio de Loyola 
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <!-- Josmel -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/Josmel-Pacheco-Mendoza.jpg') }}"
+                  aria-label="Josmel Pacheco Mendoza"
+                  title="Josmel Pacheco Mendoza"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Josmel Pacheco Mendoza</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- MES -->
+        <div class="row">
+          <div class="col mb-4">
+            <!-- <a href="/"> -->
+            <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/mes.png.png')}}"
+                alt="{{_(config.THEME_SITENAME)}}" width="100">
+            <!-- </a> -->
+            <a href="https://www.mes.gob.cu/" target="block" class="text-dark h3">
+              Ministerio de Educación Superior de Cuba
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <!-- Liliam Chang -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/lilliam-chang.jpg') }}"
+                  aria-label="Liliam Chang"
+                  title="Liliam Chang"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Liliam Chang</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+
+          <!-- Concepcion Diaz Mayans -->
+          <div class="col-md-3 col-sm-6 text-center">
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+                  src="{{ url_for('static', filename='images/team/concepcion-diaz-mayans.jpg') }}"
+                  aria-label="Concepcion Diaz Mayans"
+                  title="Concepcion Diaz Mayans"
+                  style="object-fit: cover;"/>
+                  
+            <h4>Concepcion Diaz Mayans</h4>
+            <p class="font-weight-normal">{{ _(' ') }}</p>
+            <p class="text-muted mb-lg-0">
+                <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
+            </p>
+          </div>
+        </div>
+          
       </section>
   </div>
-  <section class="container z-depth-1 mb-5">
+
+  <!-- <section class="container z-depth-1 mb-5">
     <div class="p-md-3 mx-md-5">
       <h2 class="text-center my-4 font-weight-bold pb-2">{{ _('Instituciones Involucradas') }}</h2>
     </div>
     <div class="d-flex flex-wrap justify-content-center ">
       <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/upr.png')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
         <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand"
                     src="{{ url_for('static', filename='images/participants/antwerpent.png')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
         <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/hasselt.png')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
         <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/lamolina.jpg')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
         <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/mes.png.png')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
         <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/uh.png')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
         <div class="row mt-3 ml-2">
             <div class="col my-1">
-                <!-- <a href="/"> -->
                 <img class="navbar-brand" src="{{ url_for('static', filename='images/participants/usil.png')}}"
                     alt="{{_(config.THEME_SITENAME)}}" width="100">
-                <!-- </a> -->
             </div>
         </div>
 
     </div>
-  </section>
+  </section> -->
 
 {%- endblock page_body %}
 
