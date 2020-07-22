@@ -88,7 +88,7 @@ def init_journals():
                     # db.session.flush()
 
     #     db.session.commit()
-    # init_term_sources()
+    init_term_sources()
     # add_terms_to_data()
     # set_initial_versions()
     init_repositories()
