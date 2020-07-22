@@ -8,13 +8,6 @@ import iroko.pidstore.providers as providers
 from iroko.pidstore.pids import identifiers_schemas
 
 
-def organization_uuid_fetcher(org_uuid, data):
-    return FetchedPID(
-        provider=providers.OrganizationUUIDProvider,
-        pid_type=providers.OrganizationUUIDProvider.pid_type,
-        pid_value=str(data[pids.ORGANIZATION_PID_FIELD]),
-    )
-
 
 def iroko_uuid_fetcher(record_uuid, data):
     """Fetch a document's identifiers.

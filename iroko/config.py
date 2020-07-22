@@ -24,8 +24,6 @@ from invenio_records_rest.facets import terms_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch
 
 from iroko.deployment import *
-from iroko.organizations.api import OrganizationRecord
-from iroko.organizations.search import OrganizationSearch
 from iroko.pidstore import pids as pids
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
@@ -224,36 +222,6 @@ RECORDS_REST_ENDPOINTS = dict(
                 }
             )
         )
-    ),
-    orgid=dict(
-        pid_type=pids.ORGANIZATION_PID_TYPE,
-        pid_minter=pids.ORGANIZATION_PID_MINTER,
-        pid_fetcher=pids.ORGANIZATION_PID_FETCHER,
-        search_class=OrganizationSearch,
-        record_class=OrganizationRecord,
-        indexer_class=RecordIndexer,
-        record_loaders={
-            "application/json": ("iroko.organizations.loaders"
-                                 ":organization_loader_v1"),
-        },
-        record_serializers={
-            "application/json": ("iroko.organizations.serializers"
-                                 ":organization_v1_response"),
-        },
-        search_serializers={
-            "application/json": ("iroko.organizations.serializers"
-                                 ":organization_v1_search"),
-        },
-        list_route="/organizations/",
-        item_route="/organizations/<{0}:pid_value>".format(_RECORD_CONVERTER),
-        default_media_type="application/json",
-        max_result_window=10000,
-        error_handlers=dict(),
-        create_permission_factory_imp=allow_all,
-        read_permission_factory_imp=check_elasticsearch,
-        update_permission_factory_imp=allow_all,
-        delete_permission_factory_imp=allow_all,
-        list_permission_factory_imp=allow_all
     ),
     srcid=dict(
         pid_type=pids.SOURCE_UUID_PID_TYPE,

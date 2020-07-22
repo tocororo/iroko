@@ -35,12 +35,6 @@ class IrokoUUIDProvider(BaseProvider):
             object_type=object_type, object_uuid=object_uuid, **kwargs)
 
 
-class OrganizationUUIDProvider(IrokoUUIDProvider):
-
-    pid_type = pids.ORGANIZATION_PID_TYPE
-    pid_provider = None
-    default_status = PIDStatus.REGISTERED
-
 
 class IrokoSourceOAIProvider(BaseProvider):
     """Provider in the form of {Source.uuid}-{Item.oaiIdentifier}

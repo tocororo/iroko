@@ -5,15 +5,6 @@ import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as providers
 
 
-def organization_uuid_minter(org_uuid, data):
-    assert pids.ORGANIZATION_PID_FIELD not in data
-    provider = providers.OrganizationUUIDProvider.create(
-        object_type=pids.ORGANIZATION_TYPE,
-        object_uuid=org_uuid
-    )
-    data[pids.ORGANIZATION_PID_FIELD] = provider.pid.pid_value
-    return provider.pid
-
 
 def iroko_uuid_minter(record_uuid, data):
     """Mint loan identifiers."""
