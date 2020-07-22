@@ -27,7 +27,6 @@ from __future__ import absolute_import, division, print_function
 import click
 from flask.cli import with_appcontext
 
-from .organizations import load_grid
 from .sources import init_journals
 from .taxonomy import init_taxonomy
 
@@ -48,14 +47,6 @@ def initvocabs():
 def initjournals():
     """Init journals."""
     init_journals()
-
-@fixtures.command()
-@with_appcontext
-def loadgrid():
-    """Init journals."""
-    load_grid()
-
-
 
 
 
