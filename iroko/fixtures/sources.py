@@ -156,7 +156,7 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
     name = string_as_identifier(tax[tax_key][tid]["name"])
     term = Term.query.filter_by(name=name).first()
     # TODO TermSources deberia trabajar con los UUIDs
-    if (term):
+    if (term and source):
         ts = TermSources()
         ts.sources_id = source.id
         ts.term_id = term.id
