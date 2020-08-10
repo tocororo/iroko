@@ -308,41 +308,7 @@ RECORDS_REST_FACETS = dict(
                 )
             )
         )
-    ),
-    organizations=dict(
-        filters=dict(
-            status=terms_filter('status'),
-            types=terms_filter('types'),
-            country=terms_filter('country'),
-            state=terms_filter('state'),
-        ),
-        aggs=dict(
-            status=dict(
-                terms=dict(
-                    field='status',
-                    size=5
-                )
-            ),
-            types=dict(
-                terms=dict(
-                    field='types',
-                    size=8
-                )
-            ),
-            country=dict(
-                terms=dict(
-                    field='addresses.country',
-                    size=8
-                )
-            ),
-            state = dict(
-                terms=dict(
-                    field='addresses.state',
-                    size=5
-                )
-            )
-        )
-    ),
+    ),    
     sources=dict(
         filters=dict(
             source_type=terms_filter('source_type'),
@@ -400,13 +366,13 @@ RECORDS_REST_DEFAULT_SORT: {
 SUPPORT_EMAIL = "info@iroko.tocororo.cu"
 #: Disable email sending by default.
 MAIL_SUPPRESS_SEND = True
-MAIL_SERVER = SMTP_SERVER
-MAIL_PORT = SMTP_PORT
+MAIL_SERVER = 'correo.upr.edu.cu'
+MAIL_PORT = '8080'
 MAIL_USE_TLS = False
 MAIL_USE_SSL = True
-MAIL_USERNAME = SMTP_USERNAME
-MAIL_PASSWORD = SMTP_PASSWORD
-MAIL_DEFAULT_SENDER = SMTP_DEFAULT_SENDER
+MAIL_USERNAME = 'toco'
+MAIL_PASSWORD = 'passs'
+MAIL_DEFAULT_SENDER = 'info@iroko.tocororo.cu'
 # MAIL_MAX_EMAILS = default None
 # MAIL_ASCII_ATTACHMENTS = default False
 
