@@ -11,8 +11,9 @@
 from __future__ import absolute_import, print_function
 
 import os
+import requests
 
-from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file
+from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file, request, flash
 from flask_menu import register_menu
 from iroko.sources.api import Sources
 from iroko.sources.marshmallow.source import source_schema_many
@@ -22,6 +23,7 @@ from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestTy
 from invenio_i18n.selectors import get_locale
 from flask_babelex import lazy_gettext as _
 from iroko.records.api import IrokoAggs
+from iroko.utils import send_contact_email
 import json
 import mistune
 from iroko.iroko_theme.forms import ContactForm, IrokoSearchForm
@@ -51,7 +53,7 @@ def get_record_count():
 
 
 @blueprint.route('/', methods=['GET', 'POST'])
-def index():
+def index(form=None):
     # print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
@@ -90,7 +92,8 @@ def index():
     for vocab in vocabularies:
         vocab_stats.append({vocab.identifier:str(Term.query.filter_by(vocabulary_id=vocab.identifier).count())})
 
-    form = ContactForm()
+    if not form:
+        form = ContactForm()
     if form.validate_on_submit():
         print('Mensaje enviado')
 
@@ -160,13 +163,13 @@ def static_page(slug):
     # 1- load static_pages.json
     # 2- search the slug
     # 3- render appropiate md file (including language....)
-
+    base_url = os.path.join(current_app.root_path) + '/iroko'
     slugs = {}
     aux_text = ''
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+ '/static_pages.json', encoding="utf-8") as file:
+    with open(base_url+'/pages/mackdown/static_pages.json', encoding="utf-8") as file:
         slugs = json.load(file)
     if slugs:
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r', encoding="utf-8") as file:
+        with open(base_url+'/pages/mackdown/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r', encoding="utf-8") as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
@@ -219,3 +222,52 @@ def page_not_found(e):
 def internal_error(e):
     """Error handler to show a 500.html page in case of a 500 error."""
     return render_template(current_app.config['THEME_500_TEMPLATE']), 500
+
+
+def is_human(captcha_response):
+    try:
+        secret = current_app.config.get('RECAPTCHA_PRIVATE_KEY')
+        payload = {'response':captcha_response, 'secret':secret}
+        response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
+        response_text = json.loads(response.text)
+        return response_text['success']
+    except Exception as e:
+        print(str(e))
+        return False
+
+
+def valid(form):
+    if form.get('name').strip() == '':
+        return False
+    if form.get('message').strip() == '':
+        return False
+    return True
+    
+
+@blueprint.route('/send_mail_contact', methods=['POST'])
+def send_mail_contact():
+    if request.method == 'POST':
+        form = ContactForm()
+        
+        name = request.form.get('name')        
+        email = request.form.get('email')
+        message = request.form.get('message')
+        captcha_response = request.form.get('g-recaptcha-response')
+
+        if not valid(request.form):
+            flash(_('Verifique los datos que trata de enviar en contactos'), 'danger')
+            redirect('/#divcontacto')
+
+        if is_human(captcha_response):
+            try:                
+                send_contact_email(name, email, message)
+                flash(_('Su mensaje ha sido enviado...'), 'info')
+            except Exception as e:
+                flash(_('Lo sentimos, no fue posible enviar el mensaje...'), 'danger')
+        else:
+            flash('Show you are not a bot, bots are not allowed.', 'danger')
+            return index(form=request.form)            
+    else:
+        flash(_('Forma incorrecta para intentar enviar el mensaje'), 'danger')
+
+    return redirect('/')

@@ -107,6 +107,7 @@ THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
 CATALOG_LOGO_ADMIN = 'images/archives_icon_129343.png'
 TAXONOMY_LOGO_ADMIN = 'images/checklist_icon_129189.png'
+MES_LOGO_ADMIN = 'images/mes.png'
 #: Frontpage template.
 THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
 THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
@@ -360,22 +361,6 @@ RECORDS_REST_DEFAULT_SORT: {
 }
 """Set default sorting options."""
 
-# Email configuration
-# ===================
-#: Email address for support.
-SUPPORT_EMAIL = "info@iroko.tocororo.cu"
-#: Disable email sending by default.
-MAIL_SUPPRESS_SEND = True
-MAIL_SERVER = 'correo.upr.edu.cu'
-MAIL_PORT = '8080'
-MAIL_USE_TLS = False
-MAIL_USE_SSL = True
-MAIL_USERNAME = 'toco'
-MAIL_PASSWORD = 'passs'
-MAIL_DEFAULT_SENDER = 'info@iroko.tocororo.cu'
-# MAIL_MAX_EMAILS = default None
-# MAIL_ASCII_ATTACHMENTS = default False
-
 
 # Assets
 # ======
@@ -385,6 +370,8 @@ COLLECT_STORAGE = 'flask_collect.storage.file'
 # Accounts
 # ========
 #: Email address used as sender of account registration emails.
+MAIL_SUPPRESS_SEND=True
+SUPPORT_EMAIL = "info@iroko.tocororo.cu"
 SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
 SECURITY_EMAIL_SUBJECT_REGISTER = _(
@@ -436,6 +423,10 @@ JSONSCHEMAS_HOST = 'iroko.tocororo.cu'
 #: Secret key - each installation (dev, production, ...) needs a separate key.
 #: It should be changed before deploying.
 SECRET_KEY = 'iroko_secret_key'
+
+RECAPTCHA_PUBLIC_KEY = '6LcElb0ZAAAAAEKZhH0az6wrBH1OCk-Nb7JNHU_S'
+RECAPTCHA_PRIVATE_KEY = '6LcElb0ZAAAAAGdgBtmjqDT4EfeR-rbwcO1qAiPn'
+
 #: Max upload size for form data via application/mulitpart-formdata.
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100 MiB
 #: Sets cookie with the secure flag by default
@@ -493,9 +484,9 @@ APP_DEFAULT_SECURE_HEADERS = {
     'strict_transport_security_max_age': 31556926,  # One year in seconds
     'strict_transport_security_include_subdomains': True,
     'content_security_policy': {
-        'default-src': ["'self'", "'unsafe-inline'"],
+        'default-src': ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'"],
         'object-src': ["'none'"],
-        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        'script-src': ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'", "'unsafe-eval'"],
         'style-src': ["'self'", "'unsafe-inline'"],
         'font-src': ["'self'", "data:"],
         'img-src': ["'self'", "data:"]

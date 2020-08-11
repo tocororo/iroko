@@ -5,7 +5,11 @@ import enum
 import re
 from uuid import UUID
 
-from flask import jsonify
+from flask import jsonify, session, request, render_template, current_app
+from invenio_i18n.selectors import get_locale
+from flask_mail import Message
+from threading import Thread
+from invenio_mail import InvenioMail
 
 
 # def get_sources_by_terms(tids):
@@ -94,3 +98,29 @@ def validate_integer(int_string):
 
 def string_as_identifier(value: str):
     return re.sub('\W+|^(?=\d)','_', value.lower())
+
+
+
+def send_async_email(app, msg):    
+    with app.app_context():        
+        app.extensions['mail'].send(msg)       
+
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    # mail.send(msg) #esto lo mando pero no asincronamente
+    Thread(target=send_async_email, args=(current_app, msg)).start()
+
+
+def send_contact_email(name, email, user_message):
+    language = get_locale().upper()
+    client_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+    send_email('Inquiry from ekgdx.com',
+               sender=current_app.config['SECURITY_EMAIL_SENDER'],
+               recipients=current_app.config['ADMINS'],
+               text_body=render_template('iroko_theme/email/contact_email.txt', name=name, email=email,
+                                         user_message=user_message, language=language, ip=client_ip),
+               html_body=render_template('iroko_theme/email/contact_email.html', name=name, email=email,
+                                         user_message=user_message, language=language, ip=client_ip))

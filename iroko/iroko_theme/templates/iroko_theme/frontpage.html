@@ -14,63 +14,71 @@
 
     <!-- Full Page Intro -->
 
-<div class="view jarallax iroko-jumbo" data-jarallax='{"speed": 0.2}'>
+  <div class="view jarallax iroko-jumbo" data-jarallax='{"speed": 0.2}'>
 
-  <!-- Mask & flexbox options-->
-  <div class="mask rgba-white-light d-flex justify-content-center align-items-center">
-      <!-- Content -->
-      <div class="container">
-          <!--Grid row-->
-          <div class="row">
-              <!--Grid column-->
-              <div class="col-md-12 text-center">
-                  <h2 class="text-uppercase pt-md-5 pt-sm-2 pb-md-5 pb-sm-3 pb-5 font-weight-bold wow fadeInDown"
-                      data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}
-                  </h2>
-                  {%- if config.THEME_SEARCHBAR %}
-                      {%- block navbar_search %}
-                      <form action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
-                          <div class="form-row col-md-12 justify-content-center">
-                            <div class="col-auto w-75">
-                              {% if not stat %}
-                                <input type="text" class="form-control form-control-lg m-1" name="q" placeholder="{{records}} {{_('Registros')}}">
-                              {% else %}
-                                <input type="text" class="form-control form-control-lg m-1" name="q" placeholder="{{_('Buscar')}}">
-                              {% endif %}
-                            </div>
-                            <div class="col-auto">
-                              <button type="submit" class="btn btn-dark m-1" style="padding: .69em 1em;"><i class="fa fa-search mr-2"></i>{{_('Buscar')}}</button>
-                            </div>
-                          </div>
-                      </form>
-                      {%- endblock navbar_search %}
-                  {%- endif %}
-                  <!-- <div class="wow fadeInDown" data-wow-delay="0.3s">
-                      {% if not stat %}
-                      <section class="after-loop">
-                          <div class="container">
-                              <div class="row">
-                                   <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50% !important;">
-                                      <h1 class="text-dark">{{records}}</h1>
-                                      <h1 class="text-dark"> Records</h1>
-                                  </a>
+    <!-- Mask & flexbox options-->
+    <div class="mask rgba-white-light d-flex justify-content-center align-items-center">
+        <!-- Content -->
+        <div class="container">
+            <!--Grid row-->
+            <div class="row">
+                <!--Grid column-->
+                <div class="col-md-12 text-center">
+                    <h2 class="text-uppercase pt-md-5 pt-sm-2 pb-md-5 pb-sm-3 pb-5 font-weight-bold wow fadeInDown"
+                        data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}
+                    </h2>
+                    {%- if config.THEME_SEARCHBAR %}
+                        {%- block navbar_search %}
+                        <form action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
+                            <div class="form-row col-md-12 justify-content-center">
+                              <div class="col-auto w-75">
+                                {% if not stat %}
+                                  <input type="text" class="form-control form-control-lg m-1" name="q" placeholder="{{records}} {{_('Registros')}}">
+                                {% else %}
+                                  <input type="text" class="form-control form-control-lg m-1" name="q" placeholder="{{_('Buscar')}}">
+                                {% endif %}
                               </div>
-                          </div>
-                      </section>
-                      {% endif %}
-                  </div> -->
-              </div>
-              <!--Grid column-->
-          </div>
-          <!--Grid row-->
+                              <div class="col-auto">
+                                <button type="submit" class="btn btn-dark m-1" style="padding: .69em 1em;"><i class="fa fa-search mr-2"></i>{{_('Buscar')}}</button>
+                              </div>
+                            </div>
+                        </form>
+                        {%- endblock navbar_search %}
+                    {%- endif %}
+                    <!-- <div class="wow fadeInDown" data-wow-delay="0.3s">
+                        {% if not stat %}
+                        <section class="after-loop">
+                            <div class="container">
+                                <div class="row">
+                                    <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50% !important;">
+                                        <h1 class="text-dark">{{records}}</h1>
+                                        <h1 class="text-dark"> Records</h1>
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+                        {% endif %}
+                    </div> -->
+                </div>
+                <!--Grid column-->
+            </div>
+            <!--Grid row-->
 
-      </div>
-      <!-- Content -->
+        </div>
+        <!-- Content -->
+    </div>
+    <!-- Mask & flexbox options-->
   </div>
-  <!-- Mask & flexbox options-->
-</div>
 
     <!-- Full Page Intro -->
+    {%- block homeflashmessages %}
+      {%- from "iroko_theme/macros/messages.html" import flashed_messages with context -%}
+      {{ flashed_messages() }}
+    {%- endblock homeflashmessages %}
+
+    {%- block homebreadcrumbs %}
+      {%- include "iroko_theme/breadcrumbs.html" %}
+    {%- endblock homebreadcrumbs %}
 
 {%- endblock page_header %}
 
@@ -120,13 +128,13 @@
                       Incluye el registro de dichas fuentes y su manejo por los editores
                         y gestores del sistema. ') }}
                     </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mto">{{ _('Acceder') }}</a>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/catalogmto">{{ _('Acceder') }}</a>
                   </div>
                 </div>
               </div>
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mto">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/catalogmto">
                           <img class="img-fluid"
                           src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
                           alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catálogo')}}">
@@ -137,10 +145,10 @@
             <div class="row mb-5 d-flex align-items-center justify-content-end">
               <div class="col-md-6 col-lg-4">
                   <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mto">
+                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mesmto">
                           <img class="img-fluid"
-                          src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
-                          alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomía')}}">
+                          src="{{ url_for('static', filename=config.MES_LOGO_ADMIN)}}"
+                          alt="{{_('MES Directory')}}" title="{{_('Directorio de Revistas Científicas del Ministerio de Educación Superior')}}">
                       </a>
 
                 </div>
@@ -148,14 +156,13 @@
               <div class="col-lg-6 col-md-6">
                 <div class="card">
                   <div class="card-header white">
-                    <h4 class="font-weight-bold mb-0">{{ _('Taxonomía') }}</h4>
+                    <h4 class="font-weight-bold mb-0">{{ _('Directorio de Revistas Científicas del Ministerio de Educación Superior') }}</h4>
                   </div>
                   <div class="card-body">
                     <p class="card-text">
-                        {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y
-                        la unicidad en las búsquedas.... ') }}
+                        {{ _('El Registro Nacional es la lista nacional oficial de revistas gestionadas por instituciones adscritas al Ministerio de educación de Cuba. Es mantenido por las Direcciones de Ciencia e Informatización del MES.... ') }}
                     </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mto">{{ _('Acceder') }}</a>
+                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mesmto">{{ _('Acceder') }}</a>
                   </div>
                 </div>
               </div>
@@ -169,9 +176,9 @@
                   <div class="card-body">
                     <p class="card-text">
                       {{ _('Servicios de API-Rest para Revistas científicas registradas en Sceiba, así como vocabularios
-                      controlados. Los datos están protegidos de acuerdo a las'}}
-                      <a href="/politicas">{{ _('políticas de privacidad') }}</a> {{ _('del sistema
-                      y es compartido según los términos de servicio. Contacte al administrador para más detalles') }}
+                      controlados. Los datos están protegidos de acuerdo a las') }}
+                      <a href="/politicas">{{ _('políticas de privacidad') }}</a> 
+                      {{ _('del sistema y es compartido según los términos de servicio. Contacte al administrador para más detalles') }}
                     </p>
                     <a class="btn btn-secundary font-weight-bold text-danger" href="#divcontacto">{{ _('Contactar') }}</a>
                   </div>
@@ -187,6 +194,32 @@
                 </div>
               </div>
             </div>
+            <div class="row mb-5 d-flex align-items-center justify-content-end">
+                <div class="col-md-6 col-lg-4">
+                    <div class="item-preview mb-5">
+                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/taxonomymto">
+                            <img class="img-fluid"
+                            src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
+                            alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomía')}}">
+                        </a>
+  
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                  <div class="card">
+                    <div class="card-header white">
+                      <h4 class="font-weight-bold mb-0">{{ _('Taxonomía') }}</h4>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text">
+                          {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y
+                          la unicidad en las búsquedas.... ') }}
+                      </p>
+                      <a class="btn btn-secundary font-weight-bold text-danger" href="/page/taxonomymto">{{ _('Acceder') }}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
           </section>
         </div>
   </section>
@@ -294,8 +327,9 @@
 
       </div>
     {% endif %}
-
-    {% include config.THEME_CONTACT_TEMPLATE %}
+    <div id="divcontacto">
+      {% include config.THEME_CONTACT_TEMPLATE %}
+    </div>
 
 
 </div>

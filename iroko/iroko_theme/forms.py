@@ -8,7 +8,7 @@ class ContactForm(FlaskForm):
       email = StringField(_('Email'), [validators.DataRequired(), validators.Email()])
       subject = StringField(_('Subject'), [validators.DataRequired(), validators.Length(max=150)])
       message = TextAreaField(_('Message'), [validators.DataRequired()])
-      #recaptcha = RecaptchaField()
+      recaptcha = RecaptchaField()
 
 
 class IrokoSearchForm(FlaskForm):
