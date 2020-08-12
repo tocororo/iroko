@@ -275,3 +275,4 @@ def send_mail_contact():
         flash(_('Forma incorrecta para intentar enviar el mensaje'), 'danger')
 
     return redirect('/')
+    
