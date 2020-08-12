@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-xs-12 col-sm-4 text-center text-middle">
             <img class="img-fluid"
-                src="images/archives_icon_129343.png"
+                src="/static/images/archives_icon_129343.png"
                 alt="Catálogo de Publicaciones Científicas en Sceiba" title="Catálogo de Publicaciones Científicas en Sceiba">
         </div>
         <div class="col-xs-12 col-sm-7 col-sm-offset-1">            

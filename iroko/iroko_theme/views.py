@@ -166,8 +166,7 @@ def static_page(slug):
     
     slugs = {}
     aux_text = '' 
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    data_file = os.path.join(basedir, 'static/js/large.js')
+    basedir = os.path.abspath(os.path.dirname(__file__))    
 
     with open(os.path.join(basedir, 'static/staticpages/static_pages.json'), encoding="utf-8") as file:
         slugs = json.load(file)
