@@ -68,5 +68,35 @@
             "url":"mantenimiento.md",
             "title":"Sistema en Mantenimiento"
         }
+    },
+    "catalogmto": {
+        "en":{
+            "url":"catalogmto.md",
+            "title":"National Catalog of Scientific Publications under Construction" 
+        },
+        "es":{
+            "url":"catalogmto.md",
+            "title":"Catálogo Nacional de Publicaciones Científicas en Construcción"
+        }
+    },
+    "mesmto": {
+        "en":{
+            "url":"mesmto.md",
+            "title":"MES Directory of Scientific Journals under Construction" 
+        },
+        "es":{
+            "url":"mesmto.md",
+            "title":"Directorio de Revistas Científicas del MES en Construcción"
+        }
+    },
+    "taxonomymto": {
+        "en":{
+            "url":"taxonomymto.md",
+            "title":"Sceiba Vocabularies System under Construction" 
+        },
+        "es":{
+            "url":"taxonomymto.md",
+            "title":"Sistema de Vocabularios de Sceiba en Construcción"
+        }
     }
 }

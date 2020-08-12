@@ -163,18 +163,22 @@ def static_page(slug):
     # 1- load static_pages.json
     # 2- search the slug
     # 3- render appropiate md file (including language....)
-    base_url = os.path.join(current_app.root_path) + '/iroko'
+    
     slugs = {}
-    aux_text = ''
-    with open(base_url+'/pages/mackdown/static_pages.json', encoding="utf-8") as file:
+    aux_text = '' 
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    data_file = os.path.join(basedir, 'static/js/large.js')
+
+    with open(os.path.join(basedir, 'static/staticpages/static_pages.json'), encoding="utf-8") as file:
         slugs = json.load(file)
     if slugs:
-        with open(base_url+'/pages/mackdown/'+get_locale()+'/'+slugs[slug][get_locale()]["url"], 'r', encoding="utf-8") as file:
+        with open(os.path.join(basedir, 'static/staticpages/'+get_locale()+'/'+slugs[slug][get_locale()]["url"]), 'r', encoding="utf-8") as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
         aux_text = markdown(aux_text)
     return render_template('iroko_theme/static_pages.html', title=slugs[slug][get_locale()]["title"], text=aux_text)
+
 
 @blueprint.route('/page/images/<image>')
 def static_page_image(image):

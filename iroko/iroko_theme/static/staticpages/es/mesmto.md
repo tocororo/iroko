@@ -2,7 +2,9 @@
 <div>
     <div class="row">
         <div class="col-xs-12 col-sm-4 text-center text-middle">
-            <img src="images/3014275.svg" alt="Universidad de Pinar del Río" style="width:100px;">
+            <img class="img-fluid"
+                src="images/mes.png"
+                alt="Directorio del MEs" title="Directorio del MES">
         </div>
         <div class="col-xs-12 col-sm-7 col-sm-offset-1">            
             <h3> 
