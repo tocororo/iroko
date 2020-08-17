@@ -180,10 +180,10 @@ RECORDS_UI_ENDPOINTS = {
 }
 
 _RECORD_CONVERTER = (
-    'pid(docid, record_class="iroko.records.api:IrokoRecord")'
+    'pid(irouid, record_class="iroko.records.api:IrokoRecord")'
 )
 _SOURCE_CONVERTER = (
-    'pid(pitmid, record_class="iroko.sources.api:IrokoSource")'
+    'pid(srcid, record_class="iroko.sources.api:IrokoSource")'
 )
 
 RECORDS_REST_ENDPOINTS = dict(
@@ -223,7 +223,8 @@ RECORDS_REST_ENDPOINTS = dict(
                 }
             )
         )
-    ),
+    )
+    ,
     srcid=dict(
         pid_type=pids.SOURCE_UUID_PID_TYPE,
         pid_minter=pids.SOURCE_UUID_PID_MINTER,
@@ -244,7 +245,7 @@ RECORDS_REST_ENDPOINTS = dict(
                                  ":source_v1_search"),
         },
         list_route="/sources/",
-        item_route="/sources/<{0}:pid_value>".format(_SOURCE_CONVERTER),
+        item_route="/sources/<pid(srcid):pid_value>",
         default_media_type="application/json",
         max_result_window=10000,
         error_handlers=dict(),
@@ -309,7 +310,8 @@ RECORDS_REST_FACETS = dict(
                 )
             )
         )
-    ),    
+    )
+    ,
     sources=dict(
         filters=dict(
             source_type=terms_filter('source_type'),

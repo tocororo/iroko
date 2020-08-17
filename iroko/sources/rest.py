@@ -14,10 +14,10 @@ from iroko.notifications.api import Notifications
 from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.models import NotificationType
 from iroko.records.api import IrokoAggs
-from iroko.sources.api import Sources, get_current_user_source_permissions
+from iroko.sources.api import Sources, get_current_user_source_permissions, IrokoSource
 from iroko.sources.marshmallow.source import source_schema, source_schema_many, source_schema_no_versions, \
     source_version_schema, source_version_schema_many
-from iroko.sources.models import SourceStatus
+from iroko.sources.models import SourceStatus, SourceVersion
 from iroko.sources.permissions import source_term_gestor_permission_factory, source_editor_permission_factory, \
     source_gestor_permission_factory, user_has_editor_or_gestor_permissions
 from iroko.taxonomy.api import Terms
@@ -158,13 +158,16 @@ def get_source_by_uuid(uuid):
     #                             'ok','source', \
     #                             source_schema.dump(source))
     try:
-        source = Sources.get_source_by_id(uuid=uuid)
+        source = IrokoSource.get_record(uuid)
+        # Sources.get_source_by_id(uuid=uuid)
         if not source:
                 raise Exception('Source not found')
 
         terms = ''
-        for term in source.term_sources:
-            terms = terms + str(term.term.uuid) + ','
+        if 'classifications' in source.model.json:
+            for term in source.model.json['classifications']:
+                if 'id' in term:
+                    terms = terms + str(term['id']) + ','
         if terms:
             terms = terms[0:-1]
 
@@ -173,9 +176,10 @@ def get_source_by_uuid(uuid):
             # for v in source.term_sources:
             #     print(v.term_id, v.sources_id, v.data)
             #     # print(v.data)
+            versions = SourceVersion.query.filter(source_uuid=uuid)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok','source', \
-                                source_schema.dump(source))
+                                source_version_schema_many.dump(versions))
 
         raise PermissionDenied('No tiene permiso')
 
@@ -259,6 +263,7 @@ def source_new_version(uuid):
             with source_editor_permission_factory({'uuid':uuid}).require():
                 # si no esta aprobada significa que siempre es la current.
                 # si esta aprobada el proceso es otro
+                print(input_data)
                 is_current = source.source_status is not SourceStatus.APPROVED
                 msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current, comment=comment)
                 if not source or not source_version:

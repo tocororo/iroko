@@ -13,7 +13,7 @@ from invenio_db import db
 
 import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
-from iroko.sources.api import Sources, IrokoSource
+from iroko.sources.api import IrokoSource
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
 from iroko.taxonomy.models import Term
 from iroko.utils import string_as_identifier
@@ -21,17 +21,17 @@ from iroko.utils import string_as_identifier
 
 def init_journals():
     # sources_path = '../../data/journals.json'
-    delete_all_sources()
+    # delete_all_sources()
     print('delete all source and relations')
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
     path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
 
-    with open(path) as fsource, open(path_oai) as foai:
+    with open(path) as fsource, open(path_oai) as foai, open(path_tax) as ftax:
         data = json.load(fsource, object_hook=remove_nulls)
         urls = json.load(foai)
-
+        tax = json.load(ftax)
         inserted= {}
         if isinstance(data, dict):
             for k, record in data.items():
@@ -39,9 +39,10 @@ def init_journals():
                     inserted[record['title']] = record['title']
                     print(record['title'])
                     source = dict()
-                    source['source_type'] = SourceType.JOURNAL.value
-                    source['name'] = record['title']
                     data = dict()
+
+                    data['source_type'] = SourceType.JOURNAL.value
+                    data['name'] = record['title']
                     ids = []
 
                     _assing_if_exist(data, record, 'title')
@@ -76,11 +77,46 @@ def init_journals():
                             ids.append(dict(idtype='oaiurl', value=url['url']))
 
                     data[pids.IDENTIFIERS_FIELD] = ids
-                    IrokoSource.delete_pids_without_object(data[pids.IDENTIFIERS_FIELD])
+                    # IrokoSource.delete_all_pids_without_object(data[pids.IDENTIFIERS_FIELD])
 
                     source['data']= data
-                    msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
-                    print(msg)
+
+                    if 'licence' in record:
+                        data['classifications'] = []
+                        name = string_as_identifier(tax['licences'][record['licence']]["name"])
+                        term = Term.query.filter_by(name=name).first()
+                        data['classifications'].append({'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
+
+                    data['source_type'] = SourceType.JOURNAL.value
+                    data['source_status'] = SourceStatus.UNOFFICIAL.value
+
+                    user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
+                    data['_save_info'] = {'user_id': str(user.id), 'comment': 'initial version'}
+
+                    new_source, msg = IrokoSource.create_or_update(data, None, True, True)
+                    # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
+
+                    if 'oaiurl' in data:
+                        repo = Repository.query.filter_by(source_uuid=new_source.id).first()
+                        if not repo:
+                            repo = Repository()
+                            repo.source_uuid = new_source.id
+                        repo.harvest_endpoint = data['oaiurl']
+                        repo.harvest_type = HarvestType.OAI
+                        db.session.add(repo)
+
+                    source_version = SourceVersion()
+                    source_version.comment = 'initial version with data'
+                    source_version.source_uuid = new_source.id
+                    source_version.user_id = user.id
+                    source_version.is_current = True
+                    source_version.created_at = datetime.date(2019, 1, 1)
+                    source_version.data = data
+                    db.session.add(source_version)
+
+                    db.session.commit()
+
+                    print(msg, new_source)
 
                     # source.data = data
                     # source.source_status = SourceStatus.UNOFFICIAL
@@ -88,10 +124,10 @@ def init_journals():
                     # db.session.flush()
 
     #     db.session.commit()
-    init_term_sources()
+    # init_term_sources()
     # add_terms_to_data()
     # set_initial_versions()
-    init_repositories()
+    # init_repositories()
     # Sources.sync_source_index()
 
 def init_term_sources():
@@ -103,6 +139,7 @@ def init_term_sources():
         inserted= {}
         if isinstance(data, dict):
             for k, record in data.items():
+                IrokoSource.get()
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
                     source = Source.query.filter_by(name=record['title']).first()
@@ -137,7 +174,7 @@ def delete_all_sources():
     s = Source.query.all()
     for so in s:
         IrokoSource.delete(data={pids.SOURCE_UUID_FIELD: so.uuid})
-        IrokoSource.delete_pids_without_object(so.data[pids.IDENTIFIERS_FIELD])
+        IrokoSource.delete_all_pids_without_object(so.data[pids.IDENTIFIERS_FIELD])
         db.session.delete(so)
     db.session.commit()
 

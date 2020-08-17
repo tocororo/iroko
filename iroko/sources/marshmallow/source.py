@@ -1,18 +1,18 @@
 
-from marshmallow import Schema, fields, ValidationError, pre_load, post_dump, pre_dump, INCLUDE, EXCLUDE
-from iroko.sources.models import Source, SourceVersion, SourceType, TermSources, SourceStatus
-from invenio_records_rest.schemas.fields import DateString
-from iroko.harvester.marshmallow import RepositorySchema
-from sqlalchemy import desc, asc
-
+from marshmallow import Schema, fields, post_dump, INCLUDE
 from marshmallow_enum import EnumField
-from iroko.sources.marshmallow.journal import journal_data_schema
+from sqlalchemy import desc
+
+from iroko.harvester.marshmallow import RepositorySchema
 from iroko.sources.marshmallow.base import source_data_schema, IrokoUserSchema, TermSourcesSchema, SourceDataSchema
+from iroko.sources.marshmallow.journal import journal_data_schema
+from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
+
 
 class SourceVersionSchema(Schema):
     id = fields.Int(dump_only=True)
     user_id = fields.Int()
-    source_id = fields.Int()
+    source_uuid = fields.Str()
     comment = fields.Str()
     created_at = fields.DateTime()
     is_current = fields.Boolean()
@@ -43,7 +43,7 @@ class SourceSchema(Schema):
     versions = fields.Nested(SourceVersionSchema, many=True)
     repository = fields.Nested(RepositorySchema)
 
-    data = fields.Nested(SourceDataSchema, many=False)
+    data = fields.Nested(SourceDataSchema, many=False, unknown=INCLUDE)
 
     @post_dump(pass_original=True)
     def fix_data_field(self, result, source:Source, **kwargs):

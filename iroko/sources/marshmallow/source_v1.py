@@ -1,36 +1,18 @@
 
 
 from invenio_records_rest.loaders.marshmallow import marshmallow_loader
-
+from invenio_records_rest.schemas import StrictKeysMixin
+from invenio_records_rest.schemas.fields import PersistentIdentifier
 from invenio_records_rest.serializers.json import JSONSerializer
 from invenio_records_rest.serializers.response import record_responsify, \
     search_responsify
-
-from invenio_records_rest.schemas import StrictKeysMixin
-
-
-from iroko.records.marshmallow.json import IdentifierSchemaV1
-from marshmallow import Schema, fields
-from marshmallow_enum import EnumField
+from marshmallow import fields
 
 from iroko.sources.marshmallow.journal import JournalDataSchema
-from iroko.sources.marshmallow.source import SourceType, SourceStatus
-from invenio_records_rest.schemas.fields import DateString, \
-    PersistentIdentifier, SanitizedUnicode
 
-class RelationSchemaV1(Schema):
-    uuid = fields.UUID(dump_only=True)
-    data = fields.Raw(many=False)
 
 class SourceDataSchemaV1(JournalDataSchema):
-
-    name = fields.Str(allow_none=False)
-
-    source_type = fields.Str(allow_none=False)
-    source_status = fields.Str(allow_none=True)
-
-    relations = fields.List(fields.Nested(RelationSchemaV1))
-
+    pass
 
 
 class SourceSchemaV1(StrictKeysMixin):

@@ -1,6 +1,7 @@
 import traceback
 from datetime import datetime
 from typing import Dict
+from uuid import uuid4
 
 from elasticsearch.exceptions import NotFoundError
 from flask_login import current_user
@@ -35,82 +36,103 @@ class IrokoSource(Record):
     _schema = "sources/source-v1.0.0.json"
 
     @classmethod
-    def create_or_update(cls, source_uuid, data, dbcommit=False, reindex=False, **kwargs):
+    def create_or_update(cls, data, source_uuid=None, dbcommit=False, reindex=False, **kwargs):
         """Create or update IrokoRecord."""
-
-        assert source_uuid
-
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
             object_type=pids.SOURCE_TYPE,
             getter=cls.get_record,
         )
-        try:
-            persistent_identifier, source = resolver.resolve(str(source_uuid))
-            if source:
-                print("{0}={1} found".format(pids.SOURCE_UUID_PID_TYPE, source_uuid))
-                source.update(data, dbcommit=dbcommit, reindex=reindex)
-                return source, 'updated'
-        except (PIDDeletedError, NoResultFound) as ex:
-            identifier = dict()
-            identifier[pids.IDENTIFIERS_FIELD_TYPE] = pids.SOURCE_UUID_PID_TYPE
-            identifier[pids.IDENTIFIERS_FIELD_VALUE] = str(source_uuid)
-            cls.delete_pids_without_object([identifier])
-            print('#### cls.delete_pids_without_object(data[pids.IDENTIFIERS_FIELD])')
-        except PIDDoesNotExistError as pidno:
-            print("PIDDoesNotExistError:  {0} == {1}".format(pids.SOURCE_UUID_PID_TYPE, str(source_uuid)))
-        except Exception as e:
-            print('-------------------------------')
-            # print(str(e))
-            print(traceback.format_exc())
-            print('-------------------------------')
-            pass
-            # source = cls.get_source_by_pid(source_uuid, with_deleted=False)
-        print('!!!!!!!!!!!!!!!!!!!!!!! ',data)
+        if source_uuid:
+            # if uuid is in
+            try:
+                persistent_identifier, source = resolver.resolve(str(source_uuid))
+                if source:
+                    print("{0}={1} found".format(pids.SOURCE_UUID_PID_TYPE, source_uuid))
+                    source.update(data, dbcommit=dbcommit, reindex=reindex)
+                    return source, 'updated'
+            except (PIDDeletedError, NoResultFound) as ex:
+                cls.delete_pid_without_object(pids.SOURCE_UUID_PID_TYPE, str(source_uuid))
+                print('#### cls.delete_all_pids_without_object(data[pids.IDENTIFIERS_FIELD])')
+            except PIDDoesNotExistError as pidno:
+                print("PIDDoesNotExistError:  {0} == {1}".format(pids.SOURCE_UUID_PID_TYPE, str(source_uuid)))
+            except Exception as e:
+                print('-------------------------------')
+                # print(str(e))
+                print(traceback.format_exc())
+                print('-------------------------------')
+                pass
+                # source = cls.get_source_by_pid(source_uuid, with_deleted=False)
+            print('!!!!!!!!!!!!!!!!!!!!!!! ',data)
         if pids.IDENTIFIERS_FIELD in data:
-            for schema in identifiers_schemas:
-                if schema in data[pids.IDENTIFIERS_FIELD]:
-                    resolver.pid_type = schema
-                    try:
-                        persistent_identifier, source = resolver.resolve(str(data[pids.IDENTIFIERS_FIELD][schema]))
-                        if source:
-                            print("{0}={1} found".format(schema, str(data[pids.IDENTIFIERS_FIELD][schema])))
-                            source.update(data, dbcommit=dbcommit, reindex=reindex)
-                            return source, 'updated'
-                    except PIDDoesNotExistError as pidno:
-                            print("PIDDoesNotExistError:  {0} == {1}".format(schema, str(data[pids.IDENTIFIERS_FIELD][schema])))
-                    except (PIDDeletedError, NoResultFound) as ex:
-                        cls.delete_pids_without_object(data[pids.IDENTIFIERS_FIELD])
-                    except Exception as e:
-                        print('-------------------------------')
-                        # print(str(e))
-                        print(traceback.format_exc())
-                        print('-------------------------------')
-                        pass
-            # source = cls.get_record_by_data(data)
+            # if not uuid, find any persistent identifier in data.
+            print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
+            for identifier in data[pids.IDENTIFIERS_FIELD]:
+                try:
+                    pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                    pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                    resolver.pid_type = pid_type
+                    persistent_identifier, source = resolver.resolve(pid_value)
+                    if source:
+                        print("{0}={1} found".format(pid_type, pid_value))
+                        source.update(data, dbcommit=dbcommit, reindex=reindex)
+                        return source, 'updated'
+                except PIDDoesNotExistError as pidno:
+                        print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
+                except (PIDDeletedError, NoResultFound) as ex:
+                    cls.delete_pid_without_object(pid_type, pid_value)
+                except Exception as e:
+                    print('-------------------------------')
+                    # print(str(e))
+                    print(traceback.format_exc())
+                    print('-------------------------------')
+                    pass
+
+        # if here, means any persisten identifier is not created, so, create the source!!!
         print("no pids found, create source")
+        source_uuid = uuid4()
+        data[pids.SOURCE_UUID_FIELD] = str(source_uuid)
         created_source = cls.create(data, id_=source_uuid, dbcommit=dbcommit, reindex=reindex)
         return created_source, 'created'
 
+
     @classmethod
-    def delete_pids_without_object(cls, pid_list):
+    def delete_pid_without_object(cls, pid_type, pid_value):
+
+        try:
+            pid_item = PersistentIdentifier.get(pid_type, pid_value)
+            pid_item.status = PIDStatus.NEW
+            # print('getting pid item: ')
+            if pid_item.delete():
+                db.session.commit()
+            # print("***************** DELETED!!!!")
+        except PIDDoesNotExistError:
+            print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
+        except Exception as e:
+            print("-------- DELETING PID ERROR ------------")
+            print(traceback.format_exc())
+
+    @classmethod
+    def delete_all_pids_without_object(cls, pid_list):
         try:
             print('pids list: ')
             print(pid_list)
             if pid_list and len(pid_list) > 0:
                 for identifier in pid_list:
-                    pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
-                    pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
-                    # print('pid type deleting: ')
-                    # print(pid_type)
-                    # print(pid_value)
-                    pid_item = PersistentIdentifier.get(pid_type, pid_value)
-                    pid_item.status = PIDStatus.NEW
-                    # print('getting pid item: ')
-
-                    if pid_item.delete():
-                        db.session.commit()
+                    try:
+                        pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                        pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                        # print('pid type deleting: ')
+                        # print(pid_type)
+                        # print(pid_value)
+                        pid_item = PersistentIdentifier.get(pid_type, pid_value)
+                        pid_item.status = PIDStatus.NEW
+                        # print('getting pid item: ')
+                        if pid_item.delete():
+                            db.session.commit()
                         # print("***************** DELETED!!!!")
+                    except PIDDoesNotExistError:
+                        print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
         except Exception as e:
             print("-------- DELETING PID ERROR ------------")
             print(traceback.format_exc())
@@ -130,9 +152,7 @@ class IrokoSource(Record):
         source = super(IrokoSource, cls).create(data=data, id_=id_, **kwargs)
         print('%%%%%%%%%')
         if dbcommit:
-            db.session.commit()
-            if reindex:
-                RecordIndexer().index(source)
+            source.dbcommit(reindex)
         return source
 
     @classmethod
@@ -168,10 +188,7 @@ class IrokoSource(Record):
             #     persistent_identifier.object_uuid, with_deleted=with_deleted
             # )
         except (PIDDeletedError, NoResultFound) as ex:
-            identifier = dict()
-            identifier[pids.IDENTIFIERS_FIELD_TYPE] = pids.SOURCE_UUID_PID_TYPE
-            identifier[pids.IDENTIFIERS_FIELD_VALUE] = str(pid)
-            cls.delete_pids_without_object([identifier])
+            cls.delete_pid_without_object(pids.SOURCE_UUID_PID_TYPE, str(pid))
         except PIDDoesNotExistError:
             return None
 
@@ -212,7 +229,7 @@ class IrokoSource(Record):
                         pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
                     except PIDDoesNotExistError:
                         print('!!!!!!!')
-                        iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'],
+                        iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
                                                                                    object_type=pids.SOURCE_TYPE,
                                                                                    object_uuid=self.id, data=data)
 
@@ -457,8 +474,7 @@ class Sources:
         return False, None
 
     @classmethod
-    def insert_new_source(cls, json_data, source_status=SourceStatus.TO_REVIEW, user=None) -> Dict[
-        Dict[bool, str], Source]:
+    def insert_new_source(cls, json_data, source_status=SourceStatus.TO_REVIEW, user=None):
         """Insert new Source and an associated SourceVersion
             return [success, message, source]
         """
@@ -474,8 +490,8 @@ class Sources:
         else:
             user_id = user.id
 
-        # IrokoSource.create_or_update(None, json_data, dbcommit=True, reindex=False)
-        # return "IrokoSource.create_or_update"
+        created_source, msg = IrokoSource.create_or_update(None, json_data, dbcommit=True, reindex=False)
+        return created_source, msg
 
         print('user {0}'.format(user_id))
         try:

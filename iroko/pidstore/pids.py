@@ -24,9 +24,9 @@ IDENTIFIERS_FIELD = "identifiers"
 IDENTIFIERS_FIELD_TYPE = "idtype"
 IDENTIFIERS_FIELD_VALUE = "value"
 
-SOURCE_UUID_FIELD = "source_uuid"
+SOURCE_UUID_FIELD = "id"
 
-SOURCE_TYPE = "src"
+SOURCE_TYPE = "rec"
 
 SOURCE_UUID_PID_TYPE = "srcid"
 """Persistent Identifier for Source."""
