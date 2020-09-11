@@ -1,12 +1,11 @@
 
-from marshmallow import Schema, fields, pre_dump, post_load, post_dump, INCLUDE
+from marshmallow import Schema, fields, post_dump, INCLUDE
+
+from iroko.sources.marshmallow.base import SourceDataSchema
+from iroko.sources.models import Issn
 
 
 # from iroko.harvester.api import SecundarySourceHarvester
-
-from iroko.sources.marshmallow.base import SourceDataSchema
-
-from iroko.sources.models import Issn
 
 
 class SocialNetworksSchema(Schema):
@@ -29,8 +28,6 @@ class ISSNSchema(Schema):
 
     @post_dump
     def fill_issn_org(self, issn, **kwargs):
-        # TODO: replace this by database query !!!
-        # issns_with_info = SecundarySourceHarvester.get_cuban_issns()
         for v in ['p','e','l']:
             if v in issn:
                 issn_org = Issn.query.filter_by(code = issn[v]).first()

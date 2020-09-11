@@ -1,23 +1,15 @@
-
-import requests
 import os
 import shutil
-
 from zipfile import ZipFile
 
-from iroko.harvester.oai.harvester import OaiHarvester
-from iroko.harvester.oai.archivist import Archivist
-from iroko.harvester.models import Repository, HarvestedItemStatus
-import iroko.harvester.utils as  utils
-from iroko.sources.models import Source
-
 from flask import current_app
-import json
-
 from lxml import etree
 
-from iroko.harvester.html.issn import IssnHarvester
-from iroko.harvester.html.miar import MiarHarvester
+import iroko.harvester.utils as  utils
+from iroko.harvester.models import Repository, HarvestedItemStatus
+from iroko.harvester.oai.archivist import Archivist
+from iroko.harvester.oai.harvester import OaiHarvester
+from iroko.sources.models import Source
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
@@ -138,43 +130,3 @@ class PrimarySourceHarvester(object):
             if step <= 2:
                 harvester.process_items()
 
-
-class SecundarySourceHarvester:
-    """top level harvester for the secundary sources, issn, miar, etc...
-    this should include sec sources for primary sources (issn, miar,...)
-    and secundary sources for harvested items (dimensions, crossref, ...)
-    """
-
-    @staticmethod
-    def process_issn(remoteissns=True, remoteinfo=True, info=True):
-
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
-        harvester = IssnHarvester(work_dir)
-
-        issns = harvester.get_cuban_issns_json(remoteissns)
-
-        if info:
-            infos = harvester.get_cuban_issns_info_json(issns, remoteinfo)
-            # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario sea issn...
-
-    @staticmethod
-    def harvest_miar(recheck=True):
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
-        print(work_dir)
-        if not recheck:
-            harvester = MiarHarvester(work_dir, True)
-        else:
-            print('recheck is True')
-            harvester = MiarHarvester(work_dir, False)
-            harvester.get_info_database_recheck()
-        # crear el vocabulario miar_databases
-
-    @staticmethod
-    def get_cuban_issns():
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
-        harvester = IssnHarvester(work_dir)
-
-        issns = harvester.get_cuban_issns_json(False)
-        infos = harvester.get_cuban_issns_info_json(issns, False)
-
-        return infos

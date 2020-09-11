@@ -92,6 +92,7 @@ class SourceVersion(db.Model):
     user = db.relationship(User, backref='iroko_source_versions')
 
     source_uuid = db.Column(UUIDType, nullable=False)
+
     #
     # source_id = db.Column(db.Integer, db.ForeignKey(
     #     Source.id, name='fk_iroko_source_versions_source_id'))
@@ -103,7 +104,6 @@ class SourceVersion(db.Model):
     #                                             lazy='dynamic',
     #                                             order_by='SourceVersion.created_at.desc()')
     #                          )
-
     comment = db.Column(db.String)
 
     # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en las bases de datos.
@@ -121,6 +121,8 @@ class SourceVersion(db.Model):
     def __str__(self):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
+
+
 
 
 class Issn(db.Model):

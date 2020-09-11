@@ -4,8 +4,8 @@ from invenio_records_rest.schemas import StrictKeysMixin
 from invenio_records_rest.schemas.fields import SanitizedUnicode, PersistentIdentifier
 from marshmallow import Schema, fields, post_dump, INCLUDE
 
-from iroko.taxonomy.api import Terms
-from iroko.taxonomy.marshmallow import term_schema
+from iroko.vocabularies.api import Terms
+from iroko.vocabularies.marshmallow import term_schema
 
 
 class IdentifierSchema(StrictKeysMixin):

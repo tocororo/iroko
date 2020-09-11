@@ -1,6 +1,7 @@
 
-from marshmallow import Schema, fields, ValidationError, pre_load, pre_dump, post_load, post_dump
-from iroko.taxonomy.models import Vocabulary, Term, TermClasification
+from marshmallow import Schema, fields, pre_load, pre_dump, post_load
+
+from iroko.vocabularies.models import Term, TermClasification
 
 
 class VocabularySchema(Schema):

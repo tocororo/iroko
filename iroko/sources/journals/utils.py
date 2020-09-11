@@ -3,9 +3,7 @@ Helper function to several task related to Sources, sources types,
  sources fields, etc..
 """
 
-from invenio_db import db
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
-from iroko.taxonomy.models import Term
+from iroko.sources.models import Source
 
 
 def _no_params(param_data):

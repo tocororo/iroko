@@ -1,11 +1,16 @@
 
 """Source search APIs."""
 
+from elasticsearch_dsl.query import Q
 from invenio_search import RecordsSearch
+from invenio_search.api import DefaultFilter
 
-from iroko.taxonomy.api import Terms
-from iroko.taxonomy.models import Term
 
+def approveds_filter():
+    """Filter approved sources."""
+    return Q('bool', filter=[
+        Q('match', **{'source_status': 'UNOFFICIAL'})
+    ])
 
 class SourceSearch(RecordsSearch):
     """RecordsSearch for sources."""
@@ -15,24 +20,12 @@ class SourceSearch(RecordsSearch):
 
         index = "sources"
         doc_types = None
-
-    def search_by_pid(self, *pids):
-        """Retrieve sources with the given pid(s)."""
-        return self.filter("terms", pid=pids)
-
-    # @classmethod
-    # def get_organization_buckets(cls, organizationUUID):
-    #     term = Terms.get_term(organizationUUID)
-
-    #     if term:
+        default_filter=DefaultFilter(approveds_filter)
 
 
-    #         query_body = {
-    #             "query": {
-    #                 "terms": {
-    #                     "relations.uuid": terms
-    #                 }
-    #             }
-    #         }
-    #         return cls.from_dict(query_body).execute()
 
+
+        # if ids is not None:
+        #     return list(map(lambda x: x, search.get_records(ids=ids)))
+        # else:
+        #     return list(map(lambda x: x, search.scan()))

@@ -10,25 +10,29 @@
 
 from __future__ import absolute_import, print_function
 
+from flask_admin.form.widgets import Select2Widget
 from flask_babelex import lazy_gettext as _
 from flask_login import current_user
-from flask import current_app
-from flask_security.forms import email_required, email_validator, \
-    unique_user_email
-from flask_wtf import FlaskForm, RecaptchaField
-from flask_wtf.file import FileField, FileRequired, FileAllowed
-#from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
+from flask_security.forms import (
+    email_required, email_validator,
+    unique_user_email,
+)
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
+# from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 from sqlalchemy.orm.exc import NoResultFound
-from wtforms import FormField, StringField, SubmitField, TextField, TextAreaField, SelectField, validators
-from wtforms.validators import DataRequired, EqualTo, StopValidation, \
-    ValidationError
-from flask_admin.form.widgets import Select2Widget
-from iroko.taxonomy.api import Terms
+from wtforms import FormField, StringField, SubmitField, TextAreaField, validators
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms.validators import (
+    DataRequired, EqualTo, StopValidation,
+    ValidationError,
+)
+
+from iroko.vocabularies.api import Terms
 from .api import current_userprofile, current_userprofile_json_metadata
 from .models import UserProfile
 from .validators import USERNAME_RULES, validate_username
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_admin.form.widgets import Select2Widget
+
 
 #photos = UploadSet('photos', IMAGES)
 
@@ -64,12 +68,12 @@ class ProfileForm(FlaskForm):
         # NOTE: Form label
         _('Full name'),
         filters=[strip_filter], )
-    
+
     avatar = FileField(_(
-        'Avatar'), 
-        description=_('An imagen for representing yourself')        
-        )    
-    
+        'Avatar'),
+        description=_('An imagen for representing yourself')
+        )
+
     biography = TextAreaField(
         _('Biography'),
         description=_('Short description of your biography'),
@@ -77,11 +81,11 @@ class ProfileForm(FlaskForm):
     )
 
     institution = QuerySelectField(
-        label=_('Institution'),    
-        query_factory=lambda: Terms.get_terms_by_vocabulary_name('institutions'),            
+        label=_('Institution'),
+        query_factory=lambda: Terms.get_terms_by_vocabulary_name('institutions'),
         widget=Select2Widget(),
-        allow_blank=True,        
-        blank_text=_('Select Institution')        
+        allow_blank=True,
+        blank_text=_('Select Institution')
     )
 
     institution_rol = StringField(
@@ -91,7 +95,7 @@ class ProfileForm(FlaskForm):
 
     def validate_username(form, field):
         """Wrap username validator for WTForms."""
-        try:            
+        try:
             validate_username(field.data)
         except ValueError as e:
             raise ValidationError(e)
@@ -105,13 +109,13 @@ class ProfileForm(FlaskForm):
                 raise ValidationError(_('Username already exists.'))
         except NoResultFound:
             return
-    
+
     def __init__(self, formdata=None, **kwargs):
-        super(ProfileForm, self).__init__(formdata, **kwargs)        
-        if not current_userprofile.is_anonymous and current_userprofile_json_metadata:            
-            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])  
+        super(ProfileForm, self).__init__(formdata, **kwargs)
+        if not current_userprofile.is_anonymous and current_userprofile_json_metadata:
+            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
             if institution:
-                self.institution.data = institution          
+                self.institution.data = institution
 
 
 

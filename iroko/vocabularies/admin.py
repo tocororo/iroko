@@ -28,6 +28,7 @@ from flask_admin.contrib.sqla import ModelView
 
 from .models import Vocabulary, Term
 
+
 class VocabularyModelView(ModelView):
     """View for managing vocabularies."""
 

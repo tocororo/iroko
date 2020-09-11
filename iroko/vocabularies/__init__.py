@@ -22,4 +22,8 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Iroko issn."""
+"""Iroko vocabularies."""
+
+
+# TODO: the hole module should be renamed to vocabularies, and should support skos....
+

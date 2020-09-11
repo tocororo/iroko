@@ -171,7 +171,7 @@ class IrokoSourceUUIDProvider(BaseProvider):
 
 
 # class IrokoSourceSourceRecordProvider(BaseProvider):
-#     """Provider to relate Iroko's table Source, with IrokoSource in invenio Records ."""
+#     """Provider to relate Iroko's table Source, with SourceRecord in invenio Records ."""
 #     # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
 
 #     pid_type = pids.SOURCE_UUID_PID_TYPE

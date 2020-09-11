@@ -4,7 +4,7 @@
   "title": "Schema Source",
   "type": "object",
   "additionalProperties": true,
-  "required": ["identifiers", "id", "title"],
+  "required": ["identifiers", "id", "title", "source_status", "source_type"],
   "properties": {
     "id": {
       "description": "Source UUID , pid_type = srcid",
@@ -112,9 +112,13 @@
             "type": "string",
             "description": "identifier the term related to this source"
           },
-          "name": {
+          "description": {
             "type": "string",
             "description": "the name of the term related to this source"
+          },
+          "vocabulary": {
+            "type": "string",
+            "description": "the vocabulary of the classification"
           }
         }
       }

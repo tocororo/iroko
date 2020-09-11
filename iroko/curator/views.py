@@ -2,22 +2,18 @@
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
-from flask import Blueprint, request, render_template, flash, url_for, redirect
-from flask_login import login_required
-from flask_babelex import lazy_gettext as _
-from iroko.sources.models import Source, SourceType
-from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-from iroko.sources.marshmallow.source import source_schema_many
-from os import listdir, path
-from .forms import VocabularyForm, TermForm, SourceForm
-from .api import create_vocabulary
-from invenio_db import db
-import uuid
-from flask_admin.contrib.sqla import ModelView
-from flask_security import current_user
-from iroko.curator.permissions import vocabulary_create_permission, source_create_permission
 
+from flask import Blueprint, request, render_template, flash, url_for, redirect
+from flask_babelex import lazy_gettext as _
+from flask_login import login_required
+from flask_security import current_user
+from invenio_db import db
+
+from iroko.curator.permissions import vocabulary_create_permission, source_create_permission
+from iroko.sources.models import Source
 from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.vocabularies.models import Vocabulary, Term, TermClasification
+from .forms import VocabularyForm, TermForm, SourceForm
 
 blueprint = Blueprint(
     'iroko_curator',

@@ -1,23 +1,20 @@
 from typing import Dict
 
-import enum
-
+from flask_babelex import lazy_gettext as _
+from flask_login import current_user
+from invenio_access import Permission
+from invenio_access.models import ActionUsers
+from invenio_access.utils import get_identity
+from invenio_accounts.models import User
 from invenio_db import db
 from sqlalchemy import exc as sqlalchemyExc
-from invenio_access.utils import get_identity
-from flask_login import current_user
-from iroko.taxonomy.models import Vocabulary, Term, TermClasification
-from iroko.sources.models import TermSources
-from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema, term_node_schema, term_node_schema_many, term_schema_no_clases
-from flask_babelex import lazy_gettext as _
-from marshmallow import ValidationError
-from invenio_access import Permission
-from invenio_access.models import ActionRoles, ActionUsers
-from invenio_accounts.models import User
-from iroko.taxonomy.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
-from sqlalchemy import func, desc
 
+from iroko.sources.models import TermSources
 from iroko.utils import string_as_identifier
+from iroko.vocabularies.marshmallow import vocabulary_schema, term_schema, term_node_schema
+from iroko.vocabularies.models import Vocabulary, Term, TermClasification
+from iroko.vocabularies.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
+
 
 #TODO: Revisar lanzamientos de excepciones
 
@@ -475,7 +472,7 @@ class Terms:
 
 def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
     """
-    Checks from ActionUsers if current_user has taxonomy_full_editor_actions,
+    Checks from ActionUsers if current_user has vocabularies_full_editor_actions,
     that way it has full permissions over vocabularies and terms
     if not, then:
         checks if it has vocabulary_editor_actions,
@@ -483,7 +480,7 @@ def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
     """
     vocabularies_ids = []
     if is_current_user_taxonomy_admin():
-        return 'actions', {'taxonomy_full_editor_actions': None}
+        return 'actions', {'vocabularies_full_editor_actions': None}
     else:
         actions = ActionUsers.query.filter_by(
             user=current_user,
@@ -498,7 +495,7 @@ def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
 
 def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
     """
-    Checks from ActionUsers if current_user has taxonomy_full_editor_actions,
+    Checks from ActionUsers if current_user has vocabularies_full_editor_actions,
     that way it has full permissions over vocabularies and terms
     if not, then:
         checks if it has vocabulary_editor_actions,
@@ -509,7 +506,7 @@ def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
     """
     vocabularies_ids = []
     if is_current_user_taxonomy_admin():
-        return 'actions', {'taxonomy_full_editor_actions': None}
+        return 'actions', {'vocabularies_full_editor_actions': None}
     else:
         actions = ActionUsers.query.filter_by(
             user=current_user,

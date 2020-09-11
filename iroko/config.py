@@ -21,13 +21,13 @@ from datetime import timedelta
 from invenio_indexer.api import RecordIndexer
 from invenio_oauthclient.contrib import orcid
 from invenio_records_rest.facets import terms_filter
-from invenio_records_rest.utils import allow_all, check_elasticsearch
+from invenio_records_rest.utils import allow_all, deny_all, check_elasticsearch
 
 from iroko.deployment import *
 from iroko.pidstore import pids as pids
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
-from iroko.sources.api import IrokoSource
+from iroko.sources.api import SourceRecord
 from iroko.sources.search import SourceSearch
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -183,7 +183,7 @@ _RECORD_CONVERTER = (
     'pid(irouid, record_class="iroko.records.api:IrokoRecord")'
 )
 _SOURCE_CONVERTER = (
-    'pid(srcid, record_class="iroko.sources.api:IrokoSource")'
+    'pid(srcid, record_class="iroko.sources.api:SourceRecord")'
 )
 
 RECORDS_REST_ENDPOINTS = dict(
@@ -211,10 +211,10 @@ RECORDS_REST_ENDPOINTS = dict(
         default_media_type="application/json",
         max_result_window=10000,
         error_handlers=dict(),
-        create_permission_factory_imp=allow_all,
+        create_permission_factory_imp=deny_all,
         read_permission_factory_imp=check_elasticsearch,
-        update_permission_factory_imp=allow_all,
-        delete_permission_factory_imp=allow_all,
+        update_permission_factory_imp=deny_all,
+        delete_permission_factory_imp=deny_all,
         list_permission_factory_imp=allow_all,
         suggesters=dict(
             title=dict(
@@ -230,7 +230,7 @@ RECORDS_REST_ENDPOINTS = dict(
         pid_minter=pids.SOURCE_UUID_PID_MINTER,
         pid_fetcher=pids.SOURCE_UUID_PID_FETCHER,
         search_class=SourceSearch,
-        record_class=IrokoSource,
+        record_class=SourceRecord,
         indexer_class=RecordIndexer,
         record_loaders={
             "application/json": ("iroko.sources.marshmallow.source_v1"
@@ -249,10 +249,10 @@ RECORDS_REST_ENDPOINTS = dict(
         default_media_type="application/json",
         max_result_window=10000,
         error_handlers=dict(),
-        create_permission_factory_imp=allow_all,
+        create_permission_factory_imp=deny_all,
         read_permission_factory_imp=check_elasticsearch,
-        update_permission_factory_imp=allow_all,
-        delete_permission_factory_imp=allow_all,
+        update_permission_factory_imp= deny_all,
+        delete_permission_factory_imp=deny_all,
         list_permission_factory_imp=allow_all,
     )
 )
@@ -314,20 +314,12 @@ RECORDS_REST_FACETS = dict(
     ,
     sources=dict(
         filters=dict(
-            source_type=terms_filter('source_type'),
-            source_status=terms_filter('source_status'),
-            relations=terms_filter('relations.uuid')
+            source_type=terms_filter('source_type')
         ),
         aggs=dict(
             source_type=dict(
                 terms=dict(
                     field='source_type',
-                    size=5
-                )
-            ),
-            source_status=dict(
-                terms=dict(
-                    field='source_status',
                     size=5
                 )
             )

@@ -10,25 +10,23 @@
 
 from __future__ import absolute_import, print_function
 
-import os
-import requests
-
-from flask import Blueprint, current_app, render_template, url_for, redirect, send_from_directory,send_file, request, flash
-from flask_menu import register_menu
-from iroko.sources.api import Sources
-from iroko.sources.marshmallow.source import source_schema_many
-from iroko.sources.models import Source, SourceType
-from iroko.taxonomy.models import Vocabulary, Term
-from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, HarvestType
-from invenio_i18n.selectors import get_locale
-from flask_babelex import lazy_gettext as _
-from iroko.records.api import IrokoAggs
-from iroko.utils import send_contact_email
 import json
+import os
+
 import mistune
-from iroko.iroko_theme.forms import ContactForm, IrokoSearchForm
+import requests
+from flask import Blueprint, current_app, render_template, redirect, send_file, request, flash
+from flask_babelex import lazy_gettext as _
+from invenio_i18n.selectors import get_locale
+
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
+from iroko.iroko_theme.forms import ContactForm
+from iroko.records.api import IrokoAggs
+from iroko.sources.api import SourceRecord
+from iroko.utils import send_contact_email
+from iroko.vocabularies.models import Vocabulary, Term
+
 # from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
-from flask_cors import cross_origin
 
 blueprint = Blueprint(
     'iroko_theme',
@@ -138,9 +136,9 @@ def politicas():
 
 @blueprint.route('/source/<uuid>')
 def view_source_id(uuid):
-    src = Sources.get_source_by_id(uuid=uuid)
-    source = source_schema_many.dump(src)
-    return render_template('iroko_theme/sources/source.html', source=source.data)
+    src = SourceRecord.get_record(uuid)
+    # source = source_schema_many.dump(src)
+    return render_template('iroko_theme/sources/source.html', source=src)
 
 @blueprint.route('/aggr/sources')
 def view_aggr_sources():
@@ -163,9 +161,9 @@ def static_page(slug):
     # 1- load static_pages.json
     # 2- search the slug
     # 3- render appropiate md file (including language....)
-    
+
     slugs = {}
-    aux_text = '' 
+    aux_text = ''
     basedir = os.path.abspath(os.path.dirname(__file__))
     data_file = os.path.join(basedir, 'static/js/large.js')
 
@@ -246,14 +244,14 @@ def valid(form):
     if form.get('message').strip() == '':
         return False
     return True
-    
+
 
 @blueprint.route('/send_mail_contact', methods=['POST'])
 def send_mail_contact():
     if request.method == 'POST':
         form = ContactForm()
-        
-        name = request.form.get('name')        
+
+        name = request.form.get('name')
         email = request.form.get('email')
         message = request.form.get('message')
         captcha_response = request.form.get('g-recaptcha-response')
@@ -263,14 +261,14 @@ def send_mail_contact():
             redirect('/#divcontacto')
 
         if is_human(captcha_response):
-            try:                
+            try:
                 send_contact_email(name, email, message)
                 flash(_('Su mensaje ha sido enviado...'), 'info')
             except Exception as e:
                 flash(_('Lo sentimos, no fue posible enviar el mensaje...'), 'danger')
         else:
             flash('Show you are not a bot, bots are not allowed.', 'danger')
-            return index(form=request.form)            
+            return index(form=request.form)
     else:
         flash(_('Forma incorrecta para intentar enviar el mensaje'), 'danger')
 

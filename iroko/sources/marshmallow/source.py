@@ -4,6 +4,7 @@ from marshmallow_enum import EnumField
 from sqlalchemy import desc
 
 from iroko.harvester.marshmallow import RepositorySchema
+from iroko.sources.api import SourceRecord
 from iroko.sources.marshmallow.base import source_data_schema, IrokoUserSchema, TermSourcesSchema, SourceDataSchema
 from iroko.sources.marshmallow.journal import journal_data_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
@@ -23,7 +24,8 @@ class SourceVersionSchema(Schema):
     @post_dump(pass_original=True)
     def fix_data_field(self, result, version:SourceVersion, **kwargs):
 
-        if version.source.source_type == SourceType.JOURNAL:
+        source = SourceRecord.get_record(version.source_uuid)
+        if source.model.json['source_type'] == SourceType.JOURNAL:
             data = journal_data_schema.dump(version.data)
         else:
             data =source_data_schema.dump(version.data)

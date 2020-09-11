@@ -52,7 +52,7 @@
             "id": {
               "type": "keyword"
             },
-            "name": {
+            "description": {
               "type": "keyword"
             }
           }

@@ -1,36 +1,26 @@
 
 from __future__ import absolute_import, division, print_function
 
-import click
-import sys
-from datetime import date
-
-from flask.cli import with_appcontext
 import traceback
 
+import click
+from flask import current_app
+from flask.cli import with_appcontext
+
+from iroko.harvester.api import PrimarySourceHarvester
+from iroko.harvester.models import HarvestType, HarvestedItemStatus, Repository
+from iroko.harvester.oai.harvester import OaiHarvester
 # from iroko.documents.api import Document
 from iroko.sources.models import Source
-from iroko.harvester.models import HarvestType, HarvestedItemStatus
+
+
 # from iroko.documents.dojson.dc import create_dict
 # from iroko.oaiharvester.api import get_records, get_sets, get_records_dates
-
 # from sickle import Sickle
 # from sickle.oaiexceptions import BadArgument
-
 # from .formats.dc import marshmallow
-
 # from iroko.harvester.processors.oai.iterator import OaiIterator
 # from iroko.harvester.processors.oai.formaters import DubliCoreElements
-
-from iroko.harvester.oai.harvester import OaiHarvester
-
-from iroko.harvester.api import PrimarySourceHarvester, SecundarySourceHarvester
-from iroko.harvester.tasks import harvest_source_task
-from iroko.harvester.models import Repository
-from iroko.harvester.html.issn import IssnHarvester
-from iroko.harvester.html.miar import MiarHarvester
-from flask import current_app
-from invenio_db import db
 
 @click.group()
 def harvester():
@@ -124,52 +114,3 @@ def harvestall():
                 print("{0} - {1} - {2}".format(source.id, source.name, repo.status))
                 print('###########################')
 
-@harvester.command()
-@click.option('-ri', '--remoteissns', required=False, type=bool)
-@click.option('-rf', '--remoteinfo', required=False, type=bool)
-@click.option('-i', '--info', required=False, type=bool)
-@with_appcontext
-def issn(remoteissns, remoteinfo, info):
-    """get all cuban issn from issn.org and create/update respective source versions"""
-    SecundarySourceHarvester.process_issn(remoteissns, remoteinfo, info)
-
-
-@harvester.command()
-@click.option('-rc', '--recheck', required=False, type=bool)
-@with_appcontext
-def miar(recheck):
-    """get all info from miar"""
-    SecundarySourceHarvester.harvest_miar(recheck)
-
-
-@harvester.command()
-@with_appcontext
-def syncissn():
-    work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
-    issn_harvester = IssnHarvester(work_dir)
-
-    issn_harvester.syncronize_files_issn_model()
-
-
-@harvester.command()
-@with_appcontext
-def miarcollectjournals():
-
-    work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
-
-    miar_harvester = MiarHarvester(work_dir)
-
-    miar_harvester.collect_miar_info()
-
-
-@harvester.command()
-@with_appcontext
-def syncmiar():
-    work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
-    miar_harvester = MiarHarvester(work_dir)
-    issn_harvester = IssnHarvester(work_dir)
-
-    miar_harvester.syncronize_miar_databases()
-    print("************** database names sync finish")
-    miar_harvester.syncronize_miar_journals(issn_harvester.cuban_issn_file)
-    print("************** syncronize_miar_journals  sync finish")

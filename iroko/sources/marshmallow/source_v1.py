@@ -4,8 +4,10 @@ from invenio_records_rest.loaders.marshmallow import marshmallow_loader
 from invenio_records_rest.schemas import StrictKeysMixin
 from invenio_records_rest.schemas.fields import PersistentIdentifier
 from invenio_records_rest.serializers.json import JSONSerializer
-from invenio_records_rest.serializers.response import record_responsify, \
-    search_responsify
+from invenio_records_rest.serializers.response import (
+    record_responsify,
+    search_responsify,
+)
 from marshmallow import fields
 
 from iroko.sources.marshmallow.journal import JournalDataSchema
@@ -25,6 +27,7 @@ class SourceSchemaV1(StrictKeysMixin):
     links = fields.Dict(dump_only=True)
     id = PersistentIdentifier()
 
+source_data_schema_many = SourceDataSchemaV1(many=True)
 
 source_loader_v1 = marshmallow_loader(SourceDataSchemaV1)
 

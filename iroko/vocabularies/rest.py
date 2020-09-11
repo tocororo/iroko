@@ -22,30 +22,29 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Iroko taxonomy api views."""
+"""Iroko vocabularies api views."""
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, jsonify, request, json
+from flask import Blueprint, request
 from flask_login import current_user
 from flask_principal import PermissionDenied
-
 from invenio_oauth2server import require_api_auth
 
-from iroko.taxonomy.models import Vocabulary, Term
-from iroko.taxonomy.marshmallow import vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema, term_node_schema
-
-from iroko.utils import iroko_json_response, IrokoResponseStatus
-
-from iroko.taxonomy.api import Vocabularies, Terms, get_current_user_permissions
-from iroko.taxonomy.permissions import vocabulary_editor_permission_factory
 from iroko.decorators import taxonomy_admin_required
-
+from iroko.utils import iroko_json_response, IrokoResponseStatus
+from iroko.vocabularies.api import Vocabularies, Terms, get_current_user_permissions
+from iroko.vocabularies.marshmallow import (
+    vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema,
+    term_node_schema,
+)
+from iroko.vocabularies.models import Vocabulary
+from iroko.vocabularies.permissions import vocabulary_editor_permission_factory
 
 api_blueprint = Blueprint(
     'iroko_api_taxonomys',
     __name__,
-    url_prefix='/taxonomy'
+    url_prefix='/vocabularies'
 )
 
 @api_blueprint.route('/vocabulary/list')
