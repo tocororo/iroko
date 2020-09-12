@@ -11,6 +11,9 @@
 [elastic]
 10.154.178.11
 
+[sceiba-invenio]
+10.154.178.12
+
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
 
