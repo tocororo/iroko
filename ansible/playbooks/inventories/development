@@ -8,6 +8,8 @@
 [rabbit]
 10.154.178.10
 
+[elastic]
+10.154.178.11
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
