@@ -20,7 +20,6 @@ from iroko.sources.api import (
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
 )
-from iroko.sources.marshmallow.source_v1 import source_data_schema_many
 from iroko.sources.models import SourceStatus
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
@@ -252,14 +251,22 @@ def get_sources_from_user_as_manager(role, status):
             search = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
         else:
             raise Exception("role should be manager or editor")
+        ss = search[offset:limit].execute()
+        resp = []
+        for h in ss:
+            resp.append({'id':h.id, 'title':h.title, 'source_status':h.source_status, 'version_to_review':'true'})
 
+        #TODO: hay que buscar una manera de hacerlo por aqui
+        # source_v1.serialize_search(
+        #     iroko_source_uuid_fetcher, ss
+        # )
         response = iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             'ok',
             'sources',
-            {'total': search.count(), 'hits': source_data_schema_many.dump(search[offset:limit].execute())}
+            {'total': search.count(), 'hits': resp}
         )
-        print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response
 
     except Exception as e:

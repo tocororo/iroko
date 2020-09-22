@@ -12,7 +12,8 @@ from iroko.harvester.base import Formater
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository
 from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
 from iroko.records.api import IrokoRecord
-from iroko.sources.models import Source
+# from iroko.sources.models import Source
+from iroko.sources.api import SourceRecord
 from iroko.utils import IrokoVocabularyIdentifiers
 from iroko.vocabularies.models import Term, Vocabulary
 
@@ -63,7 +64,8 @@ class Archivist:
 
     def __init__(self, source_id):
 
-        self.source = Source.query.filter_by(id=source_id).first()
+        self.source =  SourceRecord.get_record(source_id)
+        # Source.query.filter_by(id=source_id).first()
         if not self.source:
             raise Exception(
                 "You passed the ID={0}, but is not valid. You cannot instantiate an Archivist without a valid Source".format(
@@ -71,22 +73,22 @@ class Archivist:
                 )
             )
 
-        self.repository = Repository.query.filter_by(source_id=self.source.id).first()
+        self.repository = Repository.query.filter_by(source_uuid=self.source.id).first()
         if not self.repository:
             raise Exception(
                 "Source {0}-{1}, has not a associated Repository. You cannot instantiate an Archivist without an associated Repository".format(
-                    self.source.id, self.source.name
+                    self.source.id, self.source.model.json['title']
                 )
             )
 
         self.working_dir = os.path.join(
             current_app.config["IROKO_TEMP_DIRECTORY"],
-            "iroko-harvest-" + str(self.source.uuid)
+            "iroko-harvest-" + str(self.source.id)
         )
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
         zip_path = os.path.join(
-            current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(self.source.uuid)
+            current_app.config["HARVESTER_DATA_DIRECTORY"] ,str(self.source.id)
         )
         try:
             with ZipFile(zip_path, "r") as zipOpj:
@@ -94,14 +96,14 @@ class Archivist:
         except Exception as exc:
             raise Exception(
                 "ZipFile.extractall({0}) rise an Exception. Source {1}-{2}. You cannot instantiate an Archivist without unzip {0}. ZipFile Exception:  ####### {3} #######".format(
-                    zip_path, self.source.id, self.source.name, traceback.format_exc()
+                    zip_path, self.source.id, self.source.model.json['title'], traceback.format_exc()
                 )
             )
 
         if not self._check_source_harvested_identification():
             raise Exception(
                 "Source {0}-{1}. Repository harvest_endpoint or identifier is not equal to the values in the zip file. Digg into this to instantiate the Archivist".format(
-                    self.source.id, self.source.name
+                    self.source.id, self.source.model.json['title']
                 )
             )
 
@@ -141,7 +143,7 @@ class Archivist:
         replace the repository.data field with formats and sets of the OAI protocol
         """
 
-        source_data = dict(self.source.data)
+        # source_data = dict(self.source.model)
         try:
             # TODO: currently (11-feb-2020), harvester is creating bad data in the form:
             # "['marcxml', 'rfc1807', 'oai_marc', 'oai_dc', 'nlm']", meaning an array, not dict
@@ -177,9 +179,10 @@ class Archivist:
 
         self.repository.data = repo_data
 
-        if not 'email' in source_data:
-            source_data['email'] = email
-            self.source.data = source_data
+        # TODO: do and SourceRecord update
+        # if not 'email' in source_data:
+        #     source_data['email'] = email
+        #     self.source.data = source_data
 
         db.session.commit()
 
@@ -224,7 +227,7 @@ class Archivist:
     def record_items(self):
         """ process all harvested items of the Source, create an IrokoRecord and save/update it"""
 
-        items = HarvestedItem.query.filter_by(repository_id=self.source.id).all()
+        items = HarvestedItem.query.filter_by(source_uuid=self.source.id).all()
         for item in items:
             try:
                 # currently supporting dc elements and nlm (to get more info about authors)
@@ -285,7 +288,7 @@ class Archivist:
             data["contributors"] = nlm["contributors"]
 
 
-        data["source"] = {"uuid": str(self.source.uuid), "name": str(self.source.name)}
+        data["source"] = {"uuid": str(self.source.id), "name": str(self.source.model.json['title'])}
         spec_code = data["spec"]
         for s in self.repository.data['sets']:
             for k,v in s.items():
@@ -296,7 +299,7 @@ class Archivist:
 
         self._update_item_data_vocabularies(data)
 
-        data['status'] = self.source.source_status.value
+        data['status'] = self.source.model.json['source_status']
         return data
 
 
@@ -310,14 +313,19 @@ class Archivist:
         """
 
         # ts = TermSources.query.filter_by(source_id=self.source.id).all()
-        tuus = []
-        for ts in self.source.term_sources:
-            tuus.append(str(ts.term.uuid))
 
-        rs_term = Term.query.filter_by(vocabulary_id=self.voc.identifier, name=data['spec']['name']).first()
-        if rs_term:
-            tuus.append(str(rs_term.uuid))
-        data['terms'] = tuus
+        data['organizations'] = self.source.model.json['organizations']
+        data['classifications'] = self.source.model.json['classifications']
+
+        #
+        # tuus = []
+        # for ts in self.source.term_sources:
+        #     tuus.append(str(ts.term.uuid))
+        #
+        # rs_term = Term.query.filter_by(vocabulary_id=self.voc.identifier, name=data['spec']['name']).first()
+        # if rs_term:
+        #     tuus.append(str(rs_term.uuid))
+        # data['terms'] = tuus
 
 
     def _udate_record_type(self, data):

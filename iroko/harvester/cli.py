@@ -33,8 +33,8 @@ def rescan():
     """rescanea el directorio """
     harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
 
-    print("####################### start harvestig from dir")
-    PrimarySourceHarvester.rescan_zip_files_in_dir(harvest_dir)
+    # print("####################### start harvestig from dir")
+    # PrimarySourceHarvester.rescan_zip_files_in_dir(harvest_dir)
 
     print("####################### start archiving")
     PrimarySourceHarvester.archive_zip_files_in_dir(harvest_dir)

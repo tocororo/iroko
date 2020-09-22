@@ -1,8 +1,10 @@
 
+import enum
 from time import sleep
 
-import enum
-from iroko.sources.models import Source
+# from iroko.sources.models import Source
+from iroko.sources.api import SourceRecord
+
 
 class Item:
 
@@ -29,7 +31,7 @@ class BaseHarvester(object):
 class SourceHarvester(BaseHarvester):
     """An iterator is responsible iterate over the items of a source, the OAI case is the most simple, in other case, is also responsible for discover the iterm before iterate over its"""
 
-    def __init__(self, source: Source, work_remote=True, request_wait_time=3):
+    def __init__(self, source: SourceRecord, work_remote=True, request_wait_time=3):
         self.work_remote = work_remote
         self.request_wait_time = request_wait_time
         self.source = source

@@ -16,7 +16,9 @@ from iroko.harvester.errors import IrokoHarvesterError
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository, HarvestType
 from iroko.harvester.oai import request_headers
 from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
-from iroko.sources.models import Source
+from iroko.sources.api import SourceRecord
+
+# from iroko.sources.models import Source
 
 XMLParser = etree.XMLParser(
     remove_blank_text=True, recover=True, resolve_entities=False
@@ -93,11 +95,11 @@ class OaiHarvester(SourceHarvester):
                 if repo:
                     repo.status == None
                     db.session.commit()
-                    source = Source.query.filter_by(id=repo.source_id).first()
+                    source = SourceRecord.get_record(repo.source_uuid)
                 else:
                     return None
                 if(source and copy_to_harvest_dir):
-                    source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
+                    source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.id))
                     if source_path != file_path:
                         if not os.path.exists(source_path):
                             # TODO: if path exists means that a "merge" between the two zip files is needed,
@@ -145,7 +147,7 @@ class OaiHarvester(SourceHarvester):
 
 
 
-    def __init__(self, source: Source, work_remote=True, request_wait_time=3):
+    def __init__(self, source: SourceRecord, work_remote=True, request_wait_time=3):
 
         # init_directory=True
         max_retries = 3
@@ -157,14 +159,14 @@ class OaiHarvester(SourceHarvester):
 
         # p = current_app.config["HARVESTER_DATA_DIRECTORY"]
         # p = 'data/sceiba-data'
-        source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.uuid))
+        source_path = os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(source.id))
         if not os.path.exists(source_path):
             with ZipFile(source_path, 'w') as file:
                 pass
 
         self.harvest_dir = os.path.join(
             current_app.config["IROKO_TEMP_DIRECTORY"],
-            "iroko-harvest-" + str(self.source.uuid)
+            "iroko-harvest-" + str(self.source.id)
         )
         shutil.rmtree(self.harvest_dir, ignore_errors=True)
 
@@ -175,12 +177,12 @@ class OaiHarvester(SourceHarvester):
         self.nlm = JournalPublishing()
 
         # proxies = {"http": "http://servers-proxy.upr.edu.cu:8080","https": "http://servers-proxy.upr.edu.cu:8080"}
-        self.repository = Repository.query.filter_by(source_id=self.source.id).first()
+        self.repository = Repository.query.filter_by(source_uuid=self.source.id).first()
         if not self.repository:
             repository = Repository()
-            repository.harvest_endpoint = self.source.data['oaiurl']
+            repository.harvest_endpoint = self.source.model.json['oaiurl']
             repository.harvest_type = HarvestType.OAI
-            repository.source_id = self.source.id
+            repository.source_uuid = self.source.id
             db.session.add(repository)
             db.session.commit()
         # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
@@ -204,9 +206,9 @@ class OaiHarvester(SourceHarvester):
         """compress the harvest_dir to a zip file in harvest_data dir
         and deleted harvest_dir """
         shutil.rmtree(
-            os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.uuid)),
+            os.path.join(current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.id)),
             ignore_errors=True)
-        utils.ZipHelper.compress_dir(self.harvest_dir, current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.uuid))
+        utils.ZipHelper.compress_dir(self.harvest_dir, current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.id))
         shutil.rmtree(self.harvest_dir, ignore_errors=True)
 
 
@@ -389,11 +391,11 @@ class OaiHarvester(SourceHarvester):
                         identifier = xml.find(
                             ".//{" + utils.xmlns.oai + "}identifier"
                         )
-                        harvest_item = HarvestedItem.query.filter_by(repository_id = self.source.id, identifier = identifier.text).first()
+                        harvest_item = HarvestedItem.query.filter_by(source_uuid = self.source.id, identifier = identifier.text).first()
                         if not harvest_item:
                             # this item hasn't harvested
                             harvest_item = HarvestedItem()
-                            harvest_item.repository_id = self.source.id
+                            harvest_item.source_uuid = self.source.id
                             harvest_item.identifier = identifier.text
                             harvest_item.status = HarvestedItemStatus.HARVESTED
                             db.session.add(harvest_item)
@@ -411,12 +413,12 @@ class OaiHarvester(SourceHarvester):
             count = 0
             for item in iterator:
                 harvest_item = HarvestedItem.query.filter_by(
-                    repository_id=self.source.id, identifier=item.identifier
+                    source_uuid=self.source.id, identifier=item.identifier
                 ).first()
                 try:
                     if harvest_item is None:
                         harvest_item = HarvestedItem()
-                        harvest_item.repository_id = self.source.id
+                        harvest_item.source_uuid = self.source.id
                         harvest_item.identifier = item.identifier
                         db.session.add(harvest_item)
                         db.session.commit()

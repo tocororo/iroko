@@ -37,6 +37,7 @@ source_loader_v1 = marshmallow_loader(SourceDataSchemaV1)
 #: JSON serializer definition.
 source_v1 = JSONSerializer(SourceSchemaV1, replace_refs=True)
 
+
 # Records-REST serializers
 # ========================
 #: JSON record serializer for individual records.
