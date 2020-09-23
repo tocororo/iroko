@@ -20,6 +20,7 @@ from iroko.sources.api import (
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
 )
+from iroko.sources.marshmallow.source_v1 import source_data_schema_many
 from iroko.sources.models import SourceStatus
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
@@ -30,20 +31,6 @@ api_blueprint = Blueprint(
 )
 
 
-@api_blueprint.route('/get', methods=['GET'])
-def get_source_by_uuid_no_versions():
-    """Get a source by any PID received as a argument, including UUID"""
-    try:
-        pid = request.args.get('pid')
-        source = SourceRecord.get_source_by_pid(pid)
-        if not source:
-            raise Exception('Source not found')
-
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'source', \
-                                   {'data': source})
-    except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/new', methods=['POST'])
@@ -76,26 +63,6 @@ def source_new():
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
-
-
-@api_blueprint.route('/<uuid>/versions', methods=['GET'])
-@require_api_auth()
-def get_source_by_uuid(uuid):
-    """Get all source versions by source UUID, with permission checking"""
-
-    try:
-        source = SourceRecord.get_record(uuid)
-        if not source:
-            raise Exception('Source not found')
-
-        with source.current_user_has_edit_permission.require():
-            versions = IrokoSourceVersions.get_versions(uuid)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'versions', \
-                                       source_version_schema_many.dump(versions))
-    except Exception as e:
-        print()
-        return iroko_json_response(IrokoResponseStatus.ERROR, traceback.format_exc(), None, None)
 
 
 @api_blueprint.route('/<uuid>/edit', methods=['POST'])
@@ -151,6 +118,42 @@ def source_new_version(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/get', methods=['GET'])
+def get_source_by_pid():
+    """Get a source by any PID received as a argument, including UUID"""
+    try:
+        pid = request.args.get('pid')
+        source = SourceRecord.get_source_by_pid(pid)
+        if not source:
+            raise Exception('Source not found')
+
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                   'ok', 'source', \
+                                   {'data': source})
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/<uuid>/versions', methods=['GET'])
+# @require_api_auth()
+def get_source_versions(uuid):
+    """Get all source versions by source UUID, with permission checking"""
+
+    try:
+        source = SourceRecord.get_record(uuid)
+        if not source:
+            raise Exception('Source not found')
+
+        with source.current_user_has_edit_permission.require():
+            versions = IrokoSourceVersions.get_versions(uuid)
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                       'ok', 'versions', \
+                                       source_version_schema_many.dump(versions))
+    except Exception as e:
+        print()
+        return iroko_json_response(IrokoResponseStatus.ERROR, traceback.format_exc(), None, None)
 
 
 @api_blueprint.route('/<uuid>/publish/<version>', methods=['POST'])
@@ -251,20 +254,19 @@ def get_sources_from_user_as_manager(role, status):
             search = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
         else:
             raise Exception("role should be manager or editor")
-        ss = search[offset:limit].execute()
-        resp = []
-        for h in ss:
-            resp.append({'id':h.id, 'title':h.title, 'source_status':h.source_status, 'version_to_review':'true'})
+        search_result = search[offset:limit].execute()
 
         #TODO: hay que buscar una manera de hacerlo por aqui
         # source_v1.serialize_search(
         #     iroko_source_uuid_fetcher, ss
         # )
+        # por alguna razon esto no funciona,
+        # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
         response = iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             'ok',
             'sources',
-            {'total': search.count(), 'hits': resp}
+            {'total': search.count(), 'hits': source_data_schema_many.dump(search_result.hits)}
         )
         # print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response
@@ -272,7 +274,6 @@ def get_sources_from_user_as_manager(role, status):
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
 
 
 @api_blueprint.route('/editor/<uuid>/versions', methods=['GET'])

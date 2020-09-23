@@ -18,6 +18,7 @@ from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError
 from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
+from invenio_records_rest.views import lt_es7
 from invenio_rest.serializer import result_wrapper
 from sqlalchemy import func, desc
 from sqlalchemy.orm.exc import NoResultFound
@@ -266,6 +267,7 @@ class SourceRecord(Record):
 
     def reindex(self, forceindex=False):
         """Reindex record."""
+
         if forceindex:
             RecordIndexer(version_type="external_gte").index(self)
         else:
@@ -380,6 +382,9 @@ class SourceRecord(Record):
         """
 
         search = SourceSearch()
+
+        if not lt_es7:
+            search = search.extra(track_total_hits=True)
 
         or_filters = []
         and_filters = []
