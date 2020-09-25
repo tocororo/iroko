@@ -57,7 +57,7 @@ class TermForm(FlaskForm):
     id = IntegerField(widget=HiddenInput())
     name = StringField(
         _('Name'),
-        validators=[validators.DataRequired(), Unique(Term, Term.name)]
+        validators=[validators.DataRequired(), Unique(Term, Term.identifier)]
     )
     description = StringField(
         _('Description')

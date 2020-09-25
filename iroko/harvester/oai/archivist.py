@@ -200,10 +200,10 @@ class Archivist:
         rsets = []
         for s in sets_items:
             setName = s.find(".//{" + utils.xmlns.oai + "}" + "setName").text
-            term = Term.query.filter_by(vocabulary_id=self.voc.identifier, name=setName).first()
+            term = Term.query.filter_by(vocabulary_id=self.voc.identifier, identifier=setName).first()
             if not term:
                 term = Term()
-                term.name = setName
+                term.identifier = setName
                 term.vocabulary_id = self.voc.identifier
                 db.session.add(term)
         db.session.commit()

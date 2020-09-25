@@ -7,6 +7,7 @@ from iroko.vocabularies.models import Term, TermClasification
 class VocabularySchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
+    identifier = fields.Str(required=True)
     human_name = fields.Str(required=True)
     description = fields.Str(allow_none=True)
 
@@ -24,7 +25,7 @@ class VocabularySchema(Schema):
 class TermSchema(Schema):
     id = fields.Int(dump_only=True)
     uuid = fields.UUID(dump_only=True)
-    name = fields.Str(required=True)
+    identifier = fields.Str(required=True)
     description = fields.Str(allow_none=True)
     parent_id = fields.Int(allow_none=True)
 

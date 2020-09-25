@@ -1,5 +1,5 @@
 import traceback
-from datetime import datetime
+from datetime import datetime, date
 from typing import Dict
 from uuid import uuid4
 
@@ -29,7 +29,7 @@ import iroko.pidstore.providers as iroko_providers
 from iroko.harvester.models import Repository, HarvestType
 from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion
+from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion, Issn, SourceType
 from iroko.sources.permissions import (
     ObjectSourceEditor, is_user_souces_admin, source_full_manager_actions,
     ObjectSourceTermManager,
@@ -40,7 +40,7 @@ from iroko.sources.permissions import (
 )
 from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree
-from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.api import Terms
 from iroko.vocabularies.models import Term
 
@@ -49,7 +49,7 @@ class SourceRecord(Record):
     _schema = "sources/source-v1.0.0.json"
 
     def __str__(self):
-        return self.model.json['title']
+        return self['title']
 
     @classmethod
     def new_source(cls, data, user_id=None, comment='no comment'):
@@ -181,11 +181,14 @@ class SourceRecord(Record):
         assert pids.SOURCE_UUID_FIELD in data
         assert id_
 
+        data['_save_info_updated'] = str(date.today())
+
         print('%%%%%%%%%')
         iroko_minters.iroko_source_uuid_minter(id_, data)
         print('%%%%%%%%%')
         iroko_minters.iroko_record_identifiers_minter(id_, data, pids.SOURCE_TYPE)
         print('%%%%%%%%%')
+        # jj = json.dumps(data, ensure_ascii=False)
         source = super(SourceRecord, cls).create(data=data, id_=id_, **kwargs)
         print('%%%%%%%%%')
         if dbcommit:
@@ -212,37 +215,40 @@ class SourceRecord(Record):
         return False
 
     @classmethod
-    def get_source_by_pid(cls, pid, with_deleted=False):
+    def get_source_by_pid(cls, pid_value, with_deleted=False):
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
             object_type=pids.SOURCE_TYPE,
             getter=cls.get_record,
         )
         try:
-            persistent_identifier, source = resolver.resolve(str(pid))
-            return source
+            return resolver.resolve(str(pid_value))
         except Exception:
             pass
 
         for pid_type in identifiers_schemas:
             try:
-                pid_value = pid
                 resolver.pid_type = pid_type
-                persistent_identifier, source = resolver.resolve(pid_value)
-                if source:
-                    return source
+                schemapid, source = resolver.resolve(pid_value)
+                pid = PersistentIdentifier.get(pids.SOURCE_UUID_PID_TYPE, source['id'])
+                return pid, source
+
             except Exception as e:
                 pass
-        return None
+        return None, None
 
     def update(self, data=None, dbcommit=False, reindex=False):
         """Update data for record."""
         if not data:
             data = self.model.json
+
+        data['_save_info_updated'] = str(date.today())
+
         super(SourceRecord, self).update(data)
         super(SourceRecord, self).commit()
         print('update pids?')
         self.update_pids(data)
+
         if dbcommit:
             self.dbcommit(reindex)
         return self
@@ -373,8 +379,40 @@ class SourceRecord(Record):
         )
         # self.model.json['classifications'] = classifications
 
+    @classmethod
+    def get_source_by_issn(cls, issn):
+        """
+        get the source by the issn
+        si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
+        """
+        issnModel = Issn.query.filter_by(code=issn).first()
+        if issnModel:
+            code = issnModel.code
+            data = issnModel.data
+            print("buscando el issn {0}".format(code))
+            pid, source = SourceRecord.get_source_by_pid(code)
+            if source:
+                return pid, source
+            print("no existe, creando source {0}".format(code))
+            for item in data["@graph"]:
+                if item['@id'] == 'resource/ISSN/' + code + '#KeyTitle':
+                    title = item["value"]
+                    print(title)
+                    data = dict()
+                    data['source_type'] = SourceType.JOURNAL.value
+                    data['name'] = title
+                    data['source_status'] = SourceStatus.UNOFFICIAL.value
+                    data['title'] = title
+                    data['identifiers'] = [{'idtype': 'pissn', 'value': code}]
+                    user = get_default_user()
+                    msg, source = SourceRecord.new_source(data, user.id)
+                    if source:
+                        return SourceRecord.get_source_by_pid(code)
+        return None, None
+
     # Permission methods
     #
+
 
     @classmethod
     def get_search(cls, status=None, classifications=None, organizations=None) -> SourceSearch:
@@ -402,11 +440,11 @@ class SourceRecord(Record):
         return search
 
     @classmethod
-    def get_sources_search_of_user_as_editor(cls, user: User, status=None) -> SourceSearch:
+    def get_sources_search_of_user_as_editor(cls, user: User, status=None) :
         """devuelve las fuentes de las cuales el usuario actual es editor """
 
         ids = get_arguments_for_source_from_action(user, 'source_editor_actions')
-        return cls.get_search(status=status)
+        return cls.get_records(ids)
 
 
     @classmethod
@@ -426,14 +464,19 @@ class SourceRecord(Record):
         if len(sources_orgs) == 0:
             sources_orgs = None
 
+        if sources_orgs is None and sources_terms is None:
+            return None
+
         return cls.get_search(status=status, classifications=sources_terms,
                                           organizations=sources_orgs)
+
+
 
     def grant_source_editor_permission(self, user_id) -> Dict[str, bool]:
         done = False
         msg = ''
         try:
-            user = User.query.filter_by(id=user_id)
+            user = User.query.filter_by(id=user_id).first()
             if not user:
                 msg = 'User not found'
             else:
@@ -779,7 +822,7 @@ class SourcesDeprecated:
     @classmethod
     def get_sources_count_by_vocabulary(cls, vocabulary_id):
         # cls.get_term_tree_list(term, terms_ids)
-        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(
+        list_counts = db.session.query(Term.identifier, func.count(TermSources.sources_id).label("count")).join(
             TermSources).filter(Term.vocabulary_id == vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
         # print(list_counts)
 
@@ -1067,7 +1110,7 @@ class SourcesDeprecated:
                         except Exception as e:
                             term = None
                     elif 'name' in term_data:
-                        term = Term.query.filter_by(name=term_data['name']).first()
+                        term = Term.query.filter_by(identifier=term_data['name']).first()
                         print('****** NEW')
                         print(term)
                         if term is None:

@@ -11,7 +11,7 @@
         "id": {
           "type": "keyword"
         },
-        "identifiers":{
+        "identifiers": {
           "type": "object",
           "properties": {
             "idtype": {
@@ -85,6 +85,22 @@
         "description": {
           "type": "text",
           "analyzer": "spanish"
+        },
+        "_save_info": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "keyword"
+            },
+            "updated": {
+              "type": "date",
+              "format": "date"
+            }
+          }
+        },
+        "_save_info_updated": {
+          "type": "date",
+          "format": "date"
         }
       }
     }

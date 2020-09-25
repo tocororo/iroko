@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 import datetime
 import json
+import os
 from time import sleep
 
 from flask import current_app
@@ -24,9 +25,12 @@ def init_journals():
     # sources_path = '../../data/journals.json'
     # delete_all_sources()
     print('delete all source and relations')
-    path = current_app.config['INIT_JOURNALS_JSON_PATH']
-    path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
-    path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
+    datadir = current_app.config['IROKO_DATA_DIRECTORY']
+
+    path = os.path.join(datadir, 'journals.json')
+    path_tax = os.path.join(datadir, 'vocabularies.json')
+    path_oai = os.path.join(datadir, 'oaisources.json')
+
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
 
     with open(path) as fsource, open(path_oai) as foai, open(path_tax) as ftax:
@@ -85,12 +89,17 @@ def init_journals():
                     if 'licence' in record:
                         data['classifications'] = []
                         name = string_as_identifier(tax['licences'][record['licence']]["name"])
-                        term = Term.query.filter_by(name=name).first()
+                        term = Term.query.filter_by(identifier=name).first()
                         data['classifications'].append({'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
                     if 'institution' in record:
+                        print(tax['institutions'][record['institution']]["name"])
                         data['organizations'] = []
-                        name = tax['institutions'][record['institution']]["name"]
-                        org = CuorQueryHelper.get_by_label(name, country='Cuba')
+                        if "orgaid" in tax['institutions'][record['institution']]:
+                            orgaid = tax['institutions'][record['institution']]["orgaid"]
+                            org = CuorQueryHelper.get_by_pid(orgaid)
+                        else:
+                            name = tax['institutions'][record['institution']]["name"]
+                            org = CuorQueryHelper.get_by_label(name, country='Cuba')
                         if org:
                             data['organizations'].append(
                                 {
@@ -101,8 +110,12 @@ def init_journals():
                             )
                         parent_id = tax['institutions'][record['institution']]['parents'][0]
                         if parent_id != '0':
-                            name = tax['institutions'][parent_id]["name"]
-                            parent_org = CuorQueryHelper.get_by_label(name, country='Cuba')
+                            if "orgaid" in tax['institutions'][parent_id]:
+                                orgaid = tax['institutions'][parent_id]["orgaid"]
+                                parent_org = CuorQueryHelper.get_by_pid(orgaid)
+                            else:
+                                name = tax['institutions'][parent_id]["name"]
+                                parent_org = CuorQueryHelper.get_by_label(name, country='Cuba')
                             if parent_org:
                                 data['organizations'].append(
                                     {
@@ -117,7 +130,11 @@ def init_journals():
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
 
                     user = get_default_user()
-                    data['_save_info'] = {'user_id': str(user.id), 'comment': 'initial version'}
+                    data['_save_info'] = {
+                        'user_id': str(user.id),
+                        'comment': 'using real onei orgaid for MES, CITMA, MINSAP and others',
+                        'updated': str(datetime.date.today())
+                    }
 
                     new_source = SourceRecord.new_source(data, user.id)
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
@@ -205,14 +222,14 @@ def _assing_if_exist(data, record, field):
         data[field]= record[field]
 
 def get_term_by_name(name):
-    term = Term.query.filter_by(name=name).first()
+    term = Term.query.filter_by(identifier=name).first()
     return term.id
 
 def add_term_source(source, record, tid, tax, tax_key, data=None):
 
     # tid = record[record_key]
     name = string_as_identifier(tax[tax_key][tid]["name"])
-    term = Term.query.filter_by(name=name).first()
+    term = Term.query.filter_by(identifier=name).first()
     # TODO TermSources deberia trabajar con los UUIDs
     if (term and source):
         ts = TermSources()

@@ -10,9 +10,13 @@
 from __future__ import absolute_import, print_function
 
 from invenio_records_rest.schemas import Nested, StrictKeysMixin
-from invenio_records_rest.schemas.fields import DateString, \
-    PersistentIdentifier, SanitizedUnicode
+from invenio_records_rest.schemas.fields import (
+    DateString,
+    PersistentIdentifier, SanitizedUnicode,
+)
 from marshmallow import fields, missing, validate
+
+from iroko.sources.marshmallow.base import OrganizationDataSchema, ClasificationDataSchema
 
 
 def get_recid(obj, context):
@@ -82,6 +86,8 @@ class MetadataSchemaV1(StrictKeysMixin):
     references = Nested(ReferenceSchemaV1, many=True)
     terms = fields.List(SanitizedUnicode(), many=True)
     status = fields.Str()
+    organizations = Nested(OrganizationDataSchema, many=True)
+    classifications = Nested(ClasificationDataSchema, many=True)
 
 
 class RecordSchemaV1(StrictKeysMixin):

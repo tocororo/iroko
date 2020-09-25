@@ -5,10 +5,14 @@ from __future__ import absolute_import, print_function
 import datetime
 import traceback
 
+from elasticsearch_dsl import A
 from flask import Blueprint, request
 from flask_babelex import lazy_gettext as _
 from flask_login import current_user
 from flask_principal import PermissionDenied
+from invenio_access import ActionUsers
+from invenio_accounts.models import User
+from invenio_db import db
 from invenio_oauth2server import require_api_auth
 
 from iroko.notifications.api import Notifications
@@ -20,8 +24,10 @@ from iroko.sources.api import (
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
 )
-from iroko.sources.marshmallow.source_v1 import source_data_schema_many
+from iroko.sources.marshmallow.source_v1 import source_data_schema_many, source_v1_response
 from iroko.sources.models import SourceStatus
+from iroko.sources.permissions import is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager
+from iroko.sources.search import SourceSearch
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 api_blueprint = Blueprint(
@@ -120,24 +126,45 @@ def source_new_version(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/get', methods=['GET'])
+
+@api_blueprint.route('/issn/<issn>', methods=['GET'])
+def get_source_by_issn(issn):
+    """Get a source by any PID received as a argument, including UUID"""
+    try:
+        pidvalue = request.args.get('value')
+        pid, source = SourceRecord.get_source_by_issn(issn)
+        if not source or not pid:
+            raise Exception('Source not found')
+
+        return source_v1_response(pid, source)
+
+        # return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+        #                            'ok', 'source', \
+        #                            {'data': source})
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/pid', methods=['GET'])
 def get_source_by_pid():
     """Get a source by any PID received as a argument, including UUID"""
     try:
-        pid = request.args.get('pid')
-        source = SourceRecord.get_source_by_pid(pid)
-        if not source:
+        pidvalue = request.args.get('value')
+        pid, source = SourceRecord.get_source_by_pid(pidvalue)
+        if not source or not pid:
             raise Exception('Source not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'source', \
-                                   {'data': source})
+        return source_v1_response(pid, source)
+
+        # return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+        #                            'ok', 'source', \
+        #                            {'data': source})
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/<uuid>/versions', methods=['GET'])
-# @require_api_auth()
+@require_api_auth()
 def get_source_versions(uuid):
     """Get all source versions by source UUID, with permission checking"""
 
@@ -250,24 +277,60 @@ def get_sources_from_user_as_manager(role, status):
             status = None
         if role == 'manager':
             search = SourceRecord.get_sources_search_of_user_as_manager(current_user, status=status)
+            if search is None:
+                response = iroko_json_response(
+                    IrokoResponseStatus.SUCCESS,
+                    'ok',
+                    'sources',
+                    {'total': 0, 'hits': {}}
+                )
+            else:
+                search_result = search[offset:limit].execute()
+                # TODO: hay que buscar una manera de hacerlo por aqui
+                # source_v1.serialize_search(
+                #     iroko_source_uuid_fetcher, ss
+                # )
+                # por alguna razon esto no funciona,
+                # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
+                print(search_result.hits)
+                print(source_data_schema_many.dump(search_result.hits))
+                result = []
+                for hit in search_result.hits:
+                    result.append(
+                        {
+                            'id':                hit.id,
+                            'name':              hit.name,
+                            'source_status':     hit.source_status,
+                            'version_to_review': True
+                        }
+                    )
+                response = iroko_json_response(
+                    IrokoResponseStatus.SUCCESS,
+                    'ok',
+                    'sources',
+                    {'total': search.count(), 'hits': result}
+                )
         elif role == 'editor':
-            search = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
+            sources = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
+            result = []
+            for hit in sources:
+                result.append(
+                    {
+                        'id':                hit.id,
+                        'name':              hit.name,
+                        'source_status':     hit.source_status,
+                        'version_to_review': True
+                    }
+                )
+            response = iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok',
+                'sources',
+                {'total': sources.count(), 'hits': result}
+            )
         else:
             raise Exception("role should be manager or editor")
-        search_result = search[offset:limit].execute()
 
-        #TODO: hay que buscar una manera de hacerlo por aqui
-        # source_v1.serialize_search(
-        #     iroko_source_uuid_fetcher, ss
-        # )
-        # por alguna razon esto no funciona,
-        # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
-        response = iroko_json_response(
-            IrokoResponseStatus.SUCCESS,
-            'ok',
-            'sources',
-            {'total': search.count(), 'hits': source_data_schema_many.dump(search_result.hits)}
-        )
         # print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response
 
@@ -302,3 +365,168 @@ def get_editor_source_versions(uuid):
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+@api_blueprint.route('/aggs/org/<uuid>/', methods=['GET'])
+def get_sources_by_organization_children(uuid):
+    """
+    Count all the sources from an organization, and count all the sources from the organization children
+    :param uuid: the uuid of the organization
+    :return:
+
+    {
+        'id': '<uuid>',
+        'name': '<name>',
+        'sources_count': '<count>'
+        'children': [
+            'id': '<uuid>',
+            'name': '<name>',
+            'sources_count': '<count>'
+            'children': [
+                ...
+            ]
+        ]
+    }
+    """
+
+    # TODO:
+    # 1- obtener de cuor, la organizacion con los hijos.
+    # result = dict()
+    # result['id'] = 'orgID'
+    # 2- por cada uno de los hijos de la organizacion
+    #  por ahora esta bien asi
+    try:
+        size = int(request.args.get('size')) if request.args.get('size') else 100
+        size = size if size > 0 else 100
+
+        search = SourceSearch()
+        search = search.filter('term', organizations__id=uuid)
+        # search.query = Q('match', **{'organizations.id': 'orgID'})
+        a = A('terms', field='organizations.name', size=size)
+        search.aggs.bucket('orgs', a)
+        response = search.execute()
+        result = []
+        for item in response.aggregations.orgs.buckets:
+            # item.key will the house number
+            result.append({
+                'key':       item.key,
+                'doc_count': item.doc_count
+            })
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                   'ok', 'source', \
+                                   {
+                                       'aggs':     result,
+                                   })
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+#
+# @api_blueprint.route('/last/org/<uuid>/', methods=['GET'])
+# def get_sources_by_organization_children(uuid):
+#     """
+#     get the last sources added from an organization.
+#     :param uuid:
+#     :return:
+#     """
+#     count = int(request.args.get('count')) if request.args.get('count') else 3
+#     count = count if count > 0 else 3
+#
+
+@api_blueprint.route('/editor/<uuid>/<user>', methods=['POST'])
+@require_api_auth()
+def set_source_editor(uuid, user):
+    """
+    Set user as editor of a source
+    :param uuid: source uuid
+    :param user: user id
+    :return:
+    """
+    try:
+        source = SourceRecord.get_record(uuid)
+        if not source:
+            raise Exception('Not source found')
+
+        with source.current_user_has_publish_permission.require():
+            msg, done = source.grant_source_editor_permission(user)
+            if done:
+                notification = NotificationSchema()
+                notification.classification = NotificationType.INFO
+                notification.description = _('Ha sido aprobado como editor de: {0}.'.format(source['title']))
+                notification.emiter = _('Sistema')
+                notification.receiver_id = user
+                Notifications.new_notification(notification)
+
+                return iroko_json_response(IrokoResponseStatus.SUCCESS,
+                                           'ok', 'permission',
+                                           {
+                                               'source': uuid,
+                                               'user': user,
+                                               'permission': 'editor'
+                                            })
+            raise Exception(msg)
+
+    except PermissionDenied as err:
+        msg = 'Permission denied'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+@api_blueprint.route('/manager/<mtype>/<uuid>/<user>/', methods=['POST'])
+@require_api_auth()
+def set_source_manager(mtype, uuid, user):
+    """
+    Set user as manager of a organization
+    :param mtype: type of manager, two possible values: org or term
+    :param uuid: organization or term uuid
+    :param user: user id
+    :return:
+    """
+    try:
+        if is_user_souces_admin(current_user):
+            userObj = User.query.filter_by(id=user).first()
+            if not userObj:
+                raise Exception('User not found')
+            else:
+                with db.session.begin_nested():
+                    if mtype == 'org':
+                        db.session.add(ActionUsers.allow(ObjectSourceOrganizationManager(uuid), user=userObj))
+
+                        notification = NotificationSchema()
+                        notification.classification = NotificationType.INFO
+                        notification.description = _('Ha sido aprobado como gestor de la Organizacion {0}.'.format(uuid))
+                        notification.emiter = _('Sistema')
+                        notification.receiver_id = user
+                        Notifications.new_notification(notification)
+
+                        return iroko_json_response(IrokoResponseStatus.SUCCESS,
+                                               'ok', 'permission',
+                                               {
+                                                   'org':     uuid,
+                                                   'user':       user,
+                                                   'permission': 'manager'
+                                               })
+                    if mtype == 'term':
+                        db.session.add(ActionUsers.allow(ObjectSourceTermManager(uuid), user=userObj))
+
+                        notification = NotificationSchema()
+                        notification.classification = NotificationType.INFO
+                        notification.description = _(
+                            'Ha sido aprobado como gestor del Termino {0}.'.format(uuid))
+                        notification.emiter = _('Sistema')
+                        notification.receiver_id = user
+                        Notifications.new_notification(notification)
+
+                        return iroko_json_response(IrokoResponseStatus.SUCCESS,
+                                               'ok', 'permission',
+                                               {
+                                                   'term':     uuid,
+                                                   'user':       user,
+                                                   'permission': 'manager'
+                                               })
+
+        raise PermissionDenied()
+
+    except PermissionDenied as err:
+        msg = 'Permission denied'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)

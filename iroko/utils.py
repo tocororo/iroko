@@ -144,11 +144,10 @@ class CuorQueryHelper:
         try:
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
-            url = api_endpoint + '?q=identifiers.value:"' + pid + '"'
+            url = api_endpoint +'/pid?value=' + pid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
-            if 'hits' in result and 'total' in result['hits'] and result['hits']['total'] == 1:
-                return result['hits']['hits'][0]
+            return result
         except Exception:
             return None
 
@@ -161,8 +160,7 @@ class CuorQueryHelper:
             url = api_endpoint + uuid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
-            if result:
-                return
+            return result
         except Exception:
             return None
 

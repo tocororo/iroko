@@ -315,6 +315,50 @@
       },
       "type": "array"
     },
+    "organizations": {
+      "description": "list of organizations of related to this source",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "identifier of the ORG"
+          },
+          "name": {
+            "type": "string",
+            "description": "the name of the ORG"
+          },
+          "role": {
+            "type": "string",
+            "description": "the role of the organization"
+          }
+        }
+      }
+    },
+    "classifications": {
+      "description": "list of terms of related to this source",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "identifier the term related to this source"
+          },
+          "description": {
+            "type": "string",
+            "description": "the name of the term related to this source"
+          },
+          "vocabulary": {
+            "type": "string",
+            "description": "the vocabulary of the classification"
+          }
+        }
+      }
+    },
     "terms": {
       "description": "UUID of related iroko terms",
       "items": {

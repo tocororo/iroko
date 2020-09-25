@@ -59,7 +59,7 @@ def add_term():
         new_term = Term()
         form.parent.data
         if form.name.data:
-            new_term.name = form.name.data
+            new_term.identifier = form.name.data
         if form.description.data:
             new_term.description = form.description.data
         if form.vocabulary.data:

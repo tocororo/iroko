@@ -342,15 +342,32 @@ RECORDS_REST_SORT_OPTIONS = {
             'default_order': 'asc',
             'order': 2,
         },
-
+    },
+    'sources': {
+        'mostrecent': {
+            'title': 'Most recent',
+            'fields': ['-_save_info_updated'],
+            'default_order': 'asc',
+            'order': 1,
+        },
+        'bestmatch': {
+            'title': 'Best match',
+            'fields': ['-_score'],
+            'default_order': 'asc',
+            'order': 2,
+        },
     }
 }
 """Setup sorting options."""
 
 RECORDS_REST_DEFAULT_SORT: {
     'records': {
-        'query': 'mostrecent',
-        'noquery': 'mostrecent',
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
+    },
+    'sources': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
     }
 }
 """Set default sorting options."""

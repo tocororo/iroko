@@ -84,7 +84,7 @@ def init_journals():
                     if 'licence' in record:
                         data['classifications'] = []
                         name = string_as_identifier(tax['licences'][record['licence']]["name"])
-                        term = Term.query.filter_by(name=name).first()
+                        term = Term.query.filter_by(identifier=name).first()
                         data['classifications'].append({'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
 
                     data['source_type'] = SourceType.JOURNAL.value
@@ -176,14 +176,14 @@ def _assing_if_exist(data, record, field):
         data[field]= record[field]
 
 def get_term_by_name(name):
-    term = Term.query.filter_by(name=name).first()
+    term = Term.query.filter_by(identifier=name).first()
     return term.id
 
 def add_term_source(source, record, tid, tax, tax_key, data=None):
 
     # tid = record[record_key]
     name = string_as_identifier(tax[tax_key][tid]["name"])
-    term = Term.query.filter_by(name=name).first()
+    term = Term.query.filter_by(identifier=name).first()
     # TODO TermSources deberia trabajar con los UUIDs
     if (term and source):
         ts = TermSources()

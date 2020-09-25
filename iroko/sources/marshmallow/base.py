@@ -1,7 +1,7 @@
 
 
 from invenio_records_rest.schemas import StrictKeysMixin
-from invenio_records_rest.schemas.fields import SanitizedUnicode, PersistentIdentifier
+from invenio_records_rest.schemas.fields import DateString, SanitizedUnicode, PersistentIdentifier
 from marshmallow import Schema, fields, post_dump, INCLUDE
 
 from iroko.vocabularies.api import Terms
@@ -48,6 +48,7 @@ class OrganizationDataSchema(Schema):
 class SavingInfoSchema(Schema):
     user_id = fields.Str()
     comment = fields.Str()
+    updated = DateString()
 
 
 class SourceDataSchema(Schema):
@@ -63,7 +64,7 @@ class SourceDataSchema(Schema):
     classifications = fields.Nested(ClasificationDataSchema, many=True, unknown=INCLUDE)
 
     _save_info = fields.Nested(SavingInfoSchema, many=False, unknown=INCLUDE)
-
+    _save_info_updated = DateString()
 
 # TODO: to replace by UserProfilesSchema
 class IrokoUserSchema(Schema):

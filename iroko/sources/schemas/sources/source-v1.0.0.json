@@ -4,7 +4,13 @@
   "title": "Schema Source",
   "type": "object",
   "additionalProperties": true,
-  "required": ["identifiers", "id", "title", "source_status", "source_type"],
+  "required": [
+    "identifiers",
+    "id",
+    "title",
+    "source_status",
+    "source_type"
+  ],
   "properties": {
     "id": {
       "description": "Source UUID , pid_type = srcid",
@@ -71,7 +77,11 @@
     },
     "source_status": {
       "type": "string",
-      "enum": ["APPROVED", "TO_REVIEW", "UNOFFICIAL"]
+      "enum": [
+        "APPROVED",
+        "TO_REVIEW",
+        "UNOFFICIAL"
+      ]
     },
     "title": {
       "type": "string"
@@ -153,7 +163,6 @@
     "frequency": {
       "type": "string"
     },
-
     "issn": {
       "type": "object",
       "additionalProperties": true,
@@ -205,8 +214,19 @@
         "comment": {
           "type": "string",
           "description": "any relevant comment"
+        },
+        "updated": {
+          "description": "date of the save",
+          "type": "string",
+          "format": "date-time"
         }
       }
+    },
+    "_save_info_updated": {
+      "description": "date of the save",
+      "type": "string",
+      "format": "date-time"
     }
   }
 }
+
