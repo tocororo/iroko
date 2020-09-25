@@ -343,7 +343,8 @@ class MiarHarvester(BaseHarvester):
         """
         sincroniza lo que  hay en self.miar_dbs_file con la base de datos de iroko
         con los Term y Vocabulary
-        TODO: document this !!!!
+        TODO: document this !!!!,
+        TODO: hacer que la sincronizacion no se pare si ya existe el termino.
         """
 
         with open(self.miar_dbs_file, 'r') as file_dbs:
@@ -448,10 +449,16 @@ class MiarHarvester(BaseHarvester):
                                 dbs_split = []
                                 print('---------------------------')
                                 print(archive_issn_miar)
-                                if 'Indexed\xa0in:' in archive_issn_miar:
-                                    dbs_split.extend(archive_issn_miar['Indexed\xa0in:'])
-                                if 'Evaluated\xa0in:' in archive_issn_miar:
-                                    dbs_split.extend(archive_issn_miar['Evaluated\xa0in:'])
+                                # TODO: este es un error que tiene que ver con la forma en que se habren los json
+                                keys = [
+                                    'Indexed\xa0in:',
+                                    'Indexed\u00a0in',
+                                    'Evaluated\xa0in:',
+                                    'Evaluated\u00a0in:'
+                                ]
+                                for key in keys:
+                                    if key in archive_issn_miar:
+                                        dbs_split.extend(archive_issn_miar[key])
 
                                 print(dbs_split)
                                 source = self._get_source_by_issn(issn)
