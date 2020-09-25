@@ -458,7 +458,7 @@ class MiarHarvester(BaseHarvester):
                                 ]
                                 for key in keys:
                                     if key in archive_issn_miar:
-                                        dbs_split.extend(archive_issn_miar[key])
+                                        dbs_split.append(str(archive_issn_miar[key]))
 
                                 print(dbs_split)
                                 source = self._get_source_by_issn(issn)
