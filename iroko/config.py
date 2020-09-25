@@ -431,12 +431,7 @@ JSONSCHEMAS_HOST = 'iroko.tocororo.cu'
 # See details on
 # http://flask.pocoo.org/docs/0.12/config/#builtin-configuration-values
 
-#: Secret key - each installation (dev, production, ...) needs a separate key.
-#: It should be changed before deploying.
-SECRET_KEY = 'iroko_secret_key'
 
-RECAPTCHA_PUBLIC_KEY = '6LcElb0ZAAAAAEKZhH0az6wrBH1OCk-Nb7JNHU_S'
-RECAPTCHA_PRIVATE_KEY = '6LcElb0ZAAAAAGdgBtmjqDT4EfeR-rbwcO1qAiPn'
 
 #: Max upload size for form data via application/mulitpart-formdata.
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100 MiB

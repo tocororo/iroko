@@ -40,7 +40,7 @@ from iroko.sources.permissions import (
 )
 from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree
-from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
+from iroko.utils import IrokoVocabularyIdentifiers
 from iroko.vocabularies.api import Terms
 from iroko.vocabularies.models import Term
 
@@ -334,14 +334,14 @@ class SourceRecord(Record):
 
         for term_source in self.model.json['classifications']:
 
-            term_managers = get_userids_for_source_from_action('source_term_manager_actions', term_source.id)
+            term_managers = get_userids_for_source_from_action('source_term_manager_actions', term_source['id'])
 
             if term_managers:
                 all_users.extend(term_managers)
 
         for org_source in self.model.json['organizations']:
 
-            org_managers = get_userids_for_source_from_action('source_organization_manager_actions', org_source.id)
+            org_managers = get_userids_for_source_from_action('source_organization_manager_actions', org_source['id'])
 
             if org_managers:
                 all_users.extend(org_managers)
@@ -352,6 +352,10 @@ class SourceRecord(Record):
             all_users.extend(admins)
 
         return all_users
+
+    @property
+    def get_editors(self):
+        return get_userids_for_source_from_action('source_editor_actions', self.id)
 
     @property
     def status(self):
@@ -380,7 +384,7 @@ class SourceRecord(Record):
         # self.model.json['classifications'] = classifications
 
     @classmethod
-    def get_source_by_issn(cls, issn):
+    def create_or_get_source_by_issn(cls, issn, user):
         """
         get the source by the issn
         si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
@@ -392,7 +396,17 @@ class SourceRecord(Record):
             print("buscando el issn {0}".format(code))
             pid, source = SourceRecord.get_source_by_pid(code)
             if source:
-                return pid, source
+                editors = source.get_editors
+                print('editors: ',editors)
+                print('user.id: ', user.id)
+                if len(editors) == 0:
+                    #dar permiso
+                    source.grant_source_editor_permission(user.id)
+                    return pid, source
+                elif user.id in editors:
+                    return pid, source
+                #no tiene permiso para editar esta fuente
+                raise Exception('No tiene permiso para editar esta fuente')
             print("no existe, creando source {0}".format(code))
             for item in data["@graph"]:
                 if item['@id'] == 'resource/ISSN/' + code + '#KeyTitle':
@@ -404,11 +418,10 @@ class SourceRecord(Record):
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
                     data['title'] = title
                     data['identifiers'] = [{'idtype': 'pissn', 'value': code}]
-                    user = get_default_user()
                     msg, source = SourceRecord.new_source(data, user.id)
                     if source:
                         return SourceRecord.get_source_by_pid(code)
-        return None, None
+        raise Exception('El ISSN {0} no existe'.format(issn))
 
     # Permission methods
     #
@@ -551,20 +564,22 @@ class IrokoSourceVersions:
                 raise Exception('Must be authenticated')
             user_id = current_user.id
 
-        with db.session.begin_nested():
-            if is_current:
-                for version in SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all():
-                    version.is_current = False
+    # with db.session.begin_nested():
+        if is_current:
+            for version in SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all():
+                version.is_current = False
 
-            source_version = SourceVersion()
-            source_version.comment = comment
-            source_version.source_uuid = source_uuid
-            source_version.user_id = user_id
-            source_version.is_current = is_current
-            source_version.created_at = datetime.now()
-            source_version.data = data
-            db.session.add(source_version)
-            return source_version
+        source_version = SourceVersion()
+        source_version.comment = comment
+        source_version.source_uuid = source_uuid
+        source_version.user_id = user_id
+        source_version.is_current = is_current
+        source_version.created_at = datetime.now()
+        db.session.add(source_version)
+        db.session.commit()
+        source_version.data = data
+        db.session.commit()
+        return source_version
 
     @classmethod
     def set_version_as_current(cls, source_uuid, source_version_id):

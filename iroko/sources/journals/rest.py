@@ -105,6 +105,7 @@ def get_journal_by_uuid(uuid):
 @api_blueprint.route('/journal/issn/<issn>')
 def get_journal_by_issn(issn):
     """Get a journal by UUID"""
+    print('def get_journal_by_issn(issn):')
     try:
         issn_db = Issn.query.filter_by(code=issn).first()
         if not issn_db:

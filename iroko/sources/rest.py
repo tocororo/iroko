@@ -24,7 +24,7 @@ from iroko.sources.api import (
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
 )
-from iroko.sources.marshmallow.source_v1 import source_data_schema_many, source_v1_response
+from iroko.sources.marshmallow.source_v1 import source_v1_response
 from iroko.sources.models import SourceStatus
 from iroko.sources.permissions import is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager
 from iroko.sources.search import SourceSearch
@@ -48,8 +48,11 @@ def source_new():
 
         user_id = current_user.id
         msg, source = SourceRecord.new_source(input_data, user_id=user_id)
+
         if not source:
             raise Exception(msg)
+
+        msg, done = source.grant_source_editor_permission(current_user.id)
 
         notification = NotificationSchema()
         notification.classification = NotificationType.INFO
@@ -96,9 +99,10 @@ def source_new_version(uuid):
             # si no esta aprobada significa que siempre es la current.
             # si esta aprobada el proceso es otro
             print(input_data)
-            is_current = source.status != SourceStatus.APPROVED.value
+            is_current = source['source_status'] != SourceStatus.APPROVED.value
+            data = dict(input_data['data'])
             source_version = IrokoSourceVersions.new_version(source.id,
-                                                             input_data,
+                                                             data,
                                                              user_id=user_id,
                                                              comment=comment,
                                                              is_current=is_current)
@@ -107,7 +111,7 @@ def source_new_version(uuid):
 
             notification = NotificationSchema()
             notification.classification = NotificationType.INFO
-            notification.description = _('Editor has change this source: {0}.'.format(source.name))
+            notification.description = _('Editor has change this source: {0}.'.format(source['name']))
             notification.emiter = _('Sistema')
 
             for user in source.get_managers:
@@ -121,15 +125,20 @@ def source_new_version(uuid):
         msg = 'Permission denied for changing source'
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+        raise e
+        # return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/issn/<issn>', methods=['GET'])
+@api_blueprint.route('/byissn/<issn>')
+@require_api_auth()
 def get_source_by_issn(issn):
     """Get a source by any PID received as a argument, including UUID"""
+
+    print('eres la api correcta?')
+    print('eres la api correcta?')
     try:
-        pidvalue = request.args.get('value')
-        pid, source = SourceRecord.get_source_by_issn(issn)
+        print('eres la api correcta?')
+        pid, source = SourceRecord.create_or_get_source_by_issn(issn, current_user)
         if not source or not pid:
             raise Exception('Source not found')
 
@@ -139,6 +148,7 @@ def get_source_by_issn(issn):
         #                            'ok', 'source', \
         #                            {'data': source})
     except Exception as e:
+        raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -274,14 +284,8 @@ def get_sources_from_user_as_manager(status):
             status = None
         # if role == 'manager':
         search = SourceRecord.get_sources_search_of_user_as_manager(current_user, status=status)
-        if search is None:
-            response = iroko_json_response(
-                IrokoResponseStatus.SUCCESS,
-                'ok',
-                'sources',
-                {'total': 0, 'hits': {}}
-            )
-        else:
+        manager = []
+        if search is not None:
             # [offset: limit].execute()
             search_result = search.scan()
             # TODO: hay que buscar una manera de hacerlo por aqui
@@ -290,10 +294,10 @@ def get_sources_from_user_as_manager(status):
             # )
             # por alguna razon esto no funciona,
             # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
-            print(search_result.hits)
-            print(source_data_schema_many.dump(search_result.hits))
-            manager = []
-            for hit in search_result.hits:
+            # print(search_result)
+            # print(source_data_schema_many.dump(search_result))
+
+            for hit in search_result:
                 manager.append(
                     {
                         'id':                hit.id,
