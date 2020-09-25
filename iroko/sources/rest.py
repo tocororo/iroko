@@ -37,8 +37,6 @@ api_blueprint = Blueprint(
 )
 
 
-
-
 @api_blueprint.route('/new', methods=['POST'])
 @require_api_auth()
 def source_new():
@@ -124,7 +122,6 @@ def source_new_version(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
-
 
 
 @api_blueprint.route('/issn/<issn>', methods=['GET'])
@@ -253,9 +250,9 @@ def source_unpublish(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/me/<role>/<status>')
+@api_blueprint.route('/me/<status>')
 @require_api_auth()
-def get_sources_from_user_as_manager(role, status):
+def get_sources_from_user_as_manager(status):
     """
         returns the sources of wich current_user is manager
         param status: 'ALL', 'APPROVED', 'TO_REVIEW', 'UNOFFICIAL'
@@ -263,58 +260,41 @@ def get_sources_from_user_as_manager(role, status):
 
     print("## start get sources {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
     try:
-        count = int(request.args.get('size')) if request.args.get('size') else 10
-        page = int(request.args.get('page')) if request.args.get('page') else 1
-
-        if page < 1:
-            page = 1
-        offset = count * (page - 1)
-        limit = offset + count
-        print(offset)
-        print(limit)
+        # count = int(request.args.get('size')) if request.args.get('size') else 10
+        # page = int(request.args.get('page')) if request.args.get('page') else 1
+        #
+        # if page < 1:
+        #     page = 1
+        # offset = count * (page - 1)
+        # limit = offset + count
+        # print(offset)
+        # print(limit)
         print(status)
         if status == 'ALL':
             status = None
-        if role == 'manager':
-            search = SourceRecord.get_sources_search_of_user_as_manager(current_user, status=status)
-            if search is None:
-                response = iroko_json_response(
-                    IrokoResponseStatus.SUCCESS,
-                    'ok',
-                    'sources',
-                    {'total': 0, 'hits': {}}
-                )
-            else:
-                search_result = search[offset:limit].execute()
-                # TODO: hay que buscar una manera de hacerlo por aqui
-                # source_v1.serialize_search(
-                #     iroko_source_uuid_fetcher, ss
-                # )
-                # por alguna razon esto no funciona,
-                # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
-                print(search_result.hits)
-                print(source_data_schema_many.dump(search_result.hits))
-                result = []
-                for hit in search_result.hits:
-                    result.append(
-                        {
-                            'id':                hit.id,
-                            'name':              hit.name,
-                            'source_status':     hit.source_status,
-                            'version_to_review': True
-                        }
-                    )
-                response = iroko_json_response(
-                    IrokoResponseStatus.SUCCESS,
-                    'ok',
-                    'sources',
-                    {'total': search.count(), 'hits': result}
-                )
-        elif role == 'editor':
-            sources = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
-            result = []
-            for hit in sources:
-                result.append(
+        # if role == 'manager':
+        search = SourceRecord.get_sources_search_of_user_as_manager(current_user, status=status)
+        if search is None:
+            response = iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok',
+                'sources',
+                {'total': 0, 'hits': {}}
+            )
+        else:
+            # [offset: limit].execute()
+            search_result = search.scan()
+            # TODO: hay que buscar una manera de hacerlo por aqui
+            # source_v1.serialize_search(
+            #     iroko_source_uuid_fetcher, ss
+            # )
+            # por alguna razon esto no funciona,
+            # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
+            print(search_result.hits)
+            print(source_data_schema_many.dump(search_result.hits))
+            manager = []
+            for hit in search_result.hits:
+                manager.append(
                     {
                         'id':                hit.id,
                         'name':              hit.name,
@@ -322,14 +302,29 @@ def get_sources_from_user_as_manager(role, status):
                         'version_to_review': True
                     }
                 )
-            response = iroko_json_response(
-                IrokoResponseStatus.SUCCESS,
-                'ok',
-                'sources',
-                {'total': sources.count(), 'hits': result}
+
+        # elif role == 'editor':
+        sources = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
+        editor = []
+        for hit in sources:
+            editor.append(
+                {
+                    'id':                hit.id,
+                    'name':              hit.name,
+                    'source_status':     hit.source_status,
+                    'version_to_review': True
+                }
             )
-        else:
-            raise Exception("role should be manager or editor")
+
+        response = iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            'ok',
+            'sources',
+            {'manager': manager, 'editor': editor}
+        )
+
+        # else:
+        #     raise Exception("role should be manager or editor")
 
         # print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response
@@ -364,6 +359,7 @@ def get_editor_source_versions(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
 
 @api_blueprint.route('/aggs/org/<uuid>/', methods=['GET'])
 def get_sources_by_organization_children(uuid):
@@ -413,10 +409,11 @@ def get_sources_by_organization_children(uuid):
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                    'ok', 'source', \
                                    {
-                                       'aggs':     result,
+                                       'aggs': result,
                                    })
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
 
 #
 # @api_blueprint.route('/last/org/<uuid>/', methods=['GET'])
@@ -457,10 +454,10 @@ def set_source_editor(uuid, user):
                 return iroko_json_response(IrokoResponseStatus.SUCCESS,
                                            'ok', 'permission',
                                            {
-                                               'source': uuid,
-                                               'user': user,
+                                               'source':     uuid,
+                                               'user':       user,
                                                'permission': 'editor'
-                                            })
+                                           })
             raise Exception(msg)
 
     except PermissionDenied as err:
@@ -492,18 +489,19 @@ def set_source_manager(mtype, uuid, user):
 
                         notification = NotificationSchema()
                         notification.classification = NotificationType.INFO
-                        notification.description = _('Ha sido aprobado como gestor de la Organizacion {0}.'.format(uuid))
+                        notification.description = _(
+                            'Ha sido aprobado como gestor de la Organizacion {0}.'.format(uuid))
                         notification.emiter = _('Sistema')
                         notification.receiver_id = user
                         Notifications.new_notification(notification)
 
                         return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                               'ok', 'permission',
-                                               {
-                                                   'org':     uuid,
-                                                   'user':       user,
-                                                   'permission': 'manager'
-                                               })
+                                                   'ok', 'permission',
+                                                   {
+                                                       'org':        uuid,
+                                                       'user':       user,
+                                                       'permission': 'manager'
+                                                   })
                     if mtype == 'term':
                         db.session.add(ActionUsers.allow(ObjectSourceTermManager(uuid), user=userObj))
 
@@ -516,12 +514,12 @@ def set_source_manager(mtype, uuid, user):
                         Notifications.new_notification(notification)
 
                         return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                               'ok', 'permission',
-                                               {
-                                                   'term':     uuid,
-                                                   'user':       user,
-                                                   'permission': 'manager'
-                                               })
+                                                   'ok', 'permission',
+                                                   {
+                                                       'term':       uuid,
+                                                       'user':       user,
+                                                       'permission': 'manager'
+                                                   })
 
         raise PermissionDenied()
 

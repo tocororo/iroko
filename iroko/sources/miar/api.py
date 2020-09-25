@@ -452,7 +452,7 @@ class MiarHarvester(BaseHarvester):
                                 # TODO: este es un error que tiene que ver con la forma en que se habren los json
                                 keys = [
                                     'Indexed\xa0in:',
-                                    'Indexed\u00a0in',
+                                    'Indexed\u00a0in:',
                                     'Evaluated\xa0in:',
                                     'Evaluated\u00a0in:'
                                 ]
