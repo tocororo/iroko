@@ -4,15 +4,12 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, request
-from iroko.utils import iroko_json_response, IrokoResponseStatus
 
-from iroko.sources.marshmallow.source import source_schema, source_schema_many
-from iroko.sources.models import Source, SourceType, SourceStatus, TermSources
-from iroko.sources.utils import _load_terms_tree
 from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
-
-from iroko.harvester.api import SecundarySourceHarvester
-
+from iroko.sources.marshmallow.source import source_schema, source_schema_many
+from iroko.sources.models import Source, SourceType, SourceStatus, TermSources, Issn
+from iroko.sources.utils import _load_terms_tree
+from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 api_blueprint = Blueprint(
     'iroko_api_sources_journals',
@@ -109,15 +106,17 @@ def get_journal_by_uuid(uuid):
 def get_journal_by_issn(issn):
     """Get a journal by UUID"""
     try:
-        issns_with_info = SecundarySourceHarvester.get_cuban_issns()
-
-        if not issn in issns_with_info.keys():
+        issn_db = Issn.query.filter_by(code=issn).first()
+        if not issn_db:
             return iroko_json_response(IrokoResponseStatus.NOT_FOUND, "ISSN {0} not found on Cuban ISSNs list".format(issn), None, None)
             # raise Exception("ISSN {0} not found on Cuban ISSNs list".format(issn))
-        if not "@graph" in issns_with_info[issn].keys():
+        issns_with_info = issn_db.data
+
+
+        if not "@graph" in issns_with_info.keys():
             raise Exception("Wrong json format for ISSN: {0}".format(issn))
 
-        for item in issns_with_info[issn]["@graph"]:
+        for item in issns_with_info["@graph"]:
             if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
                 return iroko_json_response(IrokoResponseStatus.SUCCESS,
                 "ok", "issn_org",

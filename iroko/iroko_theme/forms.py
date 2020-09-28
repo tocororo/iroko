@@ -1,9 +1,11 @@
-from flask_wtf import Form, RecaptchaField, FlaskForm
-from wtforms import TextField, PasswordField, TextAreaField, StringField, validators, BooleanField, DateField, SelectField
 from flask_babelex import lazy_gettext as _
-from iroko.taxonomy.models import Vocabulary, Term
+from flask_wtf import RecaptchaField, FlaskForm
+from wtforms import TextAreaField, StringField, validators, BooleanField, SelectField
 
 from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.vocabularies.models import Vocabulary, Term
+
+
 class ContactForm(FlaskForm):
       email = StringField(_('Email'), [validators.DataRequired(), validators.Email()])
       subject = StringField(_('Subject'), [validators.DataRequired(), validators.Length(max=150)])

@@ -26,15 +26,13 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, jsonify, request, json
+from flask import Blueprint
 from flask_login import current_user
-from invenio_oauth2server import require_api_auth
-from iroko.userprofiles import models, marshmallow, api
+
 from iroko.userprofiles.api import current_userprofile, current_userprofile_json_metadata
 from iroko.utils import iroko_json_response, IrokoResponseStatus
+from iroko.vocabularies.api import Terms
 from .views import init_common
-from iroko.taxonomy.api import Terms
-
 
 api_blueprint = Blueprint(
     'iroko_api_userprofiles',

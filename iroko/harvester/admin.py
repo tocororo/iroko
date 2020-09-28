@@ -34,7 +34,7 @@ class RepositoryModelView(ModelView):
 
     # can_view_details = True
 
-    list_all = ('id', 'source', 'harvest_type', 'identifier', 'harvest_endpoint', 'status')
+    list_all = ('source_uuid', 'harvest_type', 'identifier', 'harvest_endpoint', 'status')
 
     column_list = list_all
 
@@ -42,19 +42,19 @@ class RepositoryModelView(ModelView):
 
     column_filters = ('harvest_type','status')
 
-    form_columns = ('source', 'harvest_type', 'identifier', 'harvest_endpoint', 'last_harvest_run', 'status', 'error_log')
+    form_columns = ('harvest_type', 'identifier', 'harvest_endpoint', 'last_harvest_run', 'status', 'error_log')
 
 
 class HarvestedItemModelView(ModelView):
     """View for managing vocabularies."""
 
-    list_all = ('id', 'repository_id', 'identifier', 'record', 'status', 'setSpec')
+    list_all = ('id', 'source_uuid', 'identifier', 'record', 'status', 'setSpec')
 
     column_list = list_all
 
-    column_default_sort = ('repository_id', True)
+    column_default_sort = ('source_uuid', True)
 
-    column_filters = ('id', 'repository_id', 'status')
+    column_filters = ('id', 'source_uuid', 'status')
 
     form_columns = ('identifier', 'status','error_log')
 

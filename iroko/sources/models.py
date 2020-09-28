@@ -1,18 +1,12 @@
 
 """Iroko Taxonomy Admin models."""
 
-from datetime import datetime
-
-from sqlalchemy import and_, or_
-from sqlalchemy_utils.models import Timestamp
-from sqlalchemy_utils.types import UUIDType, JSONType, ScalarListType
-import uuid
 import enum
-from invenio_db import db
+import uuid
 
 from invenio_accounts.models import User
-
-from iroko.taxonomy.models import Term
+from invenio_db import db
+from sqlalchemy_utils.types import UUIDType, JSONType
 
 
 class SourceInstitutionRole(enum.Enum):
@@ -97,17 +91,19 @@ class SourceVersion(db.Model):
 
     user = db.relationship(User, backref='iroko_source_versions')
 
-    source_id = db.Column(db.Integer, db.ForeignKey(
-        Source.id, name='fk_iroko_source_versions_source_id'))
-    """ID of Source for this inclusion."""
+    source_uuid = db.Column(UUIDType, nullable=False)
 
-    source = db.relationship("Source",
-                             backref=db.backref("versions",
-                                                cascade="all, delete-orphan",
-                                                lazy='dynamic',
-                                                order_by='SourceVersion.created_at.desc()')
-                             )
-
+    #
+    # source_id = db.Column(db.Integer, db.ForeignKey(
+    #     Source.id, name='fk_iroko_source_versions_source_id'))
+    # """ID of Source for this inclusion."""
+    #
+    # source = db.relationship("Source",
+    #                          backref=db.backref("versions",
+    #                                             cascade="all, delete-orphan",
+    #                                             lazy='dynamic',
+    #                                             order_by='SourceVersion.created_at.desc()')
+    #                          )
     comment = db.Column(db.String)
 
     # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en las bases de datos.
@@ -125,6 +121,8 @@ class SourceVersion(db.Model):
     def __str__(self):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
+
+
 
 
 class Issn(db.Model):

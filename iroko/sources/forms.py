@@ -1,16 +1,15 @@
 from __future__ import absolute_import, print_function
-from flask_wtf import FlaskForm
-from wtforms.fields.html5 import URLField, EmailField
-#from flask_wtf.html5 import URLField, EmailField
-from flask_babelex import lazy_gettext as _
-from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, BooleanField, validators
-from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput, HTMLString, html_params
-from iroko.sources.models import Source, TermSources, SourceType, HarvestType
-from iroko.taxonomy.models import Vocabulary, Term
-from invenio_db import db
-from flask import current_app
-from invenio_i18n.selectors import get_locale
+
 import json
+
+from flask import current_app
+# from flask_wtf.html5 import URLField, EmailField
+from flask_babelex import lazy_gettext as _
+from flask_wtf import FlaskForm
+from invenio_i18n.selectors import get_locale
+from wtforms import StringField, SelectMultipleField, validators
+from wtforms.fields.html5 import URLField, EmailField
+from wtforms.widgets import ListWidget, CheckboxInput, HTMLString, html_params
 
 
 class MyListWidget(ListWidget):

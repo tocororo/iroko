@@ -1,16 +1,17 @@
-from flask import Flask
-from lxml import etree, ElementInclude, html
-import xml.etree.ElementTree as ET
-import requests
-import json
 import binascii
-from os import urandom
+import json
 import time
+from os import urandom
 from random import randint
-from iroko.harvester.utils import get_iroko_harvester_agent
-from iroko.harvester.base import BaseHarvester
-from iroko.sources.models import Issn
+
+import requests
+from flask import current_app
 from invenio_db import db
+from lxml import html
+
+from iroko.harvester.base import BaseHarvester
+from iroko.harvester.utils import get_iroko_harvester_agent
+from iroko.sources.models import Issn
 
 
 class IssnHarvester(BaseHarvester):
@@ -19,6 +20,35 @@ class IssnHarvester(BaseHarvester):
     Harvest all cuban ISSN from issn.org"""
 
     # TODO: all functions private, except process_pipeline
+
+
+
+    @classmethod
+    def process_issn(cls, remoteissns=True, remoteinfo=True, info=True):
+        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        harvester = IssnHarvester(work_dir)
+
+        issns = harvester.get_cuban_issns_json(remoteissns)
+
+        if info:
+            infos = harvester.get_cuban_issns_info_json(issns, remoteinfo)
+            # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario sea issn...
+
+    @classmethod
+    def get_cuban_issns(cls):
+        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        harvester = IssnHarvester(work_dir)
+
+        issns = harvester.get_cuban_issns_json(False)
+        infos = harvester.get_cuban_issns_info_json(issns, False)
+
+        return infos
+
+    @classmethod
+    def sync_db(cls):
+        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        harvester = IssnHarvester(work_dir)
+        harvester.syncronize_files_issn_model()
 
     def __init__(self, work_dir, load_remote=False):
         self.work_dir = work_dir
@@ -230,15 +260,17 @@ class IssnHarvester(BaseHarvester):
 
         if archive_issn and archive_issn_info:
             for archive in archive_issn:
+                data = archive_issn_info[archive]
                 issn_model = Issn.query.filter_by(code = archive).first()
                 if not issn_model:
-                    data = archive_issn_info[archive]
                     obj_issn = Issn()
                     obj_issn.code = archive
                     obj_issn.data = data
                     db.session.add(obj_issn)
-                    db.session.flush()
-                    db.session.commit()
+                else:
+                    issn_model.data = data
+                db.session.flush()
+            db.session.commit()
 
             return 'success'
         else:

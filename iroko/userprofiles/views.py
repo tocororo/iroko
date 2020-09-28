@@ -10,7 +10,9 @@
 
 from __future__ import absolute_import, print_function
 
+import base64
 import os
+
 from flask import Blueprint, current_app, flash, render_template, request
 from flask_babelex import lazy_gettext as _
 from flask_breadcrumbs import register_breadcrumb
@@ -19,14 +21,14 @@ from flask_menu import register_menu
 from flask_security.confirmable import send_confirmation_instructions
 from invenio_db import db
 from werkzeug.utils import secure_filename
-from .api import current_userprofile, current_userprofile_json_metadata
-from .forms import EmailProfileForm, ProfileForm, VerificationForm, \
-    confirm_register_form_factory, register_form_factory
-from .models import UserProfile
-from .marshmallow import userprofile_schema, UserProfilesSchema
-from iroko.taxonomy.api import Terms
-import base64
 
+from iroko.vocabularies.api import Terms
+from .api import current_userprofile, current_userprofile_json_metadata
+from .forms import (
+    EmailProfileForm, ProfileForm, VerificationForm,
+    confirm_register_form_factory, register_form_factory,
+)
+from .models import UserProfile
 
 blueprint = Blueprint(
     'invenio_userprofiles',
@@ -113,7 +115,7 @@ def profile_form_factory():
             formdata=None,
             username=current_userprofile.username,
             full_name=current_userprofile.full_name,
-            biography=t_biography,            
+            biography=t_biography,
             institution=t_institution.id if t_institution is not 0 else 0,
             avatar=base64.b64decode(str('t_avatar')) if t_avatar is not '' else None,
             email=current_user.email,
@@ -156,12 +158,12 @@ def handle_profile_form(form):
             data["institution_id"] = form.institution.data.id
             data["institution_rol"] = form.institution_rol.data
             data["avatar"] = ""
-            print("fichero= ", form.avatar.data)  
-            
+            print("fichero= ", form.avatar.data)
+
             print("aquiiiiii", request)
-                
+
             # if f:
-            #     filename = secure_filename(f.filename)       
+            #     filename = secure_filename(f.filename)
             #     print("otro= ", filename)
 
             if form.avatar.data:
@@ -173,7 +175,7 @@ def handle_profile_form(form):
                 with open(path_avatar, "r") as file_avatar:
                     encoded_avatar = base64.b64encode(file_avatar)
                     data["avatar"] = encoded_avatar
-        
+
             current_userprofile.json_metadata = data
             #print(current_userprofile.json_metadata)
             db.session.add(current_userprofile)

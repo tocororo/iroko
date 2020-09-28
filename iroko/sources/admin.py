@@ -28,12 +28,13 @@ from flask_admin.contrib.sqla import ModelView
 
 from .models import Source, TermSources, SourceVersion
 
+
 class SourcesModelView(ModelView):
     """View for managing vocabularies."""
 
     # can_view_details = True
 
-    list_all = ('id', 'name', 'uuid', 'source_type', 'source_status')
+    list_all = ('id', 'name', 'uuid', 'source_type', 'source_status', 'data')
 
     column_list = list_all
 
@@ -46,15 +47,15 @@ class SourcesModelView(ModelView):
 
 class SourcesVersionModelView(ModelView):
 
-    list_all = ('id', 'user', 'source', 'comment', 'created_at', 'is_current')
+    list_all = ('id', 'user', 'source_uuid', 'comment', 'created_at', 'is_current')
 
     column_list = list_all
 
     column_default_sort = ('created_at', True)
 
-    column_filters = ('user', 'source', 'comment', 'created_at', 'is_current')
+    column_filters = ('user', 'source_uuid', 'comment', 'created_at', 'is_current')
 
-    form_columns = ('user', 'source', 'comment', 'created_at', 'is_current' )
+    form_columns = ('user', 'source_uuid', 'comment', 'created_at', 'is_current' )
 
 
 class TermSourcesModelView(ModelView):

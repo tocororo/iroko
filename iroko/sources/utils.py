@@ -3,10 +3,8 @@ Helper function to several task related to Sources, sources types,
  sources fields, etc..
 """
 
-from invenio_db import db
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceType, SourceVersion
-from iroko.taxonomy.models import Term
-from iroko.sources.marshmallow.base import TermSourcesSchema
+from iroko.vocabularies.models import Term
+
 
 def _load_terms_tree(terms):
     """aux func"""
@@ -52,7 +50,5 @@ def _load_term_children_uuid(term):
             children.append(str(child.uuid))
             _load_term_children_id(child)
         return children
-
-
 
 

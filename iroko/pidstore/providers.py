@@ -101,37 +101,37 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
         print('@@@@@@@@')
         for ids in data[pids.IDENTIFIERS_FIELD]:
             if ids['idtype'] in identifiers_schemas:
-                print('@@@@@@@@')
+                print('@@@@@@@@', ids['idtype'], ids['value'])
+                # kwargs.setdefault('pid_type', ids['idtype'])
+                # kwargs.setdefault('pid_value', ids['value'])
+                # kwargs.setdefault('status', cls.default_status)
                 provider = super(IrokoRecordsIdentifiersProvider, cls).create(
                     pid_type=ids['idtype'],
                     pid_value=ids['value'],
                     object_type=object_type,
                     object_uuid=object_uuid,
-                    status=cls.default_status,
                     **kwargs
                 )
-                print('@@@@@@@@')
-                pIDs.append(provider.pid)
                 print('@@@@@@@@', provider.pid)
+                pIDs.append(provider.pid)
+                print('@@@@@@@@')
         return pIDs
 
     @classmethod
-    def create_pid(cls, pid_type, object_type=None, object_uuid=None, data=None,  **kwargs):
+    def create_pid(cls, pid_type, pid_value, object_type=None, object_uuid=None, data=None,  **kwargs):
         assert data, "no data"
         assert pids.IDENTIFIERS_FIELD in data
         assert pid_type
         assert pid_type in identifiers_schemas
-        for ids in data[pids.IDENTIFIERS_FIELD]:
-            if ids['idtype'] == pid_type:
-                provider = super(IrokoRecordsIdentifiersProvider, cls).create(
-                    pid_type=ids['idtype'],
-                    pid_value=ids['value'],
-                    object_type=object_type,
-                    object_uuid=object_uuid,
-                    status=cls.default_status,
-                    **kwargs
-                )
-                return provider.pid
+        assert pid_value
+        provider = super(IrokoRecordsIdentifiersProvider, cls).create(
+            pid_type=pid_type,
+            pid_value=pid_value,
+            object_type=object_type,
+            object_uuid=object_uuid,
+            **kwargs
+        )
+        return provider.pid
 
 
 class IrokoSourceUUIDProvider(BaseProvider):
@@ -155,20 +155,23 @@ class IrokoSourceUUIDProvider(BaseProvider):
     def create(cls, object_type=None, object_uuid=None, data=None, **kwargs):
         assert data, "no data"
         assert pids.SOURCE_UUID_FIELD in data
-        pIDs = []
+
+        # kwargs.setdefault('pid_type', pids.SOURCE_UUID_PID_TYPE)
+        # kwargs.setdefault('pid_value', data[pids.SOURCE_UUID_FIELD])
+        # kwargs.setdefault('status', cls.default_status)
+
         return super(IrokoSourceUUIDProvider, cls).create(
-                    pid_type=pids.SOURCE_UUID_PID_TYPE,
-                    pid_value=data[pids.SOURCE_UUID_FIELD],
                     object_type=object_type,
                     object_uuid=object_uuid,
-                    status=cls.default_status,
+                    pid_type=pids.SOURCE_UUID_PID_TYPE,
+                    pid_value=data[pids.SOURCE_UUID_FIELD],
                     **kwargs
-                )
+        )
 
 
 
 # class IrokoSourceSourceRecordProvider(BaseProvider):
-#     """Provider to relate Iroko's table Source, with IrokoSource in invenio Records ."""
+#     """Provider to relate Iroko's table Source, with SourceRecord in invenio Records ."""
 #     # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
 
 #     pid_type = pids.SOURCE_UUID_PID_TYPE

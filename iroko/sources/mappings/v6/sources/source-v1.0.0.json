@@ -8,7 +8,7 @@
           "type": "text",
           "index": false
         },
-        "source_uuid": {
+        "id": {
           "type": "keyword"
         },
         "identifiers":{
@@ -34,6 +34,28 @@
         "title": {
           "type": "text",
           "analyzer": "spanish"
+        },
+        "organizations": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "classifications": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "keyword"
+            }
+          }
         },
         "url": {
           "type": "keyword"
@@ -63,17 +85,6 @@
         "description": {
           "type": "text",
           "analyzer": "spanish"
-        },
-        "relations": {
-          "type": "object",
-          "properties": {
-            "uuid": {
-              "type": "keyword"
-            },
-            "data": {
-              "type": "object"
-            }
-          }
         }
       }
     }

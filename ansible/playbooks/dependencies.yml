@@ -43,12 +43,12 @@
         rabbitmq_password: iroko
 
 
-# - name: elastic
-  # hosts: elastic
-  # remote_user: root
-  # roles:
-  #   - java
-  #   - role: elasticsearch
-  #     vars:
-  #       elasticsearch_network_host: 0.0.0.0
+ - name: elastic
+   hosts: elastic
+   remote_user: root
+   roles:
+     - java
+     - role: elasticsearch
+       vars:
+         elasticsearch_network_host: 0.0.0.0
 

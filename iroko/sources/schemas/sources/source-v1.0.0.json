@@ -4,10 +4,10 @@
   "title": "Schema Source",
   "type": "object",
   "additionalProperties": true,
-  "required": ["identifiers", "source_uuid"],
+  "required": ["identifiers", "id", "title", "source_status", "source_type"],
   "properties": {
-    "source_uuid": {
-      "description": "Source UUID of the Iroko table Sources",
+    "id": {
+      "description": "Source UUID , pid_type = srcid",
       "type": "string"
     },
     "identifiers": {
@@ -76,6 +76,53 @@
     "title": {
       "type": "string"
     },
+    "description": {
+      "type": "string"
+    },
+    "organizations": {
+      "description": "list of organizations of related to this source",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "identifier of the ORG"
+          },
+          "name": {
+            "type": "string",
+            "description": "the name of the ORG"
+          },
+          "role": {
+            "type": "string",
+            "description": "the role of the organization"
+          }
+        }
+      }
+    },
+    "classifications": {
+      "description": "list of terms of related to this source",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "identifier the term related to this source"
+          },
+          "description": {
+            "type": "string",
+            "description": "the name of the term related to this source"
+          },
+          "vocabulary": {
+            "type": "string",
+            "description": "the vocabulary of the classification"
+          }
+        }
+      }
+    },
     "url": {
       "type": "string"
     },
@@ -106,32 +153,7 @@
     "frequency": {
       "type": "string"
     },
-    "description": {
-      "type": "string"
-    },
-    "relations": {
-      "description": "list of UUID of related to this source",
-      "items": {
-        "type": "object",
-        "additionalProperties": true,
-        "properties": {
-          "uuid": {
-            "type": "string",
-            "description": "the uuid of the term related to this source"
-          },
-          "name": {
-            "type": "string",
-            "description": "the name of the term related to this source"
-          },
-          "data": {
-            "type": "object",
-            "description": "any other data in the relation",
-            "additionalProperties": true
-          }
-        }
-      },
-      "type": "array"
-    },
+
     "issn": {
       "type": "object",
       "additionalProperties": true,
@@ -168,6 +190,21 @@
         },
         "e": {
           "type": "string"
+        }
+      }
+    },
+    "_save_info": {
+      "description": "on save information",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "the user saving the source"
+        },
+        "comment": {
+          "type": "string",
+          "description": "any relevant comment"
         }
       }
     }

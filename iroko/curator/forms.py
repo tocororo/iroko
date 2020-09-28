@@ -1,13 +1,14 @@
 from __future__ import absolute_import, print_function
-from flask_wtf import FlaskForm
-from flask_babelex import lazy_gettext as _
-from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, validators
-from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput
-from iroko.sources.models import Source, TermSources, SourceType
-from iroko.taxonomy.models import Vocabulary, Term
-from invenio_db import db
 
+from flask_babelex import lazy_gettext as _
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, TextAreaField, validators
+from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput
+
+from iroko.sources.models import SourceType
 from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.vocabularies.models import Vocabulary, Term
+
 
 class MultiCheckboxField(SelectMultipleField):
     widget			= ListWidget(prefix_label=False)

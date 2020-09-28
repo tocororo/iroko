@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 import datetime
 import json
+from time import sleep
 
 from flask import current_app
 from invenio_accounts.models import User
@@ -15,7 +16,7 @@ import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
 from iroko.sources.api import SourceRecord
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
-from iroko.utils import string_as_identifier
+from iroko.utils import string_as_identifier, CuorQueryHelper, get_default_user
 from iroko.vocabularies.models import Term
 
 
@@ -86,14 +87,39 @@ def init_journals():
                         name = string_as_identifier(tax['licences'][record['licence']]["name"])
                         term = Term.query.filter_by(name=name).first()
                         data['classifications'].append({'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
+                    if 'institution' in record:
+                        data['organizations'] = []
+                        name = tax['institutions'][record['institution']]["name"]
+                        org = CuorQueryHelper.get_by_label(name, country='Cuba')
+                        if org:
+                            data['organizations'].append(
+                                {
+                                    'id': org['id'],
+                                    'name': org['metadata']['name'],
+                                    'role': 'MAIN'
+                                }
+                            )
+                        parent_id = tax['institutions'][record['institution']]['parents'][0]
+                        if parent_id != '0':
+                            name = tax['institutions'][parent_id]["name"]
+                            parent_org = CuorQueryHelper.get_by_label(name, country='Cuba')
+                            if parent_org:
+                                data['organizations'].append(
+                                    {
+                                        'id':   parent_org['id'],
+                                        'name': parent_org['metadata']['name'],
+                                        'role': 'COLABORATOR'
+                                    }
+                                )
+
 
                     data['source_type'] = SourceType.JOURNAL.value
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
 
-                    user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
+                    user = get_default_user()
                     data['_save_info'] = {'user_id': str(user.id), 'comment': 'initial version'}
 
-                    new_source = SourceRecord.new_source(data, user)
+                    new_source = SourceRecord.new_source(data, user.id)
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
                     # # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
                     #
@@ -108,7 +134,10 @@ def init_journals():
                     #
                     # IrokoSourceVersions.new_version(new_source.id, data, user=user, comment='fixing is_current field', is_current=True)
 
+                    print('-----------------------')
                     print(new_source)
+                    print('----------------------- sleep 5 seconds')
+                    sleep(5)
 
                     # source.data = data
                     # source.source_status = SourceStatus.UNOFFICIAL

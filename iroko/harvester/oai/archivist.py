@@ -1,39 +1,21 @@
 import os
-
+import shutil
+import traceback
 from zipfile import ZipFile
 
-import time
-
-import traceback
-
-import shutil
-
-from lxml import etree
-
-from sickle import Sickle
-
 from flask import current_app
-
 from invenio_db import db
 
-from iroko.sources.models import Source, TermSources, SourceStatus
-
-from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository
-
-from iroko.harvester.oai import nsmap, request_headers
-from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
-from iroko.harvester.errors import IrokoHarvesterError
-import iroko.harvester.utils as utils
-
 import iroko.harvester.oai.harvester as harvester
-
-from iroko.taxonomy.models import Term, Vocabulary
-
-from iroko.harvester.base import SourceHarvester, Formater
-
+import iroko.harvester.utils as utils
+from iroko.harvester.base import Formater
+from iroko.harvester.models import HarvestedItem, HarvestedItemStatus, Repository
+from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
 from iroko.records.api import IrokoRecord
-
+from iroko.sources.models import Source
 from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.vocabularies.models import Term, Vocabulary
+
 
 # PAra que la consola haga autoreaload
 # In [1]: %load_ext autoreload

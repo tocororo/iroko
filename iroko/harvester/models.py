@@ -1,8 +1,9 @@
 
 import enum
-from sqlalchemy_utils.types import UUIDType, JSONType
+
 from invenio_db import db
-from iroko.sources.models import Source
+from sqlalchemy_utils.types import UUIDType, JSONType
+
 
 class HarvestType(enum.Enum):
     OAI = "OAI-PMH"
@@ -29,12 +30,14 @@ class Repository(db.Model):
 
     __tablename__ = 'iroko_source_repositories'
 
-    id = db.Column( db.Integer, primary_key=True)
+    # id = db.Column( db.Integer, primary_key=True)
 
-    source_id = db.Column(db.Integer, db.ForeignKey(Source.id, name='fk_iroko_source_repository_source_id'))
-    """ID of Source for this inclusion."""
+    # source_id = db.Column(db.Integer, db.ForeignKey(Source.id, name='fk_iroko_source_repository_source_id'))
+    # """ID of Source for this inclusion."""
+    #
+    # source = db.relationship("Source", backref=db.backref("repository",cascade="all, delete-orphan", lazy='dynamic'))
 
-    source = db.relationship("Source", backref=db.backref("repository",cascade="all, delete-orphan", lazy='dynamic'))
+    source_uuid = db.Column(UUIDType, primary_key=True)
 
     harvest_type = db.Column(db.Enum(HarvestType))
     harvest_endpoint = db.Column(db.String)
@@ -51,14 +54,14 @@ class HarvestedItem(db.Model):
     """The items harvested from a repository"""
 
     __tablename__ = 'iroko_harvest_items'
-    __table_args__ = (db.UniqueConstraint('repository_id', 'identifier', name='identifier_in_repository'),
+    __table_args__ = (db.UniqueConstraint('source_uuid', 'identifier', name='identifier_in_repository'),
                      )
     id = db.Column(db.Integer, primary_key=True)
 
-    repository_id = db.Column(db.Integer(),
-                        db.ForeignKey('iroko_sources.id', ondelete='CASCADE'),
+    source_uuid = db.Column(UUIDType,
+                        db.ForeignKey('iroko_source_repositories.source_uuid', ondelete='CASCADE'),
                         nullable=False, index=True)
-    repository = db.relationship("Source", backref=db.backref("harvested_items"))
+    repository = db.relationship("Repository", backref=db.backref("harvested_items"))
 
     # el identificador en el repo asociado
     identifier = db.Column(db.String, nullable=False)

@@ -1,15 +1,17 @@
 from __future__ import absolute_import, print_function
 
 import enum
+import json
 # from invenio_app import babel
 import re
+from threading import Thread
 from uuid import UUID
 
-from flask import jsonify, session, request, render_template, current_app
-from invenio_i18n.selectors import get_locale
+import requests
+from flask import jsonify, request, render_template, current_app
 from flask_mail import Message
-from threading import Thread
-from invenio_mail import InvenioMail
+from invenio_accounts.models import User
+from invenio_i18n.selectors import get_locale
 
 
 # def get_sources_by_terms(tids):
@@ -101,9 +103,9 @@ def string_as_identifier(value: str):
 
 
 
-def send_async_email(app, msg):    
-    with app.app_context():        
-        app.extensions['mail'].send(msg)       
+def send_async_email(app, msg):
+    with app.app_context():
+        app.extensions['mail'].send(msg)
 
 
 def send_email(subject, sender, recipients, text_body, html_body):
@@ -124,3 +126,62 @@ def send_contact_email(name, email, user_message):
                                          user_message=user_message, language=language, ip=client_ip),
                html_body=render_template('iroko_theme/email/contact_email.html', name=name, email=email,
                                          user_message=user_message, language=language, ip=client_ip))
+
+
+
+def get_default_user():
+    user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
+    return user
+
+class CuorQueryHelper:
+
+
+    @classmethod
+    def get_by_pid(cls, pid):
+        """Request an Organization by Persistent Identifier
+            not the CUOR UUID
+         """
+        try:
+            api_endpoint = current_app.config['CUOR_API_ENDPOINT']
+            session = requests.Session()
+            url = api_endpoint + '?q=identifiers.value:"' + pid + '"'
+            response = session.get(url, verify=False)
+            result = json.loads(response.text)
+            if 'hits' in result and 'total' in result['hits'] and result['hits']['total'] == 1:
+                return result['hits']['hits'][0]
+        except Exception:
+            return None
+
+    @classmethod
+    def get_by_uuid(cls, uuid):
+        """"""
+        try:
+            api_endpoint = current_app.config['CUOR_API_ENDPOINT']
+            session = requests.Session()
+            url = api_endpoint + uuid
+            response = session.get(url, verify=False)
+            result = json.loads(response.text)
+            if result:
+                return
+        except Exception:
+            return None
+
+    @classmethod
+    def get_by_label(cls, text, country='', state='', types=''):
+        """get the fist name found in labels.label"""
+        try:
+            api_endpoint = current_app.config['CUOR_API_ENDPOINT']
+            session = requests.Session()
+            url = api_endpoint + '?q=labels.label:' + text
+            if country != '':
+                url += '&country=' + country
+            if state != '':
+                url += '&state=' + state
+            if types != '':
+                url += '&types=' + types
+            response = session.get(url, verify=False)
+            result = json.loads(response.text)
+            if 'hits' in result and 'total' in result['hits'] and result['hits']['total'] > 0:
+                return result['hits']['hits'][0]
+        except Exception:
+            return None
