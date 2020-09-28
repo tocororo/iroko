@@ -40,7 +40,7 @@ from iroko.sources.permissions import (
 )
 from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree
-from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.api import Terms
 from iroko.vocabularies.models import Term
 
@@ -75,7 +75,10 @@ class SourceRecord(Record):
 
     @classmethod
     def create_or_update(cls, data, source_uuid=None, dbcommit=False, reindex=False, **kwargs):
-        """Create or update IrokoRecord."""
+        """Create or update IrokoRecord.
+        This method bypass all SourceVersion and approval process of a Source.
+        Use with care
+        """
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
             object_type=pids.SOURCE_TYPE,
@@ -213,6 +216,34 @@ class SourceRecord(Record):
 
             return result
         return False
+
+    @classmethod
+    def get_source_by_pid_in_data(cls, data):
+        """
+        Try to find a source by any identifier in data.
+        :param data: data must have 'identifiers' field.
+        :return:
+        """
+        resolver = Resolver(
+            pid_type=pids.SOURCE_UUID_PID_TYPE,
+            object_type=pids.SOURCE_TYPE,
+            getter=cls.get_record,
+        )
+        if pids.IDENTIFIERS_FIELD in data:
+            # if not uuid, find any persistent identifier in data.
+            print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
+            for identifier in data[pids.IDENTIFIERS_FIELD]:
+                try:
+                    pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                    pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                    resolver.pid_type = pid_type
+                    persistent_identifier, source = resolver.resolve(pid_value)
+                    pid = PersistentIdentifier.get(pids.SOURCE_UUID_PID_TYPE, source['id'])
+                    return pid, source
+                except Exception:
+                    pass
+        return None, None
+
 
     @classmethod
     def get_source_by_pid(cls, pid_value, with_deleted=False):
@@ -384,7 +415,7 @@ class SourceRecord(Record):
         # self.model.json['classifications'] = classifications
 
     @classmethod
-    def create_or_get_source_by_issn(cls, issn, user):
+    def create_or_get_source_by_issn(cls, issn):
         """
         get the source by the issn
         si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
@@ -396,17 +427,18 @@ class SourceRecord(Record):
             print("buscando el issn {0}".format(code))
             pid, source = SourceRecord.get_source_by_pid(code)
             if source:
-                editors = source.get_editors
-                print('editors: ',editors)
-                print('user.id: ', user.id)
-                if len(editors) == 0:
-                    #dar permiso
-                    source.grant_source_editor_permission(user.id)
-                    return pid, source
-                elif user.id in editors:
-                    return pid, source
-                #no tiene permiso para editar esta fuente
-                raise Exception('No tiene permiso para editar esta fuente')
+                return pid, source
+                # editors = source.get_editors
+                # print('editors: ',editors)
+                # print('user.id: ', user.id)
+                # if len(editors) == 0:
+                #     #dar permiso
+                #     source.grant_source_editor_permission(user.id)
+                #     return pid, source
+                # elif user.id in editors:
+                #     return pid, source
+                # #no tiene permiso para editar esta fuente
+                # raise Exception('No tiene permiso para editar esta fuente')
             print("no existe, creando source {0}".format(code))
             for item in data["@graph"]:
                 if item['@id'] == 'resource/ISSN/' + code + '#KeyTitle':
@@ -418,7 +450,7 @@ class SourceRecord(Record):
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
                     data['title'] = title
                     data['identifiers'] = [{'idtype': 'pissn', 'value': code}]
-                    msg, source = SourceRecord.new_source(data, user.id)
+                    msg, source = SourceRecord.new_source(data, get_default_user())
                     if source:
                         return SourceRecord.get_source_by_pid(code)
         raise Exception('El ISSN {0} no existe'.format(issn))

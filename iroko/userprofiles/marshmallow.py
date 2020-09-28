@@ -1,15 +1,33 @@
-from marshmallow import Schema, fields, ValidationError, pre_load
-from invenio_records_rest.schemas.fields import DateString
-from iroko.userprofiles.models import UserProfile
-from invenio_db import db
+from marshmallow import Schema, fields
 
 
-class UserProfilesSchema(Schema):
+class SourcesRoles(Schema):
+    source_uuid = fields.Str(allow_none=True)
+    role = fields.Str(allow_none=True)
+
+class UserProfileDataSchema(Schema):
 
     biography = fields.Str()
     institution_id = fields.Integer()
     institution_rol = fields.Str()
     avatar = fields.Str()
+    sources = fields.Nested(SourcesRoles, many=True)
+
+class UserProfilesSchema(Schema):
+
+    _username = fields.Str()
+    """Lower-case version of username to assert uniqueness."""
+
+    _displayname = fields.Str()
+    """Case preserving version of username."""
+
+    full_name = fields.Str()
+    """Full name of person."""
+
+    json_metadata = fields.Nested(UserProfileDataSchema, many=False)
+
+
+
 
 userprofile_schema_many = UserProfilesSchema(many=True)
 userprofile_schema = UserProfilesSchema()

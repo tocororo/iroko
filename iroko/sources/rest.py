@@ -28,6 +28,7 @@ from iroko.sources.marshmallow.source_v1 import source_v1_response
 from iroko.sources.models import SourceStatus
 from iroko.sources.permissions import is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager
 from iroko.sources.search import SourceSearch
+from iroko.userprofiles import UserProfile
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
 api_blueprint = Blueprint(
@@ -40,6 +41,14 @@ api_blueprint = Blueprint(
 @api_blueprint.route('/new', methods=['POST'])
 @require_api_auth()
 def source_new():
+    """
+    Create a new Source,
+    If is a regular user, then the user will be Source Editor, but sceiba
+    arguments:
+        pid: must provide a source PID to create something.
+        role: user role in the source.
+    :return:
+    """
     try:
         if not request.is_json:
             raise Exception("No JSON data provided")
@@ -47,26 +56,43 @@ def source_new():
         input_data = request.json
 
         user_id = current_user.id
-        msg, source = SourceRecord.new_source(input_data, user_id=user_id)
 
-        if not source:
-            raise Exception(msg)
+        pidvalue = request.args.get('pid')
+        role = request.args.get('role')
 
-        msg, done = source.grant_source_editor_permission(current_user.id)
+        comment = 'New Inclusion'
+        if 'comment' in input_data:
+            comment = input_data['comment']
 
-        notification = NotificationSchema()
-        notification.classification = NotificationType.INFO
-        notification.description = _(
-            'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(source, source.id))
-        notification.emiter = _('Sistema')
+        data = dict(input_data['data'])
+        print(data)
+        pid, source = SourceRecord.get_source_by_pid(pidvalue)
+        if not source or not pid:
+            pid, source = SourceRecord.get_source_by_pid_in_data(data)
+        if source:
+            print(source)
+            msg, done = source.grant_source_editor_permission(user_id)
+            UserProfile.add_source_to_user_profile(user_id, source['id'], role)
+            if done:
+                source_version = IrokoSourceVersions.new_version(source.id,
+                                                             data,
+                                                             user_id=user_id,
+                                                             comment=comment,
+                                                             is_current=False)
 
-        for user_id in source.get_managers:
-            notification.receiver_id = user_id
-            Notifications.new_notification(notification)
+                notification = NotificationSchema()
+                notification.classification = NotificationType.INFO
+                notification.description = _(
+                    'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(source, source.id))
+                notification.emiter = _('Sistema')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'source', \
-                                   {'data': source, 'count': 1})
+                for user_id in source.get_managers:
+                    notification.receiver_id = user_id
+                    Notifications.new_notification(notification)
+
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                           'ok', 'source', \
+                                           {'data': source, 'count': 1})
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -99,13 +125,12 @@ def source_new_version(uuid):
             # si no esta aprobada significa que siempre es la current.
             # si esta aprobada el proceso es otro
             print(input_data)
-            is_current = source['source_status'] != SourceStatus.APPROVED.value
             data = dict(input_data['data'])
             source_version = IrokoSourceVersions.new_version(source.id,
                                                              data,
                                                              user_id=user_id,
                                                              comment=comment,
-                                                             is_current=is_current)
+                                                             is_current=False)
             if not source_version:
                 raise Exception('Not source for changing found')
 
@@ -130,7 +155,6 @@ def source_new_version(uuid):
 
 
 @api_blueprint.route('/byissn/<issn>')
-@require_api_auth()
 def get_source_by_issn(issn):
     """Get a source by any PID received as a argument, including UUID"""
 
@@ -138,7 +162,7 @@ def get_source_by_issn(issn):
     print('eres la api correcta?')
     try:
         print('eres la api correcta?')
-        pid, source = SourceRecord.create_or_get_source_by_issn(issn, current_user)
+        pid, source = SourceRecord.create_or_get_source_by_issn(issn)
         if not source or not pid:
             raise Exception('Source not found')
 
@@ -148,7 +172,6 @@ def get_source_by_issn(issn):
         #                            'ok', 'source', \
         #                            {'data': source})
     except Exception as e:
-        raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -182,9 +205,11 @@ def get_source_versions(uuid):
 
         with source.current_user_has_edit_permission.require():
             versions = IrokoSourceVersions.get_versions(uuid)
+            dd = source_version_schema_many.dump(versions)
+            print(dd)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                        'ok', 'versions', \
-                                       source_version_schema_many.dump(versions))
+                                       dd)
     except Exception as e:
         print()
         return iroko_json_response(IrokoResponseStatus.ERROR, traceback.format_exc(), None, None)
@@ -262,7 +287,7 @@ def source_unpublish(uuid):
 
 @api_blueprint.route('/me/<status>')
 @require_api_auth()
-def get_sources_from_user_as_manager(status):
+def get_current_user_sources(status):
     """
         returns the sources of wich current_user is manager
         param status: 'ALL', 'APPROVED', 'TO_REVIEW', 'UNOFFICIAL'
@@ -300,9 +325,9 @@ def get_sources_from_user_as_manager(status):
             for hit in search_result:
                 manager.append(
                     {
-                        'id':                hit.id,
-                        'name':              hit.name,
-                        'source_status':     hit.source_status,
+                        'id':                hit['id'],
+                        'name':              hit['name'],
+                        'source_status':     hit['source_status'],
                         'version_to_review': True
                     }
                 )
@@ -313,9 +338,9 @@ def get_sources_from_user_as_manager(status):
         for hit in sources:
             editor.append(
                 {
-                    'id':                hit.id,
-                    'name':              hit.name,
-                    'source_status':     hit.source_status,
+                    'id':                hit['id'],
+                    'name':              hit['name'],
+                    'source_status':     hit['source_status'],
                     'version_to_review': True
                 }
             )

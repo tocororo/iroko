@@ -14,14 +14,15 @@ from invenio_accounts.models import User
 from invenio_db import db
 from sqlalchemy import event
 from sqlalchemy.ext.hybrid import hybrid_property
-from .validators import validate_username
 from sqlalchemy_utils.types import JSONType
-import enum
+
+from iroko.sources.api import SourceRecord
+from .validators import validate_username
 
 
 class AnonymousUserProfile():
     """Anonymous user profile."""
-    json_metadata = db.Column( JSONType )
+    json_metadata = db.Column(JSONType)
 
     @property
     def is_anonymous(self):
@@ -60,7 +61,7 @@ class UserProfile(db.Model):
     full_name = db.Column(db.String(255), nullable=False, default='')
     """Full name of person."""
 
-    json_metadata = db.Column( JSONType )
+    json_metadata = db.Column(JSONType)
     """Store metadata in JSON format."""
 
     @hybrid_property
@@ -99,10 +100,78 @@ class UserProfile(db.Model):
         """
         return cls.query.filter_by(user_id=user_id).one_or_none()
 
+    @classmethod
+    def get_or_create_by_userid(cls, user_id):
+        """Get profile by user identifier.
+
+        :param user_id: Identifier of a :class:`~invenio_accounts.models.User`.
+        :returns: A :class:`~invenio_userprofiles.models.UserProfile` instance
+            or ``None``.
+        """
+        profile = cls.query.filter_by(user_id=user_id).one_or_none()
+        if not profile:
+            user = User.query.filter_by(id=user_id).one_or_none()
+            if not user:
+                raise Exception('Cannot create profile. Not user_id={0}'.format(user_id))
+            profile = cls()
+            profile.user_id = user.id
+            db.session.add(profile)
+            db.session.commit()
+
+        return profile
+
+
+
     @property
     def is_anonymous(self):
         """Return whether this UserProfile is anonymous."""
         return False
+
+    @classmethod
+    def add_source_to_user_profile(cls, user_id, source_uuid, role):
+
+        print('add_source_to_user_profile', user_id, source_uuid, role)
+        user_profile = cls.get_or_create_by_userid(user_id)
+        if not user_profile:
+            raise Exception('No user_id={0}'.format(user_id))
+
+        pid, source = SourceRecord.get_source_by_pid(source_uuid)
+        if not pid or not source:
+            raise Exception('No source_uuid={0}'.format(source_uuid))
+
+        add = True
+        if user_profile.json_metadata:
+            data = dict(user_profile.json_metadata)
+        else:
+            data = dict()
+        if 'sources' not in data:
+            data['sources'] = []
+        for s in data['sources']:
+            if s['source_uuid'] == source_uuid:
+                s['role'] = role
+                add = False
+        if add:
+            data['sources'].append({'source_uuid': source_uuid, 'role': role})
+        user_profile.json_metadata = dict(data)
+        db.session.commit()
+        print(user_profile, user_profile.json_metadata)
+
+    @classmethod
+    def remove_source_from_user_profile(cls, user_id, source_uuid):
+        user_profile = cls.get_or_create_by_userid(user_id)
+        if not user_profile:
+            raise Exception('No user_id={0}'.format(user_id))
+        sources=[]
+        data = dict(user_profile.json_metadata)
+        if 'sources' not in data:
+            data['sources'] = []
+        for s in data['sources']:
+            if s['source_uuid'] != source_uuid:
+                sources.append(s)
+        data['sources'] = sources
+        user_profile.json_metadata = dict(data)
+        db.session.commit()
+
 
 
 @event.listens_for(User, 'init')

@@ -25,11 +25,14 @@ class SourceVersionSchema(Schema):
     def fix_data_field(self, result, version:SourceVersion, **kwargs):
 
         source = SourceRecord.get_record(version.source_uuid)
-        if source.model.json['source_type'] == SourceType.JOURNAL:
+        print('************* POST DUMP ***************')
+        print(source.model.json['source_type'], )
+        if source.model.json['source_type'] == SourceType.JOURNAL.value:
             data = journal_data_schema.dump(version.data)
         else:
             data =source_data_schema.dump(version.data)
         result['data'] = data
+        print('************* POST DUMP ***************')
         return result
 
 

@@ -4,6 +4,8 @@ from invenio_records_rest.schemas import StrictKeysMixin
 from invenio_records_rest.schemas.fields import DateString, SanitizedUnicode, PersistentIdentifier
 from marshmallow import Schema, fields, post_dump, INCLUDE
 
+from iroko.userprofiles import UserProfile
+from iroko.userprofiles.marshmallow import UserProfilesSchema, userprofile_schema
 from iroko.vocabularies.api import Terms
 from iroko.vocabularies.marshmallow import term_schema
 
@@ -66,9 +68,20 @@ class SourceDataSchema(Schema):
     _save_info = fields.Nested(SavingInfoSchema, many=False, unknown=INCLUDE)
     _save_info_updated = DateString()
 
-# TODO: to replace by UserProfilesSchema
+
 class IrokoUserSchema(Schema):
+    id = fields.Int()
     email = fields.Str()
+    profile = fields.Nested(UserProfilesSchema, many=False)
+
+    @post_dump
+    def dump_profile(self, user, **kwargs):
+        profile = UserProfile.get_or_create_by_userid(user['id'])
+        user['profile'] = userprofile_schema.dump(profile)
+        return user
+
+
+
 
 
 source_data_schema = SourceDataSchema(many=False, unknown=INCLUDE)
