@@ -5,9 +5,11 @@ from sqlalchemy import desc
 
 from iroko.harvester.marshmallow import RepositorySchema
 from iroko.sources.api import SourceRecord
-from iroko.sources.marshmallow.base import source_data_schema, IrokoUserSchema, TermSourcesSchema, SourceDataSchema
+from iroko.sources.marshmallow.base import source_data_schema, TermSourcesSchema, SourceDataSchema
 from iroko.sources.marshmallow.journal import journal_data_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
+from iroko.userprofiles import UserProfile
+from iroko.userprofiles.marshmallow import UserProfilesSchema, userprofile_schema
 
 
 class SourceVersionSchema(Schema):
@@ -19,7 +21,10 @@ class SourceVersionSchema(Schema):
     is_current = fields.Boolean()
     data = fields.Nested(SourceDataSchema, many=False, unknown=INCLUDE)
     reviewed = fields.Boolean()
-    user = fields.Nested(IrokoUserSchema)
+
+    # user = fields.Nested(IrokoUserSchema)
+
+    userprofile = fields.Nested(UserProfilesSchema)
 
     @post_dump(pass_original=True)
     def fix_data_field(self, result, version:SourceVersion, **kwargs):
@@ -33,6 +38,12 @@ class SourceVersionSchema(Schema):
             data =source_data_schema.dump(version.data)
         result['data'] = data
         print('************* POST DUMP ***************')
+        return result
+
+    @post_dump(pass_original=True)
+    def dump_user_profile(self, result, version: SourceVersion, **kwargs):
+        profile = UserProfile.get_or_create_by_userid(version.user_id)
+        result['userprofile'] = userprofile_schema.dump(profile)
         return result
 
 

@@ -14,7 +14,7 @@ from invenio_accounts.models import User
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
-from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError
+from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError, PIDObjectAlreadyAssigned
 from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
@@ -244,7 +244,6 @@ class SourceRecord(Record):
                     pass
         return None, None
 
-
     @classmethod
     def get_source_by_pid(cls, pid_value, with_deleted=False):
         resolver = Resolver(
@@ -268,28 +267,52 @@ class SourceRecord(Record):
                 pass
         return None, None
 
-    def update(self, data=None, dbcommit=False, reindex=False):
+    def update(self, data=None, dbcommit=True, reindex=True):
         """Update data for record."""
         if not data:
             data = self.model.json
+
+        self._update_pids(data)
 
         data['_save_info_updated'] = str(date.today())
 
         super(SourceRecord, self).update(data)
         super(SourceRecord, self).commit()
-        print('update pids?')
-        self.update_pids(data)
 
         if dbcommit:
             self.dbcommit(reindex)
+
+        print('update pids?')
+
+        self._update_repo_info()
+        print('UPDATED', self.model.json)
         return self
 
-    def update_pids(self, data):
+    def _update_repo_info(self):
+        if pids.IDENTIFIERS_FIELD in self.model.json:
+            for identifier in self.model.json[pids.IDENTIFIERS_FIELD]:
+                pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                if pid_type == 'oaiurl' and pid_value:
+                    repo = Repository.query.filter_by(source_uuid=self.id).first()
+                    if not repo:
+                        repo = Repository()
+                        repo.source_uuid = self.id
+                        db.session.add(repo)
+                    repo.harvest_endpoint = pid_value
+                    repo.harvest_type = HarvestType.OAI
+                    db.session.commit()
+
+    def _update_pids(self, data):
         if pids.IDENTIFIERS_FIELD in data:
             for ids in data[pids.IDENTIFIERS_FIELD]:
                 if ids['idtype'] in identifiers_schemas:
                     try:
                         pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
+                        obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
+                        if obj_uuid != self.id:
+                            raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
+
                     except PIDDoesNotExistError:
                         print('!!!!!!!')
                         iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
@@ -333,24 +356,26 @@ class SourceRecord(Record):
             return permiso
 
         permiso = None
-        for term in self.model.json['classifications']:
-            if 'id' in term:
-                try:
-                    permiso = Permission(ObjectSourceTermManager(term['id']))
-                    if permiso:
-                        return permiso
-                except Exception as e:
-                    raise e
+        if 'classifications' in self.model.json:
+            for term in self.model.json['classifications']:
+                if 'id' in term:
+                    try:
+                        permiso = Permission(ObjectSourceTermManager(term['id']))
+                        if permiso:
+                            return permiso
+                    except Exception as e:
+                        raise e
 
         permiso = None
-        for org in self.model.json['organizations']:
-            if 'id' in org:
-                try:
-                    permiso = Permission(ObjectSourceOrganizationManager(org['id']))
-                    if permiso:
-                        return permiso
-                except Exception as e:
-                    raise e
+        if 'organizations' in self.model.json:
+            for org in self.model.json['organizations']:
+                if 'id' in org:
+                    try:
+                        permiso = Permission(ObjectSourceOrganizationManager(org['id']))
+                        if permiso:
+                            return permiso
+                    except Exception as e:
+                        raise e
 
         raise PermissionDenied('No tiene permisos de gestión')
 
@@ -458,7 +483,6 @@ class SourceRecord(Record):
     # Permission methods
     #
 
-
     @classmethod
     def get_search(cls, status=None, classifications=None, organizations=None) -> SourceSearch:
         """return a  SourceSearch object with the specified status, classifications and organizations
@@ -485,12 +509,11 @@ class SourceRecord(Record):
         return search
 
     @classmethod
-    def get_sources_search_of_user_as_editor(cls, user: User, status=None) :
+    def get_sources_search_of_user_as_editor(cls, user: User, status=None):
         """devuelve las fuentes de las cuales el usuario actual es editor """
 
         ids = get_arguments_for_source_from_action(user, 'source_editor_actions')
         return cls.get_records(ids)
-
 
     @classmethod
     def get_sources_search_of_user_as_manager(cls, user: User, status=None) -> SourceSearch:
@@ -513,9 +536,7 @@ class SourceRecord(Record):
             return None
 
         return cls.get_search(status=status, classifications=sources_terms,
-                                          organizations=sources_orgs)
-
-
+                              organizations=sources_orgs)
 
     def grant_source_editor_permission(self, user_id) -> Dict[str, bool]:
         done = False
@@ -586,7 +607,8 @@ class IrokoSourceVersions:
 
     @classmethod
     def get_versions(cls, source_uuid) -> [SourceVersion]:
-        return SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all()
+        return SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).order_by(
+            SourceVersion.created_at.desc()).all()
 
     @classmethod
     def new_version(cls, source_uuid, data, user_id=None, comment='no comment', is_current=False):
@@ -596,7 +618,7 @@ class IrokoSourceVersions:
                 raise Exception('Must be authenticated')
             user_id = current_user.id
 
-    # with db.session.begin_nested():
+        # with db.session.begin_nested():
         if is_current:
             for version in SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all():
                 version.is_current = False

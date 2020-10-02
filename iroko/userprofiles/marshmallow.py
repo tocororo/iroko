@@ -1,6 +1,11 @@
 from marshmallow import Schema, fields
 
 
+class UserSchema(Schema):
+    id = fields.Int()
+    email = fields.Str()
+
+
 class SourcesRoles(Schema):
     source_uuid = fields.Str(allow_none=True)
     role = fields.Str(allow_none=True)
@@ -26,6 +31,7 @@ class UserProfilesSchema(Schema):
 
     json_metadata = fields.Nested(UserProfileDataSchema, many=False)
 
+    user = fields.Nested(UserSchema, many=False)
 
 
 

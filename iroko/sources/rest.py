@@ -24,7 +24,7 @@ from iroko.sources.api import (
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
 )
-from iroko.sources.marshmallow.source_v1 import source_v1_response
+from iroko.sources.marshmallow.source_v1 import source_v1_response, source_v1
 from iroko.sources.models import SourceStatus
 from iroko.sources.permissions import is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager
 from iroko.sources.search import SourceSearch
@@ -154,6 +154,65 @@ def source_new_version(uuid):
         # return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
+@api_blueprint.route('/<uuid>/publish', methods=['POST'])
+@require_api_auth()
+def source_publish(uuid):
+    # inserta un nuevo sourceVersion de un source que ya existe
+    # input_data = request.json
+    # updata el input_data en el SourceRecord
+
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
+
+        input_data = request.json
+        user_id = current_user.id
+
+        comment = 'no comment'
+        if 'comment' in input_data:
+            comment = input_data['comment']
+
+        source = SourceRecord.get_record(uuid)
+        if not source:
+            raise Exception('Not source found')
+
+        with source.current_user_has_publish_permission.require():
+
+            data = dict(input_data['data'])
+            data['source_status'] = SourceStatus.APPROVED.value
+
+            source_version = IrokoSourceVersions.new_version(source.id,
+                                                             data,
+                                                             user_id=user_id,
+                                                             comment=comment,
+                                                             is_current=True)
+
+            if not source_version:
+                raise Exception('Not source for changing found')
+
+            source.update(data)
+
+            notification = NotificationSchema()
+            notification.classification = NotificationType.INFO
+            notification.description = _('Se ha publicado una nueva version de la fuente: {0}:{1}.'.format(source['name'], source.id))
+            notification.emiter = _('Sistema')
+
+            for user in source.get_managers:
+                notification.receiver_id = user
+                Notifications.new_notification(notification)
+
+            return iroko_json_response(IrokoResponseStatus.SUCCESS,
+                                       'ok', 'source',
+                                       source)
+    except PermissionDenied as err:
+        msg = 'Permission denied for changing source'
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        raise e
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
+
 @api_blueprint.route('/byissn/<issn>')
 def get_source_by_issn(issn):
     """Get a source by any PID received as a argument, including UUID"""
@@ -192,6 +251,43 @@ def get_source_by_pid():
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
+@api_blueprint.route('/<uuid>', methods=['GET'])
+@require_api_auth()
+def get_source_by_uuid_perm(uuid):
+    """Get a source by any PID received as a argument, including UUID"""
+    try:
+        pid, source = SourceRecord.get_source_by_pid(uuid)
+        if not source or not pid:
+            raise Exception('Source not found')
+        try:
+            with source.current_user_has_publish_permission.require():
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                           'ok', 'source', \
+                                           {
+                                               'record': source_v1.transform_record(pid, source),
+                                               'allows': 'publish'
+                                           }
+                                           )
+        except PermissionDenied as err:
+            with source.current_user_has_edit_permission.require():
+                # print('*********************************')
+                # print(source)
+                # record = source_v1.preprocess_record(pid, source)
+                # print(record)
+                # print('*********************************')
+                # record['allows'] = 'edit'
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+                                        'ok', 'source', \
+                                        {
+                                            'record': source_v1.transform_record(pid,source),
+                                            'allows': 'edit'
+                                        }
+                                       )
+
+    except Exception as e:
+        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+
 
 @api_blueprint.route('/<uuid>/versions', methods=['GET'])
 @require_api_auth()
@@ -215,42 +311,6 @@ def get_source_versions(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, traceback.format_exc(), None, None)
 
 
-@api_blueprint.route('/<uuid>/publish/<version>', methods=['POST'])
-@require_api_auth()
-def source_publish(uuid, version):
-    # pone los datos de source_version en el sourceRecord
-    # ademas source_status = SourceStatus.APPROVED
-    try:
-        source = SourceRecord.get_record(uuid)
-        if not source:
-            raise Exception('Not source found')
-
-        source_version = IrokoSourceVersions.get_version(version)
-        if not source_version:
-            raise Exception('Not source version found')
-
-        with source.current_user_has_publish_permission.require():
-            data = source_version.data
-            data['source_status'] = SourceStatus.APPROVED.value
-            source.update(data)
-
-            notification = NotificationSchema()
-            notification.classification = NotificationType.INFO
-            notification.description = _('Se ha publicado una nueva version de la fuente: {0}.'.format(source.name))
-            notification.emiter = _('Sistema')
-
-            for user in source.get_managers:
-                notification.receiver_id = user
-                Notifications.new_notification(notification)
-
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'source',
-                                       source)
-    except PermissionDenied as err:
-        msg = 'Permission denied for changing source'
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-    except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/<uuid>/unpublish', methods=['POST'])

@@ -28,6 +28,7 @@ class SourceSchemaV1(StrictKeysMixin):
     id = PersistentIdentifier()
 
 source_data_schema_many = SourceDataSchemaV1(many=True)
+source_data_schema = SourceDataSchemaV1(many=False)
 
 source_loader_v1 = marshmallow_loader(SourceDataSchemaV1)
 

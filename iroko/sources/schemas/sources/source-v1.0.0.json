@@ -83,6 +83,9 @@
         "UNOFFICIAL"
       ]
     },
+    "source_system": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },

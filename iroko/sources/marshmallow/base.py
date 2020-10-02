@@ -41,10 +41,22 @@ class ClasificationDataSchema(Schema):
     data = fields.Raw(many=False)
 
 
+
+class RelationSchemaV1(Schema):
+    """Ids schema."""
+
+    identifiers = fields.Nested(IdentifierSchema, many=True, required=True)
+    type = SanitizedUnicode()
+    label = SanitizedUnicode()
+
+
 class OrganizationDataSchema(Schema):
     id = fields.UUID()
     name = fields.Str()
     role = fields.Str()
+    status = SanitizedUnicode()
+    identifiers = fields.Nested(IdentifierSchema, many=True)
+    relationships = fields.Nested(RelationSchemaV1, many=True)
 
 
 class SavingInfoSchema(Schema):
@@ -59,6 +71,7 @@ class SourceDataSchema(Schema):
     name = fields.Str(allow_none=False)
     source_type = fields.Str(allow_none=False)
     source_status = fields.Str(allow_none=True)
+    source_system = fields.Str()
     title = fields.Str()
     description = fields.Str()
 

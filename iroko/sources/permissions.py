@@ -183,7 +183,6 @@ def user_has_editor_or_manager_permissions(obj):
     return Permission(ObjectSourceEditor(obj['uuid']))
 
 
-
 def get_arguments_for_source_from_action(puser, paction):
 
     arguments = list(map(lambda x: x.argument,

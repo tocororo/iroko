@@ -9,7 +9,7 @@ from invenio_search.api import DefaultFilter
 def approveds_filter():
     """Filter approved sources."""
     return Q('bool', filter=[
-        Q('match', **{'source_status': 'UNOFFICIAL'})
+        Q('match', **{'source_status': 'APPROVED'})
     ])
 
 class SourceSearch(RecordsSearch):
