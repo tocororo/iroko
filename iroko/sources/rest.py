@@ -488,7 +488,9 @@ def get_sources_stats():
         if org_id:
             org = CuorHelper.query_cuor_by_uuid(org_id)
             if not org or 'metadata' not in org:
-                raise Exception('Organization with ID: {0} not found'.format(org_id))
+                org_id = None
+                org = {}
+                # raise Exception('Organization with ID: {0} not found'.format(org_id))
 
             search = search.filter('term', organizations__id=org_id)
             bucket_org = A('terms', field='organizations.id', size=999999)
