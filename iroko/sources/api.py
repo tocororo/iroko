@@ -272,6 +272,8 @@ class SourceRecord(Record):
         if not data:
             data = self.model.json
 
+        # self.validate()
+
         self._update_pids(data)
 
         data['_save_info_updated'] = str(date.today())
@@ -304,20 +306,27 @@ class SourceRecord(Record):
                     db.session.commit()
 
     def _update_pids(self, data):
+        newPids = []
         if pids.IDENTIFIERS_FIELD in data:
             for ids in data[pids.IDENTIFIERS_FIELD]:
                 if ids['idtype'] in identifiers_schemas:
-                    try:
-                        pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
-                        obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
-                        if obj_uuid != self.id:
-                            raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
-
-                    except PIDDoesNotExistError:
-                        print('!!!!!!!')
-                        iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
-                                                                                   object_type=pids.SOURCE_TYPE,
-                                                                                   object_uuid=self.id, data=data)
+                    if ids['value'] != '':
+                        try:
+                            pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
+                            obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
+                            print('!!!!!!!')
+                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
+                            print('!!!!!!!')
+                            if obj_uuid != self.id:
+                                print('!!!!!!!******')
+                                raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
+                        except PIDObjectAlreadyAssigned as e:
+                            print('!!!!!!!')
+                            raise e
+                        except PIDDoesNotExistError:
+                            iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
+                                                                                       object_type=pids.SOURCE_TYPE,
+                                                                                       object_uuid=self.id, data=data)
 
     def dbcommit(self, reindex=False, forceindex=False):
         """Commit changes to db."""

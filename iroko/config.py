@@ -28,6 +28,7 @@ from iroko.pidstore import pids as pids
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
 from iroko.sources.api import SourceRecord
+from iroko.sources.permissions import check_source_status
 from iroko.sources.search import SourceSearch
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -250,7 +251,7 @@ RECORDS_REST_ENDPOINTS = dict(
         max_result_window=10000,
         error_handlers=dict(),
         create_permission_factory_imp=deny_all,
-        read_permission_factory_imp=check_elasticsearch,
+        read_permission_factory_imp=check_source_status,
         update_permission_factory_imp= deny_all,
         delete_permission_factory_imp=deny_all,
         list_permission_factory_imp=allow_all,

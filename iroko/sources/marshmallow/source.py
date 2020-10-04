@@ -5,7 +5,7 @@ from sqlalchemy import desc
 
 from iroko.harvester.marshmallow import RepositorySchema
 from iroko.sources.api import SourceRecord
-from iroko.sources.marshmallow.base import source_data_schema, TermSourcesSchema, SourceDataSchema
+from iroko.sources.marshmallow.base import source_base_data_schema, TermSourcesSchema, SourceDataSchema
 from iroko.sources.marshmallow.journal import journal_data_schema
 from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
 from iroko.userprofiles import UserProfile
@@ -35,7 +35,7 @@ class SourceVersionSchema(Schema):
         if source.model.json['source_type'] == SourceType.JOURNAL.value:
             data = journal_data_schema.dump(version.data)
         else:
-            data =source_data_schema.dump(version.data)
+            data =source_base_data_schema.dump(version.data)
         result['data'] = data
         print('************* POST DUMP ***************')
         return result
@@ -70,7 +70,7 @@ class SourceSchema(Schema):
                 print("is a journal !!!!! #######")
                 data = journal_data_schema.dump(source.data)
             else:
-                data =source_data_schema.dump(source.data)
+                data =source_base_data_schema.dump(source.data)
             result['data'] = data
         return result
 

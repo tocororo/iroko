@@ -17,7 +17,7 @@ import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
 from iroko.sources.api import SourceRecord
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
-from iroko.utils import string_as_identifier, CuorQueryHelper, get_default_user
+from iroko.utils import string_as_identifier, CuorHelper, get_default_user
 from iroko.vocabularies.models import Term
 
 
@@ -96,10 +96,10 @@ def init_journals():
                         data['organizations'] = []
                         if "orgaid" in tax['institutions'][record['institution']]:
                             orgaid = tax['institutions'][record['institution']]["orgaid"]
-                            org = CuorQueryHelper.get_by_pid(orgaid)
+                            org = CuorHelper.query_cuor_by_pid(orgaid)
                         else:
                             name = tax['institutions'][record['institution']]["name"]
-                            org = CuorQueryHelper.get_by_label(name, country='Cuba')
+                            org = CuorHelper.query_cuor_by_label(name, country='Cuba')
                         if org:
                             data['organizations'].append(
                                 {
@@ -112,10 +112,10 @@ def init_journals():
                         if parent_id != '0':
                             if "orgaid" in tax['institutions'][parent_id]:
                                 orgaid = tax['institutions'][parent_id]["orgaid"]
-                                parent_org = CuorQueryHelper.get_by_pid(orgaid)
+                                parent_org = CuorHelper.query_cuor_by_pid(orgaid)
                             else:
                                 name = tax['institutions'][parent_id]["name"]
-                                parent_org = CuorQueryHelper.get_by_label(name, country='Cuba')
+                                parent_org = CuorHelper.query_cuor_by_label(name, country='Cuba')
                             if parent_org:
                                 data['organizations'].append(
                                     {

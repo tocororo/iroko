@@ -97,4 +97,4 @@ class IrokoUserSchema(Schema):
 
 
 
-source_data_schema = SourceDataSchema(many=False, unknown=INCLUDE)
+source_base_data_schema = SourceDataSchema(many=False, unknown=INCLUDE)

@@ -1,7 +1,7 @@
 
-from marshmallow import Schema, fields, pre_load, pre_dump, post_load
+from marshmallow import Schema, fields, post_load
 
-from iroko.vocabularies.models import Term, TermClasification
+from iroko.vocabularies.models import Term
 
 
 class VocabularySchema(Schema):
@@ -47,28 +47,28 @@ class TermSchema(Schema):
     #     super(Schema, self).__init__(*args, **kwargs)
 
 
-    @pre_load
-    def load_clasification(self, item, **kwargs):
-        item['description'] = item['description'] if 'description' in item else ''
-        item['class_ids'] = item['class_ids'] if 'class_ids' in item else []
-        item['clasified_ids'] = item['clasified_ids'] if 'clasified_ids' in item else []
-        item['data'] = item['data'] if 'data' in item else {}
-
-        item['parent_id'] = item['parent_id'] if 'parent_id' in item and item['parent_id'] and item['parent_id']>0 else None
-        return item
-
-    @pre_dump
-    def dump_clasification(self, term: Term, **kwargs):
-        if not term is None:
-            term.class_ids = []
-            for term_class in TermClasification.query.filter_by(term_clasified_id=term.id).all():
-                term.class_ids.append(term_class.term_class_id)
-
-            term.clasified_ids = []
-            for term_clasification in TermClasification.query.filter_by(term_class_id=term.id).all():
-                term.clasified_ids.append(term_clasification.term_clasified_id)
-
-        return term
+    # @pre_load
+    # def load_clasification(self, item, **kwargs):
+    #     item['description'] = item['description'] if 'description' in item else ''
+    #     item['class_ids'] = item['class_ids'] if 'class_ids' in item else []
+    #     item['clasified_ids'] = item['clasified_ids'] if 'clasified_ids' in item else []
+    #     item['data'] = item['data'] if 'data' in item else {}
+    #
+    #     item['parent_id'] = item['parent_id'] if 'parent_id' in item and item['parent_id'] and item['parent_id']>0 else None
+    #     return item
+    #
+    # @pre_dump
+    # def dump_clasification(self, term: Term, **kwargs):
+    #     if not term is None:
+    #         term.class_ids = []
+    #         for term_class in TermClasification.query.filter_by(term_clasified_id=term.id).all():
+    #             term.class_ids.append(term_class.term_class_id)
+    #
+    #         term.clasified_ids = []
+    #         for term_clasification in TermClasification.query.filter_by(term_class_id=term.id).all():
+    #             term.clasified_ids.append(term_clasification.term_clasified_id)
+    #
+    #     return term
 
     # @post_dump
     # def dump_term_node(self, term:Term):

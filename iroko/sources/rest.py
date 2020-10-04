@@ -14,6 +14,7 @@ from invenio_access import ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
 from invenio_oauth2server import require_api_auth
+from invenio_pidstore.errors import PIDObjectAlreadyAssigned
 
 from iroko.notifications.api import Notifications
 from iroko.notifications.marshmallow import NotificationSchema
@@ -25,11 +26,13 @@ from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
 )
 from iroko.sources.marshmallow.source_v1 import source_v1_response, source_v1
-from iroko.sources.models import SourceStatus
+from iroko.sources.models import SourceStatus, SourceType
 from iroko.sources.permissions import is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager
 from iroko.sources.search import SourceSearch
 from iroko.userprofiles import UserProfile
-from iroko.utils import iroko_json_response, IrokoResponseStatus
+from iroko.utils import iroko_json_response, IrokoResponseStatus, CuorHelper, IrokoVocabularyIdentifiers
+from iroko.vocabularies.marshmallow import term_schema_many
+from iroko.vocabularies.models import Term
 
 api_blueprint = Blueprint(
     'iroko_api_sources',
@@ -130,7 +133,7 @@ def source_new_version(uuid):
                                                              data,
                                                              user_id=user_id,
                                                              comment=comment,
-                                                             is_current=False)
+                                                                 is_current=False)
             if not source_version:
                 raise Exception('Not source for changing found')
 
@@ -181,6 +184,8 @@ def source_publish(uuid):
             data = dict(input_data['data'])
             data['source_status'] = SourceStatus.APPROVED.value
 
+            source.update(data)
+
             source_version = IrokoSourceVersions.new_version(source.id,
                                                              data,
                                                              user_id=user_id,
@@ -190,26 +195,32 @@ def source_publish(uuid):
             if not source_version:
                 raise Exception('Not source for changing found')
 
-            source.update(data)
 
-            notification = NotificationSchema()
-            notification.classification = NotificationType.INFO
-            notification.description = _('Se ha publicado una nueva version de la fuente: {0}:{1}.'.format(source['name'], source.id))
-            notification.emiter = _('Sistema')
 
-            for user in source.get_managers:
-                notification.receiver_id = user
-                Notifications.new_notification(notification)
+            # TODO: aqui hay un error con los get managers
+            # notification = NotificationSchema()
+            # notification.classification = NotificationType.INFO
+            # notification.description = _('Se ha publicado una nueva version de la fuente: {0}:{1}.'.format(source['name'], source.id))
+            # notification.emiter = _('Sistema')
+            #
+            # for user in source.get_managers:
+            #     notification.receiver_id = user
+            #     Notifications.new_notification(notification)
 
+            print('************************** to response')
             return iroko_json_response(IrokoResponseStatus.SUCCESS,
                                        'ok', 'source',
                                        source)
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except PIDObjectAlreadyAssigned as err:
+        msg = 'El Identificador persistente ya existe: ' + str(err)
+        print('*******', msg)
     except Exception as e:
-        raise e
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+        msg = str(e)
+    print('*******', msg)
+    return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
 
 
 
@@ -324,17 +335,18 @@ def source_unpublish(uuid):
 
         with source.current_user_has_publish_permission.require():
             source.model.json['source_status'] = SourceStatus.TO_REVIEW.value
-            source.commit()
+            source.update()
 
-            notification = NotificationSchema()
-            notification.classification = NotificationType.INFO
-            notification.description = _('Se ha despublicado la fuente: {0}.'.format(source.name))
-            notification.emiter = _('Sistema')
-
-            for user in source.get_managers:
-                notification.receiver_id = user
-                Notifications.new_notification(notification)
-
+            # TODO: aqui hay un error con los get managers
+            # notification = NotificationSchema()
+            # notification.classification = NotificationType.INFO
+            # notification.description = _('Se ha despublicado la fuente: {0}.'.format(source['name']))
+            # notification.emiter = _('Sistema')
+            #
+            # for user in source.get_managers:
+            #     notification.receiver_id = user
+            #     Notifications.new_notification(notification)
+            print('************************** to response')
             return iroko_json_response(IrokoResponseStatus.SUCCESS,
                                        'ok', 'source',
                                        source)
@@ -342,6 +354,7 @@ def source_unpublish(uuid):
         msg = 'Permission denied for changing source'
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
     except Exception as e:
+        raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -450,26 +463,10 @@ def get_editor_source_versions(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/aggs/org/<uuid>/', methods=['GET'])
-def get_sources_by_organization_children(uuid):
+@api_blueprint.route('/stats', methods=['GET'])
+def get_sources_stats():
     """
-    Count all the sources from an organization, and count all the sources from the organization children
-    :param uuid: the uuid of the organization
-    :return:
 
-    {
-        'id': '<uuid>',
-        'name': '<name>',
-        'sources_count': '<count>'
-        'children': [
-            'id': '<uuid>',
-            'name': '<name>',
-            'sources_count': '<count>'
-            'children': [
-                ...
-            ]
-        ]
-    }
     """
 
     # TODO:
@@ -479,28 +476,103 @@ def get_sources_by_organization_children(uuid):
     # 2- por cada uno de los hijos de la organizacion
     #  por ahora esta bien asi
     try:
-        size = int(request.args.get('size')) if request.args.get('size') else 100
-        size = size if size > 0 else 100
+        print("************************** START get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         search = SourceSearch()
-        search = search.filter('term', organizations__id=uuid)
-        # search.query = Q('match', **{'organizations.id': 'orgID'})
-        a = A('terms', field='organizations.name', size=size)
-        search.aggs.bucket('orgs', a)
-        response = search.execute()
-        result = []
-        for item in response.aggregations.orgs.buckets:
-            # item.key will the house number
-            result.append({
-                'key':       item.key,
-                'doc_count': item.doc_count
+        org = dict()
+
+        offset = request.args.get('offset') if request.args.get('offset') else 3
+
+        # top organization bucket
+        org_id = request.args.get('org') if request.args.get('org') else None
+        if org_id:
+            org = CuorHelper.query_cuor_by_uuid(org_id)
+            if not org or 'metadata' not in org:
+                raise Exception('Organization with ID: {0} not found'.format(org_id))
+
+            search = search.filter('term', organizations__id=org_id)
+            bucket_org = A('terms', field='organizations.id', size=999999)
+            search.aggs.bucket('orgs', bucket_org)
+
+        print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
+
+        # classification bucket
+        # subjects
+        # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.SUBJECTS.value).first()
+        subjects_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.SUBJECTS.value, parent_id=None).all()
+        subjects = term_schema_many.dump(subjects_terms) #erm_node_schema.dump_term_node_list(subjects_terms, 0, 0)
+        # indexes
+        # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
+        indexes_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value, parent_id=None).all()
+        indexes = term_schema_many.dump(indexes_terms) #term_node_schema.dump_term_node_list(indexes_terms, 0, 0)
+
+        # bucket
+        bucket_classifications = A('terms', field='classifications.id', size=999999)
+        search.aggs.bucket('classifications', bucket_classifications)
+
+        # source_type bucket
+        source_types = []
+        for k in SourceType:
+            source_types.append({
+                'source_type': k.value
             })
+            print(k.value, '*****')
+        bucket_source_type = A('terms', field='source_type', size=999999)
+        search.aggs.bucket('source_type', bucket_source_type)
+
+        print(
+            "************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        search.sort('_save_info_updated')
+        response = search[0:offset].execute()
+
+        hits = []
+        for hit in response.hits:
+            hits.append(
+                {
+                    'id':                hit['id'],
+                    'name':              hit['name']
+                }
+            )
+
+        print("************************** MI COSA get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
+        if org_id:
+            org['metadata']['source_count'] = search.count()
+            for item in response.aggregations.orgs.buckets:
+                print('****** org ******', item.doc_count, item.key)
+                CuorHelper.append_key_value_to_relationship(org, item.key, 'child', 'source_count', item.doc_count)
+
+        for item in response.aggregations.classifications.buckets:
+            print('****** class ******', item.doc_count, item.key)
+            for term in subjects:
+                print('************ term ', term['uuid'])
+                if str(term['uuid']) == item.key:
+                    term['source_count'] = item.doc_count
+            for term in indexes:
+                print('************ term ', term['uuid'])
+                if str(term['uuid']) == item.key:
+                    term['source_count'] = item.doc_count
+
+        for item in response.aggregations.source_type.buckets:
+            for t in source_types:
+                if t['source_type'] == item.key:
+                    t['source_count'] = item.doc_count
+
+        print("************************** END get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'source', \
+                                   'ok', 'aggr', \
                                    {
-                                       'aggs': result,
+                                       'sources_count': search.count(),
+                                       'last_sources': hits,
+                                       'org': org,
+                                       'subjects': subjects,
+                                       'indexes': indexes,
+                                       'source_types': source_types
                                    })
     except Exception as e:
+        raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 

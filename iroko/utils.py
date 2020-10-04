@@ -133,11 +133,11 @@ def get_default_user():
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
     return user
 
-class CuorQueryHelper:
+class CuorHelper:
 
 
     @classmethod
-    def get_by_pid(cls, pid):
+    def query_cuor_by_pid(cls, pid):
         """Request an Organization by Persistent Identifier
             not the CUOR UUID
          """
@@ -152,12 +152,12 @@ class CuorQueryHelper:
             return None
 
     @classmethod
-    def get_by_uuid(cls, uuid):
+    def query_cuor_by_uuid(cls, uuid):
         """"""
         try:
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
-            url = api_endpoint + uuid
+            url = api_endpoint +'/'+ uuid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
             return result
@@ -165,7 +165,7 @@ class CuorQueryHelper:
             return None
 
     @classmethod
-    def get_by_label(cls, text, country='', state='', types=''):
+    def query_cuor_by_label(cls, text, country='', state='', types=''):
         """get the fist name found in labels.label"""
         try:
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
@@ -183,3 +183,66 @@ class CuorQueryHelper:
                 return result['hits']['hits'][0]
         except Exception:
             return None
+
+    @classmethod
+    def get_if_child(cls, org, uuid):
+        """
+        check if uuid is in relationships of org as child
+        :param org: Organization dict
+        :param uuid: uuid of the child to search
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if uuid == rel['id'] and rel['type'] == 'child':
+                        return rel
+        return None
+
+    @classmethod
+    def get_if_parent(cls, org, uuid):
+        """
+        check if uuid is in relationships of org as parent
+        :param org: Organization dict
+        :param uuid: uuid of the parent to search
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if uuid == rel['id'] and rel['type'] == 'parent':
+                        return rel
+        return None
+
+
+    @classmethod
+    def get_relationchip(cls, org, uuid):
+        """
+        check if uuid is in relationships of org as child
+        :param org: Organization dict
+        :param uuid: uuid of the relationship to search
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if uuid == rel['id'] :
+                        return rel
+        return None
+
+    @classmethod
+    def append_key_value_to_relationship(cls, org, child_id, relation_type, key, value):
+        """
+
+        :param org: organization
+        :param child_id: id of the relation
+        :param relation_type: type of relation
+        :param key: key to append
+        :param value: value to append
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if id == rel['id']:
+                        rel[key] = value

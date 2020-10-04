@@ -203,6 +203,19 @@ def get_userids_for_source_from_action(paction, p_argument=None):
 
     return user_ids
 
+
+def check_source_status(record, *args, **kwargs):
+    """Return permission that check if the record exists in ES index.
+
+    :params record: A record object.
+    :returns: A object instance with a ``can()`` method.
+    """
+    def can(self):
+        """Try to search for given record."""
+        return record['source_status'] == 'APPROVED'
+
+    return type('CheckStatus', (), {'can': can})()
+
 #creando permiso, que requiere varias acciones, por ahora solo la anterior
 # source_editor_permission = Permission(source_editor_actions)
 # source_manager_permission = Permission(source_manager_actions)
