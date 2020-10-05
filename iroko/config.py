@@ -109,6 +109,7 @@ THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
 CATALOG_LOGO_ADMIN = 'images/archives_icon_129343.png'
 TAXONOMY_LOGO_ADMIN = 'images/checklist_icon_129189.png'
 MES_LOGO_ADMIN = 'images/mes.png'
+CUOR_LOGO_ADMIN = 'images/organizacion.svg'
 #: Frontpage template.
 THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
 THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
