@@ -67,6 +67,7 @@ def source_new():
             comment = input_data['comment']
 
         data = dict(input_data['data'])
+        # TODO: Si ya esta publicado o si tiene mas de una version entoces se crea una version,
         data['source_status'] = SourceStatus.TO_REVIEW.value
         source = SourceRecord.new_source(data, user_id,  comment)
 
