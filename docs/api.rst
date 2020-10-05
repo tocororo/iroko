@@ -14,4 +14,4 @@ Views
 .. automodule:: iroko.sources.views
    :members:
 
-.. automodule:: iroko.taxonomy.views
+.. automodule:: iroko.vocabularies.views
