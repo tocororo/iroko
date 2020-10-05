@@ -152,6 +152,7 @@ class MiarHarvester(BaseHarvester):
                     result.append({'name': e.text, 'url': e.get('href')})
             else:
                 # print('ERROR ' + str(resp.status_code) + ' en ' + url)
+                pass
 
             value_ini = value_ini + 25
 

@@ -39,5 +39,6 @@ def is_current_user_taxonomy_admin():
 
     except Exception as e:
         # print(str(e))
+        pass
 
     return its

@@ -140,6 +140,7 @@ class Notifications:
 
         except Exception as e:
             # print(str(e))
+            msg = str(e)
 
         return msg, done
 

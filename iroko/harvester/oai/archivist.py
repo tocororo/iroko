@@ -254,6 +254,7 @@ class Archivist:
                         # print(item.record)
                     else:
                         # print("dublin core is none, nothing to do: item: {0}".format(item.identifier))
+                        pass
             except Exception as e:
                 item.status = HarvestedItemStatus.ERROR
                 item.error_log = traceback.format_exc()

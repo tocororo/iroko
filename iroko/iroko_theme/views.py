@@ -94,6 +94,7 @@ def index(form=None):
         form = ContactForm()
     if form.validate_on_submit():
         # print('Mensaje enviado')
+        pass
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],

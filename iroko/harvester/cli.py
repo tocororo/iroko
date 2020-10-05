@@ -109,8 +109,9 @@ def harvestall():
                 harvester.identity_source()
                 harvester.discover_items()
             except Exception as e:
-                print (e.__doc__)
-            finally:
+                # print(e.__doc__)
+                pass
+            # finally:
                 # print("{0} - {1} - {2}".format(source.id, source.name, repo.status))
                 # print('###########################')
 

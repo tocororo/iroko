@@ -96,6 +96,7 @@ class SourceRecord(Record):
                 # print('#### cls.delete_all_pids_without_object(data[pids.IDENTIFIERS_FIELD])')
             except PIDDoesNotExistError as pidno:
                 # print("PIDDoesNotExistError:  {0} == {1}".format(pids.SOURCE_UUID_PID_TYPE, str(source_uuid)))
+                pass
             except Exception as e:
                 # print('-------------------------------')
                 # # print(str(e))
@@ -119,6 +120,7 @@ class SourceRecord(Record):
                         return source, 'updated'
                 except PIDDoesNotExistError as pidno:
                     # print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
+                    pass
                 except (PIDDeletedError, NoResultFound) as ex:
                     cls.delete_pid_without_object(pid_type, pid_value)
                 except Exception as e:
@@ -147,9 +149,11 @@ class SourceRecord(Record):
             # # print("***************** DELETED!!!!")
         except PIDDoesNotExistError:
             # print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
+            pass
         except Exception as e:
             # print("-------- DELETING PID ERROR ------------")
             # print(traceback.format_exc())
+            pass
 
     @classmethod
     def delete_all_pids_without_object(cls, pid_list):
@@ -172,9 +176,11 @@ class SourceRecord(Record):
                         # # print("***************** DELETED!!!!")
                     except PIDDoesNotExistError:
                         # print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
+                        pass
         except Exception as e:
             # print("-------- DELETING PID ERROR ------------")
             # print(traceback.format_exc())
+            pass
 
     @classmethod
     def create(cls, data, id_, dbcommit=False, reindex=False, **kwargs):
