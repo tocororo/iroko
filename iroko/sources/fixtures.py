@@ -24,7 +24,7 @@ from iroko.vocabularies.models import Term
 def init_journals():
     # sources_path = '../../data/journals.json'
     # delete_all_sources()
-    print('delete all source and relations')
+    # print('delete all source and relations')
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
 
     path = os.path.join(datadir, 'journals.json')
@@ -42,7 +42,7 @@ def init_journals():
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
-                    print(record['title'])
+                    # print(record['title'])
                     source = dict()
                     data = dict()
 
@@ -92,7 +92,7 @@ def init_journals():
                         term = Term.query.filter_by(identifier=name).first()
                         data['classifications'].append({'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
                     if 'institution' in record:
-                        print(tax['institutions'][record['institution']]["name"])
+                        # print(tax['institutions'][record['institution']]["name"])
                         data['organizations'] = []
                         if "orgaid" in tax['institutions'][record['institution']]:
                             orgaid = tax['institutions'][record['institution']]["orgaid"]
@@ -151,9 +151,9 @@ def init_journals():
                     #
                     # IrokoSourceVersions.new_version(new_source.id, data, user=user, comment='fixing is_current field', is_current=True)
 
-                    print('-----------------------')
-                    print(new_source)
-                    print('----------------------- sleep 5 seconds')
+                    # print('-----------------------')
+                    # print(new_source)
+                    # print('----------------------- sleep 5 seconds')
                     sleep(5)
 
                     # source.data = data
@@ -254,10 +254,10 @@ def init_repositories():
                     # src.repo_harvest_type = None
                     for url in urls:
                         if url['id'] == k:
-                            # print(k)
-                            # print(record['id'])
-                            print(url['url'])
-                            # print(src.data['url'])
+                            # # print(k)
+                            # # print(record['id'])
+                            # print(url['url'])
+                            # # print(src.data['url'])
                             repo = Repository()
                             repo.harvest_endpoint = url['url']
                             repo.harvest_type = HarvestType.OAI

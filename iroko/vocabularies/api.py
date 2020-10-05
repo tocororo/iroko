@@ -103,7 +103,7 @@ class Vocabularies:
 
         except Exception as e:
             msg = str(e)
-            print(str(e))
+            # print(str(e))
 
         return msg, done
 
@@ -125,7 +125,7 @@ class Vocabularies:
                 done = True
 
         except Exception as e:
-            print(str(e))
+            # print(str(e))
 
         return msg, done
 
@@ -144,7 +144,7 @@ class Vocabularies:
                 done = permission.allows(user_identity)
         except Exception as e:
             msg = str(e)
-            print(str(e))
+            # print(str(e))
 
         return msg, done
 
@@ -228,7 +228,7 @@ class Terms:
     #     otherwise create a new term.
     #     """
     #     data = term_schema.load(input_data)
-    #     print("****** LOADED term")
+    #     # print("****** LOADED term")
     #     term = None
     #     # if 'uuid' in data:
     #     #     term = Term.query.filter_by(uuid=data['uuid']).first()
@@ -238,12 +238,12 @@ class Terms:
     #         term = Term.query.filter_by(id=term_id).first()
     #     elif term is None and 'name' in data:
     #         term = Term.query.filter_by(identifier=data['name']).first()
-    #     print("********* term is {0}".format(term))
+    #     # print("********* term is {0}".format(term))
     #     if term is None and 'name' in data:
-    #         print('********IS NEW')
+    #         # print('********IS NEW')
     #         return cls.new_term(data)
     #     if term and 'uuid' in data:
-    #         print('********IS UPDATE')
+    #         # print('********IS UPDATE')
     #         return cls.edit_term(data['uuid'], data)
 
     #     return "error", None
@@ -261,7 +261,7 @@ class Terms:
             term.parent_id = data['parent_id']
             term.data = data['data']
             # cls._update_term_data(term, data)
-            print(term.data)
+            # print(term.data)
             try:
                 db.session.commit()
                 cls._update_term_clasification(term, data)
@@ -285,16 +285,16 @@ class Terms:
 
         term = Term.query.filter_by(identifier=valid_data['name']).first()
         if not term:
-            print(valid_data)
+            # print(valid_data)
             term = Term()
             term.vocabulary_id = valid_data['vocabulary_id']
             term.identifier = string_as_identifier(valid_data['name'])
             term.description = valid_data['description']
             term.parent_id = valid_data['parent_id']
             term.data = valid_data['data']
-            print(term.data)
+            # print(term.data)
             db.session.add(term)
-            print(term)
+            # print(term)
             try:
                 db.session.commit()
                 cls._update_term_clasification(term, valid_data)
@@ -323,17 +323,17 @@ class Terms:
     #     #     'data': data['data'],
     #     # }
 
-    #     print(data)
+    #     # print(data)
     #     term.vocabulary_id = data['vocabulary_id']
-    #     print(data)
+    #     # print(data)
     #     term.name = data['name']
-    #     print(data)
+    #     # print(data)
     #     term.description = data['description']
-    #     print(data)
+    #     # print(data)
     #     term.parent_id = data['parent_id']
-    #     print(data)
+    #     # print(data)
     #     term.data = data['data']
-    #     print(data)
+    #     # print(data)
 
 
     @classmethod
@@ -347,17 +347,17 @@ class Terms:
         #     'data': data['data'],
         # }
 
-        print(data)
+        # print(data)
         term.vocabulary_id = data['vocabulary_id']
-        print(data)
+        # print(data)
         term.identifier = data['name']
-        print(data)
+        # print(data)
         term.description = data['description']
-        print(data)
+        # print(data)
         term.parent_id = data['parent_id']
-        print(data)
+        # print(data)
         term.data = data['data']
-        print(data)
+        # print(data)
 
 
     @classmethod
@@ -371,12 +371,12 @@ class Terms:
         class_ids: IDs of Terms that clasifies this term
         clasified_ids: IDs of Terms clasified by this term
         '''
-        print('_update_term_clasification', data)
+        # print('_update_term_clasification', data)
         # delete all Clasifications in wich this term is envolved
         TermClasification.query.filter_by(term_class_id=term.id).delete()
         TermClasification.query.filter_by(term_clasified_id=term.id).delete()
         db.session.commit()
-        print('_update_term_clasification', data)
+        # print('_update_term_clasification', data)
         # Terms clasified by this term
         for clasified_ids in data['clasified_ids']:
             clasified = Term.query.filter_by(id=clasified_ids).first()
@@ -395,7 +395,7 @@ class Terms:
                 clasification.term_clasified_id = term.id
                 db.session.add(clasification)
         db.session.commit()
-        print('_update_term_clasification', data)
+        # print('_update_term_clasification', data)
 
 
     @classmethod
@@ -426,7 +426,7 @@ class Terms:
     def get_terms_by_vocabulary_name(cls, vocabulary_name):
         try:
             lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(Term.identifier)
-            print(lista[0].id)
+            # print(lista[0].id)
             return lista
         except Exception as error:
             return []

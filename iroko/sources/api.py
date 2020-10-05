@@ -1,4 +1,3 @@
-import traceback
 from datetime import datetime, date
 from typing import Dict
 from uuid import uuid4
@@ -89,25 +88,25 @@ class SourceRecord(Record):
             try:
                 persistent_identifier, source = resolver.resolve(str(source_uuid))
                 if source:
-                    print("{0}={1} found".format(pids.SOURCE_UUID_PID_TYPE, source_uuid))
+                    # print("{0}={1} found".format(pids.SOURCE_UUID_PID_TYPE, source_uuid))
                     source.update(data, dbcommit=dbcommit, reindex=reindex)
                     return source, 'updated'
             except (PIDDeletedError, NoResultFound) as ex:
                 cls.delete_pid_without_object(pids.SOURCE_UUID_PID_TYPE, str(source_uuid))
-                print('#### cls.delete_all_pids_without_object(data[pids.IDENTIFIERS_FIELD])')
+                # print('#### cls.delete_all_pids_without_object(data[pids.IDENTIFIERS_FIELD])')
             except PIDDoesNotExistError as pidno:
-                print("PIDDoesNotExistError:  {0} == {1}".format(pids.SOURCE_UUID_PID_TYPE, str(source_uuid)))
+                # print("PIDDoesNotExistError:  {0} == {1}".format(pids.SOURCE_UUID_PID_TYPE, str(source_uuid)))
             except Exception as e:
-                print('-------------------------------')
-                # print(str(e))
-                print(traceback.format_exc())
-                print('-------------------------------')
+                # print('-------------------------------')
+                # # print(str(e))
+                # print(traceback.format_exc())
+                # print('-------------------------------')
                 pass
                 # source = cls.get_source_by_pid(source_uuid, with_deleted=False)
-            print('!!!!!!!!!!!!!!!!!!!!!!! ', data)
+            # print('!!!!!!!!!!!!!!!!!!!!!!! ', data)
         if pids.IDENTIFIERS_FIELD in data:
             # if not uuid, find any persistent identifier in data.
-            print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
+            # print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
             for identifier in data[pids.IDENTIFIERS_FIELD]:
                 try:
                     pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
@@ -115,22 +114,22 @@ class SourceRecord(Record):
                     resolver.pid_type = pid_type
                     persistent_identifier, source = resolver.resolve(pid_value)
                     if source:
-                        print("{0}={1} found".format(pid_type, pid_value))
+                        # print("{0}={1} found".format(pid_type, pid_value))
                         source.update(data, dbcommit=dbcommit, reindex=reindex)
                         return source, 'updated'
                 except PIDDoesNotExistError as pidno:
-                    print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
+                    # print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
                 except (PIDDeletedError, NoResultFound) as ex:
                     cls.delete_pid_without_object(pid_type, pid_value)
                 except Exception as e:
-                    print('-------------------------------')
-                    # print(str(e))
-                    print(traceback.format_exc())
-                    print('-------------------------------')
+                    # print('-------------------------------')
+                    # # print(str(e))
+                    # print(traceback.format_exc())
+                    # print('-------------------------------')
                     pass
 
         # if here, means any persisten identifier is not created, so, create the source!!!
-        print("no pids found, create source")
+        # print("no pids found, create source")
         source_uuid = uuid4()
         data[pids.SOURCE_UUID_FIELD] = str(source_uuid)
         created_source = cls.create(data, id_=source_uuid, dbcommit=dbcommit, reindex=reindex)
@@ -142,40 +141,40 @@ class SourceRecord(Record):
         try:
             pid_item = PersistentIdentifier.get(pid_type, pid_value)
             pid_item.status = PIDStatus.NEW
-            # print('getting pid item: ')
+            # # print('getting pid item: ')
             if pid_item.delete():
                 db.session.commit()
-            # print("***************** DELETED!!!!")
+            # # print("***************** DELETED!!!!")
         except PIDDoesNotExistError:
-            print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
+            # print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
         except Exception as e:
-            print("-------- DELETING PID ERROR ------------")
-            print(traceback.format_exc())
+            # print("-------- DELETING PID ERROR ------------")
+            # print(traceback.format_exc())
 
     @classmethod
     def delete_all_pids_without_object(cls, pid_list):
         try:
-            print('pids list: ')
-            print(pid_list)
+            # print('pids list: ')
+            # print(pid_list)
             if pid_list and len(pid_list) > 0:
                 for identifier in pid_list:
                     try:
                         pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
                         pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
-                        # print('pid type deleting: ')
-                        # print(pid_type)
-                        # print(pid_value)
+                        # # print('pid type deleting: ')
+                        # # print(pid_type)
+                        # # print(pid_value)
                         pid_item = PersistentIdentifier.get(pid_type, pid_value)
                         pid_item.status = PIDStatus.NEW
-                        # print('getting pid item: ')
+                        # # print('getting pid item: ')
                         if pid_item.delete():
                             db.session.commit()
-                        # print("***************** DELETED!!!!")
+                        # # print("***************** DELETED!!!!")
                     except PIDDoesNotExistError:
-                        print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
+                        # print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
         except Exception as e:
-            print("-------- DELETING PID ERROR ------------")
-            print(traceback.format_exc())
+            # print("-------- DELETING PID ERROR ------------")
+            # print(traceback.format_exc())
 
     @classmethod
     def create(cls, data, id_, dbcommit=False, reindex=False, **kwargs):
@@ -186,14 +185,14 @@ class SourceRecord(Record):
 
         data['_save_info_updated'] = str(date.today())
 
-        print('%%%%%%%%%')
+        # print('%%%%%%%%%')
         iroko_minters.iroko_source_uuid_minter(id_, data)
-        print('%%%%%%%%%')
+        # print('%%%%%%%%%')
         iroko_minters.iroko_record_identifiers_minter(id_, data, pids.SOURCE_TYPE)
-        print('%%%%%%%%%')
+        # print('%%%%%%%%%')
         # jj = json.dumps(data, ensure_ascii=False)
         source = super(SourceRecord, cls).create(data=data, id_=id_, **kwargs)
-        print('%%%%%%%%%')
+        # print('%%%%%%%%%')
         if dbcommit:
             source.dbcommit(reindex)
         return source
@@ -231,7 +230,7 @@ class SourceRecord(Record):
         )
         if pids.IDENTIFIERS_FIELD in data:
             # if not uuid, find any persistent identifier in data.
-            print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
+            # print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
             for identifier in data[pids.IDENTIFIERS_FIELD]:
                 try:
                     pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
@@ -284,10 +283,10 @@ class SourceRecord(Record):
         if dbcommit:
             self.dbcommit(reindex)
 
-        print('update pids?')
+        # print('update pids?')
 
         self._update_repo_info()
-        print('UPDATED', self.model.json)
+        # print('UPDATED', self.model.json)
         return self
 
     def _update_repo_info(self):
@@ -314,14 +313,14 @@ class SourceRecord(Record):
                         try:
                             pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
                             obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
-                            print('!!!!!!!')
-                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
-                            print('!!!!!!!')
+                            # print('!!!!!!!')
+                            # print('{0}-{1}'.format(ids['idtype'], ids['value']))
+                            # print('!!!!!!!')
                             if obj_uuid != self.id:
-                                print('!!!!!!!******')
+                                # print('!!!!!!!******')
                                 raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
                         except PIDObjectAlreadyAssigned as e:
-                            print('!!!!!!!')
+                            # print('!!!!!!!')
                             raise e
                         except PIDDoesNotExistError:
                             iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
@@ -458,13 +457,13 @@ class SourceRecord(Record):
         if issnModel:
             code = issnModel.code
             data = issnModel.data
-            print("buscando el issn {0}".format(code))
+            # print("buscando el issn {0}".format(code))
             pid, source = SourceRecord.get_source_by_pid(code)
             if source:
                 return pid, source
                 # editors = source.get_editors
-                # print('editors: ',editors)
-                # print('user.id: ', user.id)
+                # # print('editors: ',editors)
+                # # print('user.id: ', user.id)
                 # if len(editors) == 0:
                 #     #dar permiso
                 #     source.grant_source_editor_permission(user.id)
@@ -473,11 +472,11 @@ class SourceRecord(Record):
                 #     return pid, source
                 # #no tiene permiso para editar esta fuente
                 # raise Exception('No tiene permiso para editar esta fuente')
-            print("no existe, creando source {0}".format(code))
+            # print("no existe, creando source {0}".format(code))
             for item in data["@graph"]:
                 if item['@id'] == 'resource/ISSN/' + code + '#KeyTitle':
                     title = item["value"]
-                    print(title)
+                    # print(title)
                     data = dict()
                     data['source_type'] = SourceType.JOURNAL.value
                     data['name'] = title
@@ -562,7 +561,7 @@ class SourceRecord(Record):
 
         except Exception as e:
             msg = str(e)
-            print(str(e))
+            # print(str(e))
 
         return msg, done
 
@@ -602,7 +601,7 @@ class SourceRecord(Record):
         #
         versions = SourceVersion.query.filter_by(source_uuid=self.id, user=current_user, reviewed=False).order_by(
             desc(SourceVersion.created_at)).all()
-        print('versiosn', versions)
+        # print('versiosn', versions)
 
         return versions
 
@@ -681,7 +680,7 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
         terms.append(action.argument)
 
     all_terms = _load_terms_tree(terms)
-    print('----------------tree : ', all_terms)
+    # print('----------------tree : ', all_terms)
     sources = TermSources.query.filter(TermSources.term_id.in_(all_terms)).all()
 
     sources_manager_ids = []
@@ -902,7 +901,7 @@ class SourcesDeprecated:
         # cls.get_term_tree_list(term, terms_ids)
         list_counts = db.session.query(Term.identifier, func.count(TermSources.sources_id).label("count")).join(
             TermSources).filter(Term.vocabulary_id == vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
-        # print(list_counts)
+        # # print(list_counts)
 
         return list_counts
 
@@ -960,20 +959,20 @@ class SourcesDeprecated:
         created_source, msg = SourceRecord.create_or_update(None, json_data, dbcommit=True, reindex=False)
         return created_source, msg
 
-        print('user {0}'.format(user_id))
+        # print('user {0}'.format(user_id))
         try:
-            print('try')
+            # print('try')
             # exist, source = cls._check_source_exist(json_data['data'])
-            print(json_data)
+            # print(json_data)
             # valid_data = source_schema.load(json_data)
             valid_data = json_data
 
             pid = pids.get_pid_by_data(json_data['data'])
-            print(pid)
+            # print(pid)
             if pid:
-                print('pid={0}'.format(pid))
+                # print('pid={0}'.format(pid))
                 source = cls.get_source_by_id(uuid=pid.object_uuid)
-                print(source)
+                # print(source)
 
                 if not source:
                     msg, source = cls._insert_new_source_helper(user_id, user, valid_data, source_status,
@@ -986,7 +985,7 @@ class SourcesDeprecated:
                     # raise Exception('Source already exist uuid={0}. Call insert_new_source_version'.format(source.uuid))
 
             elif pids.check_data_identifiers(json_data['data']):
-                print('elif pids.check_data_identifiers(json_data):')
+                # print('elif pids.check_data_identifiers(json_data):')
 
                 msg, source = cls._insert_new_source_helper(user_id, user, valid_data, source_status)
                 msg, source, version = cls.insert_new_source_version(json_data, source.uuid, True, user=user)
@@ -1005,14 +1004,14 @@ class SourcesDeprecated:
         new_source.source_type = valid_data['source_type']
         new_source.source_status = source_status
         new_source.data = valid_data['data']
-        print(new_source)
+        # print(new_source)
         db.session.add(new_source)
 
         # transactions are taking place but, however, are not written to disk yet...
         # so we can use new_source.id for granting editor permission
         db.session.commit()
-        print(new_source)
-        print('new source')
+        # print(new_source)
+        # print('new source')
         try:
             data = valid_data['data']
             data[pids.SOURCE_UUID_FIELD] = str(new_source.uuid)
@@ -1021,13 +1020,13 @@ class SourcesDeprecated:
             data['source_status'] = new_source.source_status.value
             data['relations'] = cls._get_relations_to_sync(new_source.id)
             cls.grant_source_editor_permission(user_id, new_source.uuid)
-            print('permision')
+            # print('permision')
             SourceRecord.create_or_update(new_source.uuid, data, dbcommit=True, reindex=False)
-            print('index')
+            # print('index')
 
             # cls.insert_new_source_version(new_source.data, new_source.uuid, is_current=True, is_flush=False,
             #                               user=user)
-            # print('version')
+            # # print('version')
         except Exception as e:
             Source.query.filter_by(uuid=new_source.uuid).delete()
             db.session.commit()
@@ -1106,10 +1105,10 @@ class SourcesDeprecated:
             user_id = user.id
 
         # TODO: usar las clases de marshmallow,en todas las api, o por lo menos decidir....
-        # print(input_data)
+        # # print(input_data)
         # # version_schema = SourceVersionSchema(exclude=['user_id'])
         # version_data:SourceVersionSchema = source_version_schema.load(input_data, partial=True, ['comment', 'source_id', 'data']],unknown=INCLUDE)
-        # print("###### load #####")
+        # # print("###### load #####")
         # user_id, source_id, comment, input_data, created_at, is_current
 
         source = cls.get_source_by_id(uuid=uuid)
@@ -1126,32 +1125,32 @@ class SourcesDeprecated:
         new_source_version.source_id = source.id
         new_source_version.comment = comment
         new_source_version.user_id = user_id
-        print("### new source created")
+        # print("### new source created")
         db.session.add(new_source_version)
-        print("db.session.add(new_source_version)")
+        # print("db.session.add(new_source_version)")
         if is_flush:
             db.session.flush()
-            print("db.session.flush")
+            # print("db.session.flush")
         else:
             db.session.commit()
-            print("db.session.commit")
-        print("#### gggggg")
+            # print("db.session.commit")
+        # print("#### gggggg")
         data = dict(input_data['data'])
-        print("#### gggggg")
+        # print("#### gggggg")
         new_source_version.data = data
-        print("#### gggggg")
+        # print("#### gggggg")
         if is_current:
-            print("### cls._fix_update_term_source_relations(source)")
-            print(data)
+            # print("### cls._fix_update_term_source_relations(source)")
+            # print(data)
             relations = cls._fix_update_term_source_relations(source, data)
             data['term_sources'] = relations
-            print(data)
-            print("### cls._fix_update_term_source_relations(source)")
+            # print(data)
+            # print("### cls._fix_update_term_source_relations(source)")
             new_source_version.data = data
             source.data = data
-        print("#### gggggg")
+        # print("#### gggggg")
         db.session.commit()
-        print("#### gggggg")
+        # print("#### gggggg")
         msg = 'New SourceVersion created id={0}'.format(new_source_version.id)
         return msg, source, new_source_version
 
@@ -1165,14 +1164,14 @@ class SourcesDeprecated:
         """
 
         TermSources.query.filter_by(sources_id=source.id).delete()
-        print("delete")
+        # print("delete")
         db.session.commit()
-        print("commit")
+        # print("commit")
 
         fixed_relations = []
         if "term_sources" in data:
             for ts in data["term_sources"]:
-                print(ts)
+                # print(ts)
                 if cls.is_term_editable_by_source(ts):
                     term_data = ts['term']
                     term = None
@@ -1180,23 +1179,23 @@ class SourcesDeprecated:
                         try:
                             term_id = int(ts['term_id'])
                             term = Term.query.filter_by(id=term_id).first()
-                            print('****** EDIT')
-                            print(term)
+                            # print('****** EDIT')
+                            # print(term)
                             if term:
                                 msg, term = Terms.edit_term(term.uuid, term_data)
-                                print(msg)
+                                # print(msg)
                         except Exception as e:
                             term = None
                     elif 'name' in term_data:
                         term = Term.query.filter_by(identifier=term_data['name']).first()
-                        print('****** NEW')
-                        print(term)
+                        # print('****** NEW')
+                        # print(term)
                         if term is None:
                             msg, term = Terms.new_term(term_data)
-                            print(msg)
+                            # print(msg)
                         else:
                             msg, term = Terms.edit_term(term.uuid, term_data)
-                            print(msg)
+                            # print(msg)
                     if term:
                         fixed_relations.append(dict(
                             source_id=source.id,
@@ -1206,17 +1205,17 @@ class SourcesDeprecated:
                 else:
                     fixed_relations.append(dict(ts))
                     # ts = term_schema.dump(term)
-        print(fixed_relations)
+        # print(fixed_relations)
 
         real_relations = []
         for f_relation in fixed_relations:
-            # print(f_relation)
+            # # print(f_relation)
             real_term = Term.query.filter_by(id=f_relation['term_id']).first()
             if real_term is not None:
                 existing_relation = TermSources.query.filter_by(sources_id=source.id, term_id=real_term.id).first()
                 if existing_relation is None:
                     new_relation = TermSources()
-                    # print("new")
+                    # # print("new")
                     new_relation.sources_id = source.id
                     new_relation.term_id = real_term.id
                     new_relation.data = f_relation['data']
@@ -1226,7 +1225,7 @@ class SourcesDeprecated:
                         term_id=real_term.id,
                         data=f_relation['data']
                     ))
-                    print("append ")
+                    # print("append ")
         db.session.commit()
         return real_relations
 
@@ -1276,6 +1275,6 @@ class SourcesDeprecated:
                 if current_version:
                     current_version.data = data
                 source.data = data
-                print(data)
-                print(source.data)
+                # print(data)
+                # print(source.data)
                 db.session.commit()

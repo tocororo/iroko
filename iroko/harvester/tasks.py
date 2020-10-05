@@ -4,10 +4,12 @@
 from __future__ import absolute_import, print_function
 
 from celery import shared_task
+
 from iroko.harvester.oai.harvester import OaiHarvester
 from iroko.sources.models import Source
+
+
 # from iroko.harvester.signals import harvest_finished
-import time
 
 @shared_task
 def test_task(source):
@@ -20,7 +22,7 @@ def test_task(source):
 def harvest_source_task(source_id, work_remote=True, request_wait_time=3):
     source = Source.query.filter_by(id=source_id).first()
     for i in [0,1000000]:
-        print(str(i))
+        # print(str(i))
     # harvest_finished.send(source)
     # source = Source.query.filter_by(id=source_id).first()
     #     if source is not None:

@@ -22,7 +22,7 @@ from iroko.vocabularies.models import Term
 def init_journals():
     # sources_path = '../../data/journals.json'
     # delete_all_sources()
-    print('delete all source and relations')
+    # print('delete all source and relations')
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
     path_oai = current_app.config['INIT_OAIURL_JSON_PATH']
@@ -37,7 +37,7 @@ def init_journals():
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
                     inserted[record['title']] = record['title']
-                    print(record['title'])
+                    # print(record['title'])
                     source = dict()
                     data = dict()
 
@@ -108,7 +108,7 @@ def init_journals():
                     #
                     # IrokoSourceVersions.new_version(new_source.id, data, user=user, comment='fixing is_current field', is_current=True)
 
-                    print(new_source)
+                    # print(new_source)
 
                     # source.data = data
                     # source.source_status = SourceStatus.UNOFFICIAL
@@ -208,10 +208,10 @@ def init_repositories():
                     # src.repo_harvest_type = None
                     for url in urls:
                         if url['id'] == k:
-                            # print(k)
-                            # print(record['id'])
-                            print(url['url'])
-                            # print(src.data['url'])
+                            # # print(k)
+                            # # print(record['id'])
+                            # print(url['url'])
+                            # # print(src.data['url'])
                             repo = Repository()
                             repo.harvest_endpoint = url['url']
                             repo.harvest_type = HarvestType.OAI

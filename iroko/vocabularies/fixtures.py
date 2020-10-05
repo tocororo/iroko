@@ -18,7 +18,7 @@ from iroko.vocabularies.models import Vocabulary, Term
 def init_taxonomy():
     """Init vocabularies"""
     delete_all_vocabs()
-    print('delete all vocabs and terms')
+    # print('delete all vocabs and terms')
 #     tax_path = '../../data/taxonomy.json' .
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
 
@@ -158,7 +158,7 @@ def _add_group_terms(graph, top_group, parent, vocab):
     for group in graph.objects(subject=URIRef(top_group), predicate=SKOS.term('member')):
         for concept in graph.objects(subject=group, predicate=SKOS.term('member')):
             pref, label = graph.preferredLabel(subject=concept, lang='es')[0]
-            print('---->>', concept, label)
+            # print('---->>', concept, label)
             term = Term()
             term.identifier = str(concept)
             term.description = str(label)

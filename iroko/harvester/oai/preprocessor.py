@@ -1,18 +1,8 @@
-from os import path, mkdir, removedirs, listdir
-import time
-
-import shutil
+from os import path, listdir
 
 from lxml import etree
 
 from flask import current_app
-
-from iroko.harvester.base import SourceIterator, Formater
-
-
-from iroko.sources.models import Source
-
-from iroko.harvester.processors.oai import nsmap
 
 from iroko.records.api import IrokoRecord
 
@@ -25,11 +15,11 @@ class OaiPreprocessor:
 
     def __init__(self, logger, source):
 
-        self.logger= logger 
+        self.logger= logger
         self.source = source
         p = current_app.config['HARVESTER_DATA_DIRECTORY']
         self.harvest_dir = path.join(p, str(self.source.id))
-        print(self.harvest_dir)
+        # print(self.harvest_dir)
         self.dc = DubliCoreElements(None)
         self.nlm = JournalPublishing(None)
         self.formats = ['marcxml', 'nlm', 'oai_dc','oai_marc', 'rfc1807']
@@ -43,34 +33,34 @@ class OaiPreprocessor:
     def process_full_item(self, item):
         """retrieve all the metadata of an item and save it to files"""
         idpath = path.join(self.harvest_dir, item, "id.xml")
-        print(idpath)
+        # print(idpath)
         if path.exists(idpath):
             dc = self.process_metadata(item, 'oai_dc', self.dc)
             nlm = self.process_metadata(item, 'nlm', self.dc)
             data = self.create_record_data(dc, nlm)
             record, status = IrokoRecord.create_or_update(data, vendor=source, dbcommit=True, reindex=True)
 
-    
+
     def process_metadata(self, item, metadata_format, formater):
         xmlpath = path.join(self.harvest_dir, item, metadata_format + ".xml")
         if path.exists(xmlpath):
             xml = etree.parse(xmlpath, parser=XMLParser)
             return formater.ProcessItem(xml)
-    
+
     def create_record_data(self, dc, nlm):
         data = {}
 
         data['original_identifier'] = dc['original_identifier']
         data['source'] = self.source.uuid
-        
-        
+
+
         data['title'] = dc['title']
 
         data['keywords'] = dc['keywords']
         data['description'] = dc['description']
         data['language'] = dc['language']
         data['publication_date'] = dc['publication_date']
-        
+
         creators = []
         for c in dc['creators']:
             creators.append({'name': str(c)})

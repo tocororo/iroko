@@ -57,7 +57,7 @@ def get_user_info():
 
         profile = UserProfile.get_or_create_by_userid(current_user.get_id())
 
-        print("en me", profile)
+        # print("en me", profile)
         # if current_userprofile_json_metadata:
         #     biography = current_userprofile_json_metadata["biography"]
         #     msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])

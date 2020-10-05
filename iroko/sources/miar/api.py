@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import traceback
 from random import randint
 
 import requests
@@ -28,7 +27,7 @@ class MiarHarvester(BaseHarvester):
         if not recheck:
             harvester = MiarHarvester(work_dir, True)
         else:
-            print('recheck is True')
+            # print('recheck is True')
             harvester = MiarHarvester(work_dir, False)
             harvester.get_info_database_recheck()
 
@@ -101,7 +100,7 @@ class MiarHarvester(BaseHarvester):
         sess = requests.Session()
         sess.headers.update(get_iroko_harvester_agent())
         for group in self.miar_groups:
-            print('getting group {0}'.format(group['name']))
+            # print('getting group {0}'.format(group['name']))
             group['dbs'] = self.get_db_group(sess, group['url'])
 
     def get_db_group(self, sess, url):
@@ -152,7 +151,7 @@ class MiarHarvester(BaseHarvester):
                 for e in element_db:
                     result.append({'name': e.text, 'url': e.get('href')})
             else:
-                print('ERROR ' + str(resp.status_code) + ' en ' + url)
+                # print('ERROR ' + str(resp.status_code) + ' en ' + url)
 
             value_ini = value_ini + 25
 
@@ -184,70 +183,70 @@ class MiarHarvester(BaseHarvester):
                 for db in group['dbs']:
                     if 'url' in db:
                         try:
-                            print('getting info of {0}'.format(db['url']))
+                            # print('getting info of {0}'.format(db['url']))
                             db['info'] = self.get_info_db(db['url'])
                         except Exception as ex:
-                            print('ERROR, getting {0}'.format(db['url']))
+                            # print('ERROR, getting {0}'.format(db['url']))
                             db['info'] = 'ERROR'
                         else:
-                            print('ok, saving to file')
+                            # print('ok, saving to file')
                             if file_db:
                                 file_db.seek(0)
                                 json.dump(self.miar_groups, file_db)
                         finally:
                             sleep_time = randint(3, 9)
-                            print('finally, sleep {0} seconds'.format(sleep_time))
+                            # print('finally, sleep {0} seconds'.format(sleep_time))
                             time.sleep(sleep_time)
 
     def get_info_database_recheck(self):
-        print(self.miar_groups)
+        # print(self.miar_groups)
         for group in self.miar_groups:
             for db in group['dbs']:
                 if 'url' in db and (
                     (not 'info' in db) or ('info' in db and db['info'] == 'ERROR')
                 ):
                     try:
-                        print('getting info of {0}'.format(db['url']))
+                        # print('getting info of {0}'.format(db['url']))
                         db['info'] = self.get_info_db(db['url'])
                     except Exception as ex:
-                        print('ERROR, getting {0}'.format(db['url']))
+                        # print('ERROR, getting {0}'.format(db['url']))
                         db['info'] = 'ERROR'
                     # else:
-                    #     print('ok, saving to file')
+                    #     # print('ok, saving to file')
                     #     if file_db:
                     #         # This is an error
                     #         file_db.seek(0)
 
                     finally:
                         sleep_time = randint(3, 9)
-                        print('finally, sleep {0} seconds'.format(sleep_time))
+                        # print('finally, sleep {0} seconds'.format(sleep_time))
                         time.sleep(sleep_time)
         with open(self.miar_dbs_file, 'w+', encoding=('UTF-8')) as file_db:
-            print('writing to file {0}'.format(self.miar_dbs_file))
+            # print('writing to file {0}'.format(self.miar_dbs_file))
             json.dump(self.miar_groups, file_db)
 
     def get_info_from_journals(self, issn_path):
         # TODO: dado la lista de issns en un archivo llamar a get_info_journal y guargar todo en el fichero
         # self.miar_journals_file
         dbs = open(self.miar_dbs_file, 'w')
-        print(dbs)
+        # print(dbs)
         pass
 
     def get_info_journal(self, issn: str):
 
         url = 'http://miar.ub.edu/issn/' + issn
 
-        print('request: {0}'.format(url))
+        # print('request: {0}'.format(url))
 
         sess = requests.Session()
         sess.headers.update(get_iroko_harvester_agent())
         timeout = 60
         dictionary = {}
         response = sess.get(url, timeout=timeout)
-        print('request finish: {0}'.format(url))
+        # print('request finish: {0}'.format(url))
 
         sleep_time = randint(10, 20)
-        print('sleep: {0}'.format(sleep_time))
+        # print('sleep: {0}'.format(sleep_time))
         time.sleep(sleep_time)
 
         html_text = response.text
@@ -294,7 +293,7 @@ class MiarHarvester(BaseHarvester):
             self.get_info_icds(url_history, dictionary, sess, icds_year)
 
             sleep_time = randint(10, 20)
-            print('sleep: {0}'.format(sleep_time))
+            # print('sleep: {0}'.format(sleep_time))
             time.sleep(sleep_time)
 
         return dictionary, html_text
@@ -307,7 +306,7 @@ class MiarHarvester(BaseHarvester):
         element = doc1.xpath('.//div[@id="sp_icds"]')
         if len(element) > 0:
             dictionary[str(icds_year)] = element[0].text
-            print(dictionary[str(icds_year)])
+            # print(dictionary[str(icds_year)])
 
     def collect_miar_info(self):
         """
@@ -320,7 +319,7 @@ class MiarHarvester(BaseHarvester):
         issn_list = Issn.query.all()
         if issn_list:
             for issn in issn_list:
-                print('getting miar info of: {0}'.format(issn.code))
+                # print('getting miar info of: {0}'.format(issn.code))
 
                 if not os.path.exists(self.issn_info_miar_dir + '/' + issn.code):
                     res, text = self.get_info_journal(issn.code)
@@ -332,7 +331,7 @@ class MiarHarvester(BaseHarvester):
 
             #     result[archive] =
             # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
-            #     print('writing to file {0}'.format(self.issn_info_miar))
+            #     # print('writing to file {0}'.format(self.issn_info_miar))
             #     json.dump(result, file_issn)
         else:
             return 'danger'
@@ -404,15 +403,15 @@ class MiarHarvester(BaseHarvester):
 
         issn = issnModel.code
         data = issnModel.data
-        print("buscando el issn {0}".format(issn))
+        # print("buscando el issn {0}".format(issn))
         pid, source = SourceRecord.get_source_by_pid(issn)
         if source:
             return source
-        print("no existe, creando source {0}".format(issn))
+        # print("no existe, creando source {0}".format(issn))
         for item in data["@graph"]:
             if item['@id'] == 'resource/ISSN/' + issn + '#KeyTitle':
                 title = item["value"]
-                print(title)
+                # print(title)
                 data = dict()
                 data['source_type'] = SourceType.JOURNAL.value
                 data['name'] = title
@@ -447,8 +446,8 @@ class MiarHarvester(BaseHarvester):
                             # atribute = archive_issn_miar['Indexed\xa0in:']
                             if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
                                 dbs_split = []
-                                print('---------------------------')
-                                print(archive_issn_miar)
+                                # print('---------------------------')
+                                # print(archive_issn_miar)
                                 # TODO: este es un error que tiene que ver con la forma en que se habren los json
                                 keys = [
                                     'Indexed\xa0in:',
@@ -460,9 +459,9 @@ class MiarHarvester(BaseHarvester):
                                     if key in archive_issn_miar:
                                         dbs_split.append(str(archive_issn_miar[key]))
 
-                                print(dbs_split)
+                                # print(dbs_split)
                                 source = self._get_source_by_issn(issn)
-                                print(type(source), source)
+                                # print(type(source), source)
                                 sourcecount = sourcecount+1
                                 to_add = []
                                 for dbs in dbs_split:
@@ -471,10 +470,10 @@ class MiarHarvester(BaseHarvester):
 
                                     for miar in miar_db_type_terms:
                                         if miar.identifier.lower().strip() == dbs.lower().strip():
-                                            print("add {0}".format(dbs))
+                                            # print("add {0}".format(dbs))
                                             to_add.append(miar)
                                 for t in to_add:
-                                    print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid, t.description, t.vocabulary_id, t.parent_id))
+                                    # print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid, t.description, t.vocabulary_id, t.parent_id))
                                     source.add_term(
                                         str(t.uuid),
                                         t.description,
@@ -486,7 +485,7 @@ class MiarHarvester(BaseHarvester):
                                     # add also the parent, meaning the miar_groups
                                     if t.parent_id and t.parent_id !=0:
                                         parent = Term.query.filter_by(id=t.parent_id).first()
-                                        print("----------- !! ADD a parent {0}- {1}".format(parent.uuid, parent.description))
+                                        # print("----------- !! ADD a parent {0}- {1}".format(parent.uuid, parent.description))
                                         source.add_term(
                                             str(parent.uuid),
                                             parent.description,
@@ -494,7 +493,7 @@ class MiarHarvester(BaseHarvester):
                                             dict()
                                         )
 
-                                print('***********',source.model.json['classifications'])
+                                # print('***********',source.model.json['classifications'])
                                 source.update(data=source.model.json, dbcommit=True, reindex=True)
                                 IrokoSourceVersions.new_version(
                                     source.id,
@@ -506,17 +505,17 @@ class MiarHarvester(BaseHarvester):
                                 # source.commit()
 
                         except Exception:
-                            print("issncount={0}".format(issncount))
-                            print("sourcecount={0}".format(sourcecount))
-                            print(traceback.format_exc())
+                            # print("issncount={0}".format(issncount))
+                            # print("sourcecount={0}".format(sourcecount))
+                            # print(traceback.format_exc())
                             continue
             except Exception as e:
-                print("issncount={0}".format(issncount))
-                print("sourcecount={0}".format(sourcecount))
-                print(traceback.format_exc())
+                # print("issncount={0}".format(issncount))
+                # print("sourcecount={0}".format(sourcecount))
+                # print(traceback.format_exc())
                 return None
-            print("issncount={0}".format(issncount))
-            print("sourcecount={0}".format(sourcecount))
+            # print("issncount={0}".format(issncount))
+            # print("sourcecount={0}".format(sourcecount))
 
         return 'success'
 

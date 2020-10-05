@@ -90,7 +90,7 @@ class OaiHarvester(SourceHarvester):
                 identifier = xml.find(
                     ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
                 ).text
-                print("{0}-{1}-{2}".format(name, oai_url, identifier))
+                # print("{0}-{1}-{2}".format(name, oai_url, identifier))
                 repo = Repository.query.filter_by(harvest_endpoint=oai_url).first()
                 if repo:
                     repo.status == None
@@ -125,8 +125,8 @@ class OaiHarvester(SourceHarvester):
                 return source
 
         except (BadZipFile, Exception)  as err:
-            print(err)
-            print(err.args)
+            # print(err)
+            # print(err.args)
 
             shutil.rmtree(
                     tmp_dir,
@@ -223,9 +223,9 @@ class OaiHarvester(SourceHarvester):
         except Exception as e:
             self.repository.status = HarvestedItemStatus.ERROR
             self.repository.error_log = traceback.format_exc()
-            print("error: identity_source(self):")
-            print(e)
-            print(e.args)
+            # print("error: identity_source(self):")
+            # print(e)
+            # print(e.args)
         finally:
             db.session.commit()
 
@@ -242,9 +242,9 @@ class OaiHarvester(SourceHarvester):
         except Exception as e:
             self.repository.status = HarvestedItemStatus.ERROR
             self.repository.error_log = traceback.format_exc()
-            print("error: discover_items(self):")
-            print(e)
-            print(e.args)
+            # print("error: discover_items(self):")
+            # print(e)
+            # print(e.args)
         finally:
             db.session.commit()
 
@@ -311,7 +311,7 @@ class OaiHarvester(SourceHarvester):
             self.formats = utils.get_multiple_elements(
                 xml, "metadataPrefix", xmlns=utils.xmlns.oai
             )
-            print(self.formats)
+            # print(self.formats)
 
         self._assing_repository_data_field('formats', self.formats)
 
@@ -364,8 +364,8 @@ class OaiHarvester(SourceHarvester):
             self.repository.identifier is not None
             and self.repository.identifier != identifier.text
         ):
-            # print(self.repository.identifier)
-            # print(identifier.text)
+            # # print(self.repository.identifier)
+            # # print(identifier.text)
             raise IrokoHarvesterError(
                 "{0}!={1}. Problems with directory structure. Source.id={3}. ".format(
                     self.repository.identifier, identifier.text, self.source.id
@@ -380,7 +380,7 @@ class OaiHarvester(SourceHarvester):
                 itempath = os.path.join(self.harvest_dir, itemdir)
 
                 if os.path.isdir(itempath):
-                    print(os.path.join(self.harvest_dir, itemdir) + ".old")
+                    # print(os.path.join(self.harvest_dir, itemdir) + ".old")
                     shutil.move(itempath, os.path.join(self.harvest_dir, itemdir) + ".old")
             for itemdir in os.listdir(self.harvest_dir):
                 itempath = os.path.join(self.harvest_dir, itemdir)
@@ -451,12 +451,12 @@ class OaiHarvester(SourceHarvester):
                 except Exception as e:
                     harvest_item.status = HarvestedItemStatus.ERROR
                     harvest_item.error_log = traceback.format_exc()
-                    print(e)
-                    print(e.args)
+                    # print(e)
+                    # print(e.args)
                 finally:
                     db.session.commit()
                     count = count + 1
-            print("--- {0} harvested".format(count))
+            # print("--- {0} harvested".format(count))
 
     def _get_all_formats(self, item: HarvestedItem):
         """retrieve all the metadata of an item and save it to files"""
@@ -472,8 +472,8 @@ class OaiHarvester(SourceHarvester):
                 time.sleep(self.request_wait_time)
             except Exception as e:
                 item.error_log = traceback.format_exc()
-                print(e)
-                print(e.args)
+                # print(e)
+                # print(e.args)
         time.sleep(self.request_wait_time)
 
 

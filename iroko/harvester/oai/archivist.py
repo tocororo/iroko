@@ -52,7 +52,7 @@ class Archivist:
             else:
                 return None
         except Exception:
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
             return None
 
     @staticmethod
@@ -243,7 +243,7 @@ class Archivist:
                             nlm = self._process_format(item, self.nlm)
 
                         data = self._crate_iroko_dict(item, dc, nlm)
-                        # print(data)
+                        # # print(data)
 
 
                         record, status = IrokoRecord.create_or_update(
@@ -251,9 +251,9 @@ class Archivist:
                         )
                         item.status = HarvestedItemStatus.RECORDED
                         item.record = record.id
-                        print(item.record)
+                        # print(item.record)
                     else:
-                        print("dublin core is none, nothing to do: item: {0}".format(item.identifier))
+                        # print("dublin core is none, nothing to do: item: {0}".format(item.identifier))
             except Exception as e:
                 item.status = HarvestedItemStatus.ERROR
                 item.error_log = traceback.format_exc()
@@ -282,7 +282,7 @@ class Archivist:
     def _crate_iroko_dict(self, item: HarvestedItem, dc, nlm=None):
 
         data = dict(dc)
-        # print(str(data))
+        # # print(str(data))
         if nlm is not None:
             data["creators"] = nlm["creators"]
             data["contributors"] = nlm["contributors"]

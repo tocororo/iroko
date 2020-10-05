@@ -27,8 +27,8 @@ def is_current_user_taxonomy_admin():
 
     its = False
     try:
-        print('user')
-        print(current_user)
+        # print('user')
+        # print(current_user)
         admin = ActionUsers.query.filter_by(
             user=current_user,
             exclude=False,
@@ -38,6 +38,6 @@ def is_current_user_taxonomy_admin():
             its = True
 
     except Exception as e:
-        print(str(e))
+        # print(str(e))
 
     return its

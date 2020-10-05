@@ -27,7 +27,6 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, request
-from flask_login import current_user
 from flask_principal import PermissionDenied
 from invenio_oauth2server import require_api_auth
 
@@ -85,7 +84,7 @@ def vocabulary_get(id):
 @require_api_auth()
 @taxonomy_admin_required
 def vocabulary_edit(id):
-    print(current_user)
+    # print(current_user)
     msg = ''
     try:
 
@@ -177,7 +176,7 @@ def get_terms_tree(vocabulary_id):
                             {'vocab': vocabulary_schema.dump(vocab),\
                             'term_node': term_node_schema.dump_term_node_list(terms, level, 0)})
     except Exception as e:
-        print(e)
+        # print(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -230,8 +229,8 @@ def get_term_in_list():
         ids = request.args.get('ids') if request.args.get('ids') else ''
 
         idsstr = ids.split(',')
-        print(ids)
-        print(idsstr)
+        # print(ids)
+        # print(idsstr)
         idlist = []
         for i in idsstr:
             idlist.append(int(i))
@@ -252,18 +251,18 @@ def term_edit(uuid):
     msg = ''
     try:
         msg, term = Terms.get_term(uuid)
-        # print(term)
+        # # print(term)
         if not term:
             raise Exception(msg)
 
         with vocabulary_editor_permission_factory({'name': term.vocabulary_id}).require():
-            # print(term.vocabulary_id)
+            # # print(term.vocabulary_id)
             # user = current_user
             if not request.is_json:
                 raise Exception("No JSON data provided")
 
             input_data = request.json
-            # print(input_data)
+            # # print(input_data)
             msg, term = Terms.edit_term(uuid, input_data)
             if not term:
                 raise Exception(msg)
@@ -301,7 +300,7 @@ def term_new():
 
     msg = ''
     try:
-        print(request)
+        # print(request)
         if not request.is_json:
                 raise Exception("No JSON data provided")
 

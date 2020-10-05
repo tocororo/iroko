@@ -52,7 +52,7 @@ def get_record_count():
 
 @blueprint.route('/', methods=['GET', 'POST'])
 def index(form=None):
-    # print(USERPROFILES_EXTEND_SECURITY_FORMS)
+    # # print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
     vocabularies = Vocabulary.query.all()
     vocab_stats = []
@@ -62,7 +62,7 @@ def index(form=None):
     vocab_stats.append({'sources':str(len(sources))})
 
     authors = IrokoAggs.getAggrs("creators.name",50000)
-    #print('authors'+str(authors))
+    ## print('authors'+str(authors))
     vocab_stats.append({'authors':str(len(authors))})
 
     # TODO: cuando se vaya a escribir el json es agregarle la opcion w y
@@ -84,7 +84,7 @@ def index(form=None):
     # faqs = markdown(texts)
 
     keywords = IrokoAggs.getAggrs("keywords",50000)
-    #print('keywords'+str(keywords))
+    ## print('keywords'+str(keywords))
     vocab_stats.append({'Keywords':str(len(keywords))})
 
     for vocab in vocabularies:
@@ -93,7 +93,7 @@ def index(form=None):
     if not form:
         form = ContactForm()
     if form.validate_on_submit():
-        print('Mensaje enviado')
+        # print('Mensaje enviado')
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
@@ -181,9 +181,9 @@ def static_page(slug):
 @blueprint.route('/page/images/<image>')
 def static_page_image(image):
     directory = os.path.join(current_app.config['INIT_STATIC_JSON_PATH'],'images')
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    print(directory)
-    print(image)
+    # print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    # print(directory)
+    # print(image)
     return send_file(os.path.join(directory, image))
     # return send_from_directory(directory, image)
 
@@ -235,7 +235,7 @@ def is_human(captcha_response):
         response_text = json.loads(response.text)
         return response_text['success']
     except Exception as e:
-        print(str(e))
+        # print(str(e))
         return False
 
 

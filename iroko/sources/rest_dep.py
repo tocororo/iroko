@@ -3,7 +3,6 @@
 from __future__ import absolute_import, print_function
 
 import datetime
-import traceback
 
 from flask import Blueprint, request
 from flask_babelex import lazy_gettext as _
@@ -53,7 +52,7 @@ def get_source_by_uuid(uuid):
 
         terms = helper_get_classifications_string(source)
         #
-        # print(source.model.json)
+        # # print(source.model.json)
         # if 'classifications' in source.model.json:
         #     for term in source.model.json['classifications']:
         #         if 'id' in term:
@@ -62,10 +61,10 @@ def get_source_by_uuid(uuid):
         #     terms = terms[0:-1]
 
         if user_has_editor_or_manager_permissions({'terms': terms, 'uuid': uuid}):
-            # # print(source.data)
+            # # # print(source.data)
             # for v in source.term_sources:
-            #     print(v.term_id, v.sources_id, v.data)
-            #     # print(v.data)
+            #     # print(v.term_id, v.sources_id, v.data)
+            #     # # print(v.data)
             versions = IrokoSourceVersions.get_versions(uuid)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                        'ok', 'versions', \
@@ -74,7 +73,7 @@ def get_source_by_uuid(uuid):
         raise PermissionDenied('No tiene permiso')
 
     except Exception as e:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -271,7 +270,7 @@ def source_new_version(uuid):
             with source_editor_permission_factory({'uuid': uuid}).require():
                 # si no esta aprobada significa que siempre es la current.
                 # si esta aprobada el proceso es otro
-                print(input_data)
+                # print(input_data)
                 is_current = source.source_status is not SourceStatus.APPROVED
                 msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current,
                                                                                 comment=comment)
@@ -548,7 +547,7 @@ def get_sources_from_user(status):
     """
         param status: 'all', 'approved', 'to_review', 'unofficial'
     """
-    print("## start get sources {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    # print("## start get sources {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
     try:
         count = int(request.args.get('size')) if request.args.get('size') else 10
         page = int(request.args.get('page')) if request.args.get('page') else 1
@@ -557,25 +556,25 @@ def get_sources_from_user(status):
             page = 1
         offset = count * (page - 1)
         limit = offset + count
-        print(offset)
-        print(limit)
-        print(status)
+        # print(offset)
+        # print(limit)
+        # print(status)
         msg, sources_manager = Sources.get_sources_from_manager_current_user(status)
-        print("## get_sources_from_manager_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## get_sources_from_manager_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         msg, sources_editor = Sources.get_sources_from_editor_current_user(status)
-        print("## get_sources_from_editor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## get_sources_from_editor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         in_first = set(sources_manager)
-        print("## in_first = set(sources_manager) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## in_first = set(sources_manager) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         in_second = set(sources_editor)
-        print("## in_second = set(sources_editor) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## in_second = set(sources_editor) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         in_second_but_not_in_first = in_second - in_first
-        print("## in_second_but_not_in_first = in_second - in_first {0}".format(
+        # print("## in_second_but_not_in_first = in_second - in_first {0}".format(
             datetime.datetime.now().strftime("%H:%M:%S")))
 
         result = sources_manager + list(in_second_but_not_in_first)
-        print("## result = sources_manager + list {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## result = sources_manager + list {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         # result.sort(key=lambda k: int(k['name']), reverse=True)
         # TODO: optimizar esta operacion porque puede ser lenta
         response = iroko_json_response(
@@ -584,7 +583,7 @@ def get_sources_from_user(status):
             'sources',
             {'count': len(result), 'sources': source_schema_many.dump(result[offset:limit])}
         )
-        print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response
 
     except Exception as e:
@@ -598,7 +597,7 @@ def get_editor_source_versions(uuid):
     try:
         # listar las versiones de este editor que no se han revisado para que pueda cambiarlas
         source = Sources.get_source_by_id(uuid=uuid)
-        print('source> ', source)
+        # print('source> ', source)
         if not source:
             raise Exception('Not source found')
 

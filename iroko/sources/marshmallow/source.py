@@ -30,14 +30,14 @@ class SourceVersionSchema(Schema):
     def fix_data_field(self, result, version:SourceVersion, **kwargs):
 
         source = SourceRecord.get_record(version.source_uuid)
-        print('************* POST DUMP ***************')
-        print(source.model.json['source_type'], )
+        # print('************* POST DUMP ***************')
+        # print(source.model.json['source_type'], )
         if source.model.json['source_type'] == SourceType.JOURNAL.value:
             data = journal_data_schema.dump(version.data)
         else:
             data =source_base_data_schema.dump(version.data)
         result['data'] = data
-        print('************* POST DUMP ***************')
+        # print('************* POST DUMP ***************')
         return result
 
     @post_dump(pass_original=True)
@@ -67,7 +67,7 @@ class SourceSchema(Schema):
         # para una lista, es mejor no hacer el metodo, porque es muy lento.
         if not kwargs['many']:
             if source.source_type == SourceType.JOURNAL:
-                print("is a journal !!!!! #######")
+                # print("is a journal !!!!! #######")
                 data = journal_data_schema.dump(source.data)
             else:
                 data =source_base_data_schema.dump(source.data)

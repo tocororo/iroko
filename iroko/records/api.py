@@ -35,7 +35,7 @@ class IrokoAggs:
         }
         s = Search(using=client, index="records").update_from_dict(query_body)
         t = s.execute()
-        # print(t.aggregations.sources.buckets)
+        # # print(t.aggregations.sources.buckets)
         # return t.aggregations.sources.buckets
         result = []
         for item in t.aggregations.sources.buckets:
@@ -97,7 +97,7 @@ class IrokoRecord (Record):
         if not id_:
             id_ = uuid4()
         cls.uuid_minter(id_, data)
-        # print("######### {0}".format(id_))
+        # # print("######### {0}".format(id_))
         cls.oai_minter(id_, data)
         data['suggest_title']= data.get('title')
         record = super(IrokoRecord, cls).create(data=data, id_=id_, **kwargs)

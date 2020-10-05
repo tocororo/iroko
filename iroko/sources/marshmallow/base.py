@@ -25,8 +25,8 @@ class TermSourcesSchema(Schema):
     @post_dump
     def dump_term(self, termSource, **kwargs):
         # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current.
-        # print("################################")
-        # print(termSource)
+        # # print("################################")
+        # # print(termSource)
         # if termSource and 'term_id' in termSource:
         msg, term = Terms.get_term_by_id(termSource['term_id'])
         termSource['term'] = term_schema.dump(term)

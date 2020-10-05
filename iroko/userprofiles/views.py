@@ -158,18 +158,18 @@ def handle_profile_form(form):
             data["institution_id"] = form.institution.data.id
             data["institution_rol"] = form.institution_rol.data
             data["avatar"] = ""
-            print("fichero= ", form.avatar.data)
+            # print("fichero= ", form.avatar.data)
 
-            print("aquiiiiii", request)
+            # print("aquiiiiii", request)
 
             # if f:
             #     filename = secure_filename(f.filename)
-            #     print("otro= ", filename)
+            #     # print("otro= ", filename)
 
             if form.avatar.data:
                 filename = secure_filename(form.avatar.data.filename)
                 path_avatar = os.path.join(current_app.config.get('UPLOADED_PHOTOS_DEST'), filename)
-                print("path= ", path_avatar)
+                # print("path= ", path_avatar)
                 form.avatar.data.save(path_avatar)
 
                 with open(path_avatar, "r") as file_avatar:
@@ -177,7 +177,7 @@ def handle_profile_form(form):
                     data["avatar"] = encoded_avatar
 
             current_userprofile.json_metadata = data
-            #print(current_userprofile.json_metadata)
+            ## print(current_userprofile.json_metadata)
             db.session.add(current_userprofile)
 
             # Update email

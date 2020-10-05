@@ -1,13 +1,12 @@
 
-from iroko.harvester.oai import nsmap
-from collections import defaultdict
-import enum
+import os
 import re
+from collections import defaultdict
 from zipfile import ZipFile
 
-import os
-
 from lxml import etree
+
+from iroko.harvester.oai import nsmap
 
 """
 several functions and classes that utils across the harvester module, 
@@ -23,21 +22,21 @@ XMLParser = etree.XMLParser(
 class xmlns():
 
     oai = 'http://www.openarchives.org/OAI/2.0/'
-    
+
     oai_identifier = 'http://www.openarchives.org/OAI/2.0/oai-identifier'
-    
+
     dc = 'http://purl.org/dc/elements/1.1/'
-    
+
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
-    
+
     xml = 'http://www.w3.org/XML/1998/namespace'
-    
+
     nlm = 'http://dtd.nlm.nih.gov/publishing/2.3'
 
 
 def get_sigle_element(metadata, name, xmlns='dc', language=None):
 
-    # print('get_sigle_element: '+name)
+    # # print('get_sigle_element: '+name)
     elements = metadata.findall('.//{' + xmlns + '}' + name)
     if len(elements) > 1:
         for e in elements:
@@ -45,14 +44,14 @@ def get_sigle_element(metadata, name, xmlns='dc', language=None):
             if language and lang in e.attrib:
                 if e.attrib[lang] == language:
                     return e.text
-        print('self.logger no '+language+' error')
+        # print('self.logger no '+language+' error')
     if len(elements) == 1:
         return elements[0].text
-    # print('self.logger no name error...')
+    # # print('self.logger no name error...')
 
 
 def get_multiple_elements(metadata, name, xmlns='dc', itemname=None, language=None):
-    # print('get_multiple_elements: '+name)
+    # # print('get_multiple_elements: '+name)
     results = []
     elements = metadata.findall('.//{' + xmlns + '}' + name)
     for e in elements:
@@ -121,9 +120,9 @@ class ZipHelper:
 
     @classmethod
     def compress_dir(cls, src_path, dst_path, dst_filename):
-        """compress the content (files and directory recursivelly) of the directory in the end of src_path 
+        """compress the content (files and directory recursivelly) of the directory in the end of src_path
         to a zip file in dst_path/dst_filename
-        the idea is not compress the full src_path into the zip, but relative to the directory in the end of the src_path. 
+        the idea is not compress the full src_path into the zip, but relative to the directory in the end of the src_path.
         """
         zip_path = os.path.join(
             dst_path,
@@ -138,14 +137,14 @@ class ZipHelper:
         with ZipFile(zip_path, 'w') as zipObj:
             for item in result:
                 zipObj.write(item['src'], arcname=item['arcname'])
-    
+
     @classmethod
     def _get_zip_items(cls, result:list, src_path, item_path):
         if os.path.isdir(src_path):
             for item in os.listdir(src_path):
                 cls._get_zip_items(
-                    result, 
-                    os.path.join(src_path, item), 
+                    result,
+                    os.path.join(src_path, item),
                     os.path.join(item_path, item)
                 )
         else:

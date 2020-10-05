@@ -33,10 +33,10 @@ def rescan():
     """rescanea el directorio """
     harvest_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
 
-    print("####################### start harvestig from dir")
+    # print("####################### start harvestig from dir")
     PrimarySourceHarvester.rescan_zip_files_in_dir(harvest_dir)
 
-    print("####################### start archiving")
+    # print("####################### start archiving")
     PrimarySourceHarvester.archive_zip_files_in_dir(harvest_dir)
 
 
@@ -81,7 +81,7 @@ def testcelery():
     sources = Source.query.all()
     for source in sources:
         job = harvest_source.delay(source.id, work_remote=True, request_wait_time=3)
-        print("Scheduled job {0}".format(job.id))
+        # print("Scheduled job {0}".format(job.id))
 
 
 
@@ -93,24 +93,24 @@ def harvestall():
     sources = Source.query.all()
     count = 0
     for source in sources:
-        print(source.uuid)
+        # print(source.uuid)
         repo = Repository.query.filter_by(source_id=source.id).first()
-        print(repo)
+        # print(repo)
         if repo is not None and repo.harvest_type == HarvestType.OAI and \
             (repo.status is None or \
             repo.status == HarvestedItemStatus.ERROR):
-            print("{0} - {1} : {2} : {3}".format(count, source.id, source.name, repo.status))
+            # print("{0} - {1} : {2} : {3}".format(count, source.id, source.name, repo.status))
             count = count + 1
             try:
-                print('###########################')
-                print("{0} - {1} - {2}".format(source.id, source.name, repo.status))
-                print("{0} - {1} - {2}".format(source.id, source.name, repo.harvest_endpoint))
+                # print('###########################')
+                # print("{0} - {1} - {2}".format(source.id, source.name, repo.status))
+                # print("{0} - {1} - {2}".format(source.id, source.name, repo.harvest_endpoint))
                 harvester = OaiHarvester(source, work_remote=True, request_wait_time=0)
                 harvester.identity_source()
                 harvester.discover_items()
             except Exception as e:
                 print (e.__doc__)
             finally:
-                print("{0} - {1} - {2}".format(source.id, source.name, repo.status))
-                print('###########################')
+                # print("{0} - {1} - {2}".format(source.id, source.name, repo.status))
+                # print('###########################')
 

@@ -23,7 +23,7 @@ class PrimarySourceHarvester(object):
         for item in os.listdir(zip_dir):
             itempath = os.path.join(zip_dir, item)
             if os.path.isfile(itempath):
-                print("trying to create an harvester from {0}".format(itempath))
+                # print("trying to create an harvester from {0}".format(itempath))
                 OaiHarvester.rescan_source_from_zip_file(itempath)
 
     @staticmethod
@@ -32,7 +32,7 @@ class PrimarySourceHarvester(object):
         for item in os.listdir(zip_dir):
             itempath = os.path.join(zip_dir, item)
             if os.path.isfile(itempath):
-                print("trying to create an archivist from {0}".format(itempath))
+                # print("trying to create an archivist from {0}".format(itempath))
                 Archivist.record_items_from_zip(itempath)
 
 
@@ -54,12 +54,12 @@ class PrimarySourceHarvester(object):
         for repodir in os.listdir(harvest_dir):
             repopath = os.path.join(harvest_dir, repodir)
             if os.path.isdir(repopath):
-                print(repopath)
+                # print(repopath)
                 xmlpath = os.path.join(repopath, "identify.xml")
                 if os.path.exists(xmlpath):
                     xml = etree.parse(xmlpath, parser=XMLParser)
                     baseURL = xml.find('.//{' + utils.xmlns.oai + '}baseURL')
-                    print(baseURL.text)
+                    # print(baseURL.text)
                     repository = Repository.query.filter_by(harvest_endpoint=baseURL.text).first()
                     if repository is not None:
                         source = Source.query.filter_by(id=repository.source_id).first()
@@ -98,12 +98,12 @@ class PrimarySourceHarvester(object):
         if os.path.isdir(repopath):
             shutil.move(repopath, os.path.join(harvest_dir, source_dir)+'.old')
             repopath = os.path.join(harvest_dir, source_dir)+'.old'
-            print(repopath)
+            # print(repopath)
             xmlpath = os.path.join(repopath, "identify.xml")
             if os.path.exists(xmlpath):
                 xml = etree.parse(xmlpath, parser=XMLParser)
                 baseURL = xml.find('.//{' + utils.xmlns.oai + '}baseURL')
-                print(baseURL.text)
+                # print(baseURL.text)
                 source = Source.query.filter_by(repo_harvest_endpoint=baseURL.text).first()
                 if source is not None:
                     shutil.move(repopath, os.path.join(harvest_dir, str(source.id)))

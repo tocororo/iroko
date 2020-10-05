@@ -58,9 +58,9 @@ def check_data_identifiers(data):
     check if identifiers field is present in data, and then check if any on the PIDs
     not exists...
     """
-    # print('IDENTIFIERS_FIELD in data {0}'.format(data))
+    # # print('IDENTIFIERS_FIELD in data {0}'.format(data))
     assert IDENTIFIERS_FIELD in data
-    # print(data)
+    # # print(data)
     for ids in data[IDENTIFIERS_FIELD]:
         if ids[IDENTIFIERS_FIELD_TYPE] in identifiers_schemas:
             try:

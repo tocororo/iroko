@@ -84,9 +84,9 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
     def create_identifiers(cls, object_type=None, object_uuid=None, data=None,  **kwargs):
 
         assert data, "no data"
-        print('@@@@@@@@', data)
+        # print('@@@@@@@@', data)
         assert pids.IDENTIFIERS_FIELD in data
-        print('@@@@@@@@')
+        # print('@@@@@@@@')
         # assert pids.SOURCE_UUID_FIELD in data
         pIDs = []
         # provider = super(IrokoRecordsIdentifiersProvider, cls).create(
@@ -98,10 +98,10 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
         #             **kwargs
         #         )
         # pIDs.append(provider.pid)
-        print('@@@@@@@@')
+        # print('@@@@@@@@')
         for ids in data[pids.IDENTIFIERS_FIELD]:
             if ids['idtype'] in identifiers_schemas:
-                print('@@@@@@@@', ids['idtype'], ids['value'])
+                # print('@@@@@@@@', ids['idtype'], ids['value'])
                 # kwargs.setdefault('pid_type', ids['idtype'])
                 # kwargs.setdefault('pid_value', ids['value'])
                 # kwargs.setdefault('status', cls.default_status)
@@ -112,9 +112,9 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
                     object_uuid=object_uuid,
                     **kwargs
                 )
-                print('@@@@@@@@', provider.pid)
+                # print('@@@@@@@@', provider.pid)
                 pIDs.append(provider.pid)
-                print('@@@@@@@@')
+                # print('@@@@@@@@')
         return pIDs
 
     @classmethod

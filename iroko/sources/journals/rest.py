@@ -75,9 +75,9 @@ def get_journals():
             result.append(source)
         else:
             if in_data or in_extra:
-                print(source.data)
+                # print(source.data)
                 result.append(source)
-    print("---- - - - - - - -  -----------")
+    # print("---- - - - - - - -  -----------")
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                         'ok','sources', \
@@ -105,7 +105,7 @@ def get_journal_by_uuid(uuid):
 @api_blueprint.route('/journal/issn/<issn>')
 def get_journal_by_issn(issn):
     """Get a journal by UUID"""
-    print('def get_journal_by_issn(issn):')
+    # print('def get_journal_by_issn(issn):')
     try:
         issn_db = Issn.query.filter_by(code=issn).first()
         if not issn_db:

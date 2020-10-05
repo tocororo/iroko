@@ -117,12 +117,12 @@ class JournalPublishing(Formater):
 
         # article_meta = xml.find('.//{' + self.xmlns + '}article-meta')
         # contribs = metadata.findall('.//' + self.xmlns + 'contrib')
-        # print(contribs)
+        # # print(contribs)
         creators, contributors = IrokoPerson.get_people_from_nlm(metadata)
         #  = []
         # for contrib in contribs:
         #     p, is_author = IrokoPerson.get_people_from_nlm(contrib)
-        #     print(is_author)
+        #     # print(is_author)
 
         #     # TODO: los nombres de los autores se estan uniendo...
         #     if p is not None:

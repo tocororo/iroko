@@ -6,7 +6,6 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, request, render_template, flash, url_for, redirect
 from flask_babelex import lazy_gettext as _
 from flask_login import login_required
-from flask_security import current_user
 from invenio_db import db
 
 from iroko.curator.permissions import vocabulary_create_permission, source_create_permission
@@ -103,7 +102,7 @@ def add_source():
         #     new_source.repo_harvest_type = HarvestType[form.repo_harvest_type.data]
         # if form.repo_harvest_endpoint.data:
         #     new_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data
-        # print(form.terms.data)
+        # # print(form.terms.data)
 
         # for term in form.terms.data:
         #     new_source
@@ -121,7 +120,7 @@ def add_source():
 @login_required
 def edit_vocabulary(id=None):
     #security questiong here
-    print(current_user.has_role('curator'))
+    # print(current_user.has_role('curator'))
 
     vocab = Vocabulary.query.get_or_404(id)
     form = VocabularyForm()
@@ -216,14 +215,14 @@ def edit_source(id=None):
         form.repo_harvest_type.data = aux_source.repo_harvest_type
         form.repo_harvest_endpoint.data = aux_source.repo_harvest_endpoint
         #form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
-        print(aux_source.source_type)
+        # print(aux_source.source_type)
 
     if form.validate_on_submit():
         aux_source.name = form.name.data
         aux_source.source_type = form.source_type.data
         aux_source.repo_harvest_type = form.repo_harvest_type.data
         aux_source.repo_harvest_endpoint = form.repo_harvest_endpoint.data
-        print(aux_source.source_type)
+        # print(aux_source.source_type)
 
         db.session.commit()
 

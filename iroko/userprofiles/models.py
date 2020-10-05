@@ -130,7 +130,7 @@ class UserProfile(db.Model):
     @classmethod
     def add_source_to_user_profile(cls, user_id, source_uuid, role):
 
-        print('add_source_to_user_profile', user_id, source_uuid, role)
+        # print('add_source_to_user_profile', user_id, source_uuid, role)
         user_profile = cls.get_or_create_by_userid(user_id)
         if not user_profile:
             raise Exception('No user_id={0}'.format(user_id))
@@ -154,7 +154,7 @@ class UserProfile(db.Model):
             data['sources'].append({'source_uuid': source_uuid, 'role': role})
         user_profile.json_metadata = dict(data)
         db.session.commit()
-        print(user_profile, user_profile.json_metadata)
+        # print(user_profile, user_profile.json_metadata)
 
     @classmethod
     def remove_source_from_user_profile(cls, user_id, source_uuid):

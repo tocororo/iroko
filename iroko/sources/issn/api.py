@@ -115,9 +115,9 @@ class IssnHarvester(BaseHarvester):
             element = doc1.xpath('.//form[@id="' + variable_id + '"]//input[@name="' + v + '"]')
             dictionary[v] = element[0].value
 
-        print(dictionary)
+        # print(dictionary)
         sleep_time = randint(3, 9)
-        print('sleep {0} seconds'.format(sleep_time))
+        # print('sleep {0} seconds'.format(sleep_time))
         time.sleep(sleep_time)
 
         body = {
@@ -165,7 +165,7 @@ class IssnHarvester(BaseHarvester):
         session.headers.update(get_iroko_harvester_agent())
 
         sleep_time = randint(3, 9)
-        print('sleep {0} seconds'.format(sleep_time))
+        # print('sleep {0} seconds'.format(sleep_time))
         time.sleep(sleep_time)
 
         page = 2
@@ -177,7 +177,7 @@ class IssnHarvester(BaseHarvester):
             issns.extend(self.getissn(resp))
 
             sleep_time = randint(3, 9)
-            print('sleep {0} seconds'.format(sleep_time))
+            # print('sleep {0} seconds'.format(sleep_time))
             time.sleep(sleep_time)
 
             page += 1
@@ -206,20 +206,20 @@ class IssnHarvester(BaseHarvester):
             result = json.load(file_issn)
         for issn in issns:
             try:
-                print('try getting {0} info'.format(issn))
+                # print('try getting {0} info'.format(issn))
                 result[issn] = self.get_info_issn(issn, session)
             except Exception as e:
-                print('error, getting {0} info, error: {1}'.format(issn, e))
+                # print('error, getting {0} info, error: {1}'.format(issn, e))
                 result[issn] = {"error": str(e)}
                 pass
             finally:
-                print('ok, saving to file')
+                # print('ok, saving to file')
                 with open(self.cuban_issn_info_file, 'w+', encoding=('UTF-8')) as file_issn:
-                    print('writing to file {0}'.format(self.cuban_issn_info_file))
+                    # print('writing to file {0}'.format(self.cuban_issn_info_file))
                     json.dump(result, file_issn)
 
                 sleep_time = randint(4, 7)
-                print('finally, sleep {0} seconds'.format(sleep_time))
+                # print('finally, sleep {0} seconds'.format(sleep_time))
                 time.sleep(sleep_time)
         return result
 
@@ -242,23 +242,23 @@ class IssnHarvester(BaseHarvester):
         with open(self.cuban_issn_file, 'r') as file_issn, open(self.cuban_issn_info_file, 'r') as file_issn_info:
             archive_issn = json.load(file_issn)
             archive_issn_info = json.load(file_issn_info)
-            print('start sync issn files: {0}-{1}'.format(self.cuban_issn_file, self.cuban_issn_info_file))
+            # print('start sync issn files: {0}-{1}'.format(self.cuban_issn_file, self.cuban_issn_info_file))
             for archive in archive_issn:
                 data = archive_issn_info[archive]
                 issn_model = Issn.query.filter_by(code=archive).first()
-                print(issn_model)
+                # print(issn_model)
                 if not issn_model:
                     obj_issn = Issn()
                     obj_issn.code = archive
                     obj_issn.data = data
                     db.session.add(obj_issn)
-                    print('NEW')
+                    # print('NEW')
                 else:
                     issn_model.data = data
-                    print('UPDATED')
+                    # print('UPDATED')
                 db.session.flush()
             db.session.commit()
-            print('DB COMMIT')
+            # print('DB COMMIT')
 
             return 'success'
 

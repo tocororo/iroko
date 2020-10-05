@@ -22,9 +22,9 @@ class Notifications:
 
     @classmethod
     def get_notification_receiver(cls, id) -> Dict[str, list]:
-        print('id= ', id)
+        # print('id= ', id)
         notif = Notification.query.filter_by(receiver_id=id).all()
-        print('result= ', notif)
+        # print('result= ', notif)
         if notif:
             return 'ok', notif
         else:
@@ -116,7 +116,7 @@ class Notifications:
 
     #     except Exception as e:
     #         msg = str(e)
-    #         print(str(e))
+    #         # print(str(e))
 
     #     return msg, done
 
@@ -139,7 +139,7 @@ class Notifications:
                 done = True
 
         except Exception as e:
-            print(str(e))
+            # print(str(e))
 
         return msg, done
 
@@ -155,7 +155,7 @@ class Notifications:
     #         done = permission.allows(user_identity)
     #     except Exception as e:
     #         msg = str(e)
-    #         print(str(e))
+    #         # print(str(e))
 
     #     return msg, done
 
@@ -178,6 +178,6 @@ class Notifications:
 
         except Exception as e:
             msg = str(e)
-            print(str(e))
+            # print(str(e))
 
         return msg, done
