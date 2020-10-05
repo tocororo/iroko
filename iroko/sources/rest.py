@@ -127,7 +127,12 @@ def source_new_version(uuid):
             # si no esta aprobada significa que siempre es la current.
             # si esta aprobada el proceso es otro
             # print(input_data)
+
             data = dict(input_data['data'])
+            data['source_status'] = SourceStatus.TO_REVIEW.value
+
+            source.update(data)
+
             source_version = IrokoSourceVersions.new_version(source.id,
                                                              data,
                                                              user_id=user_id,
