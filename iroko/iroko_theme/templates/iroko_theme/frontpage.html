@@ -87,33 +87,84 @@
       <h3 class="font-weight-bold black-text py-5 text-center">{{ _('Productos y Servicios') }}</h3>
       <div class="container">
           <section class="p-md-3 mx-md-5">
+              <div class="row mb-5 d-flex align-items-center justify-content-end">
+                  <div class="col-md-6 col-lg-4">
+                      <div class="item-preview mb-5">
+                          <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mesmto">
+                              <img class="img-fluid" width="400px"
+                              src="{{ url_for('static', filename=config.MES_LOGO_ADMIN)}}"
+                              alt="{{_('MES Directory')}}" title="{{_('Directorio de Revistas Científicas del Ministerio de Educación Superior')}}">
+                          </a>
+    
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6">
+                    <div class="card">
+                      <div class="card-header white">
+                        <h4 class="font-weight-bold mb-0">{{ _('Directorio de Revistas Científicas del Ministerio de Educación Superior') }}</h4>
+                      </div>
+                      <div class="card-body">
+                        <p class="card-text">
+                            {{ _('El Registro Nacional es la lista nacional oficial de revistas gestionadas por instituciones adscritas al Ministerio de educación de Cuba. Es mantenido por las Direcciones de Ciencia e Informatización del MES.... ') }}
+                        </p>
+                        <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mesmto">{{ _('Acceder') }}</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>   
+              <div class="row mb-5 d-flex align-items-center">
+                <div class="col-lg-6 col-md-6">
+                  <div class="card">
+                    <div class="card-header white">
+                      <h4 class="font-weight-bold mb-0">{{ _('Sistema de identificación de Ogranizaciones') }}</h4>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text">
+                        {{ _('La gestión de la lista oficial y pública de organizaciones cubanas 
+                        que tienen su código REUP y ofrece la posibilidad de identificarlas por 
+                        los identificadores internacionalmente usados y estandarizados desde la red cubana, 
+                        en este caso el código de GRID, de ROR, de Wikidata y de ISNI. ') }}
+                      </p>
+                      <a class="btn btn-secundary font-weight-bold text-danger" href="https://cuor-lab.upr.edu.cu">{{ _('Acceder') }}</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="item-preview mb-5">
+                        <a class="item-preview-img box-shadow-lg mb-3" href="https://cuor-lab.upr.edu.cu">
+                            <img class="img-fluid" width="250px"
+                            src="{{ url_for('static', filename=config.CUOR_LOGO_ADMIN)}}"
+                            alt="{{_('Sistema de identificación de organizaciones cubanas')}}" title="{{_('Sistema de identificación de organizaciones cubanas')}}">
+                        </a>
+                    </div>
+                </div>
+              </div> 
             <div class="row mb-5 d-flex align-items-center justify-content-end">
                 <div class="col-md-6 col-lg-4">
                     <div class="item-preview mb-5">
-                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="search">
-                            <img class="img-fluid" style="max-width:320px;"
-                            src="{{ url_for('static', filename='images/iconfinder_search_126577.png')}}"
-                            alt="{{_('Buscador')}}" title="{{_('Buscador')}}">
+                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/taxonomymto">
+                            <img class="img-fluid"
+                            src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
+                            alt="{{_('Vocabularios de Sceiba')}}" title="{{_('Vocabularios de Sceiba')}}">
                         </a>
-
+  
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-6">
                   <div class="card">
                     <div class="card-header white">
-                      <h4 class="font-weight-bold mb-0">{{ _('Buscador') }}</h4>
+                      <h4 class="font-weight-bold mb-0">{{ _('Vocabularios') }}</h4>
                     </div>
                     <div class="card-body">
                       <p class="card-text">
-                          {{ _('Buscador sobre los archivos del repositorio, incluyendo filtros y
-                          posibilidades ayudando a que encuentres información que necesites dentro
-                          de Sceiba ') }}
+                          {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y
+                          la unicidad en las búsquedas y evaluación de los resultados.... ') }}
                       </p>
-                      <a class="btn btn-secundary font-weight-bold text-danger" href="search">{{ _('Acceder') }}</a>
+                      <a class="btn btn-secundary font-weight-bold text-danger" href="/page/taxonomymto">{{ _('Acceder') }}</a>
                     </div>
                   </div>
                 </div>
-            </div>
+              </div>        
             <div class="row mb-5 d-flex align-items-center">
               <div class="col-lg-6 col-md-6">
                 <div class="card">
@@ -143,29 +194,31 @@
               </div>
             </div>
             <div class="row mb-5 d-flex align-items-center justify-content-end">
-              <div class="col-md-6 col-lg-4">
-                  <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/mesmto">
-                          <img class="img-fluid"
-                          src="{{ url_for('static', filename=config.MES_LOGO_ADMIN)}}"
-                          alt="{{_('MES Directory')}}" title="{{_('Directorio de Revistas Científicas del Ministerio de Educación Superior')}}">
-                      </a>
+                <div class="col-md-6 col-lg-4">
+                    <div class="item-preview mb-5">
+                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="search">
+                            <img class="img-fluid" style="max-width:320px;"
+                            src="{{ url_for('static', filename='images/iconfinder_search_126577.png')}}"
+                            alt="{{_('Buscador')}}" title="{{_('Buscador')}}">
+                        </a>
 
-                </div>
-              </div>
-              <div class="col-lg-6 col-md-6">
-                <div class="card">
-                  <div class="card-header white">
-                    <h4 class="font-weight-bold mb-0">{{ _('Directorio de Revistas Científicas del Ministerio de Educación Superior') }}</h4>
-                  </div>
-                  <div class="card-body">
-                    <p class="card-text">
-                        {{ _('El Registro Nacional es la lista nacional oficial de revistas gestionadas por instituciones adscritas al Ministerio de educación de Cuba. Es mantenido por las Direcciones de Ciencia e Informatización del MES.... ') }}
-                    </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/mesmto">{{ _('Acceder') }}</a>
                   </div>
                 </div>
-              </div>
+                <div class="col-lg-6 col-md-6">
+                  <div class="card">
+                    <div class="card-header white">
+                      <h4 class="font-weight-bold mb-0">{{ _('Buscador') }}</h4>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text">
+                          {{ _('Buscador sobre los archivos del repositorio, incluyendo filtros y
+                          posibilidades ayudando a que encuentres información que necesites dentro
+                          de Sceiba ') }}
+                      </p>
+                      <a class="btn btn-secundary font-weight-bold text-danger" href="search">{{ _('Acceder') }}</a>
+                    </div>
+                  </div>
+                </div>
             </div>
             <div class="row d-flex align-items-center">
               <div class="col-lg-6 col-md-6">
@@ -194,32 +247,7 @@
                 </div>
               </div>
             </div>
-            <div class="row mb-5 d-flex align-items-center justify-content-end">
-                <div class="col-md-6 col-lg-4">
-                    <div class="item-preview mb-5">
-                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/taxonomymto">
-                            <img class="img-fluid"
-                            src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
-                            alt="{{_('Vocabularios de Sceiba')}}" title="{{_('Vocabularios de Sceiba')}}">
-                        </a>
-  
-                  </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                  <div class="card">
-                    <div class="card-header white">
-                      <h4 class="font-weight-bold mb-0">{{ _('Vocabularios') }}</h4>
-                    </div>
-                    <div class="card-body">
-                      <p class="card-text">
-                          {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y
-                          la unicidad en las búsquedas.... ') }}
-                      </p>
-                      <a class="btn btn-secundary font-weight-bold text-danger" href="/page/taxonomymto">{{ _('Acceder') }}</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            
           </section>
         </div>
   </section>
@@ -252,11 +280,11 @@
         <h5 class="font-weight-normal mb-3">{{ _('Personas') }}</h5>
         <p class="text-muted mb-0">{{ _('Identificación de personas. ¿Quiénes investigan?') }}</p>
       </div>
-      <div class="col-lg-3 col-md-6 mb-4">
+      <!-- <div class="col-lg-3 col-md-6 mb-4">
         <i class="fa fa-sitemap fa-3x mb-4 grey-text"></i>
         <h5 class="font-weight-normal mb-3">{{ _('Organizaciones') }}</h5>
         <p class="text-muted mb-0">{{ _('Identificación de Organizaciones. Listado de organizaciones cubanas') }}</p>
-      </div>      
+      </div>       -->
       <div class="col-lg-3 col-md-6 mb-4">
         <i class="fa fa-balance-scale fa-3x mb-4 grey-text"></i>
         <h5 class="font-weight-normal mb-3">{{ _('Evaluación') }}</h5>

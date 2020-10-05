@@ -2,9 +2,7 @@
 <div>
     <div class="row">
         <div class="col-xs-12 col-sm-4 text-center text-middle">
-            <img class="img-fluid"
-                src="images/mes.png"
-                alt="Directorio del MEs" title="Directorio del MES">
+            <img class="img-fluid" src="/static/images/mes.png" alt="Directorio del MES" title="Directorio del MES">
         </div>
         <div class="col-xs-12 col-sm-7 col-sm-offset-1">            
             <h3> 

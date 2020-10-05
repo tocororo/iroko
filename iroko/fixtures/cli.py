@@ -28,7 +28,7 @@ import click
 from flask.cli import with_appcontext
 
 from .sources import init_journals, init_term_sources
-from .taxonomy import init_taxonomy
+from .vocabularies import init_taxonomy
 
 
 @click.group()
