@@ -82,15 +82,15 @@ def source_new():
                                                              comment=comment,
                                                              is_current=False)
 
-                notification = NotificationSchema()
-                notification.classification = NotificationType.INFO
-                notification.description = _(
-                    'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(source, source.id))
-                notification.emiter = _('Sistema')
-
-                for user_id in source.get_managers:
-                    notification.receiver_id = user_id
-                    Notifications.new_notification(notification)
+                # notification = NotificationSchema()
+                # notification.classification = NotificationType.INFO
+                # notification.description = _(
+                #     'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(source, source.id))
+                # notification.emiter = _('Sistema')
+                #
+                # for user_id in source.get_managers:
+                #     notification.receiver_id = user_id
+                #     Notifications.new_notification(notification)
 
                 return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                            'ok', 'source', \
@@ -141,14 +141,14 @@ def source_new_version(uuid):
             if not source_version:
                 raise Exception('Not source for changing found')
 
-            notification = NotificationSchema()
-            notification.classification = NotificationType.INFO
-            notification.description = _('Editor has change this source: {0}.'.format(source['name']))
-            notification.emiter = _('Sistema')
-
-            for user in source.get_managers:
-                notification.receiver_id = user
-                Notifications.new_notification(notification)
+            # notification = NotificationSchema()
+            # notification.classification = NotificationType.INFO
+            # notification.description = _('Editor has change this source: {0}.'.format(source['name']))
+            # notification.emiter = _('Sistema')
+            #
+            # for user in source.get_managers:
+            #     notification.receiver_id = user
+            #     Notifications.new_notification(notification)
 
             return iroko_json_response(IrokoResponseStatus.SUCCESS,
                                        'ok', 'source_version',
