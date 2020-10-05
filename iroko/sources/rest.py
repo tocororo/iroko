@@ -487,7 +487,7 @@ def get_sources_stats():
         org_id = request.args.get('org') if request.args.get('org') else None
         if org_id:
             org = CuorHelper.query_cuor_by_uuid(org_id)
-            print('******************* ORG *******************',org)
+            # print('******************* ORG *******************',org)
             if not org or 'metadata' not in org:
                 org_id = None
                 org = {}
