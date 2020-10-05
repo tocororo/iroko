@@ -1,5 +1,5 @@
 import traceback
-from datetime import datetime
+from datetime import datetime, date
 from typing import Dict
 from uuid import uuid4
 
@@ -14,10 +14,11 @@ from invenio_accounts.models import User
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
-from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError
+from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError, PIDObjectAlreadyAssigned
 from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
+from invenio_records_rest.views import lt_es7
 from invenio_rest.serializer import result_wrapper
 from sqlalchemy import func, desc
 from sqlalchemy.orm.exc import NoResultFound
@@ -28,7 +29,7 @@ import iroko.pidstore.providers as iroko_providers
 from iroko.harvester.models import Repository, HarvestType
 from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion
+from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion, Issn, SourceType
 from iroko.sources.permissions import (
     ObjectSourceEditor, is_user_souces_admin, source_full_manager_actions,
     ObjectSourceTermManager,
@@ -39,7 +40,7 @@ from iroko.sources.permissions import (
 )
 from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree
-from iroko.utils import IrokoVocabularyIdentifiers
+from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.api import Terms
 from iroko.vocabularies.models import Term
 
@@ -48,7 +49,7 @@ class SourceRecord(Record):
     _schema = "sources/source-v1.0.0.json"
 
     def __str__(self):
-        return self.model.json['title']
+        return self['title']
 
     @classmethod
     def new_source(cls, data, user_id=None, comment='no comment'):
@@ -74,7 +75,10 @@ class SourceRecord(Record):
 
     @classmethod
     def create_or_update(cls, data, source_uuid=None, dbcommit=False, reindex=False, **kwargs):
-        """Create or update IrokoRecord."""
+        """Create or update IrokoRecord.
+        This method bypass all SourceVersion and approval process of a Source.
+        Use with care
+        """
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
             object_type=pids.SOURCE_TYPE,
@@ -180,11 +184,14 @@ class SourceRecord(Record):
         assert pids.SOURCE_UUID_FIELD in data
         assert id_
 
+        data['_save_info_updated'] = str(date.today())
+
         print('%%%%%%%%%')
         iroko_minters.iroko_source_uuid_minter(id_, data)
         print('%%%%%%%%%')
         iroko_minters.iroko_record_identifiers_minter(id_, data, pids.SOURCE_TYPE)
         print('%%%%%%%%%')
+        # jj = json.dumps(data, ensure_ascii=False)
         source = super(SourceRecord, cls).create(data=data, id_=id_, **kwargs)
         print('%%%%%%%%%')
         if dbcommit:
@@ -211,52 +218,115 @@ class SourceRecord(Record):
         return False
 
     @classmethod
-    def get_source_by_pid(cls, pid, with_deleted=False):
+    def get_source_by_pid_in_data(cls, data):
+        """
+        Try to find a source by any identifier in data.
+        :param data: data must have 'identifiers' field.
+        :return:
+        """
+        resolver = Resolver(
+            pid_type=pids.SOURCE_UUID_PID_TYPE,
+            object_type=pids.SOURCE_TYPE,
+            getter=cls.get_record,
+        )
+        if pids.IDENTIFIERS_FIELD in data:
+            # if not uuid, find any persistent identifier in data.
+            print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
+            for identifier in data[pids.IDENTIFIERS_FIELD]:
+                try:
+                    pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                    pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                    resolver.pid_type = pid_type
+                    persistent_identifier, source = resolver.resolve(pid_value)
+                    pid = PersistentIdentifier.get(pids.SOURCE_UUID_PID_TYPE, source['id'])
+                    return pid, source
+                except Exception:
+                    pass
+        return None, None
+
+    @classmethod
+    def get_source_by_pid(cls, pid_value, with_deleted=False):
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
             object_type=pids.SOURCE_TYPE,
             getter=cls.get_record,
         )
         try:
-            persistent_identifier, source = resolver.resolve(str(pid))
-            return source
+            return resolver.resolve(str(pid_value))
         except Exception:
             pass
 
         for pid_type in identifiers_schemas:
             try:
-                pid_value = pid
                 resolver.pid_type = pid_type
-                persistent_identifier, source = resolver.resolve(pid_value)
-                if source:
-                    return source
+                schemapid, source = resolver.resolve(pid_value)
+                pid = PersistentIdentifier.get(pids.SOURCE_UUID_PID_TYPE, source['id'])
+                return pid, source
+
             except Exception as e:
                 pass
-        return None
+        return None, None
 
-    def update(self, data=None, dbcommit=False, reindex=False):
+    def update(self, data=None, dbcommit=True, reindex=True):
         """Update data for record."""
         if not data:
             data = self.model.json
+
+        # self.validate()
+
+        self._update_pids(data)
+
+        data['_save_info_updated'] = str(date.today())
+
         super(SourceRecord, self).update(data)
         super(SourceRecord, self).commit()
-        print('update pids?')
-        self.update_pids(data)
+
         if dbcommit:
             self.dbcommit(reindex)
+
+        print('update pids?')
+
+        self._update_repo_info()
+        print('UPDATED', self.model.json)
         return self
 
-    def update_pids(self, data):
+    def _update_repo_info(self):
+        if pids.IDENTIFIERS_FIELD in self.model.json:
+            for identifier in self.model.json[pids.IDENTIFIERS_FIELD]:
+                pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
+                pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
+                if pid_type == 'oaiurl' and pid_value:
+                    repo = Repository.query.filter_by(source_uuid=self.id).first()
+                    if not repo:
+                        repo = Repository()
+                        repo.source_uuid = self.id
+                        db.session.add(repo)
+                    repo.harvest_endpoint = pid_value
+                    repo.harvest_type = HarvestType.OAI
+                    db.session.commit()
+
+    def _update_pids(self, data):
+        newPids = []
         if pids.IDENTIFIERS_FIELD in data:
             for ids in data[pids.IDENTIFIERS_FIELD]:
                 if ids['idtype'] in identifiers_schemas:
-                    try:
-                        pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
-                    except PIDDoesNotExistError:
-                        print('!!!!!!!')
-                        iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
-                                                                                   object_type=pids.SOURCE_TYPE,
-                                                                                   object_uuid=self.id, data=data)
+                    if ids['value'] != '':
+                        try:
+                            pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
+                            obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
+                            print('!!!!!!!')
+                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
+                            print('!!!!!!!')
+                            if obj_uuid != self.id:
+                                print('!!!!!!!******')
+                                raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
+                        except PIDObjectAlreadyAssigned as e:
+                            print('!!!!!!!')
+                            raise e
+                        except PIDDoesNotExistError:
+                            iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
+                                                                                       object_type=pids.SOURCE_TYPE,
+                                                                                       object_uuid=self.id, data=data)
 
     def dbcommit(self, reindex=False, forceindex=False):
         """Commit changes to db."""
@@ -266,6 +336,7 @@ class SourceRecord(Record):
 
     def reindex(self, forceindex=False):
         """Reindex record."""
+
         if forceindex:
             RecordIndexer(version_type="external_gte").index(self)
         else:
@@ -294,24 +365,26 @@ class SourceRecord(Record):
             return permiso
 
         permiso = None
-        for term in self.model.json['classifications']:
-            if 'id' in term:
-                try:
-                    permiso = Permission(ObjectSourceTermManager(term['id']))
-                    if permiso:
-                        return permiso
-                except Exception as e:
-                    raise e
+        if 'classifications' in self.model.json:
+            for term in self.model.json['classifications']:
+                if 'id' in term:
+                    try:
+                        permiso = Permission(ObjectSourceTermManager(term['id']))
+                        if permiso:
+                            return permiso
+                    except Exception as e:
+                        raise e
 
         permiso = None
-        for org in self.model.json['organizations']:
-            if 'id' in org:
-                try:
-                    permiso = Permission(ObjectSourceOrganizationManager(org['id']))
-                    if permiso:
-                        return permiso
-                except Exception as e:
-                    raise e
+        if 'organizations' in self.model.json:
+            for org in self.model.json['organizations']:
+                if 'id' in org:
+                    try:
+                        permiso = Permission(ObjectSourceOrganizationManager(org['id']))
+                        if permiso:
+                            return permiso
+                    except Exception as e:
+                        raise e
 
         raise PermissionDenied('No tiene permisos de gestión')
 
@@ -326,14 +399,14 @@ class SourceRecord(Record):
 
         for term_source in self.model.json['classifications']:
 
-            term_managers = get_userids_for_source_from_action('source_term_manager_actions', term_source.id)
+            term_managers = get_userids_for_source_from_action('source_term_manager_actions', term_source['id'])
 
             if term_managers:
                 all_users.extend(term_managers)
 
         for org_source in self.model.json['organizations']:
 
-            org_managers = get_userids_for_source_from_action('source_organization_manager_actions', org_source.id)
+            org_managers = get_userids_for_source_from_action('source_organization_manager_actions', org_source['id'])
 
             if org_managers:
                 all_users.extend(org_managers)
@@ -344,6 +417,10 @@ class SourceRecord(Record):
             all_users.extend(admins)
 
         return all_users
+
+    @property
+    def get_editors(self):
+        return get_userids_for_source_from_action('source_editor_actions', self.id)
 
     @property
     def status(self):
@@ -371,6 +448,47 @@ class SourceRecord(Record):
         )
         # self.model.json['classifications'] = classifications
 
+    @classmethod
+    def create_or_get_source_by_issn(cls, issn):
+        """
+        get the source by the issn
+        si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
+        """
+        issnModel = Issn.query.filter_by(code=issn).first()
+        if issnModel:
+            code = issnModel.code
+            data = issnModel.data
+            print("buscando el issn {0}".format(code))
+            pid, source = SourceRecord.get_source_by_pid(code)
+            if source:
+                return pid, source
+                # editors = source.get_editors
+                # print('editors: ',editors)
+                # print('user.id: ', user.id)
+                # if len(editors) == 0:
+                #     #dar permiso
+                #     source.grant_source_editor_permission(user.id)
+                #     return pid, source
+                # elif user.id in editors:
+                #     return pid, source
+                # #no tiene permiso para editar esta fuente
+                # raise Exception('No tiene permiso para editar esta fuente')
+            print("no existe, creando source {0}".format(code))
+            for item in data["@graph"]:
+                if item['@id'] == 'resource/ISSN/' + code + '#KeyTitle':
+                    title = item["value"]
+                    print(title)
+                    data = dict()
+                    data['source_type'] = SourceType.JOURNAL.value
+                    data['name'] = title
+                    data['source_status'] = SourceStatus.UNOFFICIAL.value
+                    data['title'] = title
+                    data['identifiers'] = [{'idtype': 'pissn', 'value': code}]
+                    msg, source = SourceRecord.new_source(data, get_default_user())
+                    if source:
+                        return SourceRecord.get_source_by_pid(code)
+        raise Exception('El ISSN {0} no existe'.format(issn))
+
     # Permission methods
     #
 
@@ -380,6 +498,9 @@ class SourceRecord(Record):
         """
 
         search = SourceSearch()
+
+        if not lt_es7:
+            search = search.extra(track_total_hits=True)
 
         or_filters = []
         and_filters = []
@@ -397,12 +518,11 @@ class SourceRecord(Record):
         return search
 
     @classmethod
-    def get_sources_search_of_user_as_editor(cls, user: User, status=None) -> SourceSearch:
+    def get_sources_search_of_user_as_editor(cls, user: User, status=None):
         """devuelve las fuentes de las cuales el usuario actual es editor """
 
         ids = get_arguments_for_source_from_action(user, 'source_editor_actions')
-        return cls.get_search(status=status)
-
+        return cls.get_records(ids)
 
     @classmethod
     def get_sources_search_of_user_as_manager(cls, user: User, status=None) -> SourceSearch:
@@ -421,14 +541,17 @@ class SourceRecord(Record):
         if len(sources_orgs) == 0:
             sources_orgs = None
 
+        if sources_orgs is None and sources_terms is None:
+            return None
+
         return cls.get_search(status=status, classifications=sources_terms,
-                                          organizations=sources_orgs)
+                              organizations=sources_orgs)
 
     def grant_source_editor_permission(self, user_id) -> Dict[str, bool]:
         done = False
         msg = ''
         try:
-            user = User.query.filter_by(id=user_id)
+            user = User.query.filter_by(id=user_id).first()
             if not user:
                 msg = 'User not found'
             else:
@@ -493,7 +616,8 @@ class IrokoSourceVersions:
 
     @classmethod
     def get_versions(cls, source_uuid) -> [SourceVersion]:
-        return SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all()
+        return SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).order_by(
+            SourceVersion.created_at.desc()).all()
 
     @classmethod
     def new_version(cls, source_uuid, data, user_id=None, comment='no comment', is_current=False):
@@ -503,20 +627,22 @@ class IrokoSourceVersions:
                 raise Exception('Must be authenticated')
             user_id = current_user.id
 
-        with db.session.begin_nested():
-            if is_current:
-                for version in SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all():
-                    version.is_current = False
+        # with db.session.begin_nested():
+        if is_current:
+            for version in SourceVersion.query.filter(SourceVersion.source_uuid == source_uuid).all():
+                version.is_current = False
 
-            source_version = SourceVersion()
-            source_version.comment = comment
-            source_version.source_uuid = source_uuid
-            source_version.user_id = user_id
-            source_version.is_current = is_current
-            source_version.created_at = datetime.now()
-            source_version.data = data
-            db.session.add(source_version)
-            return source_version
+        source_version = SourceVersion()
+        source_version.comment = comment
+        source_version.source_uuid = source_uuid
+        source_version.user_id = user_id
+        source_version.is_current = is_current
+        source_version.created_at = datetime.now()
+        db.session.add(source_version)
+        db.session.commit()
+        source_version.data = data
+        db.session.commit()
+        return source_version
 
     @classmethod
     def set_version_as_current(cls, source_uuid, source_version_id):
@@ -774,7 +900,7 @@ class SourcesDeprecated:
     @classmethod
     def get_sources_count_by_vocabulary(cls, vocabulary_id):
         # cls.get_term_tree_list(term, terms_ids)
-        list_counts = db.session.query(Term.name, func.count(TermSources.sources_id).label("count")).join(
+        list_counts = db.session.query(Term.identifier, func.count(TermSources.sources_id).label("count")).join(
             TermSources).filter(Term.vocabulary_id == vocabulary_id).order_by(desc('total')).group_by(Term.id).all()
         # print(list_counts)
 
@@ -1062,7 +1188,7 @@ class SourcesDeprecated:
                         except Exception as e:
                             term = None
                     elif 'name' in term_data:
-                        term = Term.query.filter_by(name=term_data['name']).first()
+                        term = Term.query.filter_by(identifier=term_data['name']).first()
                         print('****** NEW')
                         print(term)
                         if term is None:

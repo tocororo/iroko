@@ -79,13 +79,13 @@ def init_vocabulary(tax, tax_name, vocab):
 
     for k, term in tax[tax_name].items():
         nterm = Term()
-        nterm.name = string_as_identifier(term['name'])
+        nterm.identifier = string_as_identifier(term['name'])
         nterm.description = term['name']
         nterm.vocabulary_id = vocab.identifier
         if term['parents'][0] != '0':
             if tax[tax_name][term['parents'][0]]:
                 parent_name = string_as_identifier(tax[tax_name][term['parents'][0]]['name'])
-                parent = Term.query.filter_by(name=parent_name).first()
+                parent = Term.query.filter_by(identifier=parent_name).first()
                 nterm.parent_id = parent.id
         db.session.add(nterm)
         db.session.commit()
@@ -102,7 +102,7 @@ def init_cuntries(path):
         countries = json.load(f)
         for country in countries:
             nterm = Term()
-            nterm.name = country['key']
+            nterm.identifier = country['key']
             nterm.description = country['text']
             nterm.vocabulary_id = vocab.identifier
             db.session.add(nterm)
@@ -145,7 +145,7 @@ def init_unesco(path):
 
     for t in groups:
         term = Term()
-        term.name = t['name']
+        term.identifier = t['name']
         term.description = t['description']
         term.vocabulary_id = subjects.identifier
         db.session.add(term)
@@ -160,7 +160,7 @@ def _add_group_terms(graph, top_group, parent, vocab):
             pref, label = graph.preferredLabel(subject=concept, lang='es')[0]
             print('---->>', concept, label)
             term = Term()
-            term.name = str(concept)
+            term.identifier = str(concept)
             term.description = str(label)
             term.parent_id = parent.id
             term.vocabulary_id = vocab.identifier

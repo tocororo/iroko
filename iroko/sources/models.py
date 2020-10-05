@@ -10,8 +10,8 @@ from sqlalchemy_utils.types import UUIDType, JSONType
 
 
 class SourceInstitutionRole(enum.Enum):
-    MAIN: "MAIN"
-    COLABORATOR: "COLABORATOR"
+    MAIN = "MAIN"
+    COLABORATOR = "COLABORATOR"
 
 class SourcePersonRol(enum.Enum):
     ADMINISTRATOR = "ADMINISTRATOR"

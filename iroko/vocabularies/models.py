@@ -32,8 +32,8 @@ class Term(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(UUIDType, default=uuid.uuid4)
-    # TODO: reemplazar name por identifier y ponerlo unico.
-    name = db.Column(db.String, nullable=False)
+
+    identifier = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String)
 
     vocabulary_id = db.Column(db.String(),
@@ -50,7 +50,7 @@ class Term(db.Model):
 
     def __str__(self):
         """Representation."""
-        return self.name
+        return self.identifier
 
 
 # TODO: This will be replaced by the graph database, when done....

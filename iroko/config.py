@@ -28,6 +28,7 @@ from iroko.pidstore import pids as pids
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
 from iroko.sources.api import SourceRecord
+from iroko.sources.permissions import check_source_status
 from iroko.sources.search import SourceSearch
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -250,7 +251,7 @@ RECORDS_REST_ENDPOINTS = dict(
         max_result_window=10000,
         error_handlers=dict(),
         create_permission_factory_imp=deny_all,
-        read_permission_factory_imp=check_elasticsearch,
+        read_permission_factory_imp=check_source_status,
         update_permission_factory_imp= deny_all,
         delete_permission_factory_imp=deny_all,
         list_permission_factory_imp=allow_all,
@@ -342,15 +343,32 @@ RECORDS_REST_SORT_OPTIONS = {
             'default_order': 'asc',
             'order': 2,
         },
-
+    },
+    'sources': {
+        'mostrecent': {
+            'title': 'Most recent',
+            'fields': ['-_save_info_updated'],
+            'default_order': 'asc',
+            'order': 1,
+        },
+        'bestmatch': {
+            'title': 'Best match',
+            'fields': ['-_score'],
+            'default_order': 'asc',
+            'order': 2,
+        },
     }
 }
 """Setup sorting options."""
 
 RECORDS_REST_DEFAULT_SORT: {
     'records': {
-        'query': 'mostrecent',
-        'noquery': 'mostrecent',
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
+    },
+    'sources': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
     }
 }
 """Set default sorting options."""
@@ -414,12 +432,7 @@ JSONSCHEMAS_HOST = 'iroko.tocororo.cu'
 # See details on
 # http://flask.pocoo.org/docs/0.12/config/#builtin-configuration-values
 
-#: Secret key - each installation (dev, production, ...) needs a separate key.
-#: It should be changed before deploying.
-SECRET_KEY = 'iroko_secret_key'
 
-RECAPTCHA_PUBLIC_KEY = '6LcElb0ZAAAAAEKZhH0az6wrBH1OCk-Nb7JNHU_S'
-RECAPTCHA_PRIVATE_KEY = '6LcElb0ZAAAAAGdgBtmjqDT4EfeR-rbwcO1qAiPn'
 
 #: Max upload size for form data via application/mulitpart-formdata.
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100 MiB

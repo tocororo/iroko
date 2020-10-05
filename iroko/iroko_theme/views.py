@@ -227,6 +227,7 @@ def internal_error(e):
 
 
 def is_human(captcha_response):
+    # return True
     try:
         secret = current_app.config.get('RECAPTCHA_PRIVATE_KEY')
         payload = {'response':captcha_response, 'secret':secret}

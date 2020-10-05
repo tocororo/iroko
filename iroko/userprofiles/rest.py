@@ -27,9 +27,9 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint
-from flask_login import current_user
 
 from iroko.userprofiles.api import current_userprofile, current_userprofile_json_metadata
+from iroko.userprofiles.marshmallow import userprofile_schema
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 from iroko.vocabularies.api import Terms
 from .views import init_common
@@ -65,15 +65,17 @@ def get_user_info():
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok', 'userprofile', \
-                                {
-                                    'email': current_user.email,
-                                    'id': current_user.id,
-                                    'username': current_userprofile.username,
-                                    'full_name':current_userprofile.full_name,
-                                    'biography':biography,
-                                    'institution_id':institution_id,
-                                    'institution':institution_name,
-                                    'institution_rol':institution_rol,
-                                })
+                                   userprofile_schema.dump(current_userprofile)
+                                # {
+                                #     'email': current_user.email,
+                                #     'id': current_user.id,
+                                #     'username': current_userprofile.username,
+                                #     'full_name':current_userprofile.full_name,
+                                #     'biography':biography,
+                                #     'institution_id':institution_id,
+                                #     'institution':institution_name,
+                                #     'institution_rol':institution_rol,
+                                # }
+        )
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)

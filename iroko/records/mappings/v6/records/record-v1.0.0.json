@@ -103,6 +103,28 @@
         "terms": {
           "type": "keyword"
         },
+        "organizations": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "classifications": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "keyword"
+            }
+          }
+        },
         "status": {
           "type": "keyword"
         },

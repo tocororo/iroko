@@ -237,7 +237,7 @@ class Terms:
     #     if term_id:
     #         term = Term.query.filter_by(id=term_id).first()
     #     elif term is None and 'name' in data:
-    #         term = Term.query.filter_by(name=data['name']).first()
+    #         term = Term.query.filter_by(identifier=data['name']).first()
     #     print("********* term is {0}".format(term))
     #     if term is None and 'name' in data:
     #         print('********IS NEW')
@@ -283,12 +283,12 @@ class Terms:
         # try:
         valid_data = term_schema.load(data)
 
-        term = Term.query.filter_by(name=valid_data['name']).first()
+        term = Term.query.filter_by(identifier=valid_data['name']).first()
         if not term:
             print(valid_data)
             term = Term()
             term.vocabulary_id = valid_data['vocabulary_id']
-            term.name = string_as_identifier(valid_data['name'])
+            term.identifier = string_as_identifier(valid_data['name'])
             term.description = valid_data['description']
             term.parent_id = valid_data['parent_id']
             term.data = valid_data['data']
@@ -298,7 +298,7 @@ class Terms:
             try:
                 db.session.commit()
                 cls._update_term_clasification(term, valid_data)
-                msg = 'New Term CREATED name={0}'.format(term.name)
+                msg = 'New Term CREATED name={0}'.format(term.identifier)
                 return msg, term
             except sqlalchemyExc.SQLAlchemyError as e:
                 msg = 'sqlalthemy: {0}'.format(e)
@@ -350,7 +350,7 @@ class Terms:
         print(data)
         term.vocabulary_id = data['vocabulary_id']
         print(data)
-        term.name = data['name']
+        term.identifier = data['name']
         print(data)
         term.description = data['description']
         print(data)
@@ -425,7 +425,7 @@ class Terms:
     @classmethod
     def get_terms_by_vocabulary_name(cls, vocabulary_name):
         try:
-            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(Term.name)
+            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(Term.identifier)
             print(lista[0].id)
             return lista
         except Exception as error:

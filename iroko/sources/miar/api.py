@@ -11,7 +11,7 @@ from lxml import html
 
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
-from iroko.sources.api import SourceRecord
+from iroko.sources.api import SourceRecord, IrokoSourceVersions
 from iroko.sources.models import Issn, SourceType, SourceStatus
 from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.models import Term, Vocabulary
@@ -343,7 +343,8 @@ class MiarHarvester(BaseHarvester):
         """
         sincroniza lo que  hay en self.miar_dbs_file con la base de datos de iroko
         con los Term y Vocabulary
-        TODO: document this !!!!
+        TODO: document this !!!!,
+        TODO: hacer que la sincronizacion no se pare si ya existe el termino.
         """
 
         with open(self.miar_dbs_file, 'r') as file_dbs:
@@ -351,10 +352,10 @@ class MiarHarvester(BaseHarvester):
 
         if archive:
             for archive_dbs in archive:
-                miar_db_type_term = Term.query.filter_by(name=archive_dbs['name']).first()
+                miar_db_type_term = Term.query.filter_by(identifier=archive_dbs['name']).first()
                 if not miar_db_type_term:
                     miar_types = Term()
-                    miar_types.name = archive_dbs['url']
+                    miar_types.identifier = archive_dbs['url']
                     miar_types.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
                     miar_types.description = archive_dbs['name']
                     db.session.add(miar_types)
@@ -364,10 +365,10 @@ class MiarHarvester(BaseHarvester):
                     try:
                         name = archive_dbs_info['url'].split('/ID/')[1]
                         description = archive_dbs_info['name']
-                        miar_db_term = Term.query.filter_by(name=name).first()
+                        miar_db_term = Term.query.filter_by(identifier=name).first()
                         if not miar_db_term:
                             miar_dbs = Term()
-                            miar_dbs.name = name
+                            miar_dbs.identifier = name
                             miar_dbs.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
                             miar_dbs.description = description
                             miar_dbs.data = archive_dbs_info
@@ -404,7 +405,7 @@ class MiarHarvester(BaseHarvester):
         issn = issnModel.code
         data = issnModel.data
         print("buscando el issn {0}".format(issn))
-        source = SourceRecord.get_source_by_pid(issn)
+        pid, source = SourceRecord.get_source_by_pid(issn)
         if source:
             return source
         print("no existe, creando source {0}".format(issn))
@@ -419,7 +420,7 @@ class MiarHarvester(BaseHarvester):
                 data['title'] = title
                 data['identifiers'] = [{'idtype': 'pissn', 'value': issn}]
                 user = get_default_user()
-                source, msg = SourceRecord.new_source(data, user.id)
+                msg, source = SourceRecord.new_source(data, user.id)
                 if source:
                     return source
         return None
@@ -448,13 +449,20 @@ class MiarHarvester(BaseHarvester):
                                 dbs_split = []
                                 print('---------------------------')
                                 print(archive_issn_miar)
-                                if 'Indexed\xa0in:' in archive_issn_miar:
-                                    dbs_split.extend(archive_issn_miar['Indexed\xa0in:'])
-                                if 'Evaluated\xa0in:' in archive_issn_miar:
-                                    dbs_split.extend(archive_issn_miar['Evaluated\xa0in:'])
+                                # TODO: este es un error que tiene que ver con la forma en que se habren los json
+                                keys = [
+                                    'Indexed\xa0in:',
+                                    'Indexed\u00a0in:',
+                                    'Evaluated\xa0in:',
+                                    'Evaluated\u00a0in:'
+                                ]
+                                for key in keys:
+                                    if key in archive_issn_miar:
+                                        dbs_split.append(str(archive_issn_miar[key]))
 
                                 print(dbs_split)
                                 source = self._get_source_by_issn(issn)
+                                print(type(source), source)
                                 sourcecount = sourcecount+1
                                 to_add = []
                                 for dbs in dbs_split:
@@ -462,11 +470,11 @@ class MiarHarvester(BaseHarvester):
                                         vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
 
                                     for miar in miar_db_type_terms:
-                                        if miar.name.lower().strip() == dbs.lower().strip():
+                                        if miar.identifier.lower().strip() == dbs.lower().strip():
                                             print("add {0}".format(dbs))
                                             to_add.append(miar)
                                 for t in to_add:
-                                    print("----------- !! ADD a Clasfication {0}-{1}-{2}".format(t.uuid, t.description, t.vocabulary_id))
+                                    print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid, t.description, t.vocabulary_id, t.parent_id))
                                     source.add_term(
                                         str(t.uuid),
                                         t.description,
@@ -475,9 +483,26 @@ class MiarHarvester(BaseHarvester):
                                             url='',initial_cover='', end_cover=''
                                         )
                                     )
-                                    #     TODO: add also the parent, meaning the miar_groups
+                                    # add also the parent, meaning the miar_groups
+                                    if t.parent_id and t.parent_id !=0:
+                                        parent = Term.query.filter_by(id=t.parent_id).first()
+                                        print("----------- !! ADD a parent {0}- {1}".format(parent.uuid, parent.description))
+                                        source.add_term(
+                                            str(parent.uuid),
+                                            parent.description,
+                                            parent.vocabulary_id,
+                                            dict()
+                                        )
+
                                 print('***********',source.model.json['classifications'])
                                 source.update(data=source.model.json, dbcommit=True, reindex=True)
+                                IrokoSourceVersions.new_version(
+                                    source.id,
+                                    source.model.json,
+                                    user_id=get_default_user().id,
+                                    comment='MIAR Classifications Update',
+                                    is_current=True
+                                )
                                 # source.commit()
 
                         except Exception:

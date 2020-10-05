@@ -183,7 +183,6 @@ def user_has_editor_or_manager_permissions(obj):
     return Permission(ObjectSourceEditor(obj['uuid']))
 
 
-
 def get_arguments_for_source_from_action(puser, paction):
 
     arguments = list(map(lambda x: x.argument,
@@ -203,6 +202,19 @@ def get_userids_for_source_from_action(paction, p_argument=None):
             map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(exclude=False, action=paction).all()))
 
     return user_ids
+
+
+def check_source_status(record, *args, **kwargs):
+    """Return permission that check if the record exists in ES index.
+
+    :params record: A record object.
+    :returns: A object instance with a ``can()`` method.
+    """
+    def can(self):
+        """Try to search for given record."""
+        return record['source_status'] == 'APPROVED'
+
+    return type('CheckStatus', (), {'can': can})()
 
 #creando permiso, que requiere varias acciones, por ahora solo la anterior
 # source_editor_permission = Permission(source_editor_actions)
