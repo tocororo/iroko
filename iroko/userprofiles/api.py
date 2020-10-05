@@ -34,6 +34,7 @@ def _get_current_userprofile():
     profile = g.get(
         'userprofile',
         UserProfile.get_by_userid(current_user.get_id()))
+    # UserProfile.get_or_create_by_userid(current_user.get_id()))
 
     if profile is None:
         profile = UserProfile(user_id=int(current_user.get_id()))
