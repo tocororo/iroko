@@ -53,7 +53,7 @@ class SourceRecord(Record):
     @classmethod
     def new_source(cls, data, user_id=None, comment='no comment'):
 
-        if data and data['source_status'] == SourceStatus.UNOFFICIAL.value:
+        if data and (data['source_status'] == SourceStatus.UNOFFICIAL.value or data['source_status'] == SourceStatus.TO_REVIEW.value):
             new_source, msg = SourceRecord.create_or_update(data, None, True, True)
             # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
 

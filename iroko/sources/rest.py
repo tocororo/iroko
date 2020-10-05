@@ -67,20 +67,23 @@ def source_new():
             comment = input_data['comment']
 
         data = dict(input_data['data'])
+        data['source_status'] = SourceStatus.TO_REVIEW.value
+        source = SourceRecord.new_source(data, comment)
+
         # print(data)
-        pid, source = SourceRecord.get_source_by_pid(pidvalue)
-        if not source or not pid:
-            pid, source = SourceRecord.get_source_by_pid_in_data(data)
+        # pid, source = SourceRecord.get_source_by_pid(pidvalue)
+        # if not source or not pid:
+        #     pid, source = SourceRecord.get_source_by_pid_in_data(data)
         if source:
             # print(source)
             msg, done = source.grant_source_editor_permission(user_id)
             UserProfile.add_source_to_user_profile(user_id, source['id'], role)
-            if done:
-                source_version = IrokoSourceVersions.new_version(source.id,
-                                                             data,
-                                                             user_id=user_id,
-                                                             comment=comment,
-                                                             is_current=False)
+            # if done:
+            #     source_version = IrokoSourceVersions.new_version(source.id,
+            #                                                  data,
+            #                                                  user_id=user_id,
+            #                                                  comment=comment,
+            #                                                  is_current=False)
 
                 # notification = NotificationSchema()
                 # notification.classification = NotificationType.INFO
@@ -92,7 +95,7 @@ def source_new():
                 #     notification.receiver_id = user_id
                 #     Notifications.new_notification(notification)
 
-                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                            'ok', 'source', \
                                            {'data': source, 'count': 1})
 
