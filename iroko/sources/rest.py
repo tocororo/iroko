@@ -131,10 +131,10 @@ def source_new_version(uuid):
             # si esta aprobada el proceso es otro
             # print(input_data)
 
-            data = dict(input_data['data'])
-            data['source_status'] = SourceStatus.TO_REVIEW.value
-
-            source.update(data)
+            # data = dict(input_data['data'])
+            # data['source_status'] = SourceStatus.TO_REVIEW.value
+            #
+            # source.update(data)
 
             source_version = IrokoSourceVersions.new_version(source.id,
                                                              data,
