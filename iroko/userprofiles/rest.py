@@ -27,11 +27,11 @@
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint
+from flask_login import current_user
 
-from iroko.userprofiles.api import current_userprofile, current_userprofile_json_metadata
+from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import userprofile_schema
 from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.vocabularies.api import Terms
 from .views import init_common
 
 api_blueprint = Blueprint(
@@ -54,18 +54,21 @@ def get_user_info():
         institution_name = ""
         institution_id = 0
         institution_rol = ""
-        print("en me", current_userprofile_json_metadata)
-        if current_userprofile_json_metadata:
-            biography = current_userprofile_json_metadata["biography"]
-            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
-            if institution:
-                institution_name = institution.name
-                institution_id = institution.id
-            institution_rol = current_userprofile_json_metadata["institution_rol"]
+
+        profile = UserProfile.get_or_create_by_userid(current_user.get_id())
+
+        print("en me", profile)
+        # if current_userprofile_json_metadata:
+        #     biography = current_userprofile_json_metadata["biography"]
+        #     msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
+        #     if institution:
+        #         institution_name = institution.name
+        #         institution_id = institution.id
+        #     institution_rol = current_userprofile_json_metadata["institution_rol"]
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                 'ok', 'userprofile', \
-                                   userprofile_schema.dump(current_userprofile)
+                                   userprofile_schema.dump(profile)
                                 # {
                                 #     'email': current_user.email,
                                 #     'id': current_user.id,
@@ -78,4 +81,5 @@ def get_user_info():
                                 # }
         )
     except Exception as e:
+        raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
