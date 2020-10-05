@@ -68,7 +68,7 @@ def source_new():
 
         data = dict(input_data['data'])
         data['source_status'] = SourceStatus.TO_REVIEW.value
-        source = SourceRecord.new_source(data, comment)
+        source = SourceRecord.new_source(data, user_id,  comment)
 
         # print(data)
         # pid, source = SourceRecord.get_source_by_pid(pidvalue)
