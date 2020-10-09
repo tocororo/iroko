@@ -15,7 +15,6 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
-import os
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
@@ -384,7 +383,7 @@ COLLECT_STORAGE = 'flask_collect.storage.file'
 # ========
 #: Email address used as sender of account registration emails.
 MAIL_SUPPRESS_SEND=True
-SUPPORT_EMAIL = "info@iroko.tocororo.cu"
+SUPPORT_EMAIL = "sceibacuba@gmail.com"
 SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
 SECURITY_EMAIL_SUBJECT_REGISTER = _(
