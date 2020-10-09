@@ -124,6 +124,7 @@ def collect_issn_list(country_code):
     count = (get_issn_count(fres) - 10) / size
 
     while page < count:
+        print('getting: {0}'.format(fres.url + '&currentpage={0}&size={1}'.format(page, size)))
         resp = session.get(fres.url + '&currentpage={0}&size={1}'.format(page, size))
         issn_list.extend(getissn(resp))
 
