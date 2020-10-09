@@ -194,6 +194,7 @@ class IssnHarvester(BaseHarvester):
             issn_list = collect_issn_list(self.country_code)
             with open(self.issn_list_file, 'w+', encoding=('UTF-8')) as file_issn:
                 if file_issn:
+                    print(issn_list)
                     json.dump(issn_list, file_issn, ensure_ascii=False)
         else:
             with open(self.issn_list_file, 'r') as file_issn:
