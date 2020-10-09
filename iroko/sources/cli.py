@@ -28,8 +28,8 @@ import click
 from flask.cli import with_appcontext
 
 from iroko.sources.fixtures import init_journals
-from iroko.sources.issn.api import IssnHarvester
-from iroko.sources.miar.api import MiarHarvester
+from iroko.sources.harvesters.issn import IssnHarvesterManager
+from iroko.sources.harvesters.miar import MiarHarvester
 
 
 @click.group()
@@ -53,19 +53,16 @@ def initjournals():
 
 
 @sources.command()
-@click.option('-ri', '--remoteissns', required=False, type=bool)
-@click.option('-rf', '--remoteinfo', required=False, type=bool)
-@click.option('-i', '--info', required=False, type=bool)
 @with_appcontext
-def issncollect(remoteissns, remoteinfo, info):
+def issncollect():
     """get all cuban issn from issn.org and create/update respective source versions"""
-    IssnHarvester.process_issn(remoteissns, remoteinfo, info)
+    IssnHarvesterManager.collect_issn()
 
 
 @sources.command()
 @with_appcontext
 def issnsync():
-    IssnHarvester.sync_db()
+    IssnHarvesterManager.sync_db()
 
 
 @sources.command()

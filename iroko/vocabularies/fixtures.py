@@ -9,7 +9,7 @@ from invenio_db import db
 from rdflib import Graph, URIRef
 from rdflib.namespace import SKOS
 
-from iroko.sources.miar.api import MiarHarvester
+from iroko.sources.harvesters.miar import MiarHarvester
 from iroko.sources.models import TermSources
 from iroko.utils import IrokoVocabularyIdentifiers, string_as_identifier
 from iroko.vocabularies.models import Vocabulary, Term

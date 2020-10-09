@@ -16,6 +16,15 @@ from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.models import Term, Vocabulary
 
 
+# TODO:
+# 1- tratar de arreglar el lio del encoding
+# 2- la sincronizacion de las revistas tiene que tener en cuenta que una revista puede tener mas de un issn.
+
+
+
+
+
+
 class MiarHarvester(BaseHarvester):
     """
     TODO: Document this!!!!
@@ -58,7 +67,7 @@ class MiarHarvester(BaseHarvester):
 
 
     def __init__(self, work_dir, load_remote=False):
-        self.work_dir = work_dir
+        self.work_dir = os.path.join(work_dir, 'miar')
         self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
         self.issn_info_file = self.work_dir + '/issn.info.cuba.json'
 
@@ -193,7 +202,7 @@ class MiarHarvester(BaseHarvester):
                             # print('ok, saving to file')
                             if file_db:
                                 file_db.seek(0)
-                                json.dump(self.miar_groups, file_db)
+                                json.dump(self.miar_groups, file_db, ensure_ascii=False)
                         finally:
                             sleep_time = randint(3, 9)
                             # print('finally, sleep {0} seconds'.format(sleep_time))
@@ -224,7 +233,7 @@ class MiarHarvester(BaseHarvester):
                         time.sleep(sleep_time)
         with open(self.miar_dbs_file, 'w+', encoding=('UTF-8')) as file_db:
             # print('writing to file {0}'.format(self.miar_dbs_file))
-            json.dump(self.miar_groups, file_db)
+            json.dump(self.miar_groups, file_db, ensure_ascii=False)
 
     def get_info_from_journals(self, issn_path):
         # TODO: dado la lista de issns en un archivo llamar a get_info_journal y guargar todo en el fichero
@@ -325,7 +334,7 @@ class MiarHarvester(BaseHarvester):
                 if not os.path.exists(self.issn_info_miar_dir + '/' + issn.code):
                     res, text = self.get_info_journal(issn.code)
                     with open(os.path.join(self.issn_info_miar_dir, issn.code), 'w+', encoding=('UTF-8')) as file_issn:
-                        json.dump(res, file_issn)
+                        json.dump(res, file_issn, ensure_ascii=False)
                     with open(os.path.join(self.issn_info_miar_dir, issn.code + '-html'), 'w+',
                               encoding=('UTF-8')) as file_issn:
                         file_issn.write(text)
@@ -333,7 +342,7 @@ class MiarHarvester(BaseHarvester):
             #     result[archive] =
             # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
             #     # print('writing to file {0}'.format(self.issn_info_miar))
-            #     json.dump(result, file_issn)
+            #     json.dump(result, file_issn, ensure_ascii=False)
         else:
             return 'danger'
 
