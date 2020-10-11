@@ -15,6 +15,7 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
+import os
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
