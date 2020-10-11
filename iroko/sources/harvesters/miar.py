@@ -21,10 +21,6 @@ from iroko.vocabularies.models import Term, Vocabulary
 # 2- la sincronizacion de las revistas tiene que tener en cuenta que una revista puede tener mas de un issn.
 
 
-
-
-
-
 class MiarHarvester(BaseHarvester):
     """
     TODO: Document this!!!!
@@ -32,7 +28,7 @@ class MiarHarvester(BaseHarvester):
 
     @classmethod
     def collect_databases(cls, recheck=True):
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         if not recheck:
             harvester = MiarHarvester(work_dir, True)
         else:
@@ -42,7 +38,7 @@ class MiarHarvester(BaseHarvester):
 
     @classmethod
     def sync_databases(cls, recheck=True):
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         indexes = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
         if not indexes:
             indexes = Vocabulary()
@@ -55,29 +51,29 @@ class MiarHarvester(BaseHarvester):
 
     @classmethod
     def collect_journals(cls):
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         miar_harvester = MiarHarvester(work_dir)
         miar_harvester.collect_miar_info()
 
     @classmethod
     def sync_journals(cls):
-        work_dir = current_app.config['HARVESTER_DATA_DIRECTORY']
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         miar_harvester = MiarHarvester(work_dir)
         miar_harvester.syncronize_miar_journals()
 
-
     def __init__(self, work_dir, load_remote=False):
         self.work_dir = os.path.join(work_dir, 'miar')
-        self.miar_dbs_file = self.work_dir + '/miar.dbs.json'
-        self.issn_info_file = self.work_dir + '/issn.info.cuba.json'
+        if not os.path.exists(self.work_dir):
+            os.mkdir(self.work_dir)
 
+        self.miar_dbs_file = os.path.join(work_dir, 'miar.dbs.json')
+        self.issn_info_file = os.path.join(work_dir, 'issn.info.cuba.json')
 
         self.issn_info_miar_dir = os.path.join(self.work_dir, 'miar_info')
         if not os.path.exists(self.issn_info_miar_dir):
             os.mkdir(self.issn_info_miar_dir)
-        self.issn_info_miar = self.work_dir + '/issn.info.miar.json'
-
-        self.miar_journals_file = self.work_dir + '/miar.journals.json'
+        self.issn_info_miar = os.path.join(self.work_dir, 'issn.info.miar.json')
+        self.miar_journals_file = os.path.join(self.work_dir, 'miar.journals.json')
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
         if load_remote:
@@ -442,15 +438,15 @@ class MiarHarvester(BaseHarvester):
         Source es el que tenga el issn que se recolecto.
         Si no existe el Source, se debe crear uno nuevo utilizando la informacion que hay en el model ISSN
         """
-        issncount=0
-        sourcecount=0
+        issncount = 0
+        sourcecount = 0
         issn_list = Issn.query.all()
         if issn_list:
             try:
                 for issn in issn_list:
 
-                    issncount =issncount+1
-                    with open(os.path.join(self.issn_info_miar_dir, issn.code ), 'r') as file_issn_miar:
+                    issncount = issncount + 1
+                    with open(os.path.join(self.issn_info_miar_dir, issn.code), 'r') as file_issn_miar:
                         archive_issn_miar = json.load(file_issn_miar)
                         try:
                             # atribute = archive_issn_miar['Indexed\xa0in:']
@@ -472,7 +468,7 @@ class MiarHarvester(BaseHarvester):
                                 # print(dbs_split)
                                 source = self._get_source_by_issn(issn)
                                 # print(type(source), source)
-                                sourcecount = sourcecount+1
+                                sourcecount = sourcecount + 1
                                 to_add = []
                                 for dbs in dbs_split:
                                     miar_db_type_terms = Term.query.filter_by(
@@ -489,11 +485,11 @@ class MiarHarvester(BaseHarvester):
                                         t.description,
                                         t.vocabulary_id,
                                         dict(
-                                            url='',initial_cover='', end_cover=''
+                                            url='', initial_cover='', end_cover=''
                                         )
                                     )
                                     # add also the parent, meaning the miar_groups
-                                    if t.parent_id and t.parent_id !=0:
+                                    if t.parent_id and t.parent_id != 0:
                                         parent = Term.query.filter_by(id=t.parent_id).first()
                                         # print("----------- !! ADD a parent {0}- {1}".format(parent.uuid, parent.description))
                                         source.add_term(
