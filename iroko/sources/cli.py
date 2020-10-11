@@ -66,11 +66,10 @@ def issnsync():
 
 
 @sources.command()
-@click.option('-rc', '--recheck', required=False, type=bool)
 @with_appcontext
-def miarcollectdb(recheck):
+def miarcollectdb():
     """get all info from miar"""
-    MiarHarvester.collect_databases(recheck)
+    MiarHarvester.collect_databases()
 
 @sources.command()
 @with_appcontext

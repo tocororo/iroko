@@ -27,7 +27,7 @@ class MiarHarvester(BaseHarvester):
     """
 
     @classmethod
-    def collect_databases(cls, recheck=True):
+    def collect_databases(cls):
         work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         if not recheck:
             harvester = MiarHarvester(work_dir, True)
@@ -242,17 +242,17 @@ class MiarHarvester(BaseHarvester):
 
         url = 'http://miar.ub.edu/issn/' + issn
 
-        # print('request: {0}'.format(url))
+        print('request: {0}'.format(url))
 
         sess = requests.Session()
         sess.headers.update(get_iroko_harvester_agent())
         timeout = 60
         dictionary = {}
         response = sess.get(url, timeout=timeout)
-        # print('request finish: {0}'.format(url))
+        print('request finish: {0}'.format(url))
 
         sleep_time = randint(10, 20)
-        # print('sleep: {0}'.format(sleep_time))
+        print('sleep: {0}'.format(sleep_time))
         time.sleep(sleep_time)
 
         html_text = response.text
@@ -299,7 +299,7 @@ class MiarHarvester(BaseHarvester):
             self.get_info_icds(url_history, dictionary, sess, icds_year)
 
             sleep_time = randint(10, 20)
-            # print('sleep: {0}'.format(sleep_time))
+            print('sleep: {0}'.format(sleep_time))
             time.sleep(sleep_time)
 
         return dictionary, html_text
@@ -312,7 +312,7 @@ class MiarHarvester(BaseHarvester):
         element = doc1.xpath('.//div[@id="sp_icds"]')
         if len(element) > 0:
             dictionary[str(icds_year)] = element[0].text
-            # print(dictionary[str(icds_year)])
+            print(dictionary[str(icds_year)])
 
     def collect_miar_info(self):
         """
@@ -325,7 +325,7 @@ class MiarHarvester(BaseHarvester):
         issn_list = SourceRawData.query.all()
         if issn_list:
             for issn in issn_list:
-                # print('getting miar info of: {0}'.format(issn.code))
+                print('getting miar info of: {0}'.format(issn.identifier))
 
                 if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier):
                     res, text = self.get_info_journal(issn.identifier)
