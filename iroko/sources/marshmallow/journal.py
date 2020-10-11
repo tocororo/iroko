@@ -2,7 +2,7 @@
 from marshmallow import Schema, fields, post_dump, INCLUDE
 
 from iroko.sources.marshmallow.base import SourceDataSchema
-from iroko.sources.models import Issn
+from iroko.sources.models import SourceRawData
 
 
 # from iroko.harvester.api import SecundarySourceHarvester
@@ -30,7 +30,7 @@ class ISSNSchema(Schema):
     def fill_issn_org(self, issn, **kwargs):
         for v in ['p','e','l']:
             if v in issn:
-                issn_org = Issn.query.filter_by(code = issn[v]).first()
+                issn_org = SourceRawData.query.filter_by(identifier = issn[v]).first()
                 if issn_org:
                     data = dict(issn_org.data)
                     for item in data["@graph"]:

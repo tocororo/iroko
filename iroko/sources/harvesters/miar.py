@@ -11,7 +11,7 @@ from lxml import html
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.sources.api import SourceRecord, IrokoSourceVersions
-from iroko.sources.models import Issn, SourceType, SourceStatus
+from iroko.sources.models import SourceRawData, SourceType, SourceStatus
 from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.models import Term, Vocabulary
 
@@ -322,18 +322,20 @@ class MiarHarvester(BaseHarvester):
             { issn : get_info_journal }
         """
 
-        issn_list = Issn.query.all()
+        issn_list = SourceRawData.query.all()
         if issn_list:
             for issn in issn_list:
                 # print('getting miar info of: {0}'.format(issn.code))
 
-                if not os.path.exists(self.issn_info_miar_dir + '/' + issn.code):
-                    res, text = self.get_info_journal(issn.code)
-                    with open(os.path.join(self.issn_info_miar_dir, issn.code), 'w+', encoding=('UTF-8')) as file_issn:
+                if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier):
+                    res, text = self.get_info_journal(issn.identifier)
+                    issn.miar_data = text
+                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+', encoding=('UTF-8')) as file_issn:
                         json.dump(res, file_issn, ensure_ascii=False)
-                    with open(os.path.join(self.issn_info_miar_dir, issn.code + '-html'), 'w+',
+                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier + '-html'), 'w+',
                               encoding=('UTF-8')) as file_issn:
                         file_issn.write(text)
+            db.session.commit()
 
             #     result[archive] =
             # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
@@ -401,14 +403,14 @@ class MiarHarvester(BaseHarvester):
         else:
             return 'error'
 
-    def _get_source_by_issn(self, issnModel: Issn) -> SourceRecord:
+    def _get_source_by_issn(self, issnModel: SourceRawData) -> SourceRecord:
         """
         get the source by the issn
         si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
         """
 
-        issn = issnModel.code
-        data = issnModel.data
+        issn = issnModel.identifier
+        data = issnModel.issn_data
         # print("buscando el issn {0}".format(issn))
         pid, source = SourceRecord.get_source_by_pid(issn)
         if source:
@@ -440,17 +442,17 @@ class MiarHarvester(BaseHarvester):
         """
         issncount = 0
         sourcecount = 0
-        issn_list = Issn.query.all()
+        issn_list = SourceRawData.query.all()
         if issn_list:
             try:
                 for issn in issn_list:
 
                     issncount = issncount + 1
-                    with open(os.path.join(self.issn_info_miar_dir, issn.code), 'r') as file_issn_miar:
+                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'r') as file_issn_miar:
                         archive_issn_miar = json.load(file_issn_miar)
                         try:
                             # atribute = archive_issn_miar['Indexed\xa0in:']
-                            if archive_issn_miar != issn.code + ' IS NOT LISTED IN MIAR DATABASE':
+                            if archive_issn_miar != issn.identifier + ' IS NOT LISTED IN MIAR DATABASE':
                                 dbs_split = []
                                 # print('---------------------------')
                                 # print(archive_issn_miar)

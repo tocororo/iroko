@@ -11,7 +11,7 @@ from lxml import html
 
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
-from iroko.sources.models import Issn
+from iroko.sources.models import SourceRawData
 
 
 def encode_multipart_formdata(fields):
@@ -250,12 +250,12 @@ class IssnHarvesterManager:
 
         for issn in issn_list:
             data = issn_info[issn]
-            issn_model = Issn.query.filter_by(code=issn).first()
+            issn_model = SourceRawData.query.filter_by(identifier=issn).first()
             print(issn_model)
             if not issn_model:
-                obj_issn = Issn()
-                obj_issn.code = issn
-                obj_issn.data = data
+                obj_issn = SourceRawData()
+                obj_issn.identifier = issn
+                obj_issn.issn_data = data
                 db.session.add(obj_issn)
                 print('NEW')
             else:

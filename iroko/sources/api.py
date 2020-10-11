@@ -28,7 +28,7 @@ import iroko.pidstore.providers as iroko_providers
 from iroko.harvester.models import Repository, HarvestType
 from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion, Issn, SourceType
+from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion, SourceRawData, SourceType
 from iroko.sources.permissions import (
     ObjectSourceEditor, is_user_souces_admin, source_full_manager_actions,
     ObjectSourceTermManager,
@@ -459,12 +459,12 @@ class SourceRecord(Record):
         get the source by the issn
         si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
         """
-        issnModel = Issn.query.filter_by(code=issn).first()
+        issnModel = SourceRawData.query.filter_by(identifier=issn).first()
         if issnModel:
-            code = issnModel.code
-            data = issnModel.data
+            identifier = issnModel.identifier
+            data = issnModel.issn_data
             # print("buscando el issn {0}".format(code))
-            pid, source = SourceRecord.get_source_by_pid(code)
+            pid, source = SourceRecord.get_source_by_pid(identifier)
             if source:
                 return pid, source
                 # editors = source.get_editors
@@ -480,7 +480,7 @@ class SourceRecord(Record):
                 # raise Exception('No tiene permiso para editar esta fuente')
             # print("no existe, creando source {0}".format(code))
             for item in data["@graph"]:
-                if item['@id'] == 'resource/ISSN/' + code + '#KeyTitle':
+                if item['@id'] == 'resource/ISSN/' + identifier + '#KeyTitle':
                     title = item["value"]
                     # print(title)
                     data = dict()
@@ -488,10 +488,10 @@ class SourceRecord(Record):
                     data['name'] = title
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
                     data['title'] = title
-                    data['identifiers'] = [{'idtype': 'pissn', 'value': code}]
+                    data['identifiers'] = [{'idtype': 'pissn', 'value': identifier}]
                     msg, source = SourceRecord.new_source(data, get_default_user())
                     if source:
-                        return SourceRecord.get_source_by_pid(code)
+                        return SourceRecord.get_source_by_pid(identifier)
         raise Exception('El ISSN {0} no existe'.format(issn))
 
     # Permission methods

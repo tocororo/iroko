@@ -88,8 +88,9 @@ class SourceSchema(Schema):
 
 class IssnSchema(Schema):
     id = fields.Int(dump_only=True)
-    code = fields.Str(required=True)
-    data = fields.Raw(many=False)
+    identifier = fields.Str(required=True)
+    issn_data = fields.Raw(many=False)
+    miar_data = fields.Raw(many=False)
 
 
 source_schema_many = SourceSchema(many=True, exclude=['versions', 'term_sources', 'data', 'repository'])

@@ -7,7 +7,7 @@ from flask import Blueprint, request
 
 from iroko.sources.journals.utils import _filter_data_args, _filter_extra_args
 from iroko.sources.marshmallow.source import source_schema, source_schema_many
-from iroko.sources.models import Source, SourceType, SourceStatus, TermSources, Issn
+from iroko.sources.models import Source, SourceType, SourceStatus, TermSources, SourceRawData
 from iroko.sources.utils import _load_terms_tree
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 
@@ -107,7 +107,7 @@ def get_journal_by_issn(issn):
     """Get a journal by UUID"""
     # print('def get_journal_by_issn(issn):')
     try:
-        issn_db = Issn.query.filter_by(code=issn).first()
+        issn_db = SourceRawData.query.filter_by(identifier=issn).first()
         if not issn_db:
             return iroko_json_response(IrokoResponseStatus.NOT_FOUND, "ISSN {0} not found on Cuban ISSNs list".format(issn), None, None)
             # raise Exception("ISSN {0} not found on Cuban ISSNs list".format(issn))

@@ -125,13 +125,14 @@ class SourceVersion(db.Model):
 
 
 
-class Issn(db.Model):
-    __tablename__ = 'iroko_issn'
+class SourceRawData(db.Model):
+    __tablename__ = 'iroko_source_raw_data'
 
     id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String, nullable=False,  unique=True)
-    data = db.Column( JSONType )
+    identifier = db.Column(db.String, nullable=False, unique=True)
+    issn_data = db.Column(JSONType)
+    miar_data = db.Column(db.String)
 
     def __str__(self):
         """Representation."""
-        return self.code
+        return self.identifier
