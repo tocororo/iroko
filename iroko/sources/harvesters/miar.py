@@ -66,8 +66,8 @@ class MiarHarvester(BaseHarvester):
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
 
-        self.miar_dbs_file = os.path.join(work_dir, 'miar.dbs.json')
-        self.issn_info_file = os.path.join(work_dir, 'issn.info.cuba.json')
+        self.miar_dbs_file = os.path.join(self.work_dir, 'dbs.json')
+        self.issn_info_file = os.path.join(self.work_dir, 'issn.info.cuba.json')
 
         self.issn_info_miar_dir = os.path.join(self.work_dir, 'miar_info')
         if not os.path.exists(self.issn_info_miar_dir):
