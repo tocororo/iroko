@@ -16,58 +16,17 @@ from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.models import Term, Vocabulary
 
 
-# TODO:
-# 1- tratar de arreglar el lio del encoding
-# 2- la sincronizacion de las revistas tiene que tener en cuenta que una revista puede tener mas de un issn.
-
-
 class MiarHarvester(BaseHarvester):
     """
     TODO: Document this!!!!
     """
 
-    @classmethod
-    def collect_databases(cls):
-        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
-        if not recheck:
-            harvester = MiarHarvester(work_dir, True)
-        else:
-            # print('recheck is True')
-            harvester = MiarHarvester(work_dir, False)
-            harvester.get_info_database_recheck()
-
-    @classmethod
-    def sync_databases(cls, recheck=True):
-        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
-        indexes = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
-        if not indexes:
-            indexes = Vocabulary()
-            indexes.identifier = IrokoVocabularyIdentifiers.INDEXES.value
-            indexes.human_name = 'Indices, Bases de Datos'
-            db.session.add(indexes)
-            db.session.commit()
-        miar_harvester = MiarHarvester(work_dir)
-        miar_harvester.syncronize_miar_databases()
-
-    @classmethod
-    def collect_journals(cls):
-        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
-        miar_harvester = MiarHarvester(work_dir)
-        miar_harvester.collect_miar_info()
-
-    @classmethod
-    def sync_journals(cls):
-        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
-        miar_harvester = MiarHarvester(work_dir)
-        miar_harvester.syncronize_miar_journals()
-
-    def __init__(self, work_dir, load_remote=False):
+    def __init__(self, work_dir, work_remote=False):
         self.work_dir = os.path.join(work_dir, 'miar')
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
 
         self.miar_dbs_file = os.path.join(self.work_dir, 'dbs.json')
-        self.issn_info_file = os.path.join(self.work_dir, 'issn.info.cuba.json')
 
         self.issn_info_miar_dir = os.path.join(self.work_dir, 'miar_info')
         if not os.path.exists(self.issn_info_miar_dir):
@@ -76,39 +35,48 @@ class MiarHarvester(BaseHarvester):
         self.miar_journals_file = os.path.join(self.work_dir, 'miar.journals.json')
         self.miar_types_vocab_name = 'miar_types'
         self.miar_database_vocab_name = 'miar_databases'
-        if load_remote:
-            self.miar_groups = [
-                {
-                    'name': 'WoS / Scopus',
-                    'url':  'http://miar.ub.edu/databases/GRUPO/G'
-                },
-                {
-                    'name': 'Bases de datos multidisciplinares',
-                    'url':  'http://miar.ub.edu/databases/GRUPO/S'
-                },
-                {
-                    'name': 'Bases de datos especializadas',
-                    'url':  'http://miar.ub.edu/databases/GRUPO/E'
-                },
-                {
-                    'name': 'Sistemas de evaluación',
-                    'url':  'http://miar.ub.edu/databases/GRUPO/M'
-                }
-            ]
-            self.get_url_db()
-            self.get_info_databases()
+
+        self.work_remote = work_remote
+
+        self.miar_groups = [
+            {
+                'name': 'WoS / Scopus',
+                'url':  'http://miar.ub.edu/databases/GRUPO/G'
+            },
+            {
+                'name': 'Bases de datos multidisciplinares',
+                'url':  'http://miar.ub.edu/databases/GRUPO/S'
+            },
+            {
+                'name': 'Bases de datos especializadas',
+                'url':  'http://miar.ub.edu/databases/GRUPO/E'
+            },
+            {
+                'name': 'Sistemas de evaluación',
+                'url':  'http://miar.ub.edu/databases/GRUPO/M'
+            }
+        ]
+
+    def collect_databases(self):
+        """recolecta las bases de datos de MIAR, segun los tipos de bases de datos.
+            a cada grupo le annade el campo 'dbs' que tiene 'name' y 'url'
+        """
+        if self.work_remote:
+            sess = requests.Session()
+            sess.headers.update(get_iroko_harvester_agent())
+            for group in self.miar_groups:
+                # print('getting group {0}'.format(group['name']))
+                group['dbs'] = self._collect_dbs_database_group(sess, group['url'])
+                # try to collect all info from databases
+                noerror = self._collect_dbs_alldatabases_information()
+                while not noerror:
+                    noerror = self._collect_dbs_alldatabases_information()
+
         else:
             with open(self.miar_dbs_file, 'r') as file_db:
                 self.miar_groups = json.load(file_db)
 
-    def get_url_db(self):
-        sess = requests.Session()
-        sess.headers.update(get_iroko_harvester_agent())
-        for group in self.miar_groups:
-            # print('getting group {0}'.format(group['name']))
-            group['dbs'] = self.get_db_group(sess, group['url'])
-
-    def get_db_group(self, sess, url):
+    def _collect_dbs_database_group(self, sess, url):
         result = []
 
         sleep_time = randint(3, 9)
@@ -118,7 +86,7 @@ class MiarHarvester(BaseHarvester):
         element = doc1.xpath('.//span[@id="total_registros"]')
         count_db = element[0].text.split()[0]
         if int(count_db) > 25:
-            self.post_database_miar(url, result, sess, count_db)
+            self._collect_dbs_database_group_pagination(url, result, sess, count_db)
         else:
             element_db = doc1.xpath('.//div[@class="table-responsive"]//a')
             for e in element_db:
@@ -126,7 +94,7 @@ class MiarHarvester(BaseHarvester):
 
         return result
 
-    def post_database_miar(self, url: str, result, sess: requests.Session, count):
+    def _collect_dbs_database_group_pagination(self, url: str, result, sess: requests.Session, count):
         value_ini = 0
         value_content_length = 35
         headers = {
@@ -161,7 +129,7 @@ class MiarHarvester(BaseHarvester):
 
             value_ini = value_ini + 25
 
-    def get_info_db(self, url):
+    def _collect_dbs_database_information(self, url):
 
         sess = requests.Session()
         sess.headers.update(get_iroko_harvester_agent())
@@ -173,7 +141,7 @@ class MiarHarvester(BaseHarvester):
 
         for e in element:
             element1 = e.xpath('.//div//div')
-            if (element1[1].xpath('.//a')):
+            if element1[1].xpath('.//a'):
                 a = element1[1].xpath('.//a')
                 dictionary[element1[0].text_content()] = a[0].get('href')
             else:
@@ -183,29 +151,9 @@ class MiarHarvester(BaseHarvester):
 
         return dictionary
 
-    def get_info_databases(self):
-        with open(self.miar_dbs_file, 'w') as file_db:
-            for group in self.miar_groups:
-                for db in group['dbs']:
-                    if 'url' in db:
-                        try:
-                            # print('getting info of {0}'.format(db['url']))
-                            db['info'] = self.get_info_db(db['url'])
-                        except Exception as ex:
-                            # print('ERROR, getting {0}'.format(db['url']))
-                            db['info'] = 'ERROR'
-                        else:
-                            # print('ok, saving to file')
-                            if file_db:
-                                file_db.seek(0)
-                                json.dump(self.miar_groups, file_db, ensure_ascii=False)
-                        finally:
-                            sleep_time = randint(3, 9)
-                            # print('finally, sleep {0} seconds'.format(sleep_time))
-                            time.sleep(sleep_time)
-
-    def get_info_database_recheck(self):
+    def _collect_dbs_alldatabases_information(self):
         # print(self.miar_groups)
+        noerror = True
         for group in self.miar_groups:
             for db in group['dbs']:
                 if 'url' in db and (
@@ -213,10 +161,11 @@ class MiarHarvester(BaseHarvester):
                 ):
                     try:
                         # print('getting info of {0}'.format(db['url']))
-                        db['info'] = self.get_info_db(db['url'])
+                        db['info'] = self._collect_dbs_database_information(db['url'])
                     except Exception as ex:
                         # print('ERROR, getting {0}'.format(db['url']))
                         db['info'] = 'ERROR'
+                        noerror = False
                     # else:
                     #     # print('ok, saving to file')
                     #     if file_db:
@@ -230,129 +179,14 @@ class MiarHarvester(BaseHarvester):
         with open(self.miar_dbs_file, 'w+', encoding=('UTF-8')) as file_db:
             # print('writing to file {0}'.format(self.miar_dbs_file))
             json.dump(self.miar_groups, file_db, ensure_ascii=False)
-
-    def get_info_from_journals(self, issn_path):
-        # TODO: dado la lista de issns en un archivo llamar a get_info_journal y guargar todo en el fichero
-        # self.miar_journals_file
-        dbs = open(self.miar_dbs_file, 'w')
-        # print(dbs)
-        pass
-
-    def get_info_journal(self, issn: str):
-
-        url = 'http://miar.ub.edu/issn/' + issn
-
-        print('request: {0}'.format(url))
-
-        sess = requests.Session()
-        sess.headers.update(get_iroko_harvester_agent())
-        timeout = 60
-        dictionary = {}
-        response = sess.get(url, timeout=timeout)
-        print('request finish: {0}'.format(url))
-
-        sleep_time = randint(10, 20)
-        print('sleep: {0}'.format(sleep_time))
-        time.sleep(sleep_time)
-
-        html_text = response.text
-
-        doc1 = html.fromstring(response.text)
-        element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
-        element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
-        element_history = doc1.xpath('.//div[@id="mod_versiones"]//a')
-
-        if len(element_not_found) > 0:
-            return element_not_found[0].text, html_text
-
-        # Info ISSN in actual year
-        for e in element:
-            element1 = e.xpath('.//div//div')
-            label = element1[0].text_content()
-
-            if (element1[1].xpath('.//a') and len(element1[1].xpath('.//a')) > 0):
-                arr = []
-                for elem in element1[1].xpath('.//a'):
-                    url = elem.get('href')
-                    if 'indizadaen' in url:
-                        try:
-                            arr.append(url.split('/' + issn + '/')[1])
-                        except Exception:
-                            pass
-                    else:
-                        arr.append(elem.text)
-                dictionary[label] = arr
-            #     a = element1[1].xpath('.//a')
-            #     dictionary[element1[0].text_content()] = a[0].text
-            # elif(count(element1[1].xpath('.//a')) > 1)
-            #     for elem in element1[1].xpath('.//a'):
-            #         dictionary[element1[0].text_content()] = elem[0].text
-            else:
-                dictionary[label] = element1[1].text_content().split(sep='\n')[1]
-
-        # Info ISSN in past years
-        for e_h in element_history:
-            element_history1 = e_h.xpath('.//img/@alt')
-            url_history = e_h.get('href')
-            icds_year = element_history1[0]
-
-            self.get_info_icds(url_history, dictionary, sess, icds_year)
-
-            sleep_time = randint(10, 20)
-            print('sleep: {0}'.format(sleep_time))
-            time.sleep(sleep_time)
-
-        return dictionary, html_text
-
-    def get_info_icds(self, url: str, dictionary: dict, sess: requests.Session, icds_year: str):
-
-        timeout = 120
-        response = sess.get(url, timeout=timeout)
-        doc1 = html.fromstring(response.text)
-        element = doc1.xpath('.//div[@id="sp_icds"]')
-        if len(element) > 0:
-            dictionary[str(icds_year)] = element[0].text
-            print(dictionary[str(icds_year)])
-
-    def collect_miar_info(self):
-        """
-        el fichero issn_list_path debe tener la forma ['issn1', 'issn2', ...]
-        crear un nuevo fichero donde:
-        por cada issn en el fichero de entrada se guarde:
-            { issn : get_info_journal }
-        """
-
-        issn_list = SourceRawData.query.all()
-        if issn_list:
-            for issn in issn_list:
-                print('getting miar info of: {0}'.format(issn.identifier))
-
-                if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier):
-                    res, text = self.get_info_journal(issn.identifier)
-                    issn.miar_data = text
-                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+', encoding=('UTF-8')) as file_issn:
-                        json.dump(res, file_issn, ensure_ascii=False)
-                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier + '-html'), 'w+',
-                              encoding=('UTF-8')) as file_issn:
-                        file_issn.write(text)
-            db.session.commit()
-
-            #     result[archive] =
-            # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
-            #     # print('writing to file {0}'.format(self.issn_info_miar))
-            #     json.dump(result, file_issn, ensure_ascii=False)
-        else:
-            return 'danger'
-
-        return 'success'
+        return noerror
 
     def syncronize_miar_databases(self):
         """
         sincroniza lo que  hay en self.miar_dbs_file con la base de datos de iroko
         con los Term y Vocabulary
-        TODO: document this !!!!,
-        TODO: hacer que la sincronizacion no se pare si ya existe el termino.
         """
+        # TODO: crear un rdf skos a partir de lo que hay en el fichero....
 
         with open(self.miar_dbs_file, 'r') as file_dbs:
             archive = json.load(file_dbs)
@@ -387,21 +221,155 @@ class MiarHarvester(BaseHarvester):
                             miar_db_term.description = description
                             miar_db_term.data = archive_dbs_info
                             miar_db_term.parent_id = miar_db_type_term.id
-
-                        db.session.commit()
+                        db.session.flush()
                     except Exception:
                         pass
 
-                        # db.session.flush()
+                    db.session.commit()
 
-                        # miar_classification = TermClasification()
-                        # miar_classification.term_class_id = miar_db_type_term.id
-                        # miar_classification.term_clasified_id = miar_dbs.id
-                        # db.session.add(miar_classification)
+                    # db.session.flush()
+
+                    # miar_classification = TermClasification()
+                    # miar_classification.term_class_id = miar_db_type_term.id
+                    # miar_classification.term_clasified_id = miar_dbs.id
+                    # db.session.add(miar_classification)
 
             return 'success'
         else:
             return 'error'
+
+    def _collect_journal_information(self, issn: str):
+
+        url = 'http://miar.ub.edu/issn/' + issn
+
+        print('request: {0}'.format(url))
+
+        sess = requests.Session()
+        sess.headers.update(get_iroko_harvester_agent())
+        timeout = 60
+
+        response = sess.get(url, timeout=timeout)
+        print('request finish: {0}'.format(url))
+
+        sleep_time = randint(10, 20)
+        print('sleep: {0}'.format(sleep_time))
+        time.sleep(sleep_time)
+
+        html_text = response.text
+
+        jounrnal_info = dict()
+        jounrnal_info['issn'] = issn
+        jounrnal_info['html_text'] = html_text
+
+        # dictionary = self._collect_journal_information_parse_html(html_text=html_text, issn=issn)
+
+        # collect history
+        jounrnal_info['icds'] = []
+        doc1 = html.fromstring(html_text)
+        element_history = doc1.xpath('.//div[@id="mod_versiones"]//a')
+
+        # Info ISSN in past years
+        for e_h in element_history:
+            element_history1 = e_h.xpath('.//img/@alt')
+            url_history = e_h.get('href')
+            icds_year = element_history1[0]
+            timeout = 120
+            response = sess.get(url_history, timeout=timeout)
+            jounrnal_info['icds'].append({'icd_year': icds_year, 'html_text': response.text})
+
+            # self._collect_journal_information_parse_icds(response.text)
+
+            sleep_time = randint(10, 20)
+            print('sleep: {0}'.format(sleep_time))
+            time.sleep(sleep_time)
+
+        return jounrnal_info
+
+    def collect_all_journal_information(self):
+        """
+        collect information of all sources in SourceRawData
+        """
+
+        issn_list = SourceRawData.query.all()
+        if issn_list:
+            for issn in issn_list:
+                print('getting miar info of: {0}'.format(issn.identifier))
+
+                # if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier) or self.work_remote:
+                jounrnal_info = self._collect_journal_information(issn.identifier)
+                with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+',
+                          encoding=('UTF-8')) as file_issn:
+                    json.dump(jounrnal_info, file_issn, ensure_ascii=False)
+                # with open(os.path.join(self.issn_info_miar_dir, issn.identifier + '-html'), 'w+',
+                #           encoding=('UTF-8')) as file_issn:
+                #     file_issn.write(text)
+
+            #     result[archive] =
+            # with open(self.issn_info_miar, 'w+',  encoding=('UTF-8')) as file_issn:
+            #     # print('writing to file {0}'.format(self.issn_info_miar))
+            #     json.dump(result, file_issn, ensure_ascii=False)
+        else:
+            return 'danger'
+
+        return 'success'
+
+    def syncronize_all_journal_information(self):
+
+        issn_list = SourceRawData.query.all()
+        if issn_list:
+            for issn in issn_list:
+                with open(os.path.join(self.issn_info_miar_dir, issn.identifier, issn.identifier), 'r') as file_journal:
+                    data = json.load(file_journal)
+                    issn.set_data_field('miar', data)
+            db.session.commit()
+
+    def _parse_journal_information(self, jounrnal_info):
+
+        issn = jounrnal_info['issn']
+        html_text = jounrnal_info['html_text']
+        icds = jounrnal_info['icds']
+
+        dictionary = {}
+        doc1 = html.fromstring(html_text)
+        element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
+        element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
+
+        if len(element_not_found) > 0:
+            return element_not_found[0].text, html_text
+
+        # Info ISSN in actual year
+        for e in element:
+            element1 = e.xpath('.//div//div')
+            label = element1[0].text_content()
+
+            if (element1[1].xpath('.//a') and len(element1[1].xpath('.//a')) > 0):
+                arr = []
+                for elem in element1[1].xpath('.//a'):
+                    url = elem.get('href')
+                    if 'indizadaen' in url:
+                        try:
+                            arr.append(url.split('/' + issn + '/')[1])
+                        except Exception:
+                            pass
+                    else:
+                        arr.append(elem.text)
+                dictionary[label] = arr
+            #     a = element1[1].xpath('.//a')
+            #     dictionary[element1[0].text_content()] = a[0].text
+            # elif(count(element1[1].xpath('.//a')) > 1)
+            #     for elem in element1[1].xpath('.//a'):
+            #         dictionary[element1[0].text_content()] = elem[0].text
+            else:
+                dictionary[label] = element1[1].text_content().split(sep='\n')[1]
+
+        dictionary['icds'] = []
+        for icd in icds:
+            doc1 = html.fromstring(icd['html_text'])
+            element = doc1.xpath('.//div[@id="sp_icds"]')
+            if len(element) > 0:
+                dictionary['icds'].append({icd['icd_year'], element[0].text})
+
+        return dictionary
 
     def _get_source_by_issn(self, issnModel: SourceRawData) -> SourceRecord:
         """
@@ -526,6 +494,40 @@ class MiarHarvester(BaseHarvester):
             # print("sourcecount={0}".format(sourcecount))
 
         return 'success'
+
+
+class MiarHarvesterManager:
+
+    @classmethod
+    def collect_databases(cls):
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
+        harvester = MiarHarvester(work_dir=work_dir, work_remote=True)
+        harvester.collect_databases()
+
+    @classmethod
+    def sync_databases(cls, recheck=True):
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
+        indexes = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
+        if not indexes:
+            indexes = Vocabulary()
+            indexes.identifier = IrokoVocabularyIdentifiers.INDEXES.value
+            indexes.human_name = 'Indices, Bases de Datos'
+            db.session.add(indexes)
+            db.session.commit()
+        miar_harvester = MiarHarvester(work_dir)
+        miar_harvester.syncronize_miar_databases()
+
+    @classmethod
+    def collect_journals(cls):
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
+        miar_harvester = MiarHarvester(work_dir)
+        miar_harvester.collect_all_journal_information()
+
+    @classmethod
+    def sync_journals(cls):
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
+        miar_harvester = MiarHarvester(work_dir)
+        miar_harvester.syncronize_miar_journals()
 
 # {"title": "Agrotecnia de Cuba",
 # "description":

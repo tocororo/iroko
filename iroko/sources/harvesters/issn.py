@@ -255,11 +255,11 @@ class IssnHarvesterManager:
             if not issn_model:
                 obj_issn = SourceRawData()
                 obj_issn.identifier = issn
-                obj_issn.issn_data = data
+                obj_issn.set_data_field('issn', data)
                 db.session.add(obj_issn)
                 print('NEW')
             else:
-                issn_model.data = data
+                issn_model.set_data_field('issn', data)
                 print('UPDATED')
             db.session.flush()
         db.session.commit()

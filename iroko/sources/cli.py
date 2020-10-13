@@ -29,7 +29,7 @@ from flask.cli import with_appcontext
 
 from iroko.sources.fixtures import init_journals
 from iroko.sources.harvesters.issn import IssnHarvesterManager
-from iroko.sources.harvesters.miar import MiarHarvester
+from iroko.sources.harvesters.miar import MiarHarvesterManager
 
 
 @click.group()
@@ -69,24 +69,24 @@ def issnsync():
 @with_appcontext
 def miarcollectdb():
     """get all info from miar"""
-    MiarHarvester.collect_databases()
+    MiarHarvesterManager.collect_databases()
 
 @sources.command()
 @with_appcontext
 def miarsyncdb():
-    MiarHarvester.sync_databases()
+    MiarHarvesterManager.sync_databases()
 
 
 @sources.command()
 @with_appcontext
 def miarcollectjournals():
-    MiarHarvester.collect_journals()
+    MiarHarvesterManager.collect_journals()
 
 
 @sources.command()
 @with_appcontext
 def miarsyncjournals():
-    MiarHarvester.sync_journals()
+    MiarHarvesterManager.sync_journals()
 
 
 

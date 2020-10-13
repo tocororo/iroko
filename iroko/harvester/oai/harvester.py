@@ -32,7 +32,8 @@ class OaiHarvesterFileNames(Enum):
 
 
 class OaiHarvester(SourceHarvester):
-    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los HarvesterItems, al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar
+    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los HarvesterItems,
+    al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar
     dentro de current_app.config['HARVESTER_DATA_DIRECTORY'] crea una carpeta con el UUID del source.
      con la siguiente forma:
      [source_id]
@@ -46,7 +47,8 @@ class OaiHarvester(SourceHarvester):
             - fulltext_1.ext
             - fulltext_2.ext
     Cuando se cosecha una fuente por primera vez se crea la estructura de carpetas y se almacena en la base de datos lo necesario.
-    Cuando actualiza la cosecha una fuente, o sea cuando ya se ha cosechado otras veces, se modifica la estructura de carpetas si es necesario, si hay que adicionar items, o si cambiaron algunos,etc
+    Cuando actualiza la cosecha una fuente, o sea cuando ya se ha cosechado otras veces,
+    se modifica la estructura de carpetas si es necesario, si hay que adicionar items, o si cambiaron algunos,etc
     """
 
     @staticmethod
@@ -137,7 +139,7 @@ class OaiHarvester(SourceHarvester):
 
     @staticmethod
     def rescan_source_from_zip_file(file_path):
-        """given zip file, finds the corresponding source and harves all items using work_remote = false
+        """given zip file, finds the corresponding source and harvest all items using work_remote = false
         """
         source = OaiHarvester.get_source_from_zip(file_path)
 

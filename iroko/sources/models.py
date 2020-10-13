@@ -130,9 +130,26 @@ class SourceRawData(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     identifier = db.Column(db.String, nullable=False, unique=True)
-    issn_data = db.Column(JSONType)
-    miar_data = db.Column(db.String)
+
+    # for any data, key is the source of information:
+    # 'issn':{...} is the data collected from issn.org
+    # 'miar':{...} is the data collected from MIAR
+    data = db.Column(JSONType)
 
     def __str__(self):
         """Representation."""
         return self.identifier
+
+    def set_data_field(self, field_name, field_data):
+        if not self.data:
+            self.data = dict()
+        self.data[field_name] = field_data
+
+    def commit_data_field(self, field_name, field_data):
+        with db.session.begin_nested():
+            self.set_data_field(field_name, field_data)
+            db.session.merge(self)
+    def get_data_field(self, field_name):
+        if not field_name in self.data:
+            self.commit_data_field(field_name, dict())
+        return self.data[field_name]
