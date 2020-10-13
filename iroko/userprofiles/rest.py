@@ -28,6 +28,7 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint
 from flask_login import current_user
+from invenio_oauth2server import require_api_auth
 
 from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import userprofile_schema
@@ -46,7 +47,7 @@ def init_api(state):
 
 
 @api_blueprint.route('/me', methods=['GET'])
-#@require_api_auth()
+@require_api_auth()
 # @require_oauth_scopes(email_scope.id_)
 def get_user_info():
     try:
