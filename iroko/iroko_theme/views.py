@@ -250,6 +250,7 @@ def valid(form):
 
 @blueprint.route('/send_mail_contact', methods=['POST'])
 def send_mail_contact():
+    send_contact_email('rafael.martinez@upr.edu.cu', 'rafael.martinez@upr.edu.cu', 'Se ha enviado un mensaje desde sceiba... ')
     if request.method == 'POST':
         form = ContactForm()
 
