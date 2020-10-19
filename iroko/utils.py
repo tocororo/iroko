@@ -119,9 +119,10 @@ def send_email(subject, sender, recipients, text_body, html_body):
 def send_contact_email(name, email, user_message):
     language = get_locale().upper()
     client_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-    send_email('Inquiry from ekgdx.com',
+    send_email('message from sceiba',
                sender=current_app.config['SECURITY_EMAIL_SENDER'],
-               recipients=current_app.config['ADMINS'],
+               # recipients=current_app.config['ADMINS'],
+               recipients=email,
                text_body=render_template('iroko_theme/email/contact_email.txt', name=name, email=email,
                                          user_message=user_message, language=language, ip=client_ip),
                html_body=render_template('iroko_theme/email/contact_email.html', name=name, email=email,

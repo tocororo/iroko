@@ -383,8 +383,8 @@ COLLECT_STORAGE = 'flask_collect.storage.file'
 # Accounts
 # ========
 #: Email address used as sender of account registration emails.
-MAIL_SUPPRESS_SEND=True
-SUPPORT_EMAIL = "sceibacuba@gmail.com"
+MAIL_SUPPRESS_SEND=False
+SUPPORT_EMAIL = SMTP_DEFAULT_SENDER
 SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
 SECURITY_EMAIL_SUBJECT_REGISTER = _(
