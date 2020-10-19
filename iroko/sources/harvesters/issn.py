@@ -11,7 +11,25 @@ from lxml import html
 
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
-from iroko.sources.models import SourceRawData
+from iroko.sources.api import SourceRecord
+from iroko.sources.marshmallow.base import SourceDataSchema
+from iroko.sources.models import SourceRawData, SourceStatus, SourceType
+
+
+def is_issn(code: str) -> bool:
+    """
+    return true if code is a valid issn
+    :param code:
+    :return:
+    """
+    try:
+        # TODO: replace this by a regular expression...
+        parts = code.split('-')
+        if len(parts[0]) == 4 and len(parts[1]) == 4:
+            return True
+        return False
+    except Exception:
+        return False
 
 
 def encode_multipart_formdata(fields):
@@ -42,9 +60,9 @@ def get_info_issn(issn: str, sess: requests.Session):
     url = 'https://portal.issn.org/resource/ISSN/' + issn + '?format=json'
     response = sess.get(url)
 
-    # text = response.text.replace('\\n', '')
+    # text = response.content.decode('UTF-8').replace('\\n', '')
     # return text.replace('\\"', '"')
-    return json.loads(response.text)
+    return json.loads(response.content.decode('UTF-8'))
 
 
 def getissn(res: requests.Response):
@@ -65,7 +83,7 @@ def request_advanced_search(country_code):
 
     response = sess.get(url)
 
-    doc1 = html.fromstring(response.text)
+    doc1 = html.fromstring(response.content.decode('UTF-8'))
     variable = ["form_build_id", "form_id", "honeypot_time"]
     variable_id = "advances-search-issn-final-form"
     dictionary = {}
@@ -164,6 +182,26 @@ def collect_issn_info(issn_list):
     return result
 
 
+def collect_issn_info_single(issn):
+    session = requests.Session()
+
+    session.headers.update(get_iroko_harvester_agent())
+
+    result = dict()
+
+    try:
+        print('try getting {0} info'.format(issn))
+        result[issn] = get_info_issn(issn, session)
+    except Exception as e:
+        print('error, getting {0} info, error: {1}'.format(issn, e))
+        result[issn] = {"error": str(e)}
+        pass
+    finally:
+        print('ok')
+        pass
+    return result
+
+
 class IssnHarvester(BaseHarvester):
     """
     TODO: Document this better!!!
@@ -171,13 +209,15 @@ class IssnHarvester(BaseHarvester):
 
     # TODO: all functions private, except process_pipeline
 
-    def __init__(self, work_dir, country_code='CUB'):
+    def __init__(self, work_dir, country_code='CUB', country_id='http://id.loc.gov/vocabulary/countries/cu'):
 
         self.work_dir = os.path.join(work_dir, 'issn')
         if not os.path.exists(self.work_dir):
             os.mkdir(self.work_dir)
 
         self.country_code = country_code
+        self.country_id = country_id
+
         self.issn_list_file = os.path.join(self.work_dir, self.country_code + '.list.json')
         self.issn_info_file = os.path.join(self.work_dir, self.country_code + '.info.json')
 
@@ -193,12 +233,12 @@ class IssnHarvester(BaseHarvester):
     def get_issn_list(self, remote):
         if remote:
             issn_list = collect_issn_list(self.country_code)
-            with open(self.issn_list_file, 'w+', encoding=('UTF-8')) as file_issn:
+            with open(self.issn_list_file, 'w+', encoding='UTF-8') as file_issn:
                 if file_issn:
                     print(issn_list)
                     json.dump(issn_list, file_issn, ensure_ascii=False)
         else:
-            with open(self.issn_list_file, 'r') as file_issn:
+            with open(self.issn_list_file, 'r', encoding='UTF-8') as file_issn:
                 issn_list = json.load(file_issn)
 
         return issn_list
@@ -207,14 +247,178 @@ class IssnHarvester(BaseHarvester):
         issn_list = self.get_issn_list(remote=False)
         if remote and issn_list:
             issn_info = collect_issn_info(issn_list)
-            with open(self.issn_info_file, 'w+', encoding=('UTF-8')) as file_issn:
+            with open(self.issn_info_file, 'w+', encoding='UTF-8') as file_issn:
                 if file_issn:
                     json.dump(issn_info, file_issn, ensure_ascii=False)
         else:
-            with open(self.issn_info_file, 'r') as file_issn:
+            with open(self.issn_info_file, 'r', encoding='UTF-8') as file_issn:
                 issn_info = json.load(file_issn)
 
         return issn_info
+
+
+
+
+class IssnDataParser:
+    """
+    adhoc class for issn.org data,
+    assume in
+    source = SourceRawData.query.filter_by(identifier=identifier).first()
+    data = source.get_data_field('issn')
+    jsonschema-LD format
+    """
+
+    @classmethod
+    def parse(cls, identifier) -> SourceDataSchema:
+        """
+
+        :param identifier: to SourceRawData.query.filter_by(identifier=identifier).first()
+        :return:
+        [list, str, list]
+        1- a list with identifiers, valid for a SourceRecord
+        2- the mainTitle
+        3- all known aliases
+
+        """
+        return cls._parse_data(identifier, parse_relations=True)
+
+    @classmethod
+    def _parse_data(cls, identifier, parse_relations=False) -> SourceDataSchema:
+        """
+        helper func
+        :param
+        :param parse_relations: if True, will analize 'isFormatOf' and 'otherPhysicalFormat' fields
+        :return:
+        """
+
+        if not is_issn(identifier):
+            return None
+
+        main_title = ''
+        identifiers = list()
+        aliases = list()
+
+        source = SourceRawData.query.filter_by(identifier=identifier).first()
+        if not source:
+            print('NO SOURCE', identifier)
+            # TODO esto significa que no se recolecto el issn, recolectarlo entonces!!!!
+            return None
+        data = source.get_data_field('issn')
+
+        if '@graph' not in data:
+            print('NO DATA', identifier, data)
+            return None
+
+        for item in data["@graph"]:
+
+            # ISSN Link (issn_l) is the main issn
+            if '@type' in item and item['@type'] == 'http://id.loc.gov/ontologies/bibframe/IssnL':
+                cls._append_to_identifier_list(identifiers, {'idtype': 'issn_l', 'value': item['value']})
+
+            if '@id' in item and item['@id'] == 'resource/ISSN/' + identifier:
+                cls._append_to_identifier_list(identifiers, cls._get_issn(item))
+
+                if 'mainTitle' in item:
+                    main_title = item['mainTitle']
+                    pass
+                if 'name' in item:
+                    name = item['name']
+                    if type(name) == list:
+                        for n in name:
+                            cls._append_to_alias_list(aliases, n)
+                    else:
+                        cls._append_to_alias_list(aliases, name)
+                else:
+                    print('no name!!!!', identifier)
+                    pass
+
+                # issn relations.
+                if parse_relations:
+                    try:
+                        rel = cls._get_relations(item)
+                        if main_title == '' and rel.title != '':
+                            main_title = rel.title
+                        for _id in rel.identifiers:
+                            cls._append_to_identifier_list(identifiers, _id)
+                        for a in rel.aliases:
+                            cls._append_to_alias_list(aliases, a)
+                    except Exception as e:
+                        # print(e)
+                        pass
+        if main_title == '':
+            print('no mainTitle', identifier)
+            if len(aliases) > 0:
+                main_title = aliases[0]
+        record = SourceDataSchema()
+        record.identifiers = identifiers
+        record.name = main_title
+        record.title = main_title
+        record.aliases = aliases
+
+        return record
+
+    @classmethod
+    def _append_to_identifier_list(cls, id_list: list, id_item):
+        append = True
+        for id in id_list:
+            if id['idtype'] == id_item['idtype']:
+                append = False
+        if append:
+            id_list.append(id_item)
+
+    @classmethod
+    def _append_to_alias_list(cls, alias_list: list, alias_item):
+        append = True
+        for alias in alias_list:
+            if alias == alias_item:
+                append = False
+        if append:
+            alias_list.append(alias_item)
+
+    @classmethod
+    def _get_relations(cls, item):
+        # TODO: 'isFormatOf' is the same as 'otherPhysicalFormat'?
+        relations = None
+        if 'isFormatOf' in item:
+            relations = item['isFormatOf']
+        elif 'otherPhysicalFormat' in item:
+            relations = item['otherPhysicalFormat']
+        else:
+            # print('no relations', item)
+            pass
+        if type(relations) == str:
+            issn_rel = relations.split('/').pop()
+            return cls._parse_data(issn_rel)
+        if type(relations) == list:
+            result_ids = list()
+            result_alias = list()
+            result_title = ''
+            for rel in relations:
+                issn_rel = rel.split('/').pop()
+                rel = cls._parse_data(issn_rel)
+                if result_title == '':
+                    result_title = rel.title
+                result_ids.extend(rel.identifiers)
+                result_alias.extend(rel.aliases)
+
+            record = SourceDataSchema()
+            record.identifiers = result_ids
+            record.title = result_title
+            record.aliases = result_alias
+
+            return record
+
+    @classmethod
+    def _get_issn(cls, item):
+        # desambiguate all issn types
+        if item['format'] == 'vocabularies/medium#Online':
+            return {'idtype': 'issn_e', 'value': item['issn']}
+        if item['format'] == 'vocabularies/medium#Print':
+            return {'idtype': 'issn_p', 'value': item['issn']}
+        if item['format'] == 'vocabularies/medium#DigitalCarrier':
+            return {'idtype': 'issn_c', 'value': item['issn']}
+        if item['format'] == 'vocabularies/medium#Other':
+            return {'idtype': 'issn_o', 'value': item['issn']}
 
 
 class IssnHarvesterManager:
@@ -264,12 +468,15 @@ class IssnHarvesterManager:
             db.session.flush()
         db.session.commit()
         print('DB COMMIT')
-        #
-        #     return 'success'
-        #
-        # return 'error'
-        # TODO: bascicamente aqui lo que hay que hacer es interpretar lo que hay en el json-ld de issn.org
-        # y maperar contra el modelo de Source que tenemos creado, o sea, ver los issn (p, e y l....)
 
-# TODO:
-# La importacnion tiene que tener en cuenta los 3 tipos de issn
+
+    @classmethod
+    def sync_records(cls, issn):
+
+        issn_list = SourceRawData.query.all()
+        for issn in issn_list:
+            record = IssnDataParser.parse(issn.identifier)
+            if record:
+                record.source_status = SourceStatus.UNOFFICIAL.value
+                record.source_type = SourceType.JOURNAL.value
+                SourceRecord.create_or_update(record.dum)

@@ -241,9 +241,9 @@ def is_human(captcha_response):
 
 
 def valid(form):
-    if form.get('name').strip() == '':
+    if not form.get('name') or form.get('name').strip() == '':
         return False
-    if form.get('message').strip() == '':
+    if not form.get('message') or form.get('message').strip() == '':
         return False
     return True
 

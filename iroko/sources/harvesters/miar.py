@@ -73,7 +73,8 @@ class MiarHarvester(BaseHarvester):
                     noerror = self._collect_dbs_alldatabases_information()
 
         else:
-            with open(self.miar_dbs_file, 'r') as file_db:
+            with open(self.miar_dbs_file, 'r',
+                      encoding='UTF-8') as file_db:
                 self.miar_groups = json.load(file_db)
 
     def _collect_dbs_database_group(self, sess, url):
@@ -82,7 +83,7 @@ class MiarHarvester(BaseHarvester):
         sleep_time = randint(3, 9)
         time.sleep(sleep_time)
         response = sess.get(url)
-        doc1 = html.fromstring(response.text)
+        doc1 = html.fromstring(response.content.decode('UTF-8'))
         element = doc1.xpath('.//span[@id="total_registros"]')
         count_db = element[0].text.split()[0]
         if int(count_db) > 25:
@@ -136,7 +137,7 @@ class MiarHarvester(BaseHarvester):
         timeout = 30
         dictionary = {}
         response = sess.get(url, timeout=timeout)
-        doc1 = html.fromstring(response.text)
+        doc1 = html.fromstring(response.content.decode('UTF-8'))
         element = doc1.xpath('.//div[@id="gtb_div_base"]//div[@style="display:table-row-group"]')
 
         for e in element:
@@ -176,7 +177,7 @@ class MiarHarvester(BaseHarvester):
                         sleep_time = randint(3, 9)
                         # print('finally, sleep {0} seconds'.format(sleep_time))
                         time.sleep(sleep_time)
-        with open(self.miar_dbs_file, 'w+', encoding=('UTF-8')) as file_db:
+        with open(self.miar_dbs_file, 'w+', encoding='UTF-8') as file_db:
             # print('writing to file {0}'.format(self.miar_dbs_file))
             json.dump(self.miar_groups, file_db, ensure_ascii=False)
         return noerror
@@ -188,7 +189,8 @@ class MiarHarvester(BaseHarvester):
         """
         # TODO: crear un rdf skos a partir de lo que hay en el fichero....
 
-        with open(self.miar_dbs_file, 'r') as file_dbs:
+        with open(self.miar_dbs_file, 'r',
+                  encoding='UTF-8') as file_dbs:
             archive = json.load(file_dbs)
 
         if archive:
@@ -255,7 +257,7 @@ class MiarHarvester(BaseHarvester):
         print('sleep: {0}'.format(sleep_time))
         time.sleep(sleep_time)
 
-        html_text = response.text
+        html_text = response.content.decode('UTF-8')
 
         jounrnal_info = dict()
         jounrnal_info['issn'] = issn
@@ -275,9 +277,9 @@ class MiarHarvester(BaseHarvester):
             icds_year = element_history1[0]
             timeout = 120
             response = sess.get(url_history, timeout=timeout)
-            jounrnal_info['icds'].append({'icd_year': icds_year, 'html_text': response.text})
+            jounrnal_info['icds'].append({'icd_year': icds_year, 'html_text': response.content.decode('UTF-8')})
 
-            # self._collect_journal_information_parse_icds(response.text)
+            # self._collect_journal_information_parse_icds(response.content.decode('UTF-8'))
 
             sleep_time = randint(10, 20)
             print('sleep: {0}'.format(sleep_time))
@@ -298,7 +300,7 @@ class MiarHarvester(BaseHarvester):
                 # if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier) or self.work_remote:
                 jounrnal_info = self._collect_journal_information(issn.identifier)
                 with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+',
-                          encoding=('UTF-8')) as file_issn:
+                          encoding='UTF-8') as file_issn:
                     json.dump(jounrnal_info, file_issn, ensure_ascii=False)
                 # with open(os.path.join(self.issn_info_miar_dir, issn.identifier + '-html'), 'w+',
                 #           encoding=('UTF-8')) as file_issn:
@@ -313,14 +315,16 @@ class MiarHarvester(BaseHarvester):
 
         return 'success'
 
-    def syncronize_all_journal_information(self):
+    def save_all_journal_information(self):
 
         issn_list = SourceRawData.query.all()
         if issn_list:
             for issn in issn_list:
-                with open(os.path.join(self.issn_info_miar_dir, issn.identifier, issn.identifier), 'r') as file_journal:
-                    data = json.load(file_journal)
-                    issn.set_data_field('miar', data)
+                if os.path.exists(os.path.join(self.issn_info_miar_dir, issn.identifier, issn.identifier)):
+                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier, issn.identifier), 'r',
+                              encoding='UTF-8') as file_journal:
+                        data = json.load(file_journal)
+                        issn.set_data_field('miar', data)
             db.session.commit()
 
     def _parse_journal_information(self, jounrnal_info):
@@ -416,7 +420,8 @@ class MiarHarvester(BaseHarvester):
                 for issn in issn_list:
 
                     issncount = issncount + 1
-                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'r') as file_issn_miar:
+                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'r',
+                              encoding='UTF-8') as file_issn_miar:
                         archive_issn_miar = json.load(file_issn_miar)
                         try:
                             # atribute = archive_issn_miar['Indexed\xa0in:']
@@ -527,6 +532,7 @@ class MiarHarvesterManager:
     def sync_journals(cls):
         work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         miar_harvester = MiarHarvester(work_dir)
+        miar_harvester.save_all_journal_information()
         miar_harvester.syncronize_miar_journals()
 
 # {"title": "Agrotecnia de Cuba",
@@ -537,3 +543,13 @@ class MiarHarvesterManager:
 #     "seriadas_cubanas": "http://www.seriadascubanas.cult.cu/publicaci%C3%B3n-seriada/agrotecnia-de-cuba-2",
 #     "issn": {"p": "1816-8604"},
 #     "terms": [{"id": 171, "data": null}, {"id": 1128, "data": null}, {"id": 1127, "data": null}, {"id": 270, "data": null}, {"id": 873, "data": {"url": "http://www.latindex.unam.mx/latindex/ficha?folio=20272"}}]}
+
+
+# Yoannis UH, [Oct 5, 2020, 4:12:21 PM]:
+# 0253-5696
+#
+# Con este me sale menos Información
+#
+# Ese ISSN es el impreso
+#
+# Este es ISSN digital, 2410-5546

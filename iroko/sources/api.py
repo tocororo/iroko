@@ -28,7 +28,7 @@ import iroko.pidstore.providers as iroko_providers
 from iroko.harvester.models import Repository, HarvestType
 from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
-from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion, SourceRawData, SourceType
+from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion
 from iroko.sources.permissions import (
     ObjectSourceEditor, is_user_souces_admin, source_full_manager_actions,
     ObjectSourceTermManager,
@@ -39,7 +39,7 @@ from iroko.sources.permissions import (
 )
 from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree
-from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
+from iroko.utils import IrokoVocabularyIdentifiers
 from iroko.vocabularies.api import Terms
 from iroko.vocabularies.models import Term
 
@@ -451,48 +451,20 @@ class SourceRecord(Record):
                 'data':        data
             }
         )
+
+    def add_identifier(self, idtype, value):
+        for id in self.model.json[pids.IDENTIFIERS_FIELD]:
+            if id['idtype'] == idtype:
+                id['idvalue'] = value
+                return
+        self.model.json[pids.IDENTIFIERS_FIELD].append(
+            {
+                'idtype': idtype,
+                'value': value
+            }
+        )
         # self.model.json['classifications'] = classifications
 
-    @classmethod
-    def create_or_get_source_by_issn(cls, issn):
-        """
-        get the source by the issn
-        si el issn no esta en ningun Source, crea uno nuevo, usando la informacion de el modelo ISSN
-        """
-        issnModel = SourceRawData.query.filter_by(identifier=issn).first()
-        if issnModel:
-            identifier = issnModel.identifier
-            data = issnModel.issn_data
-            # print("buscando el issn {0}".format(code))
-            pid, source = SourceRecord.get_source_by_pid(identifier)
-            if source:
-                return pid, source
-                # editors = source.get_editors
-                # # print('editors: ',editors)
-                # # print('user.id: ', user.id)
-                # if len(editors) == 0:
-                #     #dar permiso
-                #     source.grant_source_editor_permission(user.id)
-                #     return pid, source
-                # elif user.id in editors:
-                #     return pid, source
-                # #no tiene permiso para editar esta fuente
-                # raise Exception('No tiene permiso para editar esta fuente')
-            # print("no existe, creando source {0}".format(code))
-            for item in data["@graph"]:
-                if item['@id'] == 'resource/ISSN/' + identifier + '#KeyTitle':
-                    title = item["value"]
-                    # print(title)
-                    data = dict()
-                    data['source_type'] = SourceType.JOURNAL.value
-                    data['name'] = title
-                    data['source_status'] = SourceStatus.UNOFFICIAL.value
-                    data['title'] = title
-                    data['identifiers'] = [{'idtype': 'pissn', 'value': identifier}]
-                    msg, source = SourceRecord.new_source(data, get_default_user())
-                    if source:
-                        return SourceRecord.get_source_by_pid(identifier)
-        raise Exception('El ISSN {0} no existe'.format(issn))
 
     # Permission methods
     #

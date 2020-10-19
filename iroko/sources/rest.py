@@ -240,7 +240,8 @@ def get_source_by_issn(issn):
     # print('eres la api correcta?')
     try:
         # print('eres la api correcta?')
-        pid, source = SourceRecord.create_or_get_source_by_issn(issn)
+        # pid, source = SourceRecord.create_or_get_source_by_issn(issn)
+        pid, source = SourceRecord.get_source_by_pid(issn)
         if not source or not pid:
             raise Exception('Source not found')
 

@@ -38,9 +38,11 @@
               "ean13",
               "handle",
               "isbn",
-              "pissn",
-              "lissn",
-              "eissn",
+              "issn_l",
+              "issn_p",
+              "issn_e",
+              "issn_c",
+              "issn_o",
               "istc",
               "lsid",
               "pmid",
@@ -69,6 +71,16 @@
     "name": {
       "type": "string"
     },
+    "title": {
+      "type": "string"
+    },
+    "aliases": {
+      "type": "array",
+      "description": "A list of other names the source is known as",
+      "items": {
+        "type": "string"
+      }
+    },
     "source_type": {
       "type": "string",
       "enum": [
@@ -89,9 +101,6 @@
       ]
     },
     "source_system": {
-      "type": "string"
-    },
-    "title": {
       "type": "string"
     },
     "description": {

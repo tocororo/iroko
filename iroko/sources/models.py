@@ -41,8 +41,11 @@ class SourceStatus(enum.Enum):
     UNOFFICIAL = 'UNOFFICIAL'
 
 
+# This class (Source) is deprecated!!!!
 class Source(db.Model):
-    """Source, fuente, es define una fuente primaria de datos, eg: las revistas. Aqui se tiene la informacion basica de la fuente, su relacion con la taxonomia y la informacion de la fuente en tanto repositorio de documentos """
+    """Source, fuente, es define una fuente primaria de datos, eg: las revistas.
+    Aqui se tiene la informacion basica de la fuente,
+    su relacion con la taxonomia y la informacion de la fuente en tanto repositorio de documentos """
 
     __tablename__ = 'iroko_sources'
 

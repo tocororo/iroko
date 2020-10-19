@@ -23,7 +23,16 @@
           }
         },
         "name": {
-          "type": "keyword"
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "title": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "aliases": {
+          "type": "text",
+          "analyzer": "spanish"
         },
         "source_status": {
           "type": "keyword"
@@ -33,10 +42,6 @@
         },
         "source_system": {
           "type": "keyword"
-        },
-        "title": {
-          "type": "text",
-          "analyzer": "spanish"
         },
         "organizations": {
           "type": "object",

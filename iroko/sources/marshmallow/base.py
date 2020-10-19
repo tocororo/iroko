@@ -10,6 +10,10 @@ from iroko.vocabularies.api import Terms
 from iroko.vocabularies.marshmallow import term_schema
 
 
+# TODO: desing an IdentifierList class with validation, etc etc...
+# class IdentifierList(fields.List):
+#
+
 class IdentifierSchema(StrictKeysMixin):
     """Ids schema."""
 
@@ -68,11 +72,18 @@ class SavingInfoSchema(Schema):
 class SourceDataSchema(Schema):
     id = PersistentIdentifier()
     identifiers = fields.Nested(IdentifierSchema, many=True)
+
+    # TODO: title y name, son lo mismo?, parece que si, analizar
+    title = fields.Str(allow_none=False)
     name = fields.Str(allow_none=False)
+    # en issn.org, el campo name, es multiple, pero es mejor usar la llave aliases,
+    # para todos los diferentes nombres con que es conocida la fuente.
+    aliases = fields.List(SanitizedUnicode(), many=True)
+
     source_type = fields.Str(allow_none=False)
     source_status = fields.Str(allow_none=True)
     source_system = fields.Str()
-    title = fields.Str()
+
     description = fields.Str()
 
     organizations = fields.Nested(OrganizationDataSchema, many=True, unknown=INCLUDE)

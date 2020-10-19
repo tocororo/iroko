@@ -191,7 +191,7 @@ class OaiHarvester(SourceHarvester):
         args = {"headers": request_headers, "timeout": 15, "verify": False}
         self.sickle = Sickle(
             self.repository.harvest_endpoint,
-            encoding=None,
+            encoding='UTF-8',
             max_retries=max_retries,
             **args
         )
@@ -253,7 +253,7 @@ class OaiHarvester(SourceHarvester):
     def _write_file(self, name, content, extra_path=""):
         """helper function, always write to f = open(os.path.join(self.harvest_dir, extra_path, name),"w")"""
 
-        f = open(os.path.join(self.harvest_dir, extra_path, name), "w")
+        f = open(os.path.join(self.harvest_dir, extra_path, name), "w", encoding='UTF-8')
         f.write(content)
         f.close()
 
