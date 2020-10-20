@@ -62,6 +62,9 @@ def get_info_issn(issn: str, sess: requests.Session):
 
     # text = response.content.decode('UTF-8').replace('\\n', '')
     # return text.replace('\\"', '"')
+
+    # TODO: see if we need to do something if response.status_code != 200:
+
     return json.loads(response.content.decode('UTF-8'))
 
 
@@ -202,63 +205,6 @@ def collect_issn_info_single(issn):
     return result
 
 
-class IssnHarvester(BaseHarvester):
-    """
-    TODO: Document this better!!!
-    Harvest all cuban ISSN from issn.org"""
-
-    # TODO: all functions private, except process_pipeline
-
-    def __init__(self, work_dir, country_code='CUB', country_id='http://id.loc.gov/vocabulary/countries/cu'):
-
-        self.work_dir = os.path.join(work_dir, 'issn')
-        if not os.path.exists(self.work_dir):
-            os.mkdir(self.work_dir)
-
-        self.country_code = country_code
-        self.country_id = country_id
-
-        self.issn_list_file = os.path.join(self.work_dir, self.country_code + '.list.json')
-        self.issn_info_file = os.path.join(self.work_dir, self.country_code + '.info.json')
-
-    def process_pipeline(self):
-        """get all cuban issn and its info
-        return pair issns(array of all issns), infos(dict with issns info)
-        """
-
-        issn_list = self.get_issn_list(remote=True)
-        issn_info = self.get_issn_info(remote=True)
-        return issn_list, issn_info
-
-    def get_issn_list(self, remote):
-        if remote:
-            issn_list = collect_issn_list(self.country_code)
-            with open(self.issn_list_file, 'w+', encoding='UTF-8') as file_issn:
-                if file_issn:
-                    print(issn_list)
-                    json.dump(issn_list, file_issn, ensure_ascii=False)
-        else:
-            with open(self.issn_list_file, 'r', encoding='UTF-8') as file_issn:
-                issn_list = json.load(file_issn)
-
-        return issn_list
-
-    def get_issn_info(self, remote):
-        issn_list = self.get_issn_list(remote=False)
-        if remote and issn_list:
-            issn_info = collect_issn_info(issn_list)
-            with open(self.issn_info_file, 'w+', encoding='UTF-8') as file_issn:
-                if file_issn:
-                    json.dump(issn_info, file_issn, ensure_ascii=False)
-        else:
-            with open(self.issn_info_file, 'r', encoding='UTF-8') as file_issn:
-                issn_info = json.load(file_issn)
-
-        return issn_info
-
-
-
-
 class IssnDataParser:
     """
     adhoc class for issn.org data,
@@ -300,9 +246,16 @@ class IssnDataParser:
 
         source = SourceRawData.query.filter_by(identifier=identifier).first()
         if not source:
+            # esto significa que no se recolecto el issn, recolectarlo entonces!!!!
             print('NO SOURCE', identifier)
-            # TODO esto significa que no se recolecto el issn, recolectarlo entonces!!!!
-            return None
+            issndata = collect_issn_info_single(identifier)
+            obj_issn = SourceRawData()
+            obj_issn.identifier = identifier
+            obj_issn.set_data_field('issn', issndata)
+            db.session.add(obj_issn)
+            db.session.commit()
+            source = SourceRawData.query.filter_by(identifier=identifier).first()
+
         data = source.get_data_field('issn')
 
         if '@graph' not in data:
@@ -421,6 +374,61 @@ class IssnDataParser:
             return {'idtype': 'issn_o', 'value': item['issn']}
 
 
+class IssnHarvester(BaseHarvester):
+    """
+    TODO: Document this better!!!
+    Harvest all cuban ISSN from issn.org"""
+
+    # TODO: all functions private, except process_pipeline
+
+    def __init__(self, work_dir, country_code='CUB', country_id='http://id.loc.gov/vocabulary/countries/cu'):
+
+        self.work_dir = os.path.join(work_dir, 'issn')
+        if not os.path.exists(self.work_dir):
+            os.mkdir(self.work_dir)
+
+        self.country_code = country_code
+        self.country_id = country_id
+
+        self.issn_list_file = os.path.join(self.work_dir, self.country_code + '.list.json')
+        self.issn_info_file = os.path.join(self.work_dir, self.country_code + '.info.json')
+
+    def process_pipeline(self):
+        """get all cuban issn and its info
+        return pair issns(array of all issns), infos(dict with issns info)
+        """
+
+        issn_list = self.get_issn_list(remote=True)
+        issn_info = self.get_issn_info(remote=True)
+        return issn_list, issn_info
+
+    def get_issn_list(self, remote):
+        if remote:
+            issn_list = collect_issn_list(self.country_code)
+            with open(self.issn_list_file, 'w+', encoding='UTF-8') as file_issn:
+                if file_issn:
+                    print(issn_list)
+                    json.dump(issn_list, file_issn, ensure_ascii=False)
+        else:
+            with open(self.issn_list_file, 'r', encoding='UTF-8') as file_issn:
+                issn_list = json.load(file_issn)
+
+        return issn_list
+
+    def get_issn_info(self, remote):
+        issn_list = self.get_issn_list(remote=False)
+        if remote and issn_list:
+            issn_info = collect_issn_info(issn_list)
+            with open(self.issn_info_file, 'w+', encoding='UTF-8') as file_issn:
+                if file_issn:
+                    json.dump(issn_info, file_issn, ensure_ascii=False)
+        else:
+            with open(self.issn_info_file, 'r', encoding='UTF-8') as file_issn:
+                issn_info = json.load(file_issn)
+
+        return issn_info
+
+
 class IssnHarvesterManager:
     @classmethod
     def collect_issn(cls):
@@ -479,4 +487,4 @@ class IssnHarvesterManager:
             if record:
                 record.source_status = SourceStatus.UNOFFICIAL.value
                 record.source_type = SourceType.JOURNAL.value
-                SourceRecord.create_or_update(record.dum)
+                SourceRecord.create_or_update(record.dump(record))

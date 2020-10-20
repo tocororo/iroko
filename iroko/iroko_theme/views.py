@@ -24,7 +24,6 @@ from iroko.iroko_theme.forms import ContactForm
 from iroko.records.api import IrokoAggs
 from iroko.sources.api import SourceRecord
 from iroko.utils import send_contact_email
-from iroko.vocabularies.models import Vocabulary, Term
 
 # from invenio_userprofiles.config import USERPROFILES_EXTEND_SECURITY_FORMS
 
@@ -54,16 +53,16 @@ def get_record_count():
 def index(form=None):
     # # print(USERPROFILES_EXTEND_SECURITY_FORMS)
     """Simplistic front page view."""
-    vocabularies = Vocabulary.query.all()
-    vocab_stats = []
-    vocab_stats.append({'records':get_record_count()})
-    records = get_record_count()
-    sources = IrokoAggs.getAggrs("source.name", 50000)
-    vocab_stats.append({'sources':str(len(sources))})
-
-    authors = IrokoAggs.getAggrs("creators.name",50000)
-    ## print('authors'+str(authors))
-    vocab_stats.append({'authors':str(len(authors))})
+    # vocabularies = Vocabulary.query.all()
+    # vocab_stats = []
+    # vocab_stats.append({'records':get_record_count()})
+    # records = get_record_count()
+    # sources = IrokoAggs.getAggrs("source.name", 50000)
+    # vocab_stats.append({'sources':str(len(sources))})
+    #
+    # authors = IrokoAggs.getAggrs("creators.name",50000)
+    # ## print('authors'+str(authors))
+    # vocab_stats.append({'authors':str(len(authors))})
 
     # TODO: cuando se vaya a escribir el json es agregarle la opcion w y
     # ensure_ascii=False para que las tildes y demas se pongan bien
@@ -83,12 +82,12 @@ def index(form=None):
     # markdown = mistune.Markdown()
     # faqs = markdown(texts)
 
-    keywords = IrokoAggs.getAggrs("keywords",50000)
-    ## print('keywords'+str(keywords))
-    vocab_stats.append({'Keywords':str(len(keywords))})
-
-    for vocab in vocabularies:
-        vocab_stats.append({vocab.identifier:str(Term.query.filter_by(vocabulary_id=vocab.identifier).count())})
+    # keywords = IrokoAggs.getAggrs("keywords",50000)
+    # ## print('keywords'+str(keywords))
+    # vocab_stats.append({'Keywords':str(len(keywords))})
+    #
+    # for vocab in vocabularies:
+    #     vocab_stats.append({vocab.identifier:str(Term.query.filter_by(vocabulary_id=vocab.identifier).count())})
 
     if not form:
         form = ContactForm()
@@ -98,11 +97,11 @@ def index(form=None):
 
     return render_template(
         current_app.config['THEME_FRONTPAGE_TEMPLATE'],
-        vocabularies=vocabularies,
-        vocab_stats=vocab_stats,
+        vocabularies=None,
+        vocab_stats=None,
         faqs=faqs,
         form=form,
-        records=records,
+        records=None,
     )
 
 

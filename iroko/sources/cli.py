@@ -67,6 +67,12 @@ def issnsync():
 
 @sources.command()
 @with_appcontext
+def issnsyncrecords():
+    IssnHarvesterManager.sync_records()
+
+
+@sources.command()
+@with_appcontext
 def miarcollectdb():
     """get all info from miar"""
     MiarHarvesterManager.collect_databases()
