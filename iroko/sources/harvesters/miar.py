@@ -320,11 +320,13 @@ class MiarHarvester(BaseHarvester):
         issn_list = SourceRawData.query.all()
         if issn_list:
             for issn in issn_list:
-                if os.path.exists(os.path.join(self.issn_info_miar_dir, issn.identifier, issn.identifier)):
-                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier, issn.identifier), 'r',
+                if os.path.exists(os.path.join(self.issn_info_miar_dir, issn.identifier)):
+                    print(os.path.join(self.issn_info_miar_dir, issn.identifier))
+                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'r',
                               encoding='UTF-8') as file_journal:
                         data = json.load(file_journal)
                         issn.set_data_field('miar', data)
+                        print('save info colected of', issn.identifier)
             db.session.commit()
 
     def _parse_journal_information(self, jounrnal_info):
@@ -399,7 +401,7 @@ class MiarHarvester(BaseHarvester):
                 data['title'] = title
                 data['identifiers'] = [{'idtype': 'pissn', 'value': issn}]
                 user = get_default_user()
-                msg, source = SourceRecord.new_source(data, user.id)
+                msg, source = SourceRecord.new_source_revision(data, user.id)
                 if source:
                     return source
         return None
@@ -429,7 +431,7 @@ class MiarHarvester(BaseHarvester):
                                 dbs_split = []
                                 # print('---------------------------')
                                 # print(archive_issn_miar)
-                                # TODO: este es un error que tiene que ver con la forma en que se habren los json
+                                # TODO: este es un error que tiene que ver con la forma en que se abren los json
                                 keys = [
                                     'Indexed\xa0in:',
                                     'Indexed\u00a0in:',
@@ -533,7 +535,13 @@ class MiarHarvesterManager:
         work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         miar_harvester = MiarHarvester(work_dir)
         miar_harvester.save_all_journal_information()
+
+    @classmethod
+    def sync_journals_records(cls):
+        work_dir = current_app.config['IROKO_DATA_DIRECTORY']
+        miar_harvester = MiarHarvester(work_dir)
         miar_harvester.syncronize_miar_journals()
+
 
 # {"title": "Agrotecnia de Cuba",
 # "description":

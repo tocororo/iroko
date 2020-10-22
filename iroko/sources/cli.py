@@ -39,8 +39,8 @@ def sources():
 
 @sources.command()
 @with_appcontext
-def initjournals():
-    """Init journals."""
+def sync_old_journals_data():
+    """sync journal data from old tocororo website"""
     init_journals()
 
 
@@ -54,46 +54,57 @@ def initjournals():
 
 @sources.command()
 @with_appcontext
-def issncollect():
-    """get all cuban issn from issn.org and create/update respective source versions"""
+def issn_collect():
+    """get all cuban issn from issn.org save to file"""
     IssnHarvesterManager.collect_issn()
 
 
 @sources.command()
 @with_appcontext
-def issnsync():
+def issn_sync_db():
+    """save all collected issn.org to SourceRawData and collect missing data if any"""
     IssnHarvesterManager.sync_db()
 
 
 @sources.command()
 @with_appcontext
-def issnsyncrecords():
+def issn_sync_records():
+    """parse SourceRawData and sync to SourceRecords """
     IssnHarvesterManager.sync_records()
 
 
 @sources.command()
 @with_appcontext
-def miarcollectdb():
-    """get all info from miar"""
+def miar_collect_db():
+    """get all miar databases, save to file"""
     MiarHarvesterManager.collect_databases()
 
 @sources.command()
 @with_appcontext
-def miarsyncdb():
+def miar_sync_db():
+    """create with collected miar databases a Vocabulary """
     MiarHarvesterManager.sync_databases()
 
 
 @sources.command()
 @with_appcontext
-def miarcollectjournals():
+def miar_collect_journals():
+    """collect miar info from all SourceRawData, save to files"""
     MiarHarvesterManager.collect_journals()
 
 
 @sources.command()
 @with_appcontext
-def miarsyncjournals():
+def miar_sync_journals():
+    """sync to SourceRawData all collected info"""
     MiarHarvesterManager.sync_journals()
 
+
+@sources.command()
+@with_appcontext
+def miar_sync_records():
+    """parse SourceRawData and sync to SourceRecords"""
+    MiarHarvesterManager.sync_journals_records()
 
 
 

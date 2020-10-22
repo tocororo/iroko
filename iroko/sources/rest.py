@@ -69,7 +69,7 @@ def source_new():
         data = dict(input_data['data'])
         # TODO: Si ya esta publicado o si tiene mas de una version entoces se crea una version,
         data['source_status'] = SourceStatus.TO_REVIEW.value
-        source = SourceRecord.new_source(data, user_id,  comment)
+        source = SourceRecord.new_source_revision(data, user_id, comment)
 
         # print(data)
         # pid, source = SourceRecord.get_source_by_pid(pidvalue)
@@ -343,7 +343,7 @@ def source_unpublish(uuid):
             raise Exception('Not source found')
 
         with source.current_user_has_publish_permission.require():
-            source.model.json['source_status'] = SourceStatus.TO_REVIEW.value
+            source['source_status'] = SourceStatus.TO_REVIEW.value
             source.update()
 
             # TODO: aqui hay un error con los get managers

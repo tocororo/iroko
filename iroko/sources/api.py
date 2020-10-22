@@ -51,20 +51,29 @@ class SourceRecord(Record):
         return self['title']
 
     @classmethod
-    def new_source(cls, data, user_id=None, comment='no comment'):
+    def new_source_revision(cls, data, user_id=None, comment='no comment'):
 
-        if data and (data['source_status'] == SourceStatus.UNOFFICIAL.value or data['source_status'] == SourceStatus.TO_REVIEW.value):
+        if data and \
+            (data['source_status'] == SourceStatus.UNOFFICIAL.value or
+             data['source_status'] == SourceStatus.TO_REVIEW.value):
+
+            data['_save_info'] = {
+                'user_id': str(user_id),
+                'comment': str(comment),
+                'updated': str(date.today()),
+            }
             new_source, msg = SourceRecord.create_or_update(data, None, True, True)
+            print('now we are here....')
             # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
 
-            if 'oaiurl' in data:
-                repo = Repository.query.filter_by(source_uuid=new_source.id).first()
-                if not repo:
-                    repo = Repository()
-                    repo.source_uuid = new_source.id
-                repo.harvest_endpoint = data['oaiurl']
-                repo.harvest_type = HarvestType.OAI
-                db.session.add(repo)
+            # if 'oaiurl' in data:
+            #     repo = Repository.query.filter_by(source_uuid=new_source.id).first()
+            #     if not repo:
+            #         repo = Repository()
+            #         repo.source_uuid = new_source.id
+            #     repo.harvest_endpoint = data['oaiurl']
+            #     repo.harvest_type = HarvestType.OAI
+            #     db.session.add(repo)
 
             IrokoSourceVersions.new_version(new_source.id, data, user_id=user_id, comment=comment,
                                             is_current=True)
@@ -113,11 +122,13 @@ class SourceRecord(Record):
                     pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
                     pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
                     resolver.pid_type = pid_type
+                    # print("{0}={1} find".format(pid_type, pid_value))
                     persistent_identifier, source = resolver.resolve(pid_value)
                     if source:
                         # print("{0}={1} found".format(pid_type, pid_value))
-                        source.update(data, dbcommit=dbcommit, reindex=reindex)
-                        return source, 'updated'
+                        return source.update(data, dbcommit=dbcommit, reindex=reindex), 'updated'
+                        # print('update was done!!!')
+                        #  'updated'
                 except PIDDoesNotExistError as pidno:
                     # print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
                     pass
@@ -125,7 +136,7 @@ class SourceRecord(Record):
                     cls.delete_pid_without_object(pid_type, pid_value)
                 except Exception as e:
                     # print('-------------------------------')
-                    # # print(str(e))
+                    # print(str(e))
                     # print(traceback.format_exc())
                     # print('-------------------------------')
                     pass
@@ -146,7 +157,7 @@ class SourceRecord(Record):
             # # print('getting pid item: ')
             if pid_item.delete():
                 db.session.commit()
-            # # print("***************** DELETED!!!!")
+            # print("***************** DELETED!!!!")
         except PIDDoesNotExistError:
             # print('PIDDoesNotExistError: {0} - {1}'.format(pid_type, pid_value))
             pass
@@ -274,24 +285,39 @@ class SourceRecord(Record):
 
     def update(self, data=None, dbcommit=True, reindex=True):
         """Update data for record."""
-        if not data:
-            data = self.model.json
 
-        # self.validate()
+        if data and type(data) == dict:
+            old = dict(self)
+            super(SourceRecord, self).update(data)
+            if 'organizations' in old:
+                self['organizations'] = old['organizations']
+            if 'organizations' in data:
+                for org in data['organizations']:
+                    self._add_update_item_to_list('organizations', 'id', org)
+            if 'classifications' in old:
+                self['classifications'] = old['classifications']
+            if 'classifications' in data:
+                for term in old['classifications']:
+                    self._add_update_item_to_list('classifications', 'id', term)
+            if pids.IDENTIFIERS_FIELD in old:
+                self[pids.IDENTIFIERS_FIELD] = old[pids.IDENTIFIERS_FIELD]
+            if pids.IDENTIFIERS_FIELD in data:
+                for _id in old[pids.IDENTIFIERS_FIELD]:
+                    self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
 
-        self._update_pids(data)
+        # print('update pids?')
+        print(self)
+        self._update_pids()
 
-        data['_save_info_updated'] = str(date.today())
+        self['_save_info_updated'] = str(date.today())
 
-        super(SourceRecord, self).update(data)
+        self._update_repo_info()
+
         super(SourceRecord, self).commit()
 
         if dbcommit:
             self.dbcommit(reindex)
 
-        # print('update pids?')
-
-        self._update_repo_info()
         # print('UPDATED', self.model.json)
         return self
 
@@ -309,29 +335,47 @@ class SourceRecord(Record):
                     repo.harvest_endpoint = pid_value
                     repo.harvest_type = HarvestType.OAI
                     db.session.commit()
+                    # self['repo'] = {
+                    #     'harvest_type':  repo.harvest_type.value,
+                    #     'harvest_endpoint': repo.harvest_endpoint,
+                    #     'last_harvest_run': repo.last_harvest_run,
+                    #     'status':  repo.status.value
+                    # }
 
-    def _update_pids(self, data):
+    def _update_pids(self):
         newPids = []
-        if pids.IDENTIFIERS_FIELD in data:
-            for ids in data[pids.IDENTIFIERS_FIELD]:
+        if pids.IDENTIFIERS_FIELD in self:
+            for ids in self[pids.IDENTIFIERS_FIELD]:
                 if ids['idtype'] in identifiers_schemas:
                     if ids['value'] != '':
                         try:
                             pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
                             obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
-                            # print('!!!!!!!')
-                            # print('{0}-{1}'.format(ids['idtype'], ids['value']))
-                            # print('!!!!!!!')
+                            print('!!!!!!!')
+                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
+                            print('!!!!!!!')
                             if obj_uuid != self.id:
-                                # print('!!!!!!!******')
+                                print('!!!!!!!******')
                                 raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
                         except PIDObjectAlreadyAssigned as e:
-                            # print('!!!!!!!')
+                            print('!!!!!!! what?')
                             raise e
                         except PIDDoesNotExistError:
                             iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
                                                                                        object_type=pids.SOURCE_TYPE,
-                                                                                       object_uuid=self.id, data=data)
+                                                                                       object_uuid=self.id, data=self)
+
+    def _add_update_item_to_list(self, list_key, list_item_id_key, item_to_add):
+        if list_key not in self:
+            self[list] = []
+        if type(self[list_key]) == list:
+            for item in self[list_key]:
+                if type(item) == dict() and item[list_item_id_key] == item_to_add[list_item_id_key]:
+                    item.update(item_to_add)
+                    return
+                elif item == item_to_add:
+                    return
+            self[list_key].append(item_to_add)
 
     def dbcommit(self, reindex=False, forceindex=False):
         """Commit changes to db."""
@@ -346,6 +390,59 @@ class SourceRecord(Record):
             RecordIndexer(version_type="external_gte").index(self)
         else:
             RecordIndexer().index(self)
+
+    @property
+    def status(self):
+        self.update()
+        return self['source_status']
+
+    def add_term(self, id, description, vocabulary, data):
+        self._add_update_item_to_list('classifications', 'id',
+                                      {
+                                          'description': description,
+                                          'vocabulary':  vocabulary,
+                                          'data':        data
+                                      })
+        #
+        # if not 'classifications' in self:
+        #     self['classifications'] = []
+        # # classifications = self['classifications']
+        # for term in self['classifications']:
+        #     if term['id'] == id:
+        #         term['description'] = description
+        #         term['vocabulary'] = vocabulary
+        #         term['data'] = data
+        #         return
+        #         # classifications.append(term)
+        # self['classifications'].append(
+        #     {
+        #         'id':          id,
+        #         'description': description,
+        #         'vocabulary':  vocabulary,
+        #         'data':        data
+        #     }
+        # )
+
+    def add_identifier(self, idtype, value):
+        self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype',
+                                      {
+                                          'idtype': idtype,
+                                          'value':  value
+                                      })
+        # for id in self[pids.IDENTIFIERS_FIELD]:
+        #     if id['idtype'] == idtype:
+        #         id['idvalue'] = value
+        #         return
+        # self[pids.IDENTIFIERS_FIELD].append(
+        #     {
+        #         'idtype': idtype,
+        #         'value': value
+        #     }
+        # )
+        # self['classifications'] = classifications
+
+    # Permission methods
+    #
 
     @property
     def current_user_has_edit_permission(self):
@@ -426,48 +523,6 @@ class SourceRecord(Record):
     @property
     def get_editors(self):
         return get_userids_for_source_from_action('source_editor_actions', self.id)
-
-    @property
-    def status(self):
-        self.update()
-        return self.model.json['source_status']
-
-    def add_term(self, id, description, vocabulary, data):
-        if not 'classifications' in self.model.json:
-            self.model.json['classifications'] = []
-        # classifications = self.model.json['classifications']
-        for term in self.model.json['classifications']:
-            if term['id'] == id:
-                term['description'] = description
-                term['vocabulary'] = vocabulary
-                term['data'] = data
-                return
-                # classifications.append(term)
-        self.model.json['classifications'].append(
-            {
-                'id':          id,
-                'description': description,
-                'vocabulary':  vocabulary,
-                'data':        data
-            }
-        )
-
-    def add_identifier(self, idtype, value):
-        for id in self.model.json[pids.IDENTIFIERS_FIELD]:
-            if id['idtype'] == idtype:
-                id['idvalue'] = value
-                return
-        self.model.json[pids.IDENTIFIERS_FIELD].append(
-            {
-                'idtype': idtype,
-                'value': value
-            }
-        )
-        # self.model.json['classifications'] = classifications
-
-
-    # Permission methods
-    #
 
     @classmethod
     def get_search(cls, status=None, classifications=None, organizations=None) -> SourceSearch:

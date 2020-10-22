@@ -136,7 +136,7 @@ def init_journals():
                         'updated': str(datetime.date.today())
                     }
 
-                    new_source = SourceRecord.new_source(data, user.id)
+                    new_source = SourceRecord.new_source_revision(data, user.id)
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
                     # # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
                     #

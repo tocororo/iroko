@@ -12,8 +12,8 @@ from lxml import html
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.sources.api import SourceRecord
-from iroko.sources.marshmallow.base import SourceDataSchema
 from iroko.sources.models import SourceRawData, SourceStatus, SourceType
+from iroko.utils import get_default_user
 
 
 def is_issn(code: str) -> bool:
@@ -215,7 +215,7 @@ class IssnDataParser:
     """
 
     @classmethod
-    def parse(cls, identifier) -> SourceDataSchema:
+    def parse(cls, identifier) -> dict:
         """
 
         :param identifier: to SourceRawData.query.filter_by(identifier=identifier).first()
@@ -229,7 +229,7 @@ class IssnDataParser:
         return cls._parse_data(identifier, parse_relations=True)
 
     @classmethod
-    def _parse_data(cls, identifier, parse_relations=False) -> SourceDataSchema:
+    def _parse_data(cls, identifier, parse_relations=False) -> dict:
         """
         helper func
         :param
@@ -246,6 +246,7 @@ class IssnDataParser:
 
         source = SourceRawData.query.filter_by(identifier=identifier).first()
         if not source:
+            return None
             # esto significa que no se recolecto el issn, recolectarlo entonces!!!!
             print('NO SOURCE', identifier)
             issndata = collect_issn_info_single(identifier)
@@ -302,11 +303,11 @@ class IssnDataParser:
             print('no mainTitle', identifier)
             if len(aliases) > 0:
                 main_title = aliases[0]
-        record = SourceDataSchema()
-        record.identifiers = identifiers
-        record.name = main_title
-        record.title = main_title
-        record.aliases = aliases
+        record = dict()
+        record['identifiers'] = identifiers
+        record['name'] = main_title
+        record['title'] = main_title
+        record['aliases'] = aliases
 
         return record
 
@@ -354,10 +355,10 @@ class IssnDataParser:
                 result_ids.extend(rel.identifiers)
                 result_alias.extend(rel.aliases)
 
-            record = SourceDataSchema()
-            record.identifiers = result_ids
-            record.title = result_title
-            record.aliases = result_alias
+            record = dict()
+            record['identifiers'] = result_ids
+            record['title'] = result_title
+            record['aliases'] = result_alias
 
             return record
 
@@ -479,12 +480,15 @@ class IssnHarvesterManager:
 
 
     @classmethod
-    def sync_records(cls, issn):
+    def sync_records(cls):
 
         issn_list = SourceRawData.query.all()
         for issn in issn_list:
             record = IssnDataParser.parse(issn.identifier)
             if record:
-                record.source_status = SourceStatus.UNOFFICIAL.value
-                record.source_type = SourceType.JOURNAL.value
-                SourceRecord.create_or_update(record.dump(record))
+                user = get_default_user()
+                record['source_status'] = SourceStatus.UNOFFICIAL.value
+                record['source_type'] = SourceType.JOURNAL.value
+                print(record)
+                SourceRecord.new_source_revision(record, user_id=user.id, comment='issn.org import')
+                # SourceRecord.create_or_update(record.dump(record))
