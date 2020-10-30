@@ -69,9 +69,9 @@ class MiarHarvester(BaseHarvester):
                 # print('getting group {0}'.format(group['name']))
                 group['dbs'] = self._collect_dbs_database_group(sess, group['url'])
                 # try to collect all info from databases
+            noerror = self._collect_dbs_alldatabases_information()
+            while not noerror:
                 noerror = self._collect_dbs_alldatabases_information()
-                while not noerror:
-                    noerror = self._collect_dbs_alldatabases_information()
 
         else:
             with open(self.miar_dbs_file, 'r',
