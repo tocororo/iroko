@@ -283,6 +283,16 @@ class SourceRecord(Record):
                 pass
         return None, None
 
+    def new_revision(self, user_id=None, comment='no comment'):
+        self['_save_info'] = {
+            'user_id': str(user_id),
+            'comment': str(comment),
+            'updated': str(date.today()),
+        }
+        self.update()
+        IrokoSourceVersions.new_version(self.id, dict(self), user_id=user_id, comment=comment,
+                                        is_current=True)
+
     def update(self, data=None, dbcommit=True, reindex=True):
         """Update data for record."""
 
@@ -367,7 +377,7 @@ class SourceRecord(Record):
 
     def _add_update_item_to_list(self, list_key, list_item_id_key, item_to_add):
         if list_key not in self:
-            self[list] = []
+            self[list_key] = []
         if type(self[list_key]) == list:
             for item in self[list_key]:
                 if type(item) == dict() and item[list_item_id_key] == item_to_add[list_item_id_key]:
@@ -396,9 +406,18 @@ class SourceRecord(Record):
         self.update()
         return self['source_status']
 
-    def add_term(self, id, description, vocabulary, data):
+    def add_organization(self, _id, name, role):
+        self._add_update_item_to_list('organizations', 'id',
+                                      {
+                                          'id': _id,
+                                          'name': name,
+                                          'role':  role
+                                      })
+
+    def add_classification(self, _id, description, vocabulary, data):
         self._add_update_item_to_list('classifications', 'id',
                                       {
+                                          'id': _id,
                                           'description': description,
                                           'vocabulary':  vocabulary,
                                           'data':        data

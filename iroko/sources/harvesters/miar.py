@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import traceback
 from random import randint
 
 import requests
@@ -10,7 +11,7 @@ from lxml import html
 
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
-from iroko.sources.api import SourceRecord, IrokoSourceVersions
+from iroko.sources.api import SourceRecord
 from iroko.sources.models import SourceRawData, SourceType, SourceStatus
 from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.models import Term, Vocabulary
@@ -195,30 +196,34 @@ class MiarHarvester(BaseHarvester):
 
         if archive:
             for archive_dbs in archive:
-                miar_db_type_term = Term.query.filter_by(identifier=archive_dbs['name']).first()
+                miar_db_type_term = Term.query.filter_by(identifier=archive_dbs['url']).first()
                 if not miar_db_type_term:
                     miar_types = Term()
                     miar_types.identifier = archive_dbs['url']
                     miar_types.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
                     miar_types.description = archive_dbs['name']
                     db.session.add(miar_types)
-                    db.session.flush()
                     miar_db_type_term = miar_types
+                else:
+                    miar_db_type_term.identifier = archive_dbs['url']
+                    miar_db_type_term.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
+                    miar_db_type_term.description = archive_dbs['name']
+                db.session.flush()
                 for archive_dbs_info in archive_dbs['dbs']:
                     try:
-                        name = archive_dbs_info['url'].split('/ID/')[1]
+                        identifier = archive_dbs_info['url']
                         description = archive_dbs_info['name']
-                        miar_db_term = Term.query.filter_by(identifier=name).first()
+                        miar_db_term = Term.query.filter_by(identifier=identifier).first()
                         if not miar_db_term:
                             miar_dbs = Term()
-                            miar_dbs.identifier = name
+                            miar_dbs.identifier = identifier
                             miar_dbs.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
                             miar_dbs.description = description
                             miar_dbs.data = archive_dbs_info
                             miar_dbs.parent_id = miar_db_type_term.id
                             db.session.add(miar_dbs)
                         else:
-                            miar_db_term.name = name
+                            miar_db_term.identifier = identifier
                             miar_db_term.vocabulary_id = IrokoVocabularyIdentifiers.INDEXES.value
                             miar_db_term.description = description
                             miar_db_term.data = archive_dbs_info
@@ -327,6 +332,7 @@ class MiarHarvester(BaseHarvester):
                         data = json.load(file_journal)
                         issn.set_data_field('miar', data)
                         print('save info colected of', issn.identifier)
+                        # db.session.flush()
             db.session.commit()
 
     def _parse_journal_information(self, jounrnal_info):
@@ -341,7 +347,7 @@ class MiarHarvester(BaseHarvester):
         element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
 
         if len(element_not_found) > 0:
-            return element_not_found[0].text, html_text
+            return element_not_found[0].text
 
         # Info ISSN in actual year
         for e in element:
@@ -422,42 +428,52 @@ class MiarHarvester(BaseHarvester):
                 for issn in issn_list:
 
                     issncount = issncount + 1
-                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'r',
-                              encoding='UTF-8') as file_issn_miar:
-                        archive_issn_miar = json.load(file_issn_miar)
+                    data = issn.get_data_field('miar')
+                    if data != dict():
+                        archive_issn_miar = self._parse_journal_information(data)
                         try:
                             # atribute = archive_issn_miar['Indexed\xa0in:']
                             if archive_issn_miar != issn.identifier + ' IS NOT LISTED IN MIAR DATABASE':
                                 dbs_split = []
-                                # print('---------------------------')
-                                # print(archive_issn_miar)
-                                # TODO: este es un error que tiene que ver con la forma en que se abren los json
+                                print('****************************************************************')
+                                print(archive_issn_miar)
+                                print('****************************************************************')
+                                # TODO: en algun momento debe ser posible mejorar el parser..
                                 keys = [
-                                    'Indexed\xa0in:',
+                                    # 'Indexed\xa0in:',
                                     'Indexed\u00a0in:',
-                                    'Evaluated\xa0in:',
+                                    # 'Evaluated\xa0in:',
                                     'Evaluated\u00a0in:'
                                 ]
+                                # index = miar['Indexed\xa0in:']
                                 for key in keys:
                                     if key in archive_issn_miar:
-                                        dbs_split.append(str(archive_issn_miar[key]))
+                                        dbs_split.extend(archive_issn_miar[key])
 
-                                # print(dbs_split)
-                                source = self._get_source_by_issn(issn)
-                                # print(type(source), source)
+                                print(dbs_split)
+                                pid, source = SourceRecord.get_source_by_pid(issn.identifier)
+                                print(type(source), source)
                                 sourcecount = sourcecount + 1
                                 to_add = []
                                 for dbs in dbs_split:
-                                    miar_db_type_terms = Term.query.filter_by(
-                                        vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
-
-                                    for miar in miar_db_type_terms:
-                                        if miar.identifier.lower().strip() == dbs.lower().strip():
-                                            # print("add {0}".format(dbs))
-                                            to_add.append(miar)
+                                    miar = Term.query.filter_by(
+                                        identifier='http://miar.ub.edu/databases/ID/' + dbs.lower().strip()).first()
+                                    if miar:
+                                        print("add {0}".format(dbs))
+                                        to_add.append(miar)
+                                    # miar_db_type_terms = Term.query.filter_by(
+                                    #     vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
+                                    #
+                                    # for miar in miar_db_type_terms:
+                                    #     if miar.identifier == 'http://miar.ub.edu/databases/ID/' + dbs.lower().strip():
+                                    #         print("add {0}".format(dbs))
+                                    #         to_add.append(miar)
                                 for t in to_add:
-                                    # print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid, t.description, t.vocabulary_id, t.parent_id))
-                                    source.add_term(
+                                    print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid,
+                                                                                                     t.description,
+                                                                                                     t.vocabulary_id,
+                                                                                                     t.parent_id))
+                                    source.add_classification(
                                         str(t.uuid),
                                         t.description,
                                         t.vocabulary_id,
@@ -468,29 +484,36 @@ class MiarHarvester(BaseHarvester):
                                     # add also the parent, meaning the miar_groups
                                     if t.parent_id and t.parent_id != 0:
                                         parent = Term.query.filter_by(id=t.parent_id).first()
-                                        # print("----------- !! ADD a parent {0}- {1}".format(parent.uuid, parent.description))
-                                        source.add_term(
+                                        print("----------- !! ADD a parent {0}- {1}".format(parent.uuid,
+                                                                                            parent.description))
+                                        source.add_classification(
                                             str(parent.uuid),
                                             parent.description,
                                             parent.vocabulary_id,
                                             dict()
                                         )
 
-                                # print('***********',source.model.json['classifications'])
-                                source.update(data=source.model.json, dbcommit=True, reindex=True)
-                                IrokoSourceVersions.new_version(
-                                    source.id,
-                                    source.model.json,
-                                    user_id=get_default_user().id,
-                                    comment='MIAR Classifications Update',
-                                    is_current=True
-                                )
+                                print('***********', dict(source), source)
+                                source.new_revision(user_id=get_default_user().id,
+                                                    comment='MIAR Classifications Update')
+                                # SourceRecord.new_source_revision(data=source.model.json,
+                                #                                  user_id=get_default_user().id,
+                                #                                  comment='MIAR Classifications Update')
+                                #
+                                # source.update(data=source.model.json, dbcommit=True, reindex=True)
+                                # IrokoSourceVersions.new_version(
+                                #     source.id,
+                                #     source.model.json,
+                                #     user_id=get_default_user().id,
+                                #     comment='MIAR Classifications Update',
+                                #     is_current=True
+                                # )
                                 # source.commit()
 
                         except Exception:
                             # print("issncount={0}".format(issncount))
                             # print("sourcecount={0}".format(sourcecount))
-                            # print(traceback.format_exc())
+                            print(traceback.format_exc())
                             continue
             except Exception as e:
                 # print("issncount={0}".format(issncount))
@@ -541,7 +564,6 @@ class MiarHarvesterManager:
         work_dir = current_app.config['IROKO_DATA_DIRECTORY']
         miar_harvester = MiarHarvester(work_dir)
         miar_harvester.syncronize_miar_journals()
-
 
 # {"title": "Agrotecnia de Cuba",
 # "description":

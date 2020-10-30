@@ -146,13 +146,17 @@ class SourceRawData(db.Model):
     def set_data_field(self, field_name, field_data):
         if not self.data:
             self.data = dict()
-        self.data[field_name] = field_data
+        d = dict(self.data)
+        d[field_name] = field_data
+        self.data = d
+        db.session.commit()
 
-    def commit_data_field(self, field_name, field_data):
-        with db.session.begin_nested():
-            self.set_data_field(field_name, field_data)
-            db.session.merge(self)
+    # def commit_data_field(self, field_name, field_data):
+    #     with db.session.begin_nested():
+    #         self.set_data_field(field_name, field_data)
+    #         db.session.commit(self)
+
     def get_data_field(self, field_name):
-        if not field_name in self.data:
-            self.commit_data_field(field_name, dict())
+        if field_name not in self.data:
+            self.set_data_field(field_name, dict())
         return self.data[field_name]
