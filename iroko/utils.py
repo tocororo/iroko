@@ -132,6 +132,8 @@ def send_contact_email(name, email, user_message):
 
 def get_default_user():
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
+    if not user:
+        user = User.query.filter_by(email='sceiba.cu@gmail.com').first()
     return user
 
 class CuorHelper:
