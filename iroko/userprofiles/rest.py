@@ -26,12 +26,13 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_login import current_user
+from invenio_accounts.models import User
 from invenio_oauth2server import require_api_auth
 
 from iroko.userprofiles import UserProfile
-from iroko.userprofiles.marshmallow import userprofile_schema
+from iroko.userprofiles.marshmallow import userprofile_schema, user_schema_many
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 from .views import init_common
 
@@ -84,3 +85,27 @@ def get_user_info():
     except Exception as e:
         raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
+@api_blueprint.route('/users/search', methods=['GET'])
+@require_api_auth()
+def get_users_by_email():
+    try:
+        count = int(request.args.get('size')) if request.args.get('size') else 10
+        page = int(request.args.get('page')) if request.args.get('page') else 1
+        query = str(request.args.get('query')) if request.args.get('query') else ''
+        if page < 1:
+            page = 1
+        offset = count * (page - 1)
+        limit = offset + count
+
+        users = User.query.filter(User.email.like('%{0}%'.format(query))).all()
+
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            'ok',
+            'users',
+            user_schema_many.dump(users[offset:limit])
+        )
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)

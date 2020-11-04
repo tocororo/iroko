@@ -34,6 +34,7 @@ class UserProfilesSchema(Schema):
     user = fields.Nested(UserSchema, many=False)
 
 
+user_schema_many = UserSchema(many=True)
 
 userprofile_schema_many = UserProfilesSchema(many=True)
 userprofile_schema = UserProfilesSchema()

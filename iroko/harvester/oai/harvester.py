@@ -2,6 +2,7 @@ import os
 import shutil
 import time
 import traceback
+import uuid
 from enum import Enum
 from zipfile import ZipFile, BadZipFile
 
@@ -213,8 +214,6 @@ class OaiHarvester(SourceHarvester):
         utils.ZipHelper.compress_dir(self.harvest_dir, current_app.config["HARVESTER_DATA_DIRECTORY"], str(self.source.id))
         shutil.rmtree(self.harvest_dir, ignore_errors=True)
 
-
-
     def identity_source(self):
         try:
             self.get_identify()
@@ -297,7 +296,6 @@ class OaiHarvester(SourceHarvester):
         if self.work_remote:
             self._write_file("identify.xml", identify.raw)
 
-
     def get_formats(self):
         """get_formats, raise IrokoHarvesterError"""
 
@@ -353,7 +351,6 @@ class OaiHarvester(SourceHarvester):
             data = dict()
         data[key] = value
         self.repository.data = data
-
 
     def get_items(self):
         """retrieve all the identifiers of the source, create a directory structure, and save id.xml for each identified retrieved. Check if the repo object identifier is the same that the directory identifier. If a item directory exist, delete it and continue"""
@@ -479,3 +476,165 @@ class OaiHarvester(SourceHarvester):
         time.sleep(self.request_wait_time)
 
 
+class OaiFetcher:
+    """ esta clase maneja todo lo relacionado con el harvesting de un source, llega hasta insertar/actualizar los HarvesterItems,
+    al mismo tiempo, crea una estructura de carpetas donde se almacena todo lo cosechado sin procesar
+    dentro de current_app.config['HARVESTER_DATA_DIRECTORY'] crea una carpeta con el UUID del source.
+     con la siguiente forma:
+     [source_id]
+        - identify.xml
+        - metadata_formats.xml
+        - sets.xml
+        - [item_id]
+            - id.xml
+            - metadata_format_1.xml
+            - metadata_format_2.xml
+            - fulltext_1.ext
+            - fulltext_2.ext
+    Cuando se cosecha una fuente por primera vez se crea la estructura de carpetas y se almacena en la base de datos lo necesario.
+    Cuando actualiza la cosecha una fuente, o sea cuando ya se ha cosechado otras veces,
+    se modifica la estructura de carpetas si es necesario, si hay que adicionar items, o si cambiaron algunos,etc
+    """
+
+    def __init__(self, url, request_wait_time=3, data_dir=None):
+
+        max_retries = 3
+        timeout = 30
+
+        self.url = url
+        self.request_wait_time = request_wait_time
+        self.id = str(uuid.uuid4())
+
+        if not data_dir:
+            self.data_dir = current_app.config["HARVESTER_DATA_DIRECTORY"]
+        else:
+            self.data_dir = data_dir
+
+        f = open(os.path.join(self.data_dir, self.id + '-url'), "w", encoding='UTF-8')
+        f.write(self.url)
+        f.close()
+
+        self.harvest_dir = os.path.join(
+            current_app.config["IROKO_TEMP_DIRECTORY"],
+            "iroko-harvest-" + str(self.id)
+        )
+        shutil.rmtree(self.harvest_dir, ignore_errors=True)
+        if not os.path.exists(self.harvest_dir):
+            os.mkdir(self.harvest_dir)
+
+        self.formats = []
+        self.oai_dc = DubliCoreElements()
+        self.nlm = JournalPublishing()
+
+        # args = {'headers':request_headers,'proxies':proxies,'timeout':15, 'verify':False}
+        args = {"headers": request_headers, "timeout": timeout, "verify": False}
+        self.sickle = Sickle(
+            self.url,
+            encoding='UTF-8',
+            max_retries=max_retries,
+            **args
+        )
+
+    def start_harvest_pipeline(self, step=0):
+        """default harvest pipeline, identify, discover, process"""
+        try:
+
+            if step == 0:
+                self.identity_source()
+            if step <= 1:
+                self.get_items()
+            self.compress_harvest_dir()
+            return True
+        except Exception as e:
+            f = open(os.path.join(self.data_dir, self.id + '-error'), "w", encoding='UTF-8')
+            f.write(traceback.format_exc())
+            f.close()
+            shutil.rmtree(self.harvest_dir, ignore_errors=True)
+            return False
+
+    def compress_harvest_dir(self):
+        """compress the harvest_dir to a zip file in harvest_data dir
+        and deleted harvest_dir """
+        shutil.rmtree(
+            os.path.join(self.data_dir, str(self.id)),
+            ignore_errors=True)
+        utils.ZipHelper.compress_dir(self.harvest_dir, self.data_dir, str(self.id))
+        shutil.rmtree(self.harvest_dir, ignore_errors=True)
+
+    def identity_source(self):
+        self.get_identify()
+        self.get_formats()
+        self.get_sets()
+
+
+    def _write_file(self, name, content, extra_path=""):
+        """helper function, always write to f = open(os.path.join(self.harvest_dir, extra_path, name),"w")"""
+
+        f = open(os.path.join(self.harvest_dir, extra_path, name), "w", encoding='UTF-8')
+        f.write(content)
+        f.close()
+
+    def _get_xml_from_file(self, name, extra_path=""):
+        return utils.get_xml_from_file(self.harvest_dir, name, extra_path=extra_path)
+
+    def get_identify(self):
+        """get_identity, raise IrokoHarvesterError"""
+        identify = self.sickle.Identify()
+        xml = identify.xml
+        self._write_file("identify.xml", identify.raw)
+
+    def get_formats(self):
+        """get_formats, raise IrokoHarvesterError"""
+
+        arguments = {}
+        items = self.sickle.ListMetadataFormats(**arguments)
+        for f in items:
+            self.formats.append(f.metadataPrefix)
+        self._write_file("metadata_formats.xml", items.oai_response.raw)
+
+        if "oai_dc" not in self.formats:
+            self._write_file('error_no_dublin_core', " oai_dc is not supported by {0} ".format(self.url))
+
+    def get_sets(self):
+        """get_sets"""
+        arguments = {}
+        items = self.sickle.ListSets(**arguments)
+        self._write_file("sets.xml", items.oai_response.raw)
+
+    def get_items(self):
+        """retrieve all the identifiers of the source, create a directory structure,
+        and save id.xml for each identified retrieved.
+        Check if the repo object identifier is the same that the directory identifier.
+        If a item directory exist, delete it and continue"""
+
+        xml = self._get_xml_from_file("identify.xml")
+        identifier = xml.find(
+            ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
+        )
+
+        iterator = self.sickle.ListIdentifiers(
+            metadataPrefix=self.oai_dc.metadataPrefix
+        )
+        count = 0
+        for item in iterator:
+            harvest_item_id = str(uuid.uuid4())
+            p = os.path.join(self.harvest_dir, harvest_item_id)
+            if not os.path.exists(p):
+                os.mkdir(p)
+            self._write_file("id.xml", item.raw, harvest_item_id)
+            self._get_all_formats(item.identifier, harvest_item_id)
+
+            time.sleep(self.request_wait_time)
+
+    def _get_all_formats(self, identifier, harvest_item_id):
+        """retrieve all the metadata of an item and save it to files"""
+
+        for f in self.formats:
+            try:
+                arguments = {"metadataPrefix": f, "identifier": identifier}
+                record = self.sickle.GetRecord(**arguments)
+                self._write_file(f + ".xml", record.raw, harvest_item_id)
+                time.sleep(self.request_wait_time)
+            except Exception as e:
+                self._write_file('error', traceback.format_exc(), harvest_item_id)
+        time.sleep(self.request_wait_time)

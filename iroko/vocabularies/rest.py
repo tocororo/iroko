@@ -169,6 +169,8 @@ def get_terms_tree(vocabulary_id):
         level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
 
         vocab = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
+        if not vocab:
+            raise Exception('Invalid Vocabulary identifier {0}'.format(vocabulary_id))
         terms = vocab.terms.filter_by(parent_id=None).all()
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \

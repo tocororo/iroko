@@ -246,7 +246,7 @@ class IssnDataParser:
 
         source = SourceRawData.query.filter_by(identifier=identifier).first()
         if not source:
-            return None
+            # return None
             # esto significa que no se recolecto el issn, recolectarlo entonces!!!!
             print('NO SOURCE', identifier)
             issndata = collect_issn_info_single(identifier)

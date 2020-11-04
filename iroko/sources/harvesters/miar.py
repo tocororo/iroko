@@ -292,7 +292,7 @@ class MiarHarvester(BaseHarvester):
 
         return jounrnal_info
 
-    def collect_all_journal_information(self):
+    def collect_all_journal_information(self, collect_new=False):
         """
         collect information of all sources in SourceRawData
         """
@@ -300,10 +300,14 @@ class MiarHarvester(BaseHarvester):
         issn_list = SourceRawData.query.all()
         if issn_list:
             for issn in issn_list:
+                if collect_new and os.path.exists(os.path.join(self.issn_info_miar_dir, issn.identifier)):
+                    return 'collected'
+
                 print('getting miar info of: {0}'.format(issn.identifier))
 
                 # if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier) or self.work_remote:
                 jounrnal_info = self._collect_journal_information(issn.identifier)
+
                 with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+',
                           encoding='UTF-8') as file_issn:
                     json.dump(jounrnal_info, file_issn, ensure_ascii=False)
@@ -336,52 +340,55 @@ class MiarHarvester(BaseHarvester):
             db.session.commit()
 
     def _parse_journal_information(self, jounrnal_info):
+        try:
+            issn = jounrnal_info['issn']
+            html_text = jounrnal_info['html_text']
+            icds = jounrnal_info['icds']
 
-        issn = jounrnal_info['issn']
-        html_text = jounrnal_info['html_text']
-        icds = jounrnal_info['icds']
+            dictionary = {}
+            doc1 = html.fromstring(html_text)
+            element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
+            element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
 
-        dictionary = {}
-        doc1 = html.fromstring(html_text)
-        element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
-        element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
+            if len(element_not_found) > 0:
+                return element_not_found[0].text
 
-        if len(element_not_found) > 0:
-            return element_not_found[0].text
+            # Info ISSN in actual year
+            for e in element:
+                element1 = e.xpath('.//div//div')
+                label = element1[0].text_content()
 
-        # Info ISSN in actual year
-        for e in element:
-            element1 = e.xpath('.//div//div')
-            label = element1[0].text_content()
+                if (element1[1].xpath('.//a') and len(element1[1].xpath('.//a')) > 0):
+                    arr = []
+                    for elem in element1[1].xpath('.//a'):
+                        url = elem.get('href')
+                        if 'indizadaen' in url:
+                            try:
+                                arr.append(url.split('/' + issn + '/')[1])
+                            except Exception:
+                                pass
+                        else:
+                            arr.append(elem.text)
+                    dictionary[label] = arr
+                #     a = element1[1].xpath('.//a')
+                #     dictionary[element1[0].text_content()] = a[0].text
+                # elif(count(element1[1].xpath('.//a')) > 1)
+                #     for elem in element1[1].xpath('.//a'):
+                #         dictionary[element1[0].text_content()] = elem[0].text
+                else:
+                    dictionary[label] = element1[1].text_content().split(sep='\n')[1]
 
-            if (element1[1].xpath('.//a') and len(element1[1].xpath('.//a')) > 0):
-                arr = []
-                for elem in element1[1].xpath('.//a'):
-                    url = elem.get('href')
-                    if 'indizadaen' in url:
-                        try:
-                            arr.append(url.split('/' + issn + '/')[1])
-                        except Exception:
-                            pass
-                    else:
-                        arr.append(elem.text)
-                dictionary[label] = arr
-            #     a = element1[1].xpath('.//a')
-            #     dictionary[element1[0].text_content()] = a[0].text
-            # elif(count(element1[1].xpath('.//a')) > 1)
-            #     for elem in element1[1].xpath('.//a'):
-            #         dictionary[element1[0].text_content()] = elem[0].text
-            else:
-                dictionary[label] = element1[1].text_content().split(sep='\n')[1]
+            dictionary['icds'] = []
+            for icd in icds:
+                doc1 = html.fromstring(icd['html_text'])
+                element = doc1.xpath('.//div[@id="sp_icds"]')
+                if len(element) > 0:
+                    dictionary['icds'].append({icd['icd_year'], element[0].text})
 
-        dictionary['icds'] = []
-        for icd in icds:
-            doc1 = html.fromstring(icd['html_text'])
-            element = doc1.xpath('.//div[@id="sp_icds"]')
-            if len(element) > 0:
-                dictionary['icds'].append({icd['icd_year'], element[0].text})
-
-        return dictionary
+            return dictionary
+        except:
+            print(traceback.format_exc())
+            return {}
 
     def _get_source_by_issn(self, issnModel: SourceRawData) -> SourceRecord:
         """
@@ -429,87 +436,88 @@ class MiarHarvester(BaseHarvester):
 
                     issncount = issncount + 1
                     data = issn.get_data_field('miar')
-                    if data != dict():
+                    if type(data) == str and data == issn.identifier + ' IS NOT LISTED IN MIAR DATABASE':
+                        print(issn.identifier + ' IS NOT LISTED IN MIAR DATABASE')
+                        continue
+                    else:
                         archive_issn_miar = self._parse_journal_information(data)
                         try:
                             # atribute = archive_issn_miar['Indexed\xa0in:']
-                            if archive_issn_miar != issn.identifier + ' IS NOT LISTED IN MIAR DATABASE':
-                                dbs_split = []
-                                print('****************************************************************')
-                                print(archive_issn_miar)
-                                print('****************************************************************')
-                                # TODO: en algun momento debe ser posible mejorar el parser..
-                                keys = [
-                                    # 'Indexed\xa0in:',
-                                    'Indexed\u00a0in:',
-                                    # 'Evaluated\xa0in:',
-                                    'Evaluated\u00a0in:'
-                                ]
-                                # index = miar['Indexed\xa0in:']
-                                for key in keys:
-                                    if key in archive_issn_miar:
-                                        dbs_split.extend(archive_issn_miar[key])
+                            dbs_split = []
+                            print('****************************************************************')
+                            print(archive_issn_miar)
+                            print('****************************************************************')
+                            # TODO: en algun momento debe ser posible mejorar el parser..
+                            keys = [
+                                # 'Indexed\xa0in:',
+                                'Indexed\u00a0in:',
+                                # 'Evaluated\xa0in:',
+                                'Evaluated\u00a0in:'
+                            ]
+                            # index = miar['Indexed\xa0in:']
+                            for key in keys:
+                                if key in archive_issn_miar:
+                                    dbs_split.extend(archive_issn_miar[key])
 
-                                print(dbs_split)
-                                pid, source = SourceRecord.get_source_by_pid(issn.identifier)
-                                print(type(source), source)
-                                sourcecount = sourcecount + 1
-                                to_add = []
-                                for dbs in dbs_split:
-                                    miar = Term.query.filter_by(
-                                        identifier='http://miar.ub.edu/databases/ID/' + dbs.lower().strip()).first()
-                                    if miar:
-                                        print("add {0}".format(dbs))
-                                        to_add.append(miar)
-                                    # miar_db_type_terms = Term.query.filter_by(
-                                    #     vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
-                                    #
-                                    # for miar in miar_db_type_terms:
-                                    #     if miar.identifier == 'http://miar.ub.edu/databases/ID/' + dbs.lower().strip():
-                                    #         print("add {0}".format(dbs))
-                                    #         to_add.append(miar)
-                                for t in to_add:
-                                    print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid,
-                                                                                                     t.description,
-                                                                                                     t.vocabulary_id,
-                                                                                                     t.parent_id))
-                                    source.add_classification(
-                                        str(t.uuid),
-                                        t.description,
-                                        t.vocabulary_id,
-                                        dict(
-                                            url='', initial_cover='', end_cover=''
-                                        )
-                                    )
-                                    # add also the parent, meaning the miar_groups
-                                    if t.parent_id and t.parent_id != 0:
-                                        parent = Term.query.filter_by(id=t.parent_id).first()
-                                        print("----------- !! ADD a parent {0}- {1}".format(parent.uuid,
-                                                                                            parent.description))
-                                        source.add_classification(
-                                            str(parent.uuid),
-                                            parent.description,
-                                            parent.vocabulary_id,
-                                            dict()
-                                        )
-
-                                print('***********', dict(source), source)
-                                source.new_revision(user_id=get_default_user().id,
-                                                    comment='MIAR Classifications Update')
-                                # SourceRecord.new_source_revision(data=source.model.json,
-                                #                                  user_id=get_default_user().id,
-                                #                                  comment='MIAR Classifications Update')
+                            print(dbs_split)
+                            pid, source = SourceRecord.get_source_by_pid(issn.identifier)
+                            print(type(source), source)
+                            sourcecount = sourcecount + 1
+                            to_add = []
+                            for dbs in dbs_split:
+                                miar = Term.query.filter_by(
+                                    identifier='http://miar.ub.edu/databases/ID/' + dbs.lower().strip()).first()
+                                if miar:
+                                    print("add {0}".format(dbs))
+                                    to_add.append(miar)
+                                # miar_db_type_terms = Term.query.filter_by(
+                                #     vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
                                 #
-                                # source.update(data=source.model.json, dbcommit=True, reindex=True)
-                                # IrokoSourceVersions.new_version(
-                                #     source.id,
-                                #     source.model.json,
-                                #     user_id=get_default_user().id,
-                                #     comment='MIAR Classifications Update',
-                                #     is_current=True
-                                # )
-                                # source.commit()
+                                # for miar in miar_db_type_terms:
+                                #     if miar.identifier == 'http://miar.ub.edu/databases/ID/' + dbs.lower().strip():
+                                #         print("add {0}".format(dbs))
+                                #         to_add.append(miar)
+                            for t in to_add:
+                                print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid,
+                                                                                                 t.description,
+                                                                                                 t.vocabulary_id,
+                                                                                                 t.parent_id))
+                                source.add_classification(
+                                    str(t.uuid),
+                                    t.description,
+                                    t.vocabulary_id,
+                                    dict(
+                                        url='', initial_cover='', end_cover=''
+                                    )
+                                )
+                                # add also the parent, meaning the miar_groups
+                                if t.parent_id and t.parent_id != 0:
+                                    parent = Term.query.filter_by(id=t.parent_id).first()
+                                    print("----------- !! ADD a parent {0}- {1}".format(parent.uuid,
+                                                                                        parent.description))
+                                    source.add_classification(
+                                        str(parent.uuid),
+                                        parent.description,
+                                        parent.vocabulary_id,
+                                        dict()
+                                    )
 
+                            print('***********', dict(source), source)
+                            source.new_revision(user_id=get_default_user().id,
+                                                comment='MIAR Classifications Update')
+                            # SourceRecord.new_source_revision(data=source.model.json,
+                            #                                  user_id=get_default_user().id,
+                            #                                  comment='MIAR Classifications Update')
+                            #
+                            # source.update(data=source.model.json, dbcommit=True, reindex=True)
+                            # IrokoSourceVersions.new_version(
+                            #     source.id,
+                            #     source.model.json,
+                            #     user_id=get_default_user().id,
+                            #     comment='MIAR Classifications Update',
+                            #     is_current=True
+                            # )
+                            # source.commit()
                         except Exception:
                             # print("issncount={0}".format(issncount))
                             # print("sourcecount={0}".format(sourcecount))
@@ -518,7 +526,7 @@ class MiarHarvester(BaseHarvester):
             except Exception as e:
                 # print("issncount={0}".format(issncount))
                 # print("sourcecount={0}".format(sourcecount))
-                # print(traceback.format_exc())
+                print(traceback.format_exc())
                 return None
             # print("issncount={0}".format(issncount))
             # print("sourcecount={0}".format(sourcecount))

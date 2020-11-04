@@ -26,7 +26,10 @@ from iroko.sources.marshmallow.source import (
 )
 from iroko.sources.marshmallow.source_v1 import source_v1_response, source_v1
 from iroko.sources.models import SourceStatus, SourceType
-from iroko.sources.permissions import is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager
+from iroko.sources.permissions import (
+    is_user_souces_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager,
+    get_arguments_for_source_from_action,
+)
 from iroko.sources.search import SourceSearch
 from iroko.userprofiles import UserProfile
 from iroko.utils import iroko_json_response, IrokoResponseStatus, CuorHelper, IrokoVocabularyIdentifiers
@@ -132,7 +135,7 @@ def source_new_version(uuid):
             # si esta aprobada el proceso es otro
             # print(input_data)
 
-            # data = dict(input_data['data'])
+            data = dict(input_data['data'])
             # data['source_status'] = SourceStatus.TO_REVIEW.value
             #
             # source.update(data)
@@ -277,6 +280,7 @@ def get_source_by_uuid_perm(uuid):
     """Get a source by any PID received as a argument, including UUID"""
     try:
         pid, source = SourceRecord.get_source_by_pid(uuid)
+        print(dict(source))
         if not source or not pid:
             raise Exception('Source not found')
         try:
@@ -305,6 +309,7 @@ def get_source_by_uuid_perm(uuid):
                                        )
 
     except Exception as e:
+        print(traceback.format_exc())
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -395,7 +400,7 @@ def get_current_user_sources(status):
         if search is not None:
             # [offset: limit].execute()
             search_result = search.scan()
-            # TODO: hay que buscar una manera de hacerlo por aqui
+            # TODO: hay que buscar una manera de hacerlo por aqui:
             # source_v1.serialize_search(
             #     iroko_source_uuid_fetcher, ss
             # )
@@ -426,12 +431,25 @@ def get_current_user_sources(status):
                     'version_to_review': True
                 }
             )
+        sources_terms = get_arguments_for_source_from_action(current_user, 'source_term_manager_actions')
+        terms = Term.query.filter(Term.uuid.in_(sources_terms)).all()
+
+        sources_orgs = get_arguments_for_source_from_action(current_user, 'source_organization_manager_actions')
+        orgs = []
+        for org in sources_orgs:
+            orgs.append(CuorHelper.query_cuor_by_uuid(org))
 
         response = iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             'ok',
             'sources',
-            {'manager': manager, 'editor': editor}
+            {
+                'manager': manager,
+                'editor': editor,
+                'terms': term_schema_many.dump(terms),
+                'organizations': orgs,
+                'admin': is_user_souces_admin(current_user)
+            }
         )
 
         # else:
@@ -485,7 +503,7 @@ def get_sources_stats():
     # 2- por cada uno de los hijos de la organizacion
     #  por ahora esta bien asi
     try:
-        # # print("************************** START get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("************************** START get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         search = SourceSearch()
         org = dict()
@@ -496,7 +514,7 @@ def get_sources_stats():
         org_id = request.args.get('org') if request.args.get('org') else None
         if org_id:
             org = CuorHelper.query_cuor_by_uuid(org_id)
-            # # print('******************* ORG *******************',org)
+            # print('******************* ORG *******************',org)
             if not org or 'metadata' not in org:
                 org_id = None
                 org = {}
@@ -506,7 +524,7 @@ def get_sources_stats():
             bucket_org = A('terms', field='organizations.id', size=999999)
             search.aggs.bucket('orgs', bucket_org)
 
-        # # print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
 
         # classification bucket
@@ -533,8 +551,7 @@ def get_sources_stats():
         bucket_source_type = A('terms', field='source_type', size=999999)
         search.aggs.bucket('source_type', bucket_source_type)
 
-        # # print(
-        #     "************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         search.sort('_save_info_updated')
         response = search[0:offset].execute()
 
@@ -547,7 +564,7 @@ def get_sources_stats():
                 }
             )
 
-        # # print("************************** MI COSA get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("************************** MI COSA get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         if org_id:
             org['metadata']['source_count'] = search.count()
@@ -571,7 +588,7 @@ def get_sources_stats():
                 if t['source_type'] == item.key:
                     t['source_count'] = item.doc_count
 
-        # # print("************************** END get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("************************** END get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                    'ok', 'aggr', \

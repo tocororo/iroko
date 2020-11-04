@@ -210,6 +210,10 @@ def unauthorized(e):
 def iroko_search():
     return render_template('iroko_theme/search/index.html')
 
+@blueprint.route('/revistasmes', methods=['GET'])
+def iroko_revistasmes():
+    return render_template('iroko_theme/catalog/revistasmes.html')
+
 
 def insufficient_permissions(e):
     """Error handler to show a 403.html page in case of a 403 error."""

@@ -2,8 +2,6 @@
 
 from __future__ import absolute_import, print_function
 
-import datetime
-
 from flask import Blueprint, request
 from flask_babelex import lazy_gettext as _
 from flask_principal import PermissionDenied
@@ -14,7 +12,7 @@ from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.models import NotificationType
 from iroko.records.api import IrokoAggs
 from iroko.sources.api import (
-    Sources, get_current_user_source_permissions, SourceRecord, IrokoSourceVersions,
+    SourcesDeprecated, get_current_user_source_permissions, SourceRecord, IrokoSourceVersions,
     helper_get_classifications_string,
 )
 from iroko.sources.marshmallow.source import (
@@ -40,13 +38,13 @@ api_blueprint = Blueprint(
 @require_api_auth()
 def get_source_by_uuid(uuid):
     """Get all source versions by source UUID, with permission checking"""
-    # source = Sources.get_source_by_id(uuid=uuid)
+    # source = SourcesDeprecated.get_source_by_id(uuid=uuid)
     # return iroko_json_response(IrokoResponseStatus.SUCCESS, \
     #                             'ok','versions', \
     #                             source_schema.dump(source))
     try:
         source = SourceRecord.get_record(uuid)
-        # Sources.get_source_by_id(uuid=uuid)
+        # SourcesDeprecated.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Source not found')
 
@@ -86,7 +84,7 @@ def source_new():
 
         input_data = request.json
 
-        msg, source = Sources.insert_new_source(input_data)
+        msg, source = SourcesDeprecated.insert_new_source(input_data)
         if not source:
             raise Exception(msg)
 
@@ -95,7 +93,7 @@ def source_new():
         notification.description = _('Nueva fuente ingresada, requiere revisión de un gestor {0}'.format(source.name))
         notification.emiter = _('Sistema')
 
-        msg, users = Sources.get_user_ids_source_managers(source.uuid)
+        msg, users = SourcesDeprecated.get_user_ids_source_managers(source.uuid)
         if users:
             for user_id in users:
                 notification.receiver_id = user_id
@@ -114,9 +112,9 @@ def get_sources_count():
     """return sources count"""
 
     try:
-        result = Sources.count_sources()
+        result = SourcesDeprecated.count_sources()
         if not result:
-            raise Exception('Sources not found')
+            raise Exception('SourcesDeprecated not found')
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'count', result)
 
@@ -128,7 +126,7 @@ def get_sources_count():
 def get_source_by_uuid_no_versions(uuid):
     """Get a source by UUID"""
     try:
-        source = Sources.get_source_by_id(uuid=uuid)
+        source = SourcesDeprecated.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Source not found')
 
@@ -165,7 +163,7 @@ def get_sources_clasification(uuid):
     # try:
     level = int(request.args.get('level')) if request.args.get('level') else 0
 
-    result = Sources.count_sources_clasified_by_term(uuid, level)
+    result = SourcesDeprecated.count_sources_clasified_by_term(uuid, level)
     if not result:
         raise Exception('Source not found')
     return iroko_json_response(IrokoResponseStatus.SUCCESS, \
@@ -182,7 +180,7 @@ def get_sources_by_term_uuid(uuid):
     try:
         # TODO: rewrite this... Not implemented
         raise Exception('Not implemented')
-        # sources = Sources.get_sources_by_term_uuid(uuid)
+        # sources = SourcesDeprecated.get_sources_by_term_uuid(uuid)
         # if not sources:
         #     raise Exception('Source not found')
 
@@ -213,7 +211,7 @@ def sources_count_by_vocabulary(vocabulary_id):
 
     """
     try:
-        count_list = Sources.get_sources_count_by_vocabulary(vocabulary_id)
+        count_list = SourcesDeprecated.get_sources_count_by_vocabulary(vocabulary_id)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             'ok',
@@ -255,7 +253,7 @@ def source_new_version(uuid):
         comment = 'no comment'
         if 'comment' in input_data:
             comment = input_data['comment']
-        source = Sources.get_source_by_id(uuid=uuid)
+        source = SourcesDeprecated.get_source_by_id(uuid=uuid)
 
         if not source:
             raise Exception('Not source found')
@@ -272,7 +270,7 @@ def source_new_version(uuid):
                 # si esta aprobada el proceso es otro
                 # print(input_data)
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = Sources.insert_new_source_version(input_data, source.uuid, is_current,
+                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, source.uuid, is_current,
                                                                                 comment=comment)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
@@ -282,7 +280,7 @@ def source_new_version(uuid):
                 notification.description = _('Editor has change this source: {0}.'.format(source.name))
                 notification.emiter = _('Sistema')
 
-                msg, users = Sources.get_user_ids_source_managers(source.uuid)
+                msg, users = SourcesDeprecated.get_user_ids_source_managers(source.uuid)
                 if users:
                     for user_id in users:
                         notification.receiver_id = user_id
@@ -293,7 +291,7 @@ def source_new_version(uuid):
                                            source_schema.dump(source))
         except PermissionDenied as e:
             with source_term_manager_permission_factory({'terms': terms, 'uuid': uuid}).require():
-                msg, source, source_version = Sources.insert_new_source_version(input_data, uuid, True, comment=comment)
+                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, uuid, True, comment=comment)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
@@ -302,7 +300,7 @@ def source_new_version(uuid):
                 notification.description = _('Gestor has reviewed this source: {0}.'.format(source.name))
                 notification.emiter = _('Sistema')
 
-                msg, users = Sources.get_user_ids_source_editor(source.uuid)
+                msg, users = SourcesDeprecated.get_user_ids_source_editor(source.uuid)
                 if users:
                     for user_id in users:
                         notification.receiver_id = user_id
@@ -329,17 +327,17 @@ def source_edit_version(id):
 
         input_data = request.json
 
-        version = Sources.get_source_version_by_id(id)
+        version = SourcesDeprecated.get_source_version_by_id(id)
         if not version:
             raise Exception('Not version found')
 
-        source = Sources.get_source_by_id(uuid=version.source.uuid)
+        source = SourcesDeprecated.get_source_by_id(uuid=version.source.uuid)
 
         if not source:
             raise Exception('Not source found')
 
         with source_editor_permission_factory({'uuid': source.uuid}).require():
-            msg, source, source_version = Sources.edit_source_version(input_data, version)
+            msg, source, source_version = SourcesDeprecated.edit_source_version(input_data, version)
             if not source or not source_version:
                 raise Exception('Not source for changing found')
 
@@ -348,7 +346,7 @@ def source_edit_version(id):
             notification.description = _('The edit has change data in version of source: {0}.'.format(source.name))
             notification.emiter = _('System')
 
-            msg, users = Sources.get_user_ids_source_managers(source.uuid)
+            msg, users = SourcesDeprecated.get_user_ids_source_managers(source.uuid)
             if users:
                 for user_id in users:
                     notification.receiver_id = user_id
@@ -381,7 +379,7 @@ def source_version_set_current(uuid):
 
         input_data = request.json
 
-        source = Sources.get_source_by_id(uuid=uuid)
+        source = SourcesDeprecated.get_source_by_id(uuid=uuid)
 
         if not source:
             raise Exception('Not source found')
@@ -393,7 +391,7 @@ def source_version_set_current(uuid):
             terms = terms[0:-1]
 
         with source_term_manager_permission_factory({'terms': terms, 'uuid': uuid}).require():
-            msg, source = Sources.set_source_current(input_data, source)
+            msg, source = SourcesDeprecated.set_source_current(input_data, source)
             if not source:
                 raise Exception('Not source for changing found')
 
@@ -412,12 +410,12 @@ def source_version_set_current(uuid):
 @require_api_auth()
 def source_set_approved(uuid):
     try:
-        source = Sources.get_source_by_id(uuid=uuid)
+        source = SourcesDeprecated.get_source_by_id(uuid=uuid)
         if not source:
             raise Exception('Source not found.')
 
         with source_manager_permission_factory({'uuid': uuid}).require():
-            Sources.set_source_approved(source)
+            SourcesDeprecated.set_source_approved(source)
 
             notification = NotificationSchema()
             notification.classification = NotificationType.INFO
@@ -425,7 +423,7 @@ def source_set_approved(uuid):
                 'El gestor ha aprobado para incluir en Sceiba la fuente: {0}.'.format(source.name))
             notification.emiter = _('Sistema')
 
-            msg, users = Sources.get_user_ids_source_editor(source.uuid)
+            msg, users = SourcesDeprecated.get_user_ids_source_editor(source.uuid)
             if users:
                 for user_id in users:
                     notification.receiver_id = user_id
@@ -468,7 +466,7 @@ def sources_current_user_permissions():
 @require_api_auth()
 def get_source_manager(uuid):
     try:
-        msg, user_ids = Sources.get_user_ids_source_managers(uuid)
+        msg, user_ids = SourcesDeprecated.get_user_ids_source_managers(uuid)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
@@ -497,7 +495,7 @@ def get_sources_from_editor(status):
         offset = count * (page - 1)
         limit = offset + count
 
-        msg, sources = Sources.get_sources_from_editor_current_user(status)
+        msg, sources = SourcesDeprecated.get_sources_from_editor_current_user(status)
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
@@ -526,7 +524,7 @@ def get_sources_from_manager(status):
         offset = count * (page - 1)
         limit = offset + count
 
-        msg, sources = Sources.get_sources_from_manager_current_user(status)
+        msg, sources = SourcesDeprecated.get_sources_from_manager_current_user(status)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
@@ -559,9 +557,9 @@ def get_sources_from_user(status):
         # print(offset)
         # print(limit)
         # print(status)
-        msg, sources_manager = Sources.get_sources_from_manager_current_user(status)
+        msg, sources_manager = SourcesDeprecated.get_sources_from_manager_current_user(status)
         # print("## get_sources_from_manager_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
-        msg, sources_editor = Sources.get_sources_from_editor_current_user(status)
+        msg, sources_editor = SourcesDeprecated.get_sources_from_editor_current_user(status)
         # print("## get_sources_from_editor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
         in_first = set(sources_manager)
@@ -571,7 +569,7 @@ def get_sources_from_user(status):
 
         in_second_but_not_in_first = in_second - in_first
         # print("## in_second_but_not_in_first = in_second - in_first {0}".format(
-            datetime.datetime.now().strftime("%H:%M:%S")))
+        # datetime.datetime.now().strftime("%H:%M:%S")))
 
         result = sources_manager + list(in_second_but_not_in_first)
         # print("## result = sources_manager + list {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
@@ -596,13 +594,13 @@ def get_sources_from_user(status):
 def get_editor_source_versions(uuid):
     try:
         # listar las versiones de este editor que no se han revisado para que pueda cambiarlas
-        source = Sources.get_source_by_id(uuid=uuid)
+        source = SourcesDeprecated.get_source_by_id(uuid=uuid)
         # print('source> ', source)
         if not source:
             raise Exception('Not source found')
 
         with source_editor_permission_factory({'uuid': source.uuid}).require():
-            versions = Sources.get_editor_versions_not_reviewed(source)
+            versions = SourcesDeprecated.get_editor_versions_not_reviewed(source)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
                                        'ok', 'source', \
                                        {
@@ -632,7 +630,7 @@ def get_sources_by_term_statics(uuid):
     try:
         ordered = False if request.args.get('ordered') and int(request.args.get('ordered')) == 0 else True
         status = request.args.get('status') if request.args.get('status') else 'all'
-        sources = Sources.get_all_sources_by_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
+        sources = SourcesDeprecated.get_all_sources_by_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
         three = sources[0:3]
         msg, mes = Terms.get_term(uuid)
         institutions = []

@@ -1,8 +1,8 @@
 
 from marshmallow import Schema, fields, post_dump, INCLUDE
 
+from iroko.sources.harvesters.issn import IssnDataParser
 from iroko.sources.marshmallow.base import SourceDataSchema
-from iroko.sources.models import SourceRawData
 
 
 # from iroko.harvester.api import SecundarySourceHarvester
@@ -26,23 +26,23 @@ class ISSNSchema(Schema):
     issn_org = fields.Nested(IssnOrgSchema, many=False)
     # TODO: Comprobar con pre_load que cada campo es un issn valido
 
-    @post_dump
-    def fill_issn_org(self, issn, **kwargs):
-        for v in ['p','e','l']:
-            if v in issn:
-                issn_org = SourceRawData.query.filter_by(identifier = issn[v]).first()
-                if issn_org:
-                    data = dict(issn_org.data)
-                    for item in data["@graph"]:
-                        if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
-                            issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
-                            return issn
-
-                    #              and issn[v] in issns_with_info.keys():
-                    # for item in issns_with_info[issn[v]]["@graph"]:
-                    #     if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
-                    #         issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
-                    #         return issn
+    # @post_dump
+    # def fill_issn_org(self, issn, **kwargs):
+    #     for v in ['p','e','l']:
+    #         if v in issn:
+    #             issn_org = SourceRawData.query.filter_by(identifier = issn[v]).first()
+    #             if issn_org:
+    #                 data = dict(issn_org.get_data_field('issn'))
+    #                 for item in data["@graph"]:
+    #                     if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
+    #                         issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
+    #                         return issn
+    #
+    #                 #              and issn[v] in issns_with_info.keys():
+    #                 # for item in issns_with_info[issn[v]]["@graph"]:
+    #                 #     if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
+    #                 #         issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
+    #                 #         return issn
 
 class RNPSSchema(Schema):
     p = fields.Str()
@@ -68,6 +68,19 @@ class JournalDataSchema(SourceDataSchema):
     frequency = fields.Str()
 
     socialNetworks = fields.Nested(SocialNetworksSchema, many=False)
+
+    @post_dump
+    def fill_issn_org(self, journal, **kwargs):
+        if 'identifiers' not in journal:
+            return journal
+        issn = ''
+        for ids in journal['identifiers']:
+            if ids['idtype'] == 'issn_p' or ids['idtype'] == 'issn_e' or ids['idtype'] == 'issn_l':
+                issn = ids['value']
+                issn_org = IssnDataParser.parse(issn)
+                journal['issn_org'] = issn_org
+                return journal
+
 
 # class JournalSchema(BaseSourceSchema):
 #     data = fields.Nested(JournalDataSchema, many=False)

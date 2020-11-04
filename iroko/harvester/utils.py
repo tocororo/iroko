@@ -120,9 +120,14 @@ class ZipHelper:
 
     @classmethod
     def compress_dir(cls, src_path, dst_path, dst_filename):
-        """compress the content (files and directory recursivelly) of the directory in the end of src_path
+        """
+        compress the content (files and directory recursivelly) of the directory in the end of src_path
         to a zip file in dst_path/dst_filename
         the idea is not compress the full src_path into the zip, but relative to the directory in the end of the src_path.
+        :param src_path: source path
+        :param dst_path: destination path, excluding filename
+        :param dst_filename: filename in destination path.
+        :return:
         """
         zip_path = os.path.join(
             dst_path,

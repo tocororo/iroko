@@ -4,6 +4,7 @@ import enum
 import json
 # from invenio_app import babel
 import re
+import traceback
 from threading import Thread
 from uuid import UUID
 
@@ -138,6 +139,8 @@ def get_default_user():
 
 class CuorHelper:
 
+    # TODO: investigar como hacer esto mas eficientemente, con redis quizas
+    org_simple_cache = dict()
 
     @classmethod
     def query_cuor_by_pid(cls, pid):
@@ -145,11 +148,14 @@ class CuorHelper:
             not the CUOR UUID
          """
         try:
+            if pid in cls.org_simple_cache:
+                return cls.org_simple_cache[pid]
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
             url = api_endpoint +'/pid?value=' + pid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
+            cls.org_simple_cache[pid] = result
             return result
         except Exception:
             return None
@@ -158,13 +164,17 @@ class CuorHelper:
     def query_cuor_by_uuid(cls, uuid):
         """"""
         try:
+            if uuid in cls.org_simple_cache:
+                return cls.org_simple_cache[uuid]
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
             url = api_endpoint +'/'+ uuid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
+            cls.org_simple_cache[uuid] = result
             return result
-        except Exception:
+        except Exception :
+            print(traceback.format_exc())
             return None
 
     @classmethod

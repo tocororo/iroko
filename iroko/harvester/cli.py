@@ -9,7 +9,7 @@ from flask.cli import with_appcontext
 
 from iroko.harvester.api import PrimarySourceHarvester
 from iroko.harvester.models import HarvestType, HarvestedItemStatus, Repository
-from iroko.harvester.oai.harvester import OaiHarvester
+from iroko.harvester.oai.harvester import OaiHarvester, OaiFetcher
 # from iroko.documents.api import Document
 from iroko.sources.models import Source
 
@@ -25,6 +25,27 @@ from iroko.sources.models import Source
 @click.group()
 def harvester():
     """Command related to harevest iroko data."""
+
+@harvester.command()
+@click.argument('url')
+@click.argument('dir')
+@with_appcontext
+def fetch_url(url, dir):
+    fetcher = OaiFetcher(url, data_dir=dir)
+    fetcher.start_harvest_pipeline()
+
+@harvester.command()
+@click.argument('list')
+@click.argument('dir')
+@with_appcontext
+def fetch_list(list, dir):
+    file1 = open(list, 'r')
+    lines = file1.readlines()
+    for line in lines:
+        fetcher = OaiFetcher(line, data_dir=dir)
+        fetcher.start_harvest_pipeline()
+
+
 
 
 @harvester.command()
@@ -82,8 +103,6 @@ def testcelery():
     for source in sources:
         job = harvest_source.delay(source.id, work_remote=True, request_wait_time=3)
         # print("Scheduled job {0}".format(job.id))
-
-
 
 
 @harvester.command()

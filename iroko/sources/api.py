@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime, date
 from typing import Dict
 from uuid import uuid4
@@ -13,7 +14,7 @@ from invenio_accounts.models import User
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
-from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError, PIDObjectAlreadyAssigned
+from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError
 from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
@@ -116,28 +117,28 @@ class SourceRecord(Record):
             # print('!!!!!!!!!!!!!!!!!!!!!!! ', data)
         if pids.IDENTIFIERS_FIELD in data:
             # if not uuid, find any persistent identifier in data.
-            # print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
+            print("find identifiers in data", data[pids.IDENTIFIERS_FIELD])
             for identifier in data[pids.IDENTIFIERS_FIELD]:
                 try:
                     pid_type = identifier[pids.IDENTIFIERS_FIELD_TYPE]
                     pid_value = identifier[pids.IDENTIFIERS_FIELD_VALUE]
                     resolver.pid_type = pid_type
-                    # print("{0}={1} find".format(pid_type, pid_value))
+                    print("{0}={1} find".format(pid_type, pid_value))
                     persistent_identifier, source = resolver.resolve(pid_value)
                     if source:
-                        # print("{0}={1} found".format(pid_type, pid_value))
+                        print("{0}={1} found".format(pid_type, pid_value))
                         return source.update(data, dbcommit=dbcommit, reindex=reindex), 'updated'
-                        # print('update was done!!!')
+                        print('update was done!!!')
                         #  'updated'
                 except PIDDoesNotExistError as pidno:
-                    # print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
+                    print("PIDDoesNotExistError:  {0} == {1}".format(pid_type, pid_value))
                     pass
                 except (PIDDeletedError, NoResultFound) as ex:
                     cls.delete_pid_without_object(pid_type, pid_value)
                 except Exception as e:
                     # print('-------------------------------')
                     # print(str(e))
-                    # print(traceback.format_exc())
+                    print(traceback.format_exc())
                     # print('-------------------------------')
                     pass
 
@@ -295,28 +296,33 @@ class SourceRecord(Record):
 
     def update(self, data=None, dbcommit=True, reindex=True):
         """Update data for record."""
+        print('begin update')
+        old = dict(self)
 
         if data and type(data) == dict:
-            old = dict(self)
+            # print('super(SourceRecord, self).update(data)')
             super(SourceRecord, self).update(data)
+            # print('******')
             if 'organizations' in old:
                 self['organizations'] = old['organizations']
             if 'organizations' in data:
                 for org in data['organizations']:
                     self._add_update_item_to_list('organizations', 'id', org)
+            # print('******', dict(self))
             if 'classifications' in old:
                 self['classifications'] = old['classifications']
             if 'classifications' in data:
-                for term in old['classifications']:
+                for term in data['classifications']:
                     self._add_update_item_to_list('classifications', 'id', term)
+            # print('******', dict(self))
             if pids.IDENTIFIERS_FIELD in old:
                 self[pids.IDENTIFIERS_FIELD] = old[pids.IDENTIFIERS_FIELD]
             if pids.IDENTIFIERS_FIELD in data:
-                for _id in old[pids.IDENTIFIERS_FIELD]:
+                for _id in data[pids.IDENTIFIERS_FIELD]:
                     self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
+            # print('******', dict(self))
 
-        # print('update pids?')
-        print(self)
+        print('update pids?')
         self._update_pids()
 
         self['_save_info_updated'] = str(date.today())
@@ -328,7 +334,7 @@ class SourceRecord(Record):
         if dbcommit:
             self.dbcommit(reindex)
 
-        # print('UPDATED', self.model.json)
+        print('UPDATED', self.model.json)
         return self
 
     def _update_repo_info(self):
@@ -366,14 +372,20 @@ class SourceRecord(Record):
                             print('!!!!!!!')
                             if obj_uuid != self.id:
                                 print('!!!!!!!******')
-                                raise PIDObjectAlreadyAssigned('{0}-{1}'.format(ids['idtype'], ids['value']))
-                        except PIDObjectAlreadyAssigned as e:
-                            print('!!!!!!! what?')
-                            raise e
+                                print('PIDObjectAlreadyAssigned{0}-{1}'.format(ids['idtype'], ids['value']))
+                                # TODO: pensar esto, lo borro, pero no aviso...
+                                self[pids.IDENTIFIERS_FIELD].remove(ids)
+                        # except PIDObjectAlreadyAssigned as e:
+                        #     print('!!!!!!! what?')
+                        #     raise e
                         except PIDDoesNotExistError:
                             iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(ids['idtype'], ids['value'],
                                                                                        object_type=pids.SOURCE_TYPE,
                                                                                        object_uuid=self.id, data=self)
+                    else:
+                        self[pids.IDENTIFIERS_FIELD].remove(ids)
+                else:
+                    self[pids.IDENTIFIERS_FIELD].remove(ids)
 
     def _add_update_item_to_list(self, list_key, list_item_id_key, item_to_add):
         if list_key not in self:

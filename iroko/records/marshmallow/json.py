@@ -14,7 +14,7 @@ from invenio_records_rest.schemas.fields import (
     DateString,
     PersistentIdentifier, SanitizedUnicode,
 )
-from marshmallow import fields, missing, validate
+from marshmallow import fields, missing, validate, post_dump
 
 from iroko.sources.marshmallow.base import OrganizationDataSchema, ClasificationDataSchema
 
@@ -45,6 +45,11 @@ class ContributorSchemaV1(StrictKeysMixin):
     affiliations = fields.List(SanitizedUnicode())
     email = fields.Email()
     roles = fields.List(SanitizedUnicode())
+
+    @post_dump
+    def no_email(self, contributor):
+        contributor['email'] = ''
+        return contributor
 
 
 class IdentifierSchemaV1(StrictKeysMixin):

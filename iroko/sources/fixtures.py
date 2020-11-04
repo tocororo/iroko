@@ -16,6 +16,7 @@ from invenio_db import db
 import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
 from iroko.sources.api import SourceRecord
+from iroko.sources.harvesters.issn import IssnDataParser
 from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
 from iroko.utils import string_as_identifier, CuorHelper, get_default_user
 from iroko.vocabularies.models import Term
@@ -32,7 +33,7 @@ def init_journals():
     path_oai = os.path.join(datadir, 'oaisources.json')
 
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
-
+    org_cache = dict()
     with open(path) as fsource, open(path_oai) as foai, open(path_tax) as ftax:
         data = json.load(fsource, object_hook=remove_nulls)
         urls = json.load(foai)
@@ -65,16 +66,24 @@ def init_journals():
                         ids.append(dict(idtype='prnps', value=record['rnps']))
 
                     issn= {}
+                    issn_org = None
                     if 'p' in record['issn']:
                         issn['p']=record['issn']['p']
-                        ids.append(dict(idtype='pissn', value=record['issn']['p']))
+                        issn_org = IssnDataParser.parse(record['issn']['p'])
+                        # ids.append(dict(idtype='issn_p', value=record['issn']['p']))
                     if 'e' in record['issn']:
+                        issn_org = IssnDataParser.parse(record['issn']['e'])
                         issn['e']=record['issn']['e']
-                        ids.append(dict(idtype='eissn', value=record['issn']['e']))
                     if 'l' in record['issn']:
+                        issn_org = IssnDataParser.parse(record['issn']['l'])
                         issn['l']=record['issn']['l']
-                        ids.append(dict(idtype='lissn', value=record['issn']['l']))
                     data['issn']= issn
+                    if issn_org:
+                        data['name'] = issn_org['name']
+                        data['title'] = issn_org['title']
+                        data['aliases'] = issn_org['aliases']
+                        ids.extend(issn_org['identifiers'])
+
 
                     for url in urls:
                         if url['id'] == k:
@@ -96,10 +105,18 @@ def init_journals():
                         data['organizations'] = []
                         if "orgaid" in tax['institutions'][record['institution']]:
                             orgaid = tax['institutions'][record['institution']]["orgaid"]
-                            org = CuorHelper.query_cuor_by_pid(orgaid)
+                            if orgaid in org_cache:
+                                org = org_cache[orgaid]
+                            else:
+                                org = CuorHelper.query_cuor_by_pid(orgaid)
+                                org_cache[orgaid] = org
                         else:
                             name = tax['institutions'][record['institution']]["name"]
-                            org = CuorHelper.query_cuor_by_label(name, country='Cuba')
+                            if name in org_cache:
+                                org = org_cache[name]
+                            else:
+                                org = CuorHelper.query_cuor_by_label(name, country='Cuba')
+                                org_cache[name] = org
                         if org:
                             data['organizations'].append(
                                 {
@@ -112,10 +129,18 @@ def init_journals():
                         if parent_id != '0':
                             if "orgaid" in tax['institutions'][parent_id]:
                                 orgaid = tax['institutions'][parent_id]["orgaid"]
-                                parent_org = CuorHelper.query_cuor_by_pid(orgaid)
+                                if orgaid in org_cache:
+                                    parent_org = org_cache[orgaid]
+                                else:
+                                    parent_org = CuorHelper.query_cuor_by_pid(orgaid)
+                                    org_cache[orgaid] = parent_org
                             else:
                                 name = tax['institutions'][parent_id]["name"]
-                                parent_org = CuorHelper.query_cuor_by_label(name, country='Cuba')
+                                if name in org_cache:
+                                    parent_org = org_cache[name]
+                                else:
+                                    parent_org = CuorHelper.query_cuor_by_label(name, country='Cuba')
+                                    org_cache[name] = parent_org
                             if parent_org:
                                 data['organizations'].append(
                                     {
@@ -132,11 +157,11 @@ def init_journals():
                     user = get_default_user()
                     data['_save_info'] = {
                         'user_id': str(user.id),
-                        'comment': 'using real onei orgaid for MES, CITMA, MINSAP and others',
+                        'comment': 'seed data',
                         'updated': str(datetime.date.today())
                     }
 
-                    new_source = SourceRecord.new_source_revision(data, user.id)
+                    new_source = SourceRecord.new_source_revision(data, user.id, 'seed data')
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
                     # # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
                     #
