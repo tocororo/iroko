@@ -5,7 +5,7 @@ from invenio_access import Permission
 from invenio_access.utils import get_identity
 
 from iroko.notifications.permissions import notification_admin_actions
-from iroko.sources.permissions import is_user_souces_admin
+from iroko.sources.permissions import is_user_sources_admin
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 from iroko.vocabularies.permissions import is_current_user_taxonomy_admin
 
@@ -36,7 +36,7 @@ def taxonomy_admin_required(fn):
 def source_admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not is_user_souces_admin(current_user):
+        if not is_user_sources_admin(current_user):
             return iroko_json_response(
                 IrokoResponseStatus.ERROR,
                 'Need to be source administrator.',

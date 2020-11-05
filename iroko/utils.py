@@ -41,14 +41,13 @@ class IrokoVocabularyIdentifiers(enum.Enum):
     RECORD_TYPES = 'RECORD_TYPES',
 
 
-
 def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):
     """recibe la respuesta de marshmallow.dump(model)"""
 
     return jsonify({
-        'status':status.value,
+        'status':  status.value,
         'message': message,
-        'data': {
+        'data':    {
             data_type: data
         }
     })
@@ -66,7 +65,6 @@ def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):
 #     return request.accept_languages.best_match(['de', 'fr', 'en'])
 
 def validate_uuid4(uuid_string):
-
     """
     Validate that a UUID string is in
     fact a valid uuid4.
@@ -99,9 +97,9 @@ def validate_integer(int_string):
     except ValueError as e:
         return False
 
-def string_as_identifier(value: str):
-    return re.sub('\W+|^(?=\d)','_', value.lower())
 
+def string_as_identifier(value: str):
+    return re.sub('\W+|^(?=\d)', '_', value.lower())
 
 
 def send_async_email(app, msg):
@@ -130,15 +128,14 @@ def send_contact_email(name, email, user_message):
                                          user_message=user_message, language=language, ip=client_ip))
 
 
-
 def get_default_user():
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
     if not user:
         user = User.query.filter_by(email='sceiba.cu@gmail.com').first()
     return user
 
-class CuorHelper:
 
+class CuorHelper:
     # TODO: investigar como hacer esto mas eficientemente, con redis quizas
     org_simple_cache = dict()
 
@@ -152,7 +149,7 @@ class CuorHelper:
                 return cls.org_simple_cache[pid]
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
-            url = api_endpoint +'/pid?value=' + pid
+            url = api_endpoint + '/pid?value=' + pid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
             cls.org_simple_cache[pid] = result
@@ -168,12 +165,12 @@ class CuorHelper:
                 return cls.org_simple_cache[uuid]
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
-            url = api_endpoint +'/'+ uuid
+            url = api_endpoint + '/' + uuid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
             cls.org_simple_cache[uuid] = result
             return result
-        except Exception :
+        except Exception:
             print(traceback.format_exc())
             return None
 
@@ -227,9 +224,8 @@ class CuorHelper:
                         return rel
         return None
 
-
     @classmethod
-    def get_relationchip(cls, org, uuid):
+    def get_relationship(cls, org, uuid):
         """
         check if uuid is in relationships of org as child
         :param org: Organization dict
@@ -239,9 +235,33 @@ class CuorHelper:
         if 'metadata' in org and 'relationships' in org['metadata']:
             for rel in org['metadata']['relationships']:
                 if 'id' in rel and 'type' in rel:
-                    if uuid == rel['id'] :
+                    if uuid == rel['id']:
                         return rel
         return None
+
+    @classmethod
+    def get_relationships(cls, org, rel_type):
+        """
+        return all relationships of a organization
+        :param org:
+        :param rel_type:
+        :return:
+        """
+        result = []
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if rel['type'] == rel_type:
+                        result.append(rel)
+        return rel
+
+    @classmethod
+    def get_relationships_parent(cls, org):
+        return cls.get_relationships(org, 'parent')
+
+    @classmethod
+    def get_relationships_child(cls, org):
+        return cls.get_relationships(org, 'child')
 
     @classmethod
     def append_key_value_to_relationship(cls, org, child_id, relation_type, key, value):

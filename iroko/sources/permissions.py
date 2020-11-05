@@ -60,16 +60,8 @@ ObjectSourceOrganizationManager = action_factory('source_organization_manager_ac
 source_organization_manager_actions = ObjectSourceOrganizationManager(None)
 
 
-def is_user_souces_admin(user: User):
+def is_user_sources_admin(user: User):
     its = False
-    # try:
-        # from sqlalchemy import or_
-        # #admin = db.session.query(ActionUsers).filter(ActionUsers.user_id == current_user.id, ActionUsers.exclude == False).filter(or_(ActionUsers.action =="source_full_editor_actions") | (ActionUsers.action=="source_full_manager_actions")).first()
-        # admin = db.session.query(ActionUsers).filter_by(
-        #     user_id=current_user.id,
-        #     exclude=False,
-        #     action='source_full_manager_actions').first()
-
     permission = Permission(source_full_manager_actions)
     current_identity = get_identity(user)
     if permission.allows(current_identity):
@@ -80,6 +72,79 @@ def is_user_souces_admin(user: User):
 
     return its
 
+
+def user_is_organization_manager(uuid, user: User):
+    if not user or not uuid:
+        raise PermissionDenied()
+    identity = get_identity(user)
+    permission = Permission(ObjectSourceOrganizationManager(uuid))
+    if permission.allows(identity):
+        return True
+    raise PermissionDenied()
+
+
+def user_is_term_manager(uuid, user: User):
+    if not user or not uuid:
+        raise PermissionDenied()
+    identity = get_identity(user)
+    permission = Permission(ObjectSourceTermManager(uuid))
+    if permission.allows(identity):
+        return True
+    raise PermissionDenied()
+
+
+def user_has_manager_permission(source, user: User):
+
+        if not user or not source:
+            raise PermissionDenied()
+
+        identity = get_identity(user)
+
+        permission = Permission(source_full_manager_actions)
+        if permission.allows(identity):
+            return True
+
+        permiso = Permission(ObjectSourceManager(source.id))
+        if permiso.allows(identity):
+            return True
+
+        if 'classifications' in source.model.json:
+            for term in source.model.json['classifications']:
+                if 'id' in term:
+                    try:
+                        permiso = Permission(ObjectSourceTermManager(term['id']))
+                        if permiso.allows(identity):
+                            return True
+                    except Exception as e:
+                        pass
+
+        if 'organizations' in source.model.json:
+            for org in source.model.json['organizations']:
+                if 'id' in org:
+                    try:
+                        permiso = Permission(ObjectSourceOrganizationManager(org['id']))
+                        if permiso.allows(identity):
+                            return True
+                    except Exception as e:
+                        pass
+
+        raise PermissionDenied()
+
+
+def user_has_edit_permission(source, user: User):
+        if not user or not source:
+            raise PermissionDenied()
+        try:
+            if user_has_manager_permission(source, user):
+                return True
+        except PermissionDenied as err:
+            pass
+        finally:
+            identity = get_identity(user)
+            perm = Permission(ObjectSourceEditor(source.id))
+            if perm.allows(identity):
+                return True
+            raise PermissionDenied()
 
 
 def source_editor_permission_factory(obj):
@@ -191,7 +256,7 @@ def get_arguments_for_source_from_action(puser, paction):
     return arguments
 
 
-def get_userids_for_source_from_action(paction, p_argument=None):
+def get_user_ids_for_source_from_action(paction, p_argument=None):
 
     if p_argument:
         user_ids = list(map(lambda x: x.user.id,

@@ -6,10 +6,7 @@ from uuid import uuid4
 from elasticsearch.exceptions import NotFoundError
 from elasticsearch_dsl.query import Bool, Q
 from flask_login import current_user
-from flask_principal import PermissionDenied
-from invenio_access import Permission
 from invenio_access.models import ActionUsers
-from invenio_access.utils import get_identity
 from invenio_accounts.models import User
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
@@ -31,12 +28,10 @@ from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import issn_is_in_data, field_is_in_data
 from iroko.sources.models import Source, TermSources, SourceStatus, SourceVersion
 from iroko.sources.permissions import (
-    ObjectSourceEditor, is_user_souces_admin, source_full_manager_actions,
-    ObjectSourceTermManager,
-    ObjectSourceManager,
-    ObjectSourceOrganizationManager,
-    get_arguments_for_source_from_action,
-    get_userids_for_source_from_action,
+    is_user_sources_admin, get_arguments_for_source_from_action,
+    get_user_ids_for_source_from_action,
+    user_has_edit_permission,
+    user_has_manager_permission,
 )
 from iroko.sources.search import SourceSearch
 from iroko.sources.utils import _load_terms_tree
@@ -434,25 +429,6 @@ class SourceRecord(Record):
                                           'vocabulary':  vocabulary,
                                           'data':        data
                                       })
-        #
-        # if not 'classifications' in self:
-        #     self['classifications'] = []
-        # # classifications = self['classifications']
-        # for term in self['classifications']:
-        #     if term['id'] == id:
-        #         term['description'] = description
-        #         term['vocabulary'] = vocabulary
-        #         term['data'] = data
-        #         return
-        #         # classifications.append(term)
-        # self['classifications'].append(
-        #     {
-        #         'id':          id,
-        #         'description': description,
-        #         'vocabulary':  vocabulary,
-        #         'data':        data
-        #     }
-        # )
 
     def add_identifier(self, idtype, value):
         self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype',
@@ -460,92 +436,41 @@ class SourceRecord(Record):
                                           'idtype': idtype,
                                           'value':  value
                                       })
-        # for id in self[pids.IDENTIFIERS_FIELD]:
-        #     if id['idtype'] == idtype:
-        #         id['idvalue'] = value
-        #         return
-        # self[pids.IDENTIFIERS_FIELD].append(
-        #     {
-        #         'idtype': idtype,
-        #         'value': value
-        #     }
-        # )
-        # self['classifications'] = classifications
 
     # Permission methods
     #
 
-    @property
-    def current_user_has_edit_permission(self):
-        try:
-            return self.current_user_has_publish_permission
-        except PermissionDenied as err:
-            return Permission(ObjectSourceEditor(self.id))
-        except Exception as e:
-            raise e
+    def user_has_edit_permission(self, user: User):
+        return user_has_edit_permission(self, user)
 
-    @property
-    def current_user_has_publish_permission(self):
-
-        permission = Permission(source_full_manager_actions)
-        current_identity = get_identity(current_user)
-        if permission.allows(current_identity):
-            return permission
-
-        permiso = None
-        permiso = Permission(ObjectSourceManager(self.id))
-        if permiso:
-            return permiso
-
-        permiso = None
-        if 'classifications' in self.model.json:
-            for term in self.model.json['classifications']:
-                if 'id' in term:
-                    try:
-                        permiso = Permission(ObjectSourceTermManager(term['id']))
-                        if permiso:
-                            return permiso
-                    except Exception as e:
-                        raise e
-
-        permiso = None
-        if 'organizations' in self.model.json:
-            for org in self.model.json['organizations']:
-                if 'id' in org:
-                    try:
-                        permiso = Permission(ObjectSourceOrganizationManager(org['id']))
-                        if permiso:
-                            return permiso
-                    except Exception as e:
-                        raise e
-
-        raise PermissionDenied('No tiene permisos de gestión')
+    def user_has_manager_permission(self, user: User):
+        return user_has_manager_permission(self, user)
 
     @property
     def get_managers(self):
 
         all_users = []
-        managers = get_userids_for_source_from_action('source_manager_actions', self.id)
+        managers = get_user_ids_for_source_from_action('source_manager_actions', self.id)
 
         if managers:
             all_users.extend(managers)
 
         for term_source in self.model.json['classifications']:
 
-            term_managers = get_userids_for_source_from_action('source_term_manager_actions', term_source['id'])
+            term_managers = get_user_ids_for_source_from_action('source_term_manager_actions', term_source['id'])
 
             if term_managers:
                 all_users.extend(term_managers)
 
         for org_source in self.model.json['organizations']:
 
-            org_managers = get_userids_for_source_from_action('source_organization_manager_actions', org_source['id'])
+            org_managers = get_user_ids_for_source_from_action('source_organization_manager_actions', org_source['id'])
 
             if org_managers:
                 all_users.extend(org_managers)
 
         # para obtener al full_manager por si no hay alguien mas
-        admins = get_userids_for_source_from_action('source_full_manager_actions')
+        admins = get_user_ids_for_source_from_action('source_full_manager_actions')
         if admins:
             all_users.extend(admins)
 
@@ -553,7 +478,7 @@ class SourceRecord(Record):
 
     @property
     def get_editors(self):
-        return get_userids_for_source_from_action('source_editor_actions', self.id)
+        return get_user_ids_for_source_from_action('source_editor_actions', self.id)
 
     @classmethod
     def get_search(cls, status=None, classifications=None, organizations=None) -> SourceSearch:
@@ -591,7 +516,7 @@ class SourceRecord(Record):
     def get_sources_search_of_user_as_manager(cls, user: User, status=None) -> SourceSearch:
         """devuelve las fuentes de las cuales el usuario actual es gestor """
 
-        if is_user_souces_admin(user):
+        if is_user_sources_admin(user):
             return cls.get_search(status=status)
 
         # sources_manager = get_arguments_for_source_from_action(user, 'source_manager_actions')
@@ -610,49 +535,30 @@ class SourceRecord(Record):
         return cls.get_search(status=status, classifications=sources_terms,
                               organizations=sources_orgs)
 
-    def grant_source_editor_permission(self, user_id) -> Dict[str, bool]:
-        done = False
-        msg = ''
-        try:
-            user = User.query.filter_by(id=user_id).first()
-            if not user:
-                msg = 'User not found'
-            else:
-                with db.session.begin_nested():
-                    db.session.add(ActionUsers.allow(ObjectSourceEditor(self.id), user=user))
-                    msg = 'Source Editor Permission granted '
-                    done = True
-
-        except Exception as e:
-            msg = str(e)
-            # print(str(e))
-
-        return msg, done
-
     def get_user_ids_source_editor(self) -> list:
-        return get_userids_for_source_from_action('source_editor_actions', self.id)
+        return get_user_ids_for_source_from_action('source_editor_actions', self.id)
 
     def get_user_ids_source_managers(self) -> list:
         all_users = []
-        managers = get_userids_for_source_from_action('source_manager_actions', self.id)
+        managers = get_user_ids_for_source_from_action('source_manager_actions', self.id)
 
         if managers:
             all_users.extend(managers)
 
         for term_source in self.model.json['classifications']:
 
-            term_managers = get_userids_for_source_from_action('source_term_manager_actions', term_source.id)
+            term_managers = get_user_ids_for_source_from_action('source_term_manager_actions', term_source.id)
 
             if term_managers:
                 all_users.extend(term_managers)
 
         for org_source in self.model.json['organizations']:
 
-            org_managers = get_userids_for_source_from_action('source_organization_manager_actions', org_source.id)
+            org_managers = get_user_ids_for_source_from_action('source_organization_manager_actions', org_source.id)
 
             if org_managers:
                 all_users.extend(org_managers)
-        admins = get_userids_for_source_from_action('source_full_manager_actions')
+        admins = get_user_ids_for_source_from_action('source_full_manager_actions')
         if admins:
             all_users.extend(admins)
 
@@ -731,7 +637,7 @@ def get_current_user_source_permissions() -> Dict[str, Dict[str, list]]:
     """
 
     vocabularies_ids = []
-    if is_user_souces_admin(current_user):
+    if is_user_sources_admin(current_user):
         return 'actions', {'source_full_manager_actions': None}
 
     actions = ActionUsers.query.filter_by(
