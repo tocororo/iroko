@@ -253,7 +253,7 @@ class CuorHelper:
                 if 'id' in rel and 'type' in rel:
                     if rel['type'] == rel_type:
                         result.append(rel)
-        return rel
+        return result
 
     @classmethod
     def get_relationships_parent(cls, org):

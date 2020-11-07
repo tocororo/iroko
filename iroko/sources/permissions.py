@@ -139,12 +139,12 @@ def user_has_edit_permission(source, user: User):
                 return True
         except PermissionDenied as err:
             pass
-        finally:
-            identity = get_identity(user)
-            perm = Permission(ObjectSourceEditor(source.id))
-            if perm.allows(identity):
-                return True
-            raise PermissionDenied()
+
+        identity = get_identity(user)
+        perm = Permission(ObjectSourceEditor(source.id))
+        if perm.allows(identity):
+            return True
+        raise PermissionDenied()
 
 
 def source_editor_permission_factory(obj):

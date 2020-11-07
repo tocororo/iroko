@@ -707,7 +707,7 @@ def get_users_term(uuid):
     :return:
     """
     try:
-        term = Term.query.filter_by(uuid=uuid)
+        term = Term.query.filter_by(uuid=uuid).first()
         if not term:
             raise Exception('Term not found')
 
@@ -867,6 +867,7 @@ def set_organization_manager(user, uuid, allow=False):
         if not org:
             raise Exception('Organization not found')
         parents = CuorHelper.get_relationships_parent(org)
+        print(parents)
         allow_parent = False
         for p in parents:
             try:
@@ -927,11 +928,12 @@ def set_term_manager(user, uuid, allow=False):
         userObj = User.query.filter_by(id=user).first()
         if not userObj:
             raise Exception('User not found')
-        term = Term.query.filter_by(uuid=uuid)
+        term = Term.query.filter_by(uuid=uuid).first()
         if not term:
             raise Exception('Term not found')
         parent = None
-        parent = Term.query.filter_by(id=term.parent_id)
+        if term.parent_id:
+            parent = Term.query.filter_by(id=term.parent_id).first()
 
         if is_user_sources_admin(current_user) or \
             user_is_term_manager(term.uuid, current_user) or \
