@@ -1,7 +1,14 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+
 IP_ELASTIC = '192.168.56.3'
 IP_POSGRE = '192.168.56.4'
 IP_RABBIT = '192.168.56.6'
 IP_REDIS = '192.168.56.5'
+
+
 
 # IP_ELASTIC = '10.2.4.62'
 # IP_POSGRE = '10.2.4.29'
