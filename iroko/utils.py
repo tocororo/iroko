@@ -2,9 +2,9 @@ from __future__ import absolute_import, print_function
 
 import enum
 import json
-# from invenio_app import babel
 import re
 import traceback
+from datetime import datetime, timedelta
 from threading import Thread
 from uuid import UUID
 
@@ -12,6 +12,7 @@ import requests
 from flask import jsonify, request, render_template, current_app
 from flask_mail import Message
 from invenio_accounts.models import User
+from invenio_cache import current_cache
 from invenio_i18n.selectors import get_locale
 
 
@@ -145,14 +146,21 @@ class CuorHelper:
             not the CUOR UUID
          """
         try:
-            if pid in cls.org_simple_cache:
-                return cls.org_simple_cache[pid]
+            cache = current_cache.get("query_cuor_by_pid:{0}".format(pid)) or {}
+            if "date" not in cache:
+                cache["date"] = datetime.now()
+            if datetime.now() - cache["date"] < timedelta(days=1) and "org" in cache:
+                print("USING CACHE ORGANIZATION")
+                return cache["org"]
+
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
             url = api_endpoint + '/pid?value=' + pid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
-            cls.org_simple_cache[pid] = result
+            cache["org"] = result
+            cache["date"] = datetime.now()
+            current_cache.set("query_cuor_by_pid:{0}".format(pid), cache, timeout=-1)
             return result
         except Exception:
             return None
@@ -161,14 +169,22 @@ class CuorHelper:
     def query_cuor_by_uuid(cls, uuid):
         """"""
         try:
-            if uuid in cls.org_simple_cache:
-                return cls.org_simple_cache[uuid]
+            cache = current_cache.get("query_cuor_by_pid:{0}".format(uuid)) or {}
+            if "date" not in cache:
+                cache["date"] = datetime.now()
+            if datetime.now() - cache["date"] < timedelta(days=1) and "org" in cache:
+                return cache["org"]
+
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             session = requests.Session()
             url = api_endpoint + '/' + uuid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
-            cls.org_simple_cache[uuid] = result
+
+            cache["org"] = result
+            cache["date"] = datetime.now()
+            current_cache.set("query_cuor_by_pid:{0}".format(uuid), cache, timeout=-1)
+
             return result
         except Exception:
             print(traceback.format_exc())

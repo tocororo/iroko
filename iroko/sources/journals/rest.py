@@ -1,4 +1,3 @@
-
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
@@ -31,32 +30,32 @@ def get_journals():
 
     if page < 1:
         page = 1
-    offset = count*(page - 1)
-    limit = offset+count
+    offset = count * (page - 1)
+    limit = offset + count
 
     tids = request.args.get('terms')
     terms = []
     if tids:
-        tids= tids.split(',')
+        tids = tids.split(',')
         term_op = tids[0]
         if tids[0].lower() == 'and' or tids[0].lower() == 'or':
             del tids[0]
         terms = tids
 
     extra_args = {
-        'source_type' : SourceType.JOURNAL.value,
+        'source_type':   SourceType.JOURNAL.value,
         'source_status': SourceStatus.APPROVED.value
     }
     # str(request.args.get('source_status'))
 
     data_args = {
-        'title' : str(request.args.get('title')),
+        'title':       str(request.args.get('title')),
         'description': str(request.args.get('description')),
-        'url': str(request.args.get('url')),
-        'issn': str(request.args.get('issn')),
-        'rnps': str(request.args.get('rnps')),
-        'year_start': str(request.args.get('year_start')),
-        'year_end': str(request.args.get('year_end'))
+        'url':         str(request.args.get('url')),
+        'issn':        str(request.args.get('issn')),
+        'rnps':        str(request.args.get('rnps')),
+        'year_start':  str(request.args.get('year_start')),
+        'year_end':    str(request.args.get('year_end'))
     }
 
     result = []
@@ -80,9 +79,11 @@ def get_journals():
     # print("---- - - - - - - -  -----------")
     if result is not None:
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        'ok','sources', \
-                        {'data': source_schema_many.dump(result[offset:limit]),\
-                         'count': len(result)})
+                                   'ok', 'sources', \
+                                   {
+                                       'data':  source_schema_many.dump(result[offset:limit]), \
+                                       'count': len(result)
+                                   })
     return iroko_json_response(IrokoResponseStatus.NOT_FOUND, 'Sources not found', None, {'count': 0})
 
 
@@ -95,8 +96,8 @@ def get_journal_by_uuid(uuid):
             raise Exception('Source not found')
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        'ok','sources', \
-                        {'data': source_schema.dump(source), 'count': 1})
+                                   'ok', 'sources', \
+                                   {'data': source_schema.dump(source), 'count': 1})
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -109,19 +110,19 @@ def get_journal_by_issn(issn):
     try:
         issn_db = SourceRawData.query.filter_by(identifier=issn).first()
         if not issn_db:
-            return iroko_json_response(IrokoResponseStatus.NOT_FOUND, "ISSN {0} not found on Cuban ISSNs list".format(issn), None, None)
+            return iroko_json_response(IrokoResponseStatus.NOT_FOUND,
+                                       "ISSN {0} not found on Cuban ISSNs list".format(issn), None, None)
             # raise Exception("ISSN {0} not found on Cuban ISSNs list".format(issn))
         issns_with_info = issn_db.data
-
 
         if not "@graph" in issns_with_info.keys():
             raise Exception("Wrong json format for ISSN: {0}".format(issn))
 
         for item in issns_with_info["@graph"]:
-            if item['@id'] == 'resource/ISSN/'+issn+'#KeyTitle':
+            if item['@id'] == 'resource/ISSN/' + issn + '#KeyTitle':
                 return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                "ok", "issn_org",
-                {"issn":issn, "title":item["value"]})
+                                           "ok", "issn_org",
+                                           {"issn": issn, "title": item["value"]})
 
             # if "issn" in item.keys() and "name" in item.keys():
             #     return iroko_json_response(IrokoResponseStatus.SUCCESS,

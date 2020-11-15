@@ -24,6 +24,7 @@ def iroko_action_factory(name, parameter=False):
     else:
         return ActionNeed(name)
 
+
 # LA LOGICA DE LOS PERMISOS ES LA SIGUIENTE:
 # 1- source_full_manager_actions: se le asigna a un usuario
 #   significa que el usuario es administrador de todas las fuentes.
@@ -41,9 +42,7 @@ def iroko_action_factory(name, parameter=False):
 #   son administradas por el usuario.
 
 
-
-
-#creando action
+# creando action
 source_full_manager_actions = action_factory('source_full_manager_actions')
 
 ObjectSourceEditor = action_factory('source_editor_actions', parameter=True)
@@ -94,57 +93,56 @@ def user_is_term_manager(uuid, user: User):
 
 
 def user_has_manager_permission(source, user: User):
-
-        if not user or not source:
-            raise PermissionDenied()
-
-        identity = get_identity(user)
-
-        permission = Permission(source_full_manager_actions)
-        if permission.allows(identity):
-            return True
-
-        permiso = Permission(ObjectSourceManager(source.id))
-        if permiso.allows(identity):
-            return True
-
-        if 'classifications' in source.model.json:
-            for term in source.model.json['classifications']:
-                if 'id' in term:
-                    try:
-                        permiso = Permission(ObjectSourceTermManager(term['id']))
-                        if permiso.allows(identity):
-                            return True
-                    except Exception as e:
-                        pass
-
-        if 'organizations' in source.model.json:
-            for org in source.model.json['organizations']:
-                if 'id' in org:
-                    try:
-                        permiso = Permission(ObjectSourceOrganizationManager(org['id']))
-                        if permiso.allows(identity):
-                            return True
-                    except Exception as e:
-                        pass
-
+    if not user or not source:
         raise PermissionDenied()
+
+    identity = get_identity(user)
+
+    permission = Permission(source_full_manager_actions)
+    if permission.allows(identity):
+        return True
+
+    permiso = Permission(ObjectSourceManager(source.id))
+    if permiso.allows(identity):
+        return True
+
+    if 'classifications' in source.model.json:
+        for term in source.model.json['classifications']:
+            if 'id' in term:
+                try:
+                    permiso = Permission(ObjectSourceTermManager(term['id']))
+                    if permiso.allows(identity):
+                        return True
+                except Exception as e:
+                    pass
+
+    if 'organizations' in source.model.json:
+        for org in source.model.json['organizations']:
+            if 'id' in org:
+                try:
+                    permiso = Permission(ObjectSourceOrganizationManager(org['id']))
+                    if permiso.allows(identity):
+                        return True
+                except Exception as e:
+                    pass
+
+    raise PermissionDenied()
 
 
 def user_has_edit_permission(source, user: User):
-        if not user or not source:
-            raise PermissionDenied()
-        try:
-            if user_has_manager_permission(source, user):
-                return True
-        except PermissionDenied as err:
-            pass
-
-        identity = get_identity(user)
-        perm = Permission(ObjectSourceEditor(source.id))
-        if perm.allows(identity):
-            return True
+    if not user or not source:
         raise PermissionDenied()
+    try:
+        if user_has_manager_permission(source, user):
+            return True
+    except PermissionDenied as err:
+        pass
+
+    identity = get_identity(user)
+    perm = Permission(ObjectSourceEditor(source.id))
+    if perm.allows(identity):
+        return True
+    raise PermissionDenied()
 
 
 def source_editor_permission_factory(obj):
@@ -249,7 +247,6 @@ def user_has_editor_or_manager_permissions(obj):
 
 
 def get_arguments_for_source_from_action(puser, paction):
-
     arguments = list(map(lambda x: x.argument,
                          db.session.query(ActionUsers).filter_by(user=puser, exclude=False, action=paction).all()))
 
@@ -257,7 +254,6 @@ def get_arguments_for_source_from_action(puser, paction):
 
 
 def get_user_ids_for_source_from_action(paction, p_argument=None):
-
     if p_argument:
         user_ids = list(map(lambda x: x.user.id,
                             db.session.query(ActionUsers).filter_by(argument=str(p_argument), exclude=False,
@@ -275,18 +271,19 @@ def check_source_status(record, *args, **kwargs):
     :params record: A record object.
     :returns: A object instance with a ``can()`` method.
     """
+
     def can(self):
         """Try to search for given record."""
         return record['source_status'] == 'APPROVED'
 
     return type('CheckStatus', (), {'can': can})()
 
-#creando permiso, que requiere varias acciones, por ahora solo la anterior
+# creando permiso, que requiere varias acciones, por ahora solo la anterior
 # source_editor_permission = Permission(source_editor_actions)
 # source_manager_permission = Permission(source_manager_actions)
 
 
-#concediendo acceso a un usuario, puede ser por rol
+# concediendo acceso a un usuario, puede ser por rol
 # 1- si es por usuario hay q obtener el usuario, si es por rol igual
 # eduardo = db.session.query(User).filter_by(email="eduardo.arencibia@upr.edu.cu").first()
 # 2- agregar a la base de datos de access
@@ -296,5 +293,3 @@ def check_source_status(record, *args, **kwargs):
 # #para comprobar, si no es una funcionaldiad q Flask-Security verifique por si mismo, seria asi
 # eduardo_identity = get_identity(eduardo)
 # permission.allows(eduardo_identity) #Tambie puede ser eduardo_identity.can(permission)
-
-

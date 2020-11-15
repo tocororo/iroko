@@ -1,4 +1,3 @@
-
 from marshmallow import Schema, fields, post_dump, INCLUDE
 
 from iroko.sources.harvesters.issn import IssnDataParser
@@ -12,6 +11,7 @@ class SocialNetworksSchema(Schema):
     facebook = fields.Url()
     twitter = fields.Url()
     linkedin = fields.Url()
+
 
 class IssnOrgSchema(Schema):
     issn = fields.Str()
@@ -43,6 +43,7 @@ class ISSNSchema(Schema):
     #                 #     if item['@id'] == 'resource/ISSN/'+issn[v]+'#KeyTitle':
     #                 #         issn['issn_org'] = {"issn":issn[v], "title":item["value"]}
     #                 #         return issn
+
 
 class RNPSSchema(Schema):
     p = fields.Str()

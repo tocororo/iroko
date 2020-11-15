@@ -6,7 +6,6 @@
 from invenio_pidstore.errors import PIDDoesNotExistError, PIDAlreadyExists
 from invenio_pidstore.models import PersistentIdentifier
 
-
 """Iroko App PIDs."""
 
 RECORD_PID_TYPE = "irouid"
@@ -16,9 +15,7 @@ RECORD_PID_MINTER = "irouid"
 RECORD_PID_FETCHER = "irouid"
 """Fetcher PID for Source."""
 
-
 RECORD_SOURCE_OAI_PID_TYPE = "recoai"
-
 
 IDENTIFIERS_FIELD = "identifiers"
 IDENTIFIERS_FIELD_TYPE = "idtype"
@@ -53,6 +50,7 @@ def get_pid_by_data(data):
                 pass
     return None
 
+
 def check_data_identifiers(data):
     """
     check if identifiers field is present in data, and then check if any on the PIDs
@@ -71,52 +69,49 @@ def check_data_identifiers(data):
     return True
 
 
-
-
 identifiers_schemas = [
-        "ark",
-        "arxiv",
-        "doi",
-        "bibcode",
-        "ean8",
-        "ean13",
-        "handle",
-        "isbn",
-        "issn_l",
-        "issn_p",
-        "issn_e",
-        "issn_c",
-        "issn_o",
-        "istc",
-        "lsid",
-        "pmid",
-        "pmcid",
-        "purl",
-        "upc",
-        "url",
-        "urn",
-        "orcid",
-        "gnd",
-        "ads",
-        "oai",
-        "prnps",
-        "ernps",
-        "oaiurl",
-        "grid",
-        "wkdata",
-        "ror",
-        "isni",
-        "fudref",
-        "orgref",
-        "reup"
-    ]
+    "ark",
+    "arxiv",
+    "doi",
+    "bibcode",
+    "ean8",
+    "ean13",
+    "handle",
+    "isbn",
+    "issn_l",
+    "issn_p",
+    "issn_e",
+    "issn_c",
+    "issn_o",
+    "istc",
+    "lsid",
+    "pmid",
+    "pmcid",
+    "purl",
+    "upc",
+    "url",
+    "urn",
+    "orcid",
+    "gnd",
+    "ads",
+    "oai",
+    "prnps",
+    "ernps",
+    "oaiurl",
+    "grid",
+    "wkdata",
+    "ror",
+    "isni",
+    "fudref",
+    "orgref",
+    "reup"
+]
+
 
 def get_identifier_schema(pid):
-
     for schema in identifiers_schemas:
         if schema in pid:
             return schema
     if 'http' in pid or 'https' in pid:
         return 'url'
     return None
-

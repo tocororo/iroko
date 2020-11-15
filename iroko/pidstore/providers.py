@@ -11,7 +11,7 @@ from iroko.pidstore.pids import identifiers_schemas
 class IrokoUUIDProvider(BaseProvider):
     """Document identifier provider."""
 
-    pid_type =  pids.RECORD_PID_TYPE
+    pid_type = pids.RECORD_PID_TYPE
     """Type of persistent identifier."""
 
     pid_provider = None
@@ -35,7 +35,6 @@ class IrokoUUIDProvider(BaseProvider):
             object_type=object_type, object_uuid=object_uuid, **kwargs)
 
 
-
 class IrokoSourceOAIProvider(BaseProvider):
     """Provider in the form of {Source.uuid}-{Item.oaiIdentifier}
     When a record is harvested using OAI-PMH, is allways from a valid Source inside iroko, meaning that the Source must have an UUID.
@@ -53,7 +52,7 @@ class IrokoSourceOAIProvider(BaseProvider):
     """
 
     @classmethod
-    def create(cls, object_type=None, object_uuid=None, data=None,  **kwargs):
+    def create(cls, object_type=None, object_uuid=None, data=None, **kwargs):
         """Create a new record identifier from the depoist PID value."""
         pid_value = cls.get_pid_from_data(data)
         if 'pid_value' not in kwargs:
@@ -68,7 +67,7 @@ class IrokoSourceOAIProvider(BaseProvider):
         assert 'source' in data, "no source in data"
         assert 'uuid' in data['source'], "no source uuid"
 
-        oai_id=None
+        oai_id = None
         for idf in data['identifiers']:
             if idf['idtype'] == 'oai':
                 oai_id = idf['value']
@@ -81,7 +80,7 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
     default_status = PIDStatus.REGISTERED
 
     @classmethod
-    def create_identifiers(cls, object_type=None, object_uuid=None, data=None,  **kwargs):
+    def create_identifiers(cls, object_type=None, object_uuid=None, data=None, **kwargs):
 
         assert data, "no data"
         # print('@@@@@@@@', data)
@@ -118,7 +117,7 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
         return pIDs
 
     @classmethod
-    def create_pid(cls, pid_type, pid_value, object_type=None, object_uuid=None, data=None,  **kwargs):
+    def create_pid(cls, pid_type, pid_value, object_type=None, object_uuid=None, data=None, **kwargs):
         assert data, "no data"
         assert pids.IDENTIFIERS_FIELD in data
         assert pid_type
@@ -161,14 +160,12 @@ class IrokoSourceUUIDProvider(BaseProvider):
         # kwargs.setdefault('status', cls.default_status)
 
         return super(IrokoSourceUUIDProvider, cls).create(
-                    object_type=object_type,
-                    object_uuid=object_uuid,
-                    pid_type=pids.SOURCE_UUID_PID_TYPE,
-                    pid_value=data[pids.SOURCE_UUID_FIELD],
-                    **kwargs
+            object_type=object_type,
+            object_uuid=object_uuid,
+            pid_type=pids.SOURCE_UUID_PID_TYPE,
+            pid_value=data[pids.SOURCE_UUID_FIELD],
+            **kwargs
         )
-
-
 
 # class IrokoSourceSourceRecordProvider(BaseProvider):
 #     """Provider to relate Iroko's table Source, with SourceRecord in invenio Records ."""
@@ -194,6 +191,3 @@ class IrokoSourceUUIDProvider(BaseProvider):
 #         assert data, "no data"
 #         assert 'source_uuid' in data, "no source uuid in data"
 #         return data['source_uuid']
-
-
-

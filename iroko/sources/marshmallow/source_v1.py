@@ -1,5 +1,3 @@
-
-
 from invenio_records_rest.loaders.marshmallow import marshmallow_loader
 from invenio_records_rest.schemas import StrictKeysMixin
 from invenio_records_rest.schemas.fields import PersistentIdentifier
@@ -27,17 +25,16 @@ class SourceSchemaV1(StrictKeysMixin):
     links = fields.Dict(dump_only=True)
     id = PersistentIdentifier()
 
+
 source_data_schema_many = SourceDataSchemaV1(many=True)
 source_data_schema = SourceDataSchemaV1(many=False)
 
 source_loader_v1 = marshmallow_loader(SourceDataSchemaV1)
 
-
 # Serializers
 # ===========
 #: JSON serializer definition.
 source_v1 = JSONSerializer(SourceSchemaV1, replace_refs=True)
-
 
 # Records-REST serializers
 # ========================

@@ -21,7 +21,7 @@ def _load_terms_tree(terms):
 
 def _load_terms_tree_by_uuid(terms):
     """aux func"""
-    #TODO validar UUID
+    # TODO validar UUID
     temp_terms = []
     for uuid in terms:
         temp_terms += [str(uuid)]
@@ -50,5 +50,3 @@ def _load_term_children_uuid(term):
             children.append(str(child.uuid))
             _load_term_children_id(child)
         return children
-
-

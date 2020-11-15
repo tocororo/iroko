@@ -1,4 +1,3 @@
-
 """Source search APIs."""
 
 from elasticsearch_dsl.query import Q
@@ -12,6 +11,7 @@ def approveds_filter():
         Q('match', **{'source_status': 'APPROVED'})
     ])
 
+
 class SourceSearch(RecordsSearch):
     """RecordsSearch for sources."""
 
@@ -20,10 +20,7 @@ class SourceSearch(RecordsSearch):
 
         index = "sources"
         doc_types = None
-        default_filter=DefaultFilter(approveds_filter)
-
-
-
+        default_filter = DefaultFilter(approveds_filter)
 
         # if ids is not None:
         #     return list(map(lambda x: x, search.get_records(ids=ids)))

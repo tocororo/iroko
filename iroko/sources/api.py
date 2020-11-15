@@ -416,15 +416,15 @@ class SourceRecord(Record):
     def add_organization(self, _id, name, role):
         self._add_update_item_to_list('organizations', 'id',
                                       {
-                                          'id': _id,
+                                          'id':   _id,
                                           'name': name,
-                                          'role':  role
+                                          'role': role
                                       })
 
     def add_classification(self, _id, description, vocabulary, data):
         self._add_update_item_to_list('classifications', 'id',
                                       {
-                                          'id': _id,
+                                          'id':          _id,
                                           'description': description,
                                           'vocabulary':  vocabulary,
                                           'data':        data

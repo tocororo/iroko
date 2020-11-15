@@ -41,6 +41,7 @@ api_blueprint = Blueprint(
     __name__,
 )
 
+
 @api_blueprint.record_once
 def init_api(state):
     """Post initialization for API application."""
@@ -69,22 +70,23 @@ def get_user_info():
         #     institution_rol = current_userprofile_json_metadata["institution_rol"]
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                'ok', 'userprofile', \
+                                   'ok', 'userprofile', \
                                    userprofile_schema.dump(profile)
-                                # {
-                                #     'email': current_user.email,
-                                #     'id': current_user.id,
-                                #     'username': current_userprofile.username,
-                                #     'full_name':current_userprofile.full_name,
-                                #     'biography':biography,
-                                #     'institution_id':institution_id,
-                                #     'institution':institution_name,
-                                #     'institution_rol':institution_rol,
-                                # }
-        )
+                                   # {
+                                   #     'email': current_user.email,
+                                   #     'id': current_user.id,
+                                   #     'username': current_userprofile.username,
+                                   #     'full_name':current_userprofile.full_name,
+                                   #     'biography':biography,
+                                   #     'institution_id':institution_id,
+                                   #     'institution':institution_name,
+                                   #     'institution_rol':institution_rol,
+                                   # }
+                                   )
     except Exception as e:
         raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+
 
 @api_blueprint.route('/users/search', methods=['GET'])
 @require_api_auth()

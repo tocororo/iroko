@@ -1,7 +1,7 @@
 {
-    "R1":"Mi sitio web tiene una URL separada para cada artículo, así como una interfaz de navegación para todas las URL de los artículos.",
-    "R2":"Cada URL del artículo contiene el resumen completo escrito por el autor o el texto completo del artículo.",
-    "R3":"Todos los usuarios pueden leer todas las URL de los artículos sin necesidad de iniciar sesión o pagar.",
-    "R4":"El archivo robots.txt en mi sitio web, si mi sitio web tiene uno, permite que Googlebot rastree todas las URL de los artículos, así como la interfaz de navegación.",
-    "R5":"Mi solicitud de inclusión es para un sitio web de OJS."
+  "R1": "Mi sitio web tiene una URL separada para cada artículo, así como una interfaz de navegación para todas las URL de los artículos.",
+  "R2": "Cada URL del artículo contiene el resumen completo escrito por el autor o el texto completo del artículo.",
+  "R3": "Todos los usuarios pueden leer todas las URL de los artículos sin necesidad de iniciar sesión o pagar.",
+  "R4": "El archivo robots.txt en mi sitio web, si mi sitio web tiene uno, permite que Googlebot rastree todas las URL de los artículos, así como la interfaz de navegación.",
+  "R5": "Mi solicitud de inclusión es para un sitio web de OJS."
 }

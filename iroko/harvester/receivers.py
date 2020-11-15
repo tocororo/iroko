@@ -24,8 +24,6 @@
 
 """Signals connections for RERO ebooks."""
 
-from dojson.contrib.marc21.utils import create_record
-
 # from rero_ebooks.tasks import create_records, delete_records
 
 # from .dojson.marc21 import marc21

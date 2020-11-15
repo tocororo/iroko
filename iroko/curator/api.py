@@ -4,10 +4,11 @@ from __future__ import absolute_import, print_function
 
 import uuid
 
-from flask import current_app
 from invenio_db import db
 # from invenio_indexer.api import RecordIndexer
 from invenio_pidstore import current_pidstore
+
+
 # from invenio_records.api import Record
 
 

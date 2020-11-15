@@ -31,9 +31,8 @@ class Notifications:
             msg = 'Notification not exist id={0}'.format(id)
             return msg, None
 
-
     @classmethod
-    def edit_notification(cls, id ,data) -> Dict[str, Notification]:
+    def edit_notification(cls, id, data) -> Dict[str, Notification]:
 
         msg, notif = cls.get_notification(id)
         if notif:
@@ -45,9 +44,9 @@ class Notifications:
                 notif.data = valid_data['data']
 
                 if not notif.receiver_id == valid_data['receiver_id']:
-                    #deny al que estaba notif.receiver_id
-                    cls.deny_notification_viewed_permission(notif.receiver_id,notif.id)
-                    #grant al nuevo valid_data['receiver_id']
+                    # deny al que estaba notif.receiver_id
+                    cls.deny_notification_viewed_permission(notif.receiver_id, notif.id)
+                    # grant al nuevo valid_data['receiver_id']
                     cls.grant_notification_viewed_permission(valid_data['receiver_id'], notif.id)
                 notif.receiver_id = valid_data['receiver_id']
                 db.session.commit()
@@ -56,7 +55,6 @@ class Notifications:
                 msg = 'errors'
                 notif = None
         return msg, notif
-
 
     @classmethod
     def viewed_notification(cls, id) -> Dict[str, Notification]:
@@ -67,7 +65,6 @@ class Notifications:
             db.session.commit()
             msg = 'New Notification VIEWED classification={0}'.format(notif.classification)
         return msg, notif
-
 
     @classmethod
     def new_notification(cls, data) -> Dict[str, Notification]:

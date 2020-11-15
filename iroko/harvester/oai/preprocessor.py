@@ -1,28 +1,27 @@
 from os import path, listdir
 
-from lxml import etree
-
 from flask import current_app
+from lxml import etree
 
 from iroko.records.api import IrokoRecord
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True, resolve_entities=False)
 
-
 from .formaters import DubliCoreElements, JournalPublishing
+
 
 class OaiPreprocessor:
 
     def __init__(self, logger, source):
 
-        self.logger= logger
+        self.logger = logger
         self.source = source
         p = current_app.config['HARVESTER_DATA_DIRECTORY']
         self.harvest_dir = path.join(p, str(self.source.id))
         # print(self.harvest_dir)
         self.dc = DubliCoreElements(None)
         self.nlm = JournalPublishing(None)
-        self.formats = ['marcxml', 'nlm', 'oai_dc','oai_marc', 'rfc1807']
+        self.formats = ['marcxml', 'nlm', 'oai_dc', 'oai_marc', 'rfc1807']
 
     def process_all_items(self):
         """using the directory structure, iterate over the source folders and retrieve all the metadata of all records."""
@@ -40,7 +39,6 @@ class OaiPreprocessor:
             data = self.create_record_data(dc, nlm)
             record, status = IrokoRecord.create_or_update(data, vendor=source, dbcommit=True, reindex=True)
 
-
     def process_metadata(self, item, metadata_format, formater):
         xmlpath = path.join(self.harvest_dir, item, metadata_format + ".xml")
         if path.exists(xmlpath):
@@ -52,7 +50,6 @@ class OaiPreprocessor:
 
         data['original_identifier'] = dc['original_identifier']
         data['source'] = self.source.uuid
-
 
         data['title'] = dc['title']
 

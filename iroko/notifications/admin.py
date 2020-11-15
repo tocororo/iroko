@@ -28,6 +28,7 @@ from flask_admin.contrib.sqla import ModelView
 
 from .models import Notification
 
+
 class NotificationModelView(ModelView):
     """View for managing notifications."""
 
@@ -50,6 +51,5 @@ notifications_adminview = dict(
     name='Notifications',
     category='Iroko'
 )
-
 
 __all__ = ('notifications_adminview')

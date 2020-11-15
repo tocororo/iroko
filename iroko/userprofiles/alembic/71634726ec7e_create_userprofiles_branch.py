@@ -8,9 +8,6 @@
 
 """Create userprofiles branch."""
 
-import sqlalchemy as sa
-from alembic import op
-
 # revision identifiers, used by Alembic.
 revision = '71634726ec7e'
 down_revision = None

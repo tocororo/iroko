@@ -1,4 +1,3 @@
-
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
@@ -19,10 +18,9 @@ blueprint = Blueprint(
 @blueprint.route('/faqs')
 @login_required
 def edit_faq(id=None):
-    #security questiong here
+    # security questiong here
     # print(current_user.has_role('curator'))
 
     form = FaqForm()
 
     return render_template('edit_faq.html', form=form)
-

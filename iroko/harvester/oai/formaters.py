@@ -1,5 +1,3 @@
-
-
 import re
 
 from lxml import etree
@@ -16,11 +14,10 @@ class DubliCoreElements(Formater):
 
     def __init__(self):
 
-        self.metadataPrefix ='oai_dc'
+        self.metadataPrefix = 'oai_dc'
         self.xmlns = 'http://purl.org/dc/elements/1.1/'
 
-
-    def ProcessItem(self, xml:etree._Element):
+    def ProcessItem(self, xml: etree._Element):
         """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid and return the data"""
 
         data = {}
@@ -33,14 +30,14 @@ class DubliCoreElements(Formater):
         identifier = header.find('.//{' + nsmap['oai'] + '}identifier')
         # data['original_identifier'] = identifier.text
         identifiers = []
-        identifiers.append({'idtype': 'oai','value': identifier.text})
+        identifiers.append({'idtype': 'oai', 'value': identifier.text})
 
         pids = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
 
         for pid in pids:
             schema = get_identifier_schema(pid)
             if schema:
-                identifiers.append({'idtype': schema,'value': pid})
+                identifiers.append({'idtype': schema, 'value': pid})
         # identifiers.insert(0, {'idtype': 'oai','value': identifier.text})
         data['identifiers'] = identifiers
 
@@ -49,12 +46,13 @@ class DubliCoreElements(Formater):
         data['creators'] = []
         creators = get_multiple_elements(metadata, 'creator', xmlns=self.xmlns, itemname='name')
         for creator in creators:
-            if isinstance(creator['name'], str) and  creator['name'] != '':
+            if isinstance(creator['name'], str) and creator['name'] != '':
                 creator['roles'] = []
                 creator['roles'].append(ContributorRole.Author.value)
                 data['creators'].append(creator)
         data['contributors'] = []
-        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name', language='es-ES')
+        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name',
+                                             language='es-ES')
         for contributor in contributors:
             if isinstance(contributor['name'], str) and contributor['name'] != '':
                 data['contributors'].append(contributor)
@@ -83,7 +81,7 @@ class DubliCoreElements(Formater):
         data['language'] = get_sigle_element(metadata, 'language', xmlns=self.xmlns)
 
         relations = get_multiple_elements(metadata, 'relation', xmlns=self.xmlns)
-        #separar el caso especial ref, de lo que realmente significa esto: una url con otro objeto relacionado (asumiendo el caso mas comun: el pdf donde esta el articulo...)
+        # separar el caso especial ref, de lo que realmente significa esto: una url con otro objeto relacionado (asumiendo el caso mas comun: el pdf donde esta el articulo...)
         data['relations'] = relations
 
         coverages = get_multiple_elements(metadata, 'coverage', xmlns=self.xmlns)
@@ -94,15 +92,14 @@ class DubliCoreElements(Formater):
 
         return data
 
+
 class JournalPublishing(Formater):
 
     def __init__(self):
-
-        self.metadataPrefix ='nlm'
+        self.metadataPrefix = 'nlm'
         self.xmlns = '{http://dtd.nlm.nih.gov/publishing/2.3}'
 
-
-    def ProcessItem(self, xml:etree._Element):
+    def ProcessItem(self, xml: etree._Element):
         """given an xml item return a dict, ensure is http://dtd.nlm.nih.gov/publishing/2.3
         is mainly focussed on contributors and authors"""
 

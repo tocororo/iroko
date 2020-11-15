@@ -1,13 +1,4 @@
-
-from sqlalchemy import and_, or_
-from sqlalchemy_utils.models import Timestamp
-from sqlalchemy_utils.types import UUIDType, JSONType, ScalarListType
-from invenio_accounts.models import User
-import uuid
-import enum
-from invenio_db import db
-#from sqlalchemy_imageattach.entity import Image, image_attachment
-
+# from sqlalchemy_imageattach.entity import Image, image_attachment
 
 
 # class Faq(db.Model):
@@ -17,11 +8,10 @@ from invenio_db import db
 
 #     question = db.Column(db.String, nullable=False, unique=True)
 #     answer = db.Column(db.String, nullable=True)
-    
+
 #     def __str__(self):
 #         """Representation."""
 #         return self.question
-
 
 
 # class IrokoNew(db.Model):
@@ -29,7 +19,7 @@ from invenio_db import db
 
 #     id = db.Column(db.Integer, primary_key=True)
 
-#     published_by = db.Column(db.Integer, db.ForeignKey(User.id, name='fk_iroko_news_user_id'))    
+#     published_by = db.Column(db.Integer, db.ForeignKey(User.id, name='fk_iroko_news_user_id'))
 #     user = db.relationship(User, backref='iroko_news')
 
 #     title = db.Column(db.String, nullable=False, unique=True)

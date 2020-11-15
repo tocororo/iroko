@@ -16,8 +16,10 @@ from flask_breadcrumbs import Breadcrumbs
 from flask_menu import Menu
 
 from . import config
-from .views import blueprint, insufficient_permissions, internal_error, \
-    page_not_found, unauthorized
+from .views import (
+    blueprint, insufficient_permissions, internal_error,
+    page_not_found, unauthorized,
+)
 
 
 class InvenioTheme(object):
@@ -83,7 +85,7 @@ class InvenioTheme(object):
         # Sets RequireJS config and SASS binary as well if not already set.
         for k in dir(config):
             if k.startswith('THEME_') or k in [
-                    'REQUIREJS_CONFIG', 'SASS_BIN'] + _vars:
+                'REQUIREJS_CONFIG', 'SASS_BIN'] + _vars:
                 app.config.setdefault(k, getattr(config, k))
 
         # Set THEME_<name>_TEMPLATE from <name>_TEMPLATE variables if not

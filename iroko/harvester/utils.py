@@ -1,4 +1,3 @@
-
 import os
 import re
 from collections import defaultdict
@@ -20,7 +19,6 @@ XMLParser = etree.XMLParser(
 
 
 class xmlns():
-
     oai = 'http://www.openarchives.org/OAI/2.0/'
 
     oai_identifier = 'http://www.openarchives.org/OAI/2.0/oai-identifier'
@@ -35,12 +33,11 @@ class xmlns():
 
 
 def get_sigle_element(metadata, name, xmlns='dc', language=None):
-
     # # print('get_sigle_element: '+name)
     elements = metadata.findall('.//{' + xmlns + '}' + name)
     if len(elements) > 1:
         for e in elements:
-            lang='{' + nsmap['xml'] + '}lang'
+            lang = '{' + nsmap['xml'] + '}lang'
             if language and lang in e.attrib:
                 if e.attrib[lang] == language:
                     return e.text
@@ -55,16 +52,16 @@ def get_multiple_elements(metadata, name, xmlns='dc', itemname=None, language=No
     results = []
     elements = metadata.findall('.//{' + xmlns + '}' + name)
     for e in elements:
-        lang='{' + nsmap['xml'] + '}lang'
+        lang = '{' + nsmap['xml'] + '}lang'
         apend = None
         if language and lang in e.attrib:
-                if e.attrib[lang] == language:
-                    if(itemname == ''):
-                        apend = e.text
-                    else:
-                        apend = {itemname: e.text}
+            if e.attrib[lang] == language:
+                if (itemname == ''):
+                    apend = e.text
+                else:
+                    apend = {itemname: e.text}
         else:
-            if(itemname):
+            if (itemname):
                 apend = {itemname: e.text}
             else:
                 apend = e.text
@@ -144,7 +141,7 @@ class ZipHelper:
                 zipObj.write(item['src'], arcname=item['arcname'])
 
     @classmethod
-    def _get_zip_items(cls, result:list, src_path, item_path):
+    def _get_zip_items(cls, result: list, src_path, item_path):
         if os.path.isdir(src_path):
             for item in os.listdir(src_path):
                 cls._get_zip_items(

@@ -11,7 +11,7 @@
         "id": {
           "type": "keyword"
         },
-        "identifiers":{
+        "identifiers": {
           "type": "object",
           "properties": {
             "idtype": {
@@ -22,7 +22,7 @@
             }
           }
         },
-        "source":{
+        "source_repo": {
           "type": "object",
           "properties": {
             "uuid": {
@@ -81,16 +81,16 @@
         "publisher": {
           "type": "keyword"
         },
-        "sources":{
+        "sources": {
           "type": "keyword"
         },
-        "rights":{
+        "rights": {
           "type": "keyword"
         },
-        "types":{
+        "types": {
           "type": "keyword"
         },
-        "formats":{
+        "formats": {
           "type": "keyword"
         },
         "language": {

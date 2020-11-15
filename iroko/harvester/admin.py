@@ -40,7 +40,7 @@ class RepositoryModelView(ModelView):
 
     column_default_sort = ('status', True)
 
-    column_filters = ('harvest_type','status')
+    column_filters = ('harvest_type', 'status')
 
     form_columns = ('harvest_type', 'identifier', 'harvest_endpoint', 'last_harvest_run', 'status', 'error_log')
 
@@ -56,7 +56,7 @@ class HarvestedItemModelView(ModelView):
 
     column_filters = ('id', 'source_uuid', 'status')
 
-    form_columns = ('identifier', 'status','error_log')
+    form_columns = ('identifier', 'status', 'error_log')
 
 
 harvester_repositories_adminview = dict(
@@ -71,6 +71,5 @@ harvester_items_adminview = dict(
     name='Harvester-Items',
     category='Iroko'
 )
-
 
 __all__ = ('harvester_items_adminview')

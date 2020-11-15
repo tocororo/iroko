@@ -3,7 +3,7 @@ from invenio_access import action_factory, Permission
 from invenio_access.models import ActionUsers
 from invenio_access.utils import get_identity
 
-#creando action
+# creando action
 vocabularies_full_editor_actions = action_factory('vocabularies_full_editor_actions')
 ObjectVocabularyEditor = action_factory('vocabulary_editor_actions', parameter=True)
 vocabulary_editor_actions = ObjectVocabularyEditor(None)
@@ -24,7 +24,6 @@ taxonomy_full_editor_permission = Permission(vocabularies_full_editor_actions)
 
 
 def is_current_user_taxonomy_admin():
-
     its = False
     try:
         # print('user')

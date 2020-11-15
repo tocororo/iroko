@@ -24,15 +24,12 @@
 
 """Iroko Notification Admin models."""
 
-from datetime import datetime
-from invenio_accounts.models import User
-from sqlalchemy import and_, or_
-from sqlalchemy_utils.models import Timestamp
-from sqlalchemy_utils.types import UUIDType, JSONType
 from enum import Enum
-import uuid
 
+from invenio_accounts.models import User
 from invenio_db import db
+from sqlalchemy_utils.types import JSONType
+
 
 # TODO: add data field to Notification and Term
 
@@ -40,7 +37,6 @@ class NotificationType(Enum):
     INFO = "info"
     ERROR = "error"
     ALERT = "alert"
-
 
 
 class Notification(db.Model):
@@ -54,18 +50,16 @@ class Notification(db.Model):
     emiter = db.Column(db.String)
     viewed = db.Column(db.Boolean, default=False)
     receiver_id = db.Column(db.Integer,
-              db.ForeignKey(
-                User.id, name='fk_iroko_notifications_user_id'))
+                            db.ForeignKey(
+                                User.id, name='fk_iroko_notifications_user_id'))
 
     receiver = db.relationship(
         User, backref=db.backref(
             'notifications', cascade='all, delete-orphan')
     )
     # any data related to the notification
-    data = db.Column( JSONType )
-
+    data = db.Column(JSONType)
 
     # def __str__(self):
     #     """Representation."""
     #     return self.description
-

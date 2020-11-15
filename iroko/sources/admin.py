@@ -46,7 +46,6 @@ class SourcesModelView(ModelView):
 
 
 class SourcesVersionModelView(ModelView):
-
     list_all = ('id', 'user', 'source_uuid', 'comment', 'created_at', 'is_current')
 
     column_list = list_all
@@ -55,7 +54,7 @@ class SourcesVersionModelView(ModelView):
 
     column_filters = ('user', 'source_uuid', 'comment', 'created_at', 'is_current')
 
-    form_columns = ('user', 'source_uuid', 'comment', 'created_at', 'is_current' )
+    form_columns = ('user', 'source_uuid', 'comment', 'created_at', 'is_current')
 
 
 class TermSourcesModelView(ModelView):

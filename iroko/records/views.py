@@ -24,8 +24,8 @@ templates and static files located in the folders of the same names next to
 this file.
 """
 
-def iroko_record_view(pid, record, template=None):
 
+def iroko_record_view(pid, record, template=None):
     # source = SourceRecord.get_record(record['source']['uuid'])
     # terms = Terms.get_terms_by_uuid_list(record['terms'])
     return render_template(template, pid=pid, record=record)

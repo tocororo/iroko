@@ -1,7 +1,7 @@
-
-from marshmallow import Schema, fields
-from iroko.harvester.models import HarvestedItem, HarvestType
 from invenio_records_rest.schemas.fields import DateString
+from marshmallow import Schema, fields
+
+from iroko.harvester.models import HarvestType
 
 
 class RepositorySchema(Schema):
@@ -14,6 +14,7 @@ class RepositorySchema(Schema):
     status = fields.Str()
     error_log = fields.Str()
 
+
 class GenericRepositorySchema(RepositorySchema):
     formats = fields.Raw()
 
@@ -22,7 +23,8 @@ class OaiRepositoryFormat(Schema):
     setSpec = fields.Str()
     setName = fields.Str()
 
-class OaiRepositorySchema (RepositorySchema):
+
+class OaiRepositorySchema(RepositorySchema):
     formats = fields.Nested(OaiRepositoryFormat, many=True)
 
 
@@ -34,7 +36,9 @@ class HarvestedItemSchema(Schema):
     status = fields.Str()
     error_log = fields.Str()
 
+
 items_schema = HarvestedItemSchema(many=True)
+
 
 def get_repository_schema(type: HarvestType):
     if type == HarvestType.OAI:

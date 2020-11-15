@@ -1,4 +1,3 @@
-
 """Iroko sources api views."""
 
 from __future__ import absolute_import, print_function
@@ -71,8 +70,8 @@ def add_term():
 
         if new_term.vocabulary.name == 'data_bases' and form.group.data != 0:
             new_group = TermClasification()
-            new_group.term_base_id = new_term.id #id del termino que es base de datos
-            new_group.term_group_id = form.group.data # id del termino del combo que dice el grupo mes
+            new_group.term_base_id = new_term.id  # id del termino que es base de datos
+            new_group.term_group_id = form.group.data  # id del termino del combo que dice el grupo mes
             db.session.add(new_group)
 
         db.session.commit()
@@ -119,7 +118,7 @@ def add_source():
 @blueprint.route('/edit/vocabulary/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_vocabulary(id=None):
-    #security questiong here
+    # security questiong here
     # print(current_user.has_role('curator'))
 
     vocab = Vocabulary.query.get_or_404(id)
@@ -136,7 +135,7 @@ def edit_vocabulary(id=None):
         #     changes['name'] = form.name.data
         # if form.description.data and form.description.data != vocab.description:
         #     changes['description'] = form.description.data
-        #db.session.query(Vocabulary).filter(Vocabulary.id == id).update(changes)
+        # db.session.query(Vocabulary).filter(Vocabulary.id == id).update(changes)
 
         vocab.identifier = form.name.data
         vocab.description = form.description.data
@@ -152,7 +151,7 @@ def edit_vocabulary(id=None):
 @blueprint.route('/edit/term/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_term(id=None):
-    #security quiestiong here
+    # security quiestiong here
 
     aux_term = Term.query.get_or_404(id)
     form = TermForm()
@@ -177,11 +176,11 @@ def edit_term(id=None):
             group = TermClasification.query.filter_by(term_base_id=aux_term.id).first()
             if group:
                 if form.vocabulary.data != data_base_vocab.id:
-                    #delete the Mes group previously associated
+                    # delete the Mes group previously associated
                     db.session.delete(group)
                     db.session.commit()
                 else:
-                    #cahnge if needed the MES group
+                    # cahnge if needed the MES group
                     if group.term_group_id != form.group.data:
                         group.term_group_id = form.group.data
                         db.session.commit()
@@ -203,7 +202,7 @@ def edit_term(id=None):
 @blueprint.route('/edit/source/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_source(id=None):
-    #security quiestiong here
+    # security quiestiong here
 
     aux_source = Source.query.get_or_404(id)
     form = SourceForm()
@@ -214,7 +213,7 @@ def edit_source(id=None):
         form.source_type.data = aux_source.source_type
         form.repo_harvest_type.data = aux_source.repo_harvest_type
         form.repo_harvest_endpoint.data = aux_source.repo_harvest_endpoint
-        #form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
+        # form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
         # print(aux_source.source_type)
 
     if form.validate_on_submit():
@@ -230,6 +229,3 @@ def edit_source(id=None):
         return redirect(url_for('iroko_curator.add_source'))
 
     return render_template('edit_source.html', id=id, form=form)
-
-
-

@@ -1,4 +1,3 @@
-
 from marshmallow import Schema, fields, post_dump, INCLUDE
 from marshmallow_enum import EnumField
 from sqlalchemy import desc
@@ -27,7 +26,7 @@ class SourceVersionSchema(Schema):
     userprofile = fields.Nested(UserProfilesSchema)
 
     @post_dump(pass_original=True)
-    def fix_data_field(self, result, version:SourceVersion, **kwargs):
+    def fix_data_field(self, result, version: SourceVersion, **kwargs):
 
         source = SourceRecord.get_record(version.source_uuid)
         # print('************* POST DUMP ***************')
@@ -35,7 +34,7 @@ class SourceVersionSchema(Schema):
         if source.model.json['source_type'] == SourceType.JOURNAL.value:
             data = journal_data_schema.dump(version.data)
         else:
-            data =source_base_data_schema.dump(version.data)
+            data = source_base_data_schema.dump(version.data)
         result['data'] = data
         # print('************* POST DUMP ***************')
         return result
@@ -62,7 +61,7 @@ class SourceSchema(Schema):
     data = fields.Nested(SourceDataSchema, many=False, unknown=INCLUDE)
 
     @post_dump(pass_original=True)
-    def fix_data_field(self, result, source:Source, **kwargs):
+    def fix_data_field(self, result, source: Source, **kwargs):
         # este metodo hace lento el dump, solo es necesario cuando se requiere un source,
         # para una lista, es mejor no hacer el metodo, porque es muy lento.
         if not kwargs['many']:
@@ -70,14 +69,15 @@ class SourceSchema(Schema):
                 # print("is a journal !!!!! #######")
                 data = journal_data_schema.dump(source.data)
             else:
-                data =source_base_data_schema.dump(source.data)
+                data = source_base_data_schema.dump(source.data)
             result['data'] = data
         return result
 
     @post_dump
     def dump_need_review_version(self, source, **kwargs):
         # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current.
-        versions = SourceVersion.query.filter_by(source_id=source['id']).order_by(desc(SourceVersion.created_at)).first()
+        versions = SourceVersion.query.filter_by(source_id=source['id']).order_by(
+            desc(SourceVersion.created_at)).first()
         if versions and not versions.is_current:
             source['version_to_review'] = True
         else:
@@ -100,4 +100,3 @@ source_schema_no_versions = SourceSchema(exclude=['versions'])
 source_version_schema = SourceVersionSchema()
 source_version_schema_many = SourceVersionSchema(many=True)
 issn_schema = IssnSchema()
-

@@ -25,20 +25,20 @@ theme = WebpackBundle(
     __name__,
     'assets',
     entry={
-        'iroko_base': './js/iroko_theme/base.js',
+        'iroko_base':        './js/iroko_theme/base.js',
         # requires jquery, moment, select2, bootstrap
-        'iroko_adminlte': './js/iroko_theme/admin.js',
+        'iroko_adminlte':    './js/iroko_theme/admin.js',
         'iroko_theme-admin': './scss/iroko_theme/admin.scss',
-        'iroko_theme': './scss/iroko_theme/theme.scss',
+        'iroko_theme':       './scss/iroko_theme/theme.scss',
     },
     dependencies={
-        'mdbootstrap': '~4.8.0',
+        'mdbootstrap':  '~4.8.0',
         'bootstrap':    '~4.3.1',
         'font-awesome': '~4.4.0',
-        'jquery': '~3.2.1',
-        'moment': '~2.23.0',
-        'select2': '~4.0.2',
-        'admin-lte': '~2.4.8',
-        'popper.js': '^1.14.7'
+        'jquery':       '~3.2.1',
+        'moment':       '~2.23.0',
+        'select2':      '~4.0.2',
+        'admin-lte':    '~2.4.8',
+        'popper.js':    '^1.14.7'
     }
 )

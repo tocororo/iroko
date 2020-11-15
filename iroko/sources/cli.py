@@ -1,5 +1,3 @@
-
-
 from __future__ import absolute_import, division, print_function
 
 import click
@@ -57,6 +55,7 @@ def miar_collect_db():
     """get all miar databases, save to file"""
     MiarHarvesterManager.collect_databases()
 
+
 @sources.command()
 @with_appcontext
 def miar_sync_db():
@@ -83,7 +82,3 @@ def miar_sync_journals():
 def miar_sync_records():
     """parse SourceRawData and sync to SourceRecords"""
     MiarHarvesterManager.sync_journals_records()
-
-
-
-

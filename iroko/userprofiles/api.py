@@ -57,7 +57,3 @@ current_userprofile = LocalProxy(lambda: _get_current_userprofile())
 """Proxy to the user profile of the currently logged in user."""
 
 current_userprofile_json_metadata = LocalProxy(lambda: _get_current_userprofile_json_metadata())
-
-
-
-

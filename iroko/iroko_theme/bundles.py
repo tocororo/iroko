@@ -22,7 +22,6 @@ from __future__ import absolute_import, print_function
 
 from flask import current_app
 from flask_assets import Bundle
-
 from invenio_assets import NpmBundle
 from speaklater import is_lazy_string, make_lazy_string
 
@@ -42,15 +41,15 @@ class LazyNpmBundle(NpmBundle):
 
 css = NpmBundle(
     'scss/iroko_theme/theme.scss',
-    depends=('scss/iroko_theme/*.scss', ),
+    depends=('scss/iroko_theme/*.scss',),
     filters='node-scss,cleancssurl',
     output='gen/styles.%(version)s.css',
     npm={
-        'almond': '~0.3.1',
-        'mdbootstrap': '~4.8.0',
+        'almond':       '~0.3.1',
+        'mdbootstrap':  '~4.8.0',
         'bootstrap':    '~4.3.1',
         'font-awesome': '~4.4.0',
-        'jquery': '~1.9.1',
+        'jquery':       '~1.9.1',
     }
 )
 """Default CSS bundle with Bootstrap and Font-Awesome."""
@@ -71,7 +70,7 @@ admin_lte_css = LazyNpmBundle(
     output='gen/styles.admin-lte.%(version)s.css',
     npm={
         'admin-lte': '~2.3.6',
-        'select2': '~4.0.2',
+        'select2':   '~4.0.2',
     }
 )
 """Admin LTE CSS."""
@@ -89,9 +88,9 @@ js = Bundle(
         'js/settings.js',
         filters='uglifyjs',
         npm={
-            'almond': '~0.3.1',
+            'almond':  '~0.3.1',
             'angular': '~1.4.9',
-            'jquery': '~1.9.1',
+            'jquery':  '~1.9.1',
         }
     ),
     Bundle(
@@ -112,10 +111,9 @@ admin_js = NpmBundle(
     output='gen/admin.%(version)s.js',
     filters='jsmin',
     npm={
-        'jquery': '~1.9.1',
-        'moment': '~2.9.0',
+        'jquery':  '~1.9.1',
+        'moment':  '~2.9.0',
         'select2': '~4.0.2',
     }
 )
 """AdminJS contains JQuery, Moment, Select2, Bootstrap, and Admin-LTE."""
-

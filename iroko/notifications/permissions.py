@@ -2,11 +2,12 @@ from flask_login import current_user
 from invenio_access import action_factory, Permission
 from invenio_access.utils import get_identity
 
-#creando action
+# creando action
 notification_admin_actions = action_factory('notification_admin_actions')
 
 ObjectNotificationViewed = action_factory('notification_viewed_actions', parameter=True)
 notification_viewed_actions = ObjectNotificationViewed(None)
+
 
 def notification_viewed_permission_factory(obj):
     try:
@@ -19,6 +20,3 @@ def notification_viewed_permission_factory(obj):
         pass
 
     return Permission(ObjectNotificationViewed(obj['id']))
-
-
-

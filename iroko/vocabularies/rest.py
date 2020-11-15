@@ -28,6 +28,7 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, request
 from flask_principal import PermissionDenied
+from invenio_cache import cached_unless_authenticated
 from invenio_oauth2server import require_api_auth
 
 from iroko.decorators import taxonomy_admin_required
@@ -46,6 +47,9 @@ api_blueprint = Blueprint(
     url_prefix='/vocabularies'
 )
 
+
+# TODO: Cambiar todos los POST de editar para PUT
+
 @api_blueprint.route('/vocabulary/list')
 def get_vocabularies():
     """
@@ -56,7 +60,8 @@ def get_vocabularies():
         if not result:
             raise Exception('Vocabularies not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','vocabularies', vocabulary_schema_many.dump(result))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'vocabularies',
+                                   vocabulary_schema_many.dump(result))
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -71,14 +76,13 @@ def vocabulary_get(id):
             raise Exception('Not vocabulary found')
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            msg,'vocabulary', \
-                            vocabulary_schema.dump(vocab))
+                                   msg, 'vocabulary', \
+                                   vocabulary_schema.dump(vocab))
 
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-# TODO: Cambiar todos los POST de editar para PUT
 
 @api_blueprint.route('/vocabulary/edit/<int:id>', methods=['POST'])
 @require_api_auth()
@@ -98,8 +102,8 @@ def vocabulary_edit(id):
             raise Exception(msg)
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            msg,'vocabulary', \
-                            vocabulary_schema.dump(vocab))
+                                   msg, 'vocabulary', \
+                                   vocabulary_schema.dump(vocab))
 
     except Exception as e:
         msg = str(e)
@@ -122,8 +126,8 @@ def vocabulary_new():
             raise Exception(msg)
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                        msg,'vocabulary', \
-                        vocabulary_schema.dump(vocab))
+                                   msg, 'vocabulary', \
+                                   vocabulary_schema.dump(vocab))
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -133,31 +137,33 @@ def vocabulary_new():
 def get_terms_list():
     """List all terms """
     try:
-        result =  Terms.get_terms()
+        result = Terms.get_terms()
 
         if not result:
             raise Exception('No terms found')
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                'ok','terms', \
-                                term_schema_many.dump(result))
+                                   'ok', 'terms', \
+                                   term_schema_many.dump(result))
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/list/<vocabulary_id>')
+@cached_unless_authenticated(timeout=5000)
 def get_terms(vocabulary_id):
     """Get all terms of a vocabulary in a list """
     try:
         msg, terms = Terms.get_terms_by_vocab(vocabulary_id)
-        return iroko_json_response(IrokoResponseStatus.SUCCESS,'ok','terms',term_schema_many.dump(terms))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'terms', term_schema_many.dump(terms))
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/tree/<vocabulary_id>')
+@cached_unless_authenticated(timeout=5000)
 def get_terms_tree(vocabulary_id):
     """List all the terms in a vocabulary, in a tree
     Receive <level> as an argument, defining the level of the tree you want.
@@ -166,7 +172,8 @@ def get_terms_tree(vocabulary_id):
     """
 
     try:
-        level = int(request.args.get('level')) if request.args.get('level') and int(request.args.get('level')) >=0 else 0
+        level = int(request.args.get('level')) if request.args.get('level') and int(
+            request.args.get('level')) >= 0 else 0
 
         vocab = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
         if not vocab:
@@ -174,9 +181,11 @@ def get_terms_tree(vocabulary_id):
         terms = vocab.terms.filter_by(parent_id=None).all()
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            'ok','tree', \
-                            {'vocab': vocabulary_schema.dump(vocab),\
-                            'term_node': term_node_schema.dump_term_node_list(terms, level, 0)})
+                                   'ok', 'tree', \
+                                   {
+                                       'vocab':     vocabulary_schema.dump(vocab), \
+                                       'term_node': term_node_schema.dump_term_node_list(terms, level, 0)
+                                   })
     except Exception as e:
         # print(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -193,7 +202,8 @@ def term_get_tree_by_id(id):
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term_node', term_node_schema.dump_term_node(term, level, 0))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg, 'term_node',
+                                   term_node_schema.dump_term_node(term, level, 0))
 
     except Exception as e:
         msg = str(e)
@@ -201,6 +211,7 @@ def term_get_tree_by_id(id):
 
 
 @api_blueprint.route('/term/<uuid>')
+@cached_unless_authenticated(timeout=5000)
 def term_get_tree(uuid):
     """Get a term given the uuid, in deep, meaning the children
     Receive <level> as an argument, defining the level of the tree considering the children as level=1 and parent as level=-1
@@ -219,12 +230,15 @@ def term_get_tree(uuid):
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term_node', term_node_schema.dump_term_node(term, level, 0))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg, 'term_node',
+                                   term_node_schema.dump_term_node(term, level, 0))
 
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
+
+@cached_unless_authenticated(timeout=5000)
 @api_blueprint.route('/term/inlist', methods=['GET'])
 def get_term_in_list():
     try:
@@ -240,7 +254,7 @@ def get_term_in_list():
         terms = Terms.get_terms_by_id_list(idlist)
         if not terms:
             raise Exception('no terms in list')
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok','term', term_schema_many.dump(terms))
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'term', term_schema_many.dump(terms))
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -249,7 +263,6 @@ def get_term_in_list():
 @api_blueprint.route('/term/edit/<uuid>', methods=['POST'])
 @require_api_auth()
 def term_edit(uuid):
-
     msg = ''
     try:
         msg, term = Terms.get_term(uuid)
@@ -270,8 +283,8 @@ def term_edit(uuid):
                 raise Exception(msg)
 
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                msg,'term', \
-                                term_schema.dump(term))
+                                       msg, 'term', \
+                                       term_schema.dump(term))
     except PermissionDenied as err:
         msg = 'Permission denied for editing term'
     except Exception as e:
@@ -280,7 +293,6 @@ def term_edit(uuid):
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-#TODO: Need authentication
 @api_blueprint.route('/term/delete/<uuid>', methods=['DELETE'])
 @require_api_auth()
 def term_delete(uuid):
@@ -289,22 +301,20 @@ def term_delete(uuid):
         with vocabulary_editor_permission_factory({'name': term.vocabulary_id}).require():
             msg, deleted = Terms.delete_term(uuid)
             if deleted:
-                return iroko_json_response(IrokoResponseStatus.SUCCESS, msg,'term', {})
+                return iroko_json_response(IrokoResponseStatus.SUCCESS, msg, 'term', {})
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-#TODO: Need authentication
 @api_blueprint.route('/term/new', methods=['POST'])
 @require_api_auth()
 def term_new():
-
     msg = ''
     try:
         # print(request)
         if not request.is_json:
-                raise Exception("No JSON data provided")
+            raise Exception("No JSON data provided")
 
         input_data = request.json
 
@@ -313,8 +323,8 @@ def term_new():
             if not term:
                 raise Exception(msg)
             return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                            msg,'term', \
-                            term_schema.dump(term))
+                                       msg, 'term', \
+                                       term_schema.dump(term))
 
     except PermissionDenied as err:
         msg = 'Permission denied for adding term'
@@ -323,23 +333,20 @@ def term_new():
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-
 @api_blueprint.route('/user/permissions')
 @require_api_auth()
 def taxonomy_current_user_permissions():
     msg = ''
     try:
-        actions, vocabs  = get_current_user_permissions()
+        actions, vocabs = get_current_user_permissions()
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS,
             msg,
             'permissions',
-            {actions:vocabs}
-            )
+            {actions: vocabs}
+        )
 
     except Exception as e:
         msg = str(e)
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-

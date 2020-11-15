@@ -1,4 +1,3 @@
-
 from marshmallow import Schema, fields, post_load
 
 from iroko.vocabularies.models import Term
@@ -45,7 +44,6 @@ class TermSchema(Schema):
     # def __init__(self, *args, **kwargs):
     #     self.level_to_reach = kwargs.pop('level_to_reach') if 'level_to_reach' in kwargs else 0
     #     super(Schema, self).__init__(*args, **kwargs)
-
 
     # @pre_load
     # def load_clasification(self, item, **kwargs):
@@ -98,6 +96,7 @@ class TermSchema(Schema):
     #         if self.level_to_reach < current_level:
     #             return TermSchema(self)
 
+
 class TermNodeSchema(Schema):
     """I'm not sure that this is the way marshmallow should be used, but this is a better place to put the tree recursive function dump_term.
     At the end, this is an special dump, probably the way to go is redefining somehow the dump function of marshmallow, but y think this is not pre_dump or post_dump problem.
@@ -109,39 +108,37 @@ class TermNodeSchema(Schema):
 
      """
 
-
-
     term = fields.Nested(TermSchema, many=False)
     parent = fields.Nested(TermSchema, many=False)
     children = fields.Nested(TermSchema, many=True)
 
-    def dump_term_node(self, term:Term, level_to_reach: int, current_level: int):
-        if level_to_reach < 0 :
+    def dump_term_node(self, term: Term, level_to_reach: int, current_level: int):
+        if level_to_reach < 0:
             if term.parent_id is None or level_to_reach == current_level:
                 return {
-                    'term': term_schema.dump(term),
+                    'term':   term_schema.dump(term),
                     'parent': None
                 }
             if level_to_reach < current_level:
                 parent = Term.query.filter_by(id=term.parent_id).first()
                 return {
-                    'term': term_schema.dump(term),
+                    'term':   term_schema.dump(term),
                     'parent': self.dump_term_node(parent, level_to_reach, current_level - 1)
                 }
-        elif level_to_reach > 0 :
+        elif level_to_reach > 0:
             if current_level < level_to_reach:
                 children = []
                 for child in term.children:
                     children.append(self.dump_term_node(child, level_to_reach, current_level + 1))
                 return {
-                    'term': term_schema.dump(term),
-                    'children':children
-                    }
+                    'term':     term_schema.dump(term),
+                    'children': children
+                }
             else:
                 return {
-                    'term': term_schema.dump(term),
+                    'term':     term_schema.dump(term),
                     'children': None
-                    }
+                }
         else:
             return {'term': term_schema.dump(term)}
 
@@ -150,7 +147,6 @@ class TermNodeSchema(Schema):
         for term in terms:
             result.append(self.dump_term_node(term, level_to_reach, current_level))
         return result
-
 
 
 # unknown='EXCLUDE', esto se pone para que el load excluya los campos que no se conoce,
@@ -167,6 +163,6 @@ term_node_schema = TermNodeSchema(many=False)
 
 term_schema_many = TermSchema(many=True)
 term_schema = TermSchema(many=False)
-term_schema_no_clases = TermSchema(many=False, exclude=('class_ids','clasified_ids'))
+term_schema_no_clases = TermSchema(many=False, exclude=('class_ids', 'clasified_ids'))
 vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'identifier', 'name', 'human_name', 'description'))
 vocabulary_schema = VocabularySchema(many=False)

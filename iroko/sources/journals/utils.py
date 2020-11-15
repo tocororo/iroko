@@ -9,15 +9,15 @@ from iroko.sources.models import Source
 def _no_params(param_data):
     """aux func"""
     return param_data['title'] == 'None' and \
-        param_data['description'] == 'None' and \
-        param_data['url'] == 'None' and \
-        param_data['issn'] == 'None' and \
-        param_data['rnps'] == 'None' and \
-        param_data['year_start'] == 'None' and \
-        param_data['year_end'] == 'None'
+           param_data['description'] == 'None' and \
+           param_data['url'] == 'None' and \
+           param_data['issn'] == 'None' and \
+           param_data['rnps'] == 'None' and \
+           param_data['year_start'] == 'None' and \
+           param_data['year_end'] == 'None'
 
 
-def _filter_data_args(source:Source, data_args, and_op):
+def _filter_data_args(source: Source, data_args, and_op):
     """ aux func."""
 
     # esto es ineficiente... pero es lo que hay.. por el momento..
@@ -39,8 +39,8 @@ def _filter_data_args(source:Source, data_args, and_op):
     issn = False
     if 'issn' in source.data:
         issn_p = data_args['issn'].lower() in source.data['issn']['p'].lower() if 'p' in source.data['issn'] else False
-        issn_e = data_args['issn'].lower() in source.data['issn']['e'].lower() if 'e' in source.data['issn']else False
-        issn_l = data_args['issn'].lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn']else False
+        issn_e = data_args['issn'].lower() in source.data['issn']['e'].lower() if 'e' in source.data['issn'] else False
+        issn_l = data_args['issn'].lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn'] else False
         issn = issn_p or issn_e or issn_l
 
     rnps = False
@@ -49,7 +49,8 @@ def _filter_data_args(source:Source, data_args, and_op):
         rnps_e = data_args['rnps'].lower() in source.data['rnps']['e'].lower() if 'e' in source.data['rnps'] else False
         rnps = rnps_p or rnps_e
 
-    year_start = data_args['year_start'].lower() in source.data['year_start'].lower() if 'year_start' in source.data else False
+    year_start = data_args['year_start'].lower() in source.data[
+        'year_start'].lower() if 'year_start' in source.data else False
     year_end = data_args['year_end'].lower() in source.data['year_end'].lower() if 'year_end' in source.data else False
 
     if and_op:
@@ -58,7 +59,7 @@ def _filter_data_args(source:Source, data_args, and_op):
         return title or description or url or issn or rnps or year_start or year_end
 
 
-def _filter_extra_args(source:Source, extra_args, and_op):
+def _filter_extra_args(source: Source, extra_args, and_op):
     """ aux func.
     esto es ineficiente...lo mismo que _filter_data_args"""
 
@@ -74,7 +75,7 @@ def _filter_extra_args(source:Source, extra_args, and_op):
         return source_type or source_status
 
 
-def issn_is_in_data(data, issn:str, equal: bool):
+def issn_is_in_data(data, issn: str, equal: bool):
     """Check if issn param is in any of the regular data ISSNs (print, electronic, link)
     if equal is True check exactly the value of issn param
     normally data have this structure
@@ -107,7 +108,7 @@ def issn_is_in_data(data, issn:str, equal: bool):
     return False
 
 
-def field_is_in_data(data, field_name:str, field_value:str, equal:bool):
+def field_is_in_data(data, field_name: str, field_value: str, equal: bool):
     """Check if field_value is in data[field_name]
     if equal is True,field_value == data[field_name]
 
@@ -121,4 +122,3 @@ def field_is_in_data(data, field_name:str, field_value:str, equal:bool):
         else:
             result = field_value.lower() in data[field_name].lower() if field_name in data else False
     return result
-

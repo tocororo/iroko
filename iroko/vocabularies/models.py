@@ -1,5 +1,3 @@
-
-
 """Iroko Taxonomy Admin models."""
 
 import uuid
@@ -19,8 +17,7 @@ class Vocabulary(db.Model):
     description = db.Column(db.String)
 
     # any data related to the vocabulary
-    data = db.Column( JSONType )
-
+    data = db.Column(JSONType)
 
     def __str__(self):
         """Representation."""
@@ -37,16 +34,16 @@ class Term(db.Model):
     description = db.Column(db.String)
 
     vocabulary_id = db.Column(db.String(),
-                        db.ForeignKey('iroko_vocab.identifier', ondelete='CASCADE'),
-                        nullable=False, index=True)
+                              db.ForeignKey('iroko_vocab.identifier', ondelete='CASCADE'),
+                              nullable=False, index=True)
     vocabulary = db.relationship("Vocabulary",
-                            backref=db.backref("terms",cascade="all, delete-orphan", lazy='dynamic'))
+                                 backref=db.backref("terms", cascade="all, delete-orphan", lazy='dynamic'))
 
     parent_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'))
-    children = db.relationship("Term", lazy="joined",join_depth=2)
+    children = db.relationship("Term", lazy="joined", join_depth=2)
 
     # any data related to the term
-    data = db.Column( JSONType )
+    data = db.Column(JSONType)
 
     def __str__(self):
         """Representation."""
@@ -64,9 +61,8 @@ class TermClasification(db.Model):
     # term_object es como el termino <Web of Science>
     term_clasified_id = db.Column(db.Integer(), db.ForeignKey('iroko_terms.id'))
 
-    data = db.Column( JSONType )
+    data = db.Column(JSONType)
 
     def __str__(self):
         """Representation."""
-        return self.data_base.name + ' de '+ self.group.name
-
+        return self.data_base.name + ' de ' + self.group.name

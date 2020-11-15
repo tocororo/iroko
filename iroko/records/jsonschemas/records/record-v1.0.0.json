@@ -9,7 +9,7 @@
       "description": "Iroko UUID, pid_type = irouid",
       "type": "string"
     },
-    "identifiers":{
+    "identifiers": {
       "description": "identificadores del record",
       "items": {
         "additionalProperties": false,
@@ -51,32 +51,32 @@
       },
       "type": "array"
     },
-    "source":{
+    "source_repo": {
       "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "uuid":{
-            "description": "Source UUID from which the document was harvest",
-            "type": "string"
-          },
-          "name":{
-            "description": "Source Name from which the document was harvest",
-            "type": "string"
-          }
+      "additionalProperties": false,
+      "properties": {
+        "uuid": {
+          "description": "Source UUID from which the document was harvest",
+          "type": "string"
+        },
+        "name": {
+          "description": "Source Name from which the document was harvest",
+          "type": "string"
+        }
       }
     },
     "spec": {
       "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "code":{
-            "description": "setSpec element from Dublin Core, the code",
-            "type": "string"
-          },
-          "name":{
-            "description": "setSpec Name from Dublin Core, the full name",
-            "type": "string"
-          }
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "setSpec element from Dublin Core, the code",
+          "type": "string"
+        },
+        "name": {
+          "description": "setSpec Name from Dublin Core, the full name",
+          "type": "string"
+        }
       }
     },
     "title": {
@@ -128,9 +128,9 @@
           "roles": {
             "description": "",
             "uniqueItems": true,
-            "type":"array",
+            "type": "array",
             "items": {
-              "type":"string",
+              "type": "string",
               "enum": [
                 "Author",
                 "ContactPerson",
@@ -163,7 +163,6 @@
         "required": [
           "name"
         ]
-
       }
     },
     "keywords": {
@@ -181,28 +180,28 @@
       "description": "Publisher name",
       "type": "string"
     },
-    "sources":{
+    "sources": {
       "description": "Free text keywords.",
       "items": {
         "type": "string"
       },
       "type": "array"
     },
-    "rights":{
+    "rights": {
       "description": "Rights.",
       "items": {
         "type": "string"
       },
       "type": "array"
     },
-    "types":{
+    "types": {
       "description": "Types. Eg: info:eu-repo/semantics/article, or Artículo revisado por pares",
       "items": {
         "type": "string"
       },
       "type": "array"
     },
-    "formats":{
+    "formats": {
       "description": "formats. Eg: application/pdf",
       "items": {
         "type": "string"
@@ -263,9 +262,9 @@
           "roles": {
             "description": "",
             "uniqueItems": true,
-            "type":"array",
+            "type": "array",
             "items": {
-              "type":"string",
+              "type": "string",
               "enum": [
                 "Author",
                 "ContactPerson",
@@ -298,7 +297,6 @@
         "required": [
           "name"
         ]
-
       }
     },
     "references": {

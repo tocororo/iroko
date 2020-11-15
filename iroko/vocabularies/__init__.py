@@ -24,6 +24,4 @@
 
 """Iroko vocabularies."""
 
-
 # TODO: the hole module should be renamed to vocabularies, and should support skos....
-

@@ -478,7 +478,6 @@ class IssnHarvesterManager:
         db.session.commit()
         print('DB COMMIT')
 
-
     @classmethod
     def sync_records(cls):
 

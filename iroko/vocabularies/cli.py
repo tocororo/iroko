@@ -1,4 +1,3 @@
-
 """Manage fixtures for INSPIRE site."""
 
 from __future__ import absolute_import, division, print_function
@@ -19,7 +18,3 @@ def vocabularies():
 def init_vocabs():
     """Init vocabularies."""
     init_taxonomy()
-
-
-
-

@@ -16,7 +16,7 @@ from iroko.vocabularies.models import Vocabulary, Term, TermClasification
 from iroko.vocabularies.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
 
 
-#TODO: Revisar lanzamientos de excepciones
+# TODO: Revisar lanzamientos de excepciones
 
 class Vocabularies:
     '''Manage vocabularies'''
@@ -38,9 +38,8 @@ class Vocabularies:
             msg = 'Vocabulary not exist id={0}'.format(id)
             return msg, None
 
-
     @classmethod
-    def edit_vocabulary(cls, name ,data) -> Dict[str, Vocabulary]:
+    def edit_vocabulary(cls, name, data) -> Dict[str, Vocabulary]:
 
         msg, vocab = cls.get_vocabulary(name)
         if vocab:
@@ -82,7 +81,6 @@ class Vocabularies:
             vocab = None
         finally:
             return msg, vocab
-
 
     @classmethod
     def grant_vocabulary_editor_permission(cls, user_id, vocabulary_id) -> Dict[str, bool]:
@@ -131,12 +129,12 @@ class Vocabularies:
         return msg, done
 
     @classmethod
-    def check_user_vocabulary_editor_permission(user_id, vocabulary_id)-> Dict[str, bool]:
+    def check_user_vocabulary_editor_permission(user_id, vocabulary_id) -> Dict[str, bool]:
         done = False
         msg = ''
         try:
             if is_current_user_taxonomy_admin():
-                done= True
+                done = True
             else:
                 vocabulary = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
                 user = User.query.filter_by(id=user_id)
@@ -148,7 +146,6 @@ class Vocabularies:
             # print(str(e))
 
         return msg, done
-
 
 
 class Terms:
@@ -168,7 +165,7 @@ class Terms:
         return 'ok', terms
 
     @classmethod
-    def get_first_level_terms_by_vocabulary(cls, vocabulary_id)-> Dict[str, Term]:
+    def get_first_level_terms_by_vocabulary(cls, vocabulary_id) -> Dict[str, Term]:
 
         msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
         if not vocab:
@@ -177,9 +174,8 @@ class Terms:
 
         return 'ok', vocab, terms
 
-
     @classmethod
-    def get_terms_tree_by_vocabulary(cls, vocabulary_id, level: int)-> [str, Vocabulary, list]:
+    def get_terms_tree_by_vocabulary(cls, vocabulary_id, level: int) -> [str, Vocabulary, list]:
         """If level < 0, means all the levels of the tree"""
         msg, vocab = Vocabularies.get_vocabulary(vocabulary_id)
         if not vocab:
@@ -203,15 +199,14 @@ class Terms:
             return msg, None
 
     @classmethod
-    def get_terms_by_uuid_list(cls, uuid_list) :
+    def get_terms_by_uuid_list(cls, uuid_list):
         terms = Term.query.filter(Term.uuid.in_(uuid_list)).all()
         return terms
 
     @classmethod
-    def get_terms_by_id_list(cls, id_list) :
+    def get_terms_by_id_list(cls, id_list):
         terms = Term.query.filter(Term.id.in_(id_list)).all()
         return terms
-
 
     @classmethod
     def get_term_by_id(cls, id) -> Dict[str, Term]:
@@ -249,7 +244,6 @@ class Terms:
 
     #     return "error", None
 
-
     @classmethod
     def edit_term(cls, uuid, input_data) -> Dict[str, Term]:
         msg = ''
@@ -276,7 +270,6 @@ class Terms:
         except Exception as e:
             msg = 'ERROR {0} - {1}'.format(e, input_data)
             return msg, None
-
 
     @classmethod
     def new_term(cls, data) -> Dict[str, Term]:
@@ -312,7 +305,6 @@ class Terms:
         #     msg = 'ERROR {0} - {1}'.format(e, data)
         #     return msg, None
 
-
     # @classmethod
     # def _get_term_data(cls, term: Term, data):
     #     ''''''
@@ -336,7 +328,6 @@ class Terms:
     #     term.data = data['data']
     #     # print(data)
 
-
     @classmethod
     def _update_term_data(cls, term: Term, data):
         ''''''
@@ -359,7 +350,6 @@ class Terms:
         # print(data)
         term.data = data['data']
         # print(data)
-
 
     @classmethod
     def _update_term_clasification(cls, term: Term, data):
@@ -398,7 +388,6 @@ class Terms:
         db.session.commit()
         # print('_update_term_clasification', data)
 
-
     @classmethod
     def delete_term(cls, uuid) -> Dict[str, bool]:
         try:
@@ -426,12 +415,12 @@ class Terms:
     @classmethod
     def get_terms_by_vocabulary_name(cls, vocabulary_name):
         try:
-            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(Term.identifier)
+            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(
+                Term.identifier)
             # print(lista[0].id)
             return lista
         except Exception as error:
             return []
-
 
     @classmethod
     def get_term_tree_list(cls, term, result):
@@ -440,7 +429,6 @@ class Terms:
         result.append(term.id)
         for child in term.children:
             cls.get_term_tree_list(child, result)
-
 
     @classmethod
     def get_term_tree_list_by_level(cls, term, result, start_level=0, level=0):
@@ -451,12 +439,11 @@ class Terms:
         new_start = 0
         if start_level == 0:
             result.append(term.id)
-        if start_level > 0 :
+        if start_level > 0:
             new_start = start_level - 1
         if level > 0:
             for child in term.children:
-                cls.get_term_tree_list_by_level(child, result, new_start, level-1)
-
+                cls.get_term_tree_list_by_level(child, result, new_start, level - 1)
 
     # @classmethod
     # def dump_term(cls, term:Term, level_to_reach: int, current_level: int):
@@ -468,7 +455,6 @@ class Terms:
     #         return {'term': term_schema.dump(term), 'children':children}
     #     else:
     #         return term_schema.dump(term)
-
 
 
 def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
@@ -518,5 +504,3 @@ def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
             vocabularies_ids.append(action.argument)
 
     return 'actions', {'vocabulary_editor_actions': vocabularies_ids}
-
-

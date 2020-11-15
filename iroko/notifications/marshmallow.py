@@ -1,6 +1,4 @@
-                                                                                                                                        
-from marshmallow import Schema, fields, ValidationError, pre_load, pre_dump, post_load, post_dump
-from iroko.notifications.models import Notification
+from marshmallow import Schema, fields, post_load
 
 
 class NotificationSchema(Schema):
@@ -10,7 +8,7 @@ class NotificationSchema(Schema):
     receiver_id = fields.Int(required=True)
     emiter = fields.Str(required=True)
     viewed = fields.Bool(required=False)
-    
+
     # in case to put anything in the future
     data = fields.Raw(allow_none=True)
 
@@ -25,5 +23,6 @@ class NotificationSchema(Schema):
         return item
 
 
-notification_schema_many = NotificationSchema(many=True, only=('id', 'classification', 'description', 'receiver_id', 'emiter', 'viewed'))
+notification_schema_many = NotificationSchema(many=True, only=(
+'id', 'classification', 'description', 'receiver_id', 'emiter', 'viewed'))
 notification_schema = NotificationSchema(many=False)

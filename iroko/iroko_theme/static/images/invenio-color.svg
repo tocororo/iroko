@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 13.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 14948)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="383.771px" height="96.156px" viewBox="0 0 383.771 96.156" enable-background="new 0 0 383.771 96.156"
-	 xml:space="preserve">
+<svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="383.771px" height="96.156px" viewBox="0 0 383.771 96.156" enable-background="new 0 0 383.771 96.156"
+     xml:space="preserve">
 <pattern  x="-106.26" y="469.198" width="69" height="69" patternUnits="userSpaceOnUse" id="Unnamed_Pattern" viewBox="2.125 -70.896 69 69" overflow="visible">
 	<g>
 		<polygon fill="none" points="71.125,-1.896 2.125,-1.896 2.125,-70.896 71.125,-70.896 		"/>
@@ -956,12 +956,12 @@
 	</g>
 </g>
 <polygon fill="#015F89" points="86.21,8.433 101.318,8.433 113.62,36.814 125.814,8.325 140.814,8.325 113.512,72.427 "/>
-<polygon fill="#8B9092" points="203.65,72.318 218.848,72.318 218.848,43.075 254.537,74.124 254.537,7.961 239.34,7.961 
+<polygon fill="#8B9092" points="203.65,72.318 218.848,72.318 218.848,43.075 254.537,74.124 254.537,7.961 239.34,7.961
 	239.34,36.974 203.65,8.076 "/>
-<polygon fill="#43A1D4" points="27.65,72.484 42.848,72.484 42.848,43.241 78.537,74.29 78.537,8.127 63.34,8.127 63.34,37.14 
+<polygon fill="#43A1D4" points="27.65,72.484 42.848,72.484 42.848,43.241 78.537,74.29 78.537,8.127 63.34,8.127 63.34,37.14
 	27.65,8.242 "/>
 <rect x="268" y="7.05" fill="#8B9092" width="14.049" height="64.243"/>
-<polygon fill="#015F89" points="149.193,7.974 149.193,72.079 193.649,72.079 193.649,59.346 166.976,59.346 166.976,45.624 
+<polygon fill="#015F89" points="149.193,7.974 149.193,72.079 193.649,72.079 193.649,59.346 166.976,59.346 166.976,45.624
 	191.783,45.624 191.783,32.672 166.976,32.672 166.976,20.927 192.991,20.927 192.991,7.974 "/>
 <g>
 	<path fill="#8B9092" d="M375.104,38.079c0.174,18.184-8.123,32.126-11.51,37.52c8.183-5.347,19.898-19.36,19.674-37.661

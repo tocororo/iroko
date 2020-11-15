@@ -1,5 +1,3 @@
-
-
 from invenio_records_rest.schemas import StrictKeysMixin
 from invenio_records_rest.schemas.fields import DateString, SanitizedUnicode, PersistentIdentifier
 from marshmallow import Schema, fields, post_dump, INCLUDE
@@ -43,7 +41,6 @@ class ClasificationDataSchema(Schema):
     description = fields.Str()
     vocabulary = fields.Str()
     data = fields.Raw(many=False)
-
 
 
 class RelationSchemaV1(Schema):
@@ -103,9 +100,6 @@ class IrokoUserSchema(Schema):
         profile = UserProfile.get_or_create_by_userid(user['id'])
         user['profile'] = userprofile_schema.dump(profile)
         return user
-
-
-
 
 
 source_base_data_schema = SourceDataSchema(many=False, unknown=INCLUDE)

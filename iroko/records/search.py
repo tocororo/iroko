@@ -1,8 +1,6 @@
-
 """Source search APIs."""
 
 from invenio_search import RecordsSearch
-
 
 
 class IrokoRecordSearch(RecordsSearch):

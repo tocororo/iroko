@@ -1,7 +1,5 @@
 import jsonresolver
 
-
-
 from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 
@@ -16,5 +14,3 @@ def source_resolver(pid):
 
     del record['$schema']
     return record
-
-

@@ -1,4 +1,3 @@
-
 """Iroko Taxonomy Admin models."""
 
 import enum
@@ -13,6 +12,7 @@ class SourceInstitutionRole(enum.Enum):
     MAIN = "MAIN"
     COLABORATOR = "COLABORATOR"
 
+
 class SourcePersonRol(enum.Enum):
     ADMINISTRATOR = "ADMINISTRATOR"
     JOURNALMANAGER = "JOURNALMANAGER"
@@ -22,7 +22,7 @@ class SourcePersonRol(enum.Enum):
     REVIEWER = "REVIEWER"
     COPYEDITOR = "COPYEDITOR"
     LAYOUTEDITOR = "LAYOUTEDITOR"
-    PROOFREADER = "PROOFREADER" #CORRECTOR DE PRUEBAS
+    PROOFREADER = "PROOFREADER"  # CORRECTOR DE PRUEBAS
     READER = "READER"
 
 
@@ -49,17 +49,17 @@ class Source(db.Model):
 
     __tablename__ = 'iroko_sources'
 
-    id = db.Column( db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(UUIDType, default=uuid.uuid4)
-    name = db.Column( db.String, nullable=False, unique=True)
-    source_type = db.Column( db.Enum(SourceType))
-    source_status = db.Column( db.Enum(SourceStatus))
+    name = db.Column(db.String, nullable=False, unique=True)
+    source_type = db.Column(db.Enum(SourceType))
+    source_status = db.Column(db.Enum(SourceStatus))
 
     # TODO: decidir sobre esto:  Aunque este repetido, creo que es conveniente poner aqui (y manejar en las apps, en consecuencia), las relaciones con los terminos. En las tablas se pone por facilidad, pero aunque este repetido, a la hora de "editar" un Source, me parece que es mas facil asi..
-    data = db.Column( JSONType )
+    data = db.Column(JSONType)
     """The data of the Source, dependent on the source type, including the relationships with Terms"""
 
-    #term_sources = db.relationship("Term_sources", back_populates="sources")
+    # term_sources = db.relationship("Term_sources", back_populates="sources")
 
     def __str__(self):
         """Representation."""
@@ -86,7 +86,7 @@ class SourceVersion(db.Model):
 
     __tablename__ = 'iroko_source_versions'
 
-    id = db.Column( db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey(
         User.id, name='fk_iroko_source_versions_user_id'))
@@ -110,7 +110,7 @@ class SourceVersion(db.Model):
     comment = db.Column(db.String)
 
     # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en las bases de datos.
-    data = db.Column( JSONType )
+    data = db.Column(JSONType)
     """The data of the Source, dependent on the source type, including the relationships with Terms"""
 
     created_at = db.Column(db.DateTime)
@@ -124,8 +124,6 @@ class SourceVersion(db.Model):
     def __str__(self):
         """Representation."""
         return self.source.name + ' : ' + self.created_at + ' : ' + self.is_current
-
-
 
 
 class SourceRawData(db.Model):

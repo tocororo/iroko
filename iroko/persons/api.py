@@ -1,26 +1,28 @@
 from lxml import etree
-from iroko.records import ContributorRole 
+
+from iroko.records import ContributorRole
+
 
 class IrokoPerson:
 
     @staticmethod
     def get_people_from_nlm(metadata: etree._Element):
-        """get a IrokoPerson from {http://dtd.nlm.nih.gov/publishing/2.3}contrib 
+        """get a IrokoPerson from {http://dtd.nlm.nih.gov/publishing/2.3}contrib
         etree._Element
         return creators, contribs dics, """
 
         xmlns = '{http://dtd.nlm.nih.gov/publishing/2.3}'
         contribs_xml = metadata.findall('.//' + xmlns + 'contrib')
-        
+
         contributors = {}
-        
+
         for contrib in contribs_xml:
             person = dict()
-            
-            surname = contrib.find(xmlns+'name/'+xmlns+'surname')
-            given_names = contrib.find(xmlns+'name/'+xmlns+'given-names')
-            aff = contrib.find(xmlns+'aff')
-            email = contrib.find(xmlns+'email')
+
+            surname = contrib.find(xmlns + 'name/' + xmlns + 'surname')
+            given_names = contrib.find(xmlns + 'name/' + xmlns + 'given-names')
+            aff = contrib.find(xmlns + 'aff')
+            email = contrib.find(xmlns + 'email')
             if given_names is None and surname is None:
                 # FIXME if a person dont have surname or given name, then is not a person.... even if there is an email?
                 continue
@@ -30,7 +32,7 @@ class IrokoPerson:
                     name += given_names.text
                 if surname is not None and surname.text is not None:
                     name += ' ' + surname.text
-                person['name']= name
+                person['name'] = name
                 if aff is not None:
                     person['affiliations'] = []
                     person['affiliations'].append(aff.text)

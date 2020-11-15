@@ -120,8 +120,6 @@ class UserProfile(db.Model):
 
         return profile
 
-
-
     @property
     def is_anonymous(self):
         """Return whether this UserProfile is anonymous."""
@@ -161,7 +159,7 @@ class UserProfile(db.Model):
         user_profile = cls.get_or_create_by_userid(user_id)
         if not user_profile:
             raise Exception('No user_id={0}'.format(user_id))
-        sources=[]
+        sources = []
         data = dict(user_profile.json_metadata)
         if 'sources' not in data:
             data['sources'] = []
@@ -171,7 +169,6 @@ class UserProfile(db.Model):
         data['sources'] = sources
         user_profile.json_metadata = dict(data)
         db.session.commit()
-
 
 
 @event.listens_for(User, 'init')

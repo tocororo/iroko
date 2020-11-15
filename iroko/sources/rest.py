@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, print_function
 
+import datetime
 import traceback
 
 from elasticsearch_dsl import A
@@ -10,6 +11,7 @@ from flask_login import current_user
 from flask_principal import PermissionDenied
 from invenio_access import ActionUsers
 from invenio_accounts.models import User
+from invenio_cache import current_cache
 from invenio_db import db
 from invenio_oauth2server import require_api_auth
 from invenio_pidstore.errors import PIDObjectAlreadyAssigned
@@ -487,119 +489,136 @@ def get_editor_source_versions(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/stats', methods=['GET'])
-def get_sources_stats():
-    """
-
-    """
-
+def _get_sources_stats(org_id, offset):
     # TODO:
     # 1- obtener de cuor, la organizacion con los hijos.
     # result = dict()
     # result['id'] = 'orgID'
     # 2- por cada uno de los hijos de la organizacion
     #  por ahora esta bien asi
-    try:
-        # print("************************** START get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
 
-        search = SourceSearch()
-        org = dict()
+    # print("************************** START get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
+    search = SourceSearch()
+    org = dict()
+
+    if org_id:
+        org = CuorHelper.query_cuor_by_uuid(org_id)
+        # print('******************* ORG *******************',org)
+        if not org or 'metadata' not in org:
+            org_id = None
+            org = {}
+            # raise Exception('Organization with ID: {0} not found'.format(org_id))
+    if org_id:
+        search = search.filter('term', organizations__id=org_id)
+        bucket_org = A('terms', field='organizations.id', size=999999)
+        search.aggs.bucket('orgs', bucket_org)
+
+    # print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
+    # classification bucket
+    # subjects
+    # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.SUBJECTS.value).first()
+    subjects_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.SUBJECTS.value,
+                                          parent_id=None).all()
+    subjects = term_schema_many.dump(subjects_terms)  # erm_node_schema.dump_term_node_list(subjects_terms, 0, 0)
+    # indexes
+    # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
+    indexes_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value,
+                                         parent_id=None).all()
+    indexes = term_schema_many.dump(indexes_terms)  # term_node_schema.dump_term_node_list(indexes_terms, 0, 0)
+
+    # bucket
+    bucket_classifications = A('terms', field='classifications.id', size=999999)
+    search.aggs.bucket('classifications', bucket_classifications)
+
+    # source_type bucket
+    source_types = []
+    for k in SourceType:
+        source_types.append({
+            'source_type': k.value
+        })
+        # print(k.value, '*****')
+    bucket_source_type = A('terms', field='source_type', size=999999)
+    search.aggs.bucket('source_type', bucket_source_type)
+
+    # print("************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    search.sort('_save_info_updated')
+    response = search[0:offset].execute()
+
+    hits = []
+    for hit in response.hits:
+        hits.append(
+            {
+                'id':   hit['id'],
+                'name': hit['name']
+            }
+        )
+
+    # print("************************** MI COSA get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
+    if org_id:
+        org['metadata']['source_count'] = search.count()
+        for item in response.aggregations.orgs.buckets:
+            # print('****** org ******', item.doc_count, item.key)
+            CuorHelper.append_key_value_to_relationship(org, item.key, 'child', 'source_count', item.doc_count)
+
+    for item in response.aggregations.classifications.buckets:
+        # print('****** class ******', item.doc_count, item.key)
+        for term in subjects:
+            # print('************ term ', term['uuid'])
+            if str(term['uuid']) == item.key:
+                term['source_count'] = item.doc_count
+        for term in indexes:
+            # print('************ term ', term['uuid'])
+            if str(term['uuid']) == item.key:
+                term['source_count'] = item.doc_count
+
+    for item in response.aggregations.source_type.buckets:
+        for t in source_types:
+            if t['source_type'] == item.key:
+                t['source_count'] = item.doc_count
+
+    # print("************************** END get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+
+    result = {
+        'sources_count': search.count(),
+        'last_sources':  hits,
+        'org':           org,
+        'subjects':      subjects,
+        'indexes':       indexes,
+        'source_types':  source_types
+    }
+    return result
+
+
+@api_blueprint.route('/stats', methods=['GET'])
+def get_sources_stats():
+    """
+
+    """
+    try:
 
         offset = request.args.get('offset') if request.args.get('offset') else 3
 
         # top organization bucket
         org_id = request.args.get('org') if request.args.get('org') else None
-        if org_id:
-            org = CuorHelper.query_cuor_by_uuid(org_id)
-            # print('******************* ORG *******************',org)
-            if not org or 'metadata' not in org:
-                org_id = None
-                org = {}
-                # raise Exception('Organization with ID: {0} not found'.format(org_id))
-        if org_id:
-            search = search.filter('term', organizations__id=org_id)
-            bucket_org = A('terms', field='organizations.id', size=999999)
-            search.aggs.bucket('orgs', bucket_org)
 
-        # print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        cache = current_cache.get("get_sources_stats:{0}{1}".format(org_id, offset)) or {}
+        if "date" not in cache:
+            cache["date"] = datetime.datetime.now()
+        if datetime.datetime.now() - cache["date"] < datetime.timedelta(days=1) and "stats" in cache:
+            print("USING CACHE STATS")
+            result = cache["stats"]
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
+        else:
+            result = _get_sources_stats(org_id, offset)
+            cache["date"] = datetime.datetime.now()
+            cache["stats"] = result
+            current_cache.set("get_sources_stats:{0}{1}".format(org_id, offset), cache, timeout=-1)
+            return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
 
-        # classification bucket
-        # subjects
-        # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.SUBJECTS.value).first()
-        subjects_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.SUBJECTS.value,
-                                              parent_id=None).all()
-        subjects = term_schema_many.dump(subjects_terms)  # erm_node_schema.dump_term_node_list(subjects_terms, 0, 0)
-        # indexes
-        # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
-        indexes_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value,
-                                             parent_id=None).all()
-        indexes = term_schema_many.dump(indexes_terms)  # term_node_schema.dump_term_node_list(indexes_terms, 0, 0)
-
-        # bucket
-        bucket_classifications = A('terms', field='classifications.id', size=999999)
-        search.aggs.bucket('classifications', bucket_classifications)
-
-        # source_type bucket
-        source_types = []
-        for k in SourceType:
-            source_types.append({
-                'source_type': k.value
-            })
-            # print(k.value, '*****')
-        bucket_source_type = A('terms', field='source_type', size=999999)
-        search.aggs.bucket('source_type', bucket_source_type)
-
-        # print("************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
-        search.sort('_save_info_updated')
-        response = search[0:offset].execute()
-
-        hits = []
-        for hit in response.hits:
-            hits.append(
-                {
-                    'id':   hit['id'],
-                    'name': hit['name']
-                }
-            )
-
-        # print("************************** MI COSA get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
-
-        if org_id:
-            org['metadata']['source_count'] = search.count()
-            for item in response.aggregations.orgs.buckets:
-                # print('****** org ******', item.doc_count, item.key)
-                CuorHelper.append_key_value_to_relationship(org, item.key, 'child', 'source_count', item.doc_count)
-
-        for item in response.aggregations.classifications.buckets:
-            # print('****** class ******', item.doc_count, item.key)
-            for term in subjects:
-                # print('************ term ', term['uuid'])
-                if str(term['uuid']) == item.key:
-                    term['source_count'] = item.doc_count
-            for term in indexes:
-                # print('************ term ', term['uuid'])
-                if str(term['uuid']) == item.key:
-                    term['source_count'] = item.doc_count
-
-        for item in response.aggregations.source_type.buckets:
-            for t in source_types:
-                if t['source_type'] == item.key:
-                    t['source_count'] = item.doc_count
-
-        # print("************************** END get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
-
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'aggr', \
-                                   {
-                                       'sources_count': search.count(),
-                                       'last_sources':  hits,
-                                       'org':           org,
-                                       'subjects':      subjects,
-                                       'indexes':       indexes,
-                                       'source_types':  source_types
-                                   })
     except Exception as e:
-        raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
@@ -688,9 +707,9 @@ def get_users_organization(uuid):
                 'ok',
                 'permission',
                 {
-                    'action': 'manager',
+                    'action':       'manager',
                     'organization': uuid,
-                    'users':  user_schema_many.dump(users)
+                    'users':        user_schema_many.dump(users)
                 }
 
             )
@@ -721,7 +740,7 @@ def get_users_term(uuid):
                 'permission',
                 {
                     'action': 'manager',
-                    'term': uuid,
+                    'term':   uuid,
                     'users':  user_schema_many.dump(users)
                 }
 

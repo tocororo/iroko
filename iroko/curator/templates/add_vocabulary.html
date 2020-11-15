@@ -1,8 +1,8 @@
 {%- extends config.BASE_TEMPLATE %}
 
 {% macro errors(field) %}
-  {% if field.errors %}
-  <span class="help-block">
+{% if field.errors %}
+<span class="help-block">
     <ul class=errors>
     {% for error in field.errors %}
     <li><span style="color: red;">{{ error }}</span></li>
@@ -14,29 +14,29 @@
 
 {% block page_body %}
 <br/>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h2>{{ _('Adding Vocabulary') }}</h2>
-      </div>
-      <div class="col-md-offset-3 col-md-6 well">
-        <form action="{{ url_for('iroko_curator.add_vocabulary') }}" method="POST">
-            <div class="form-group {{ 'has-error' if form.name.errors }}">
-              <label for="name">{{ form.name.label }}</label>
-              {{ form.name(class_="form-control")|safe }}
-              {{ errors(form.name) }}
-            </div>
-            <div class="form-group {{ 'has-error' if form.description.errors }}">
-                <label for="description">{{ form.description.label }}</label>
-                {{ form.description(class_="form-control")|safe }}
-                {{ errors(form.description) }}
-              </div>
-              
-            {{ form.csrf_token }}
-            {{ errors(form.csrf_token) }}
-            <button type="submit" class="btn btn-default">{{ _('Add Vocabulary') }}</button>
-        </form>
-      </div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>{{ _('Adding Vocabulary') }}</h2>
+    </div>
+    <div class="col-md-offset-3 col-md-6 well">
+      <form action="{{ url_for('iroko_curator.add_vocabulary') }}" method="POST">
+        <div class="form-group {{ 'has-error' if form.name.errors }}">
+          <label for="name">{{ form.name.label }}</label>
+          {{ form.name(class_="form-control")|safe }}
+          {{ errors(form.name) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.description.errors }}">
+          <label for="description">{{ form.description.label }}</label>
+          {{ form.description(class_="form-control")|safe }}
+          {{ errors(form.description) }}
+        </div>
+
+        {{ form.csrf_token }}
+        {{ errors(form.csrf_token) }}
+        <button type="submit" class="btn btn-default">{{ _('Add Vocabulary') }}</button>
+      </form>
     </div>
   </div>
+</div>
 {% endblock page_body %}

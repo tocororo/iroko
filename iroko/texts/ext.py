@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 
 
-
 class IrokoTexts(object):
     def __init__(self, app=None):
         if app:
@@ -12,4 +11,3 @@ class IrokoTexts(object):
     def init_app(self, app):
         # app.cli.add_command(harvester)
         app.extensions['iroko-texts'] = self
-

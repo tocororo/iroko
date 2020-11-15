@@ -227,7 +227,6 @@ def sources_count_by_vocabulary(vocabulary_id):
 
     return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-
     # Crear un Source y un SourceVersion que tienen el mismo Data.
     # comprobar que no exista otro ISSN, RNPS o URL igual, sino da error
     # source_status = REview
@@ -270,8 +269,9 @@ def source_new_version(uuid):
                 # si esta aprobada el proceso es otro
                 # print(input_data)
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, source.uuid, is_current,
-                                                                                comment=comment)
+                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, source.uuid,
+                                                                                          is_current,
+                                                                                          comment=comment)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
@@ -291,7 +291,8 @@ def source_new_version(uuid):
                                            source_schema.dump(source))
         except PermissionDenied as e:
             with source_term_manager_permission_factory({'terms': terms, 'uuid': uuid}).require():
-                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, uuid, True, comment=comment)
+                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, uuid, True,
+                                                                                          comment=comment)
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 

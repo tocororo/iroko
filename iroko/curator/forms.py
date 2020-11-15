@@ -11,13 +11,13 @@ from iroko.vocabularies.models import Vocabulary, Term
 
 
 class MultiCheckboxField(SelectMultipleField):
-    widget			= ListWidget(prefix_label=False)
-    option_widget	= CheckboxInput()
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 
 class Unique(object):
-
     """ validator that checks field uniqueness """
+
     def __init__(self, model, field, message=None):
         self.model = model
         self.field = field
@@ -33,7 +33,6 @@ class Unique(object):
             id = None
         if check and (id is None or id != check.id):
             raise validators.ValidationError(self.message)
-
 
 
 class VocabularyForm(FlaskForm):
@@ -80,11 +79,14 @@ class TermForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(TermForm, self).__init__()
-        group_mes_vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES_CLASIFICATION.value).first()
+        group_mes_vocab = Vocabulary.query.filter_by(
+            identifier=IrokoVocabularyIdentifiers.INDEXES_CLASIFICATION.value).first()
 
-        self.vocabulary.choices=[(choice.id, choice.name) for choice in Vocabulary.query.all()]
-        self.group.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.filter_by(vocabulary_id=group_mes_vocab.identifier).all()]
-        self.parent.choices=[(0,_('None'))]+[(choice.id, choice.name) for choice in Term.query.order_by('name').all()]
+        self.vocabulary.choices = [(choice.id, choice.name) for choice in Vocabulary.query.all()]
+        self.group.choices = [(0, _('None'))] + [(choice.id, choice.name) for choice in
+                                                 Term.query.filter_by(vocabulary_id=group_mes_vocab.identifier).all()]
+        self.parent.choices = [(0, _('None'))] + [(choice.id, choice.name) for choice in
+                                                  Term.query.order_by('name').all()]
 
     def validate_group(self, field):
         data_bases = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
@@ -123,4 +125,4 @@ class SourceForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(SourceForm, self).__init__()
-        self.terms.choices=[(choice.id, choice.name) for choice in Term.query.all()]
+        self.terms.choices = [(choice.id, choice.name) for choice in Term.query.all()]

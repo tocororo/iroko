@@ -1,5 +1,3 @@
-
-
 """Iroko Admin views."""
 
 from flask_admin.contrib.sqla import ModelView
@@ -22,18 +20,19 @@ class VocabularyModelView(ModelView):
 
     form_columns = ('identifier', 'human_name', 'description')
 
+
 class TermModelView(ModelView):
     """View for managing terms."""
 
     # can_view_details = True
 
-    list_all = ('id', 'identifier', 'description', 'vocabulary','uuid')
+    list_all = ('id', 'identifier', 'description', 'vocabulary', 'uuid')
 
     column_list = list_all
 
     column_default_sort = ('identifier', True)
 
-    column_filters =  ('id', 'uuid', 'identifier', 'vocabulary')
+    column_filters = ('id', 'uuid', 'identifier', 'vocabulary')
 
     # form_columns = ('name', 'description')
     form_columns = ('vocabulary', 'identifier', 'description', 'parent_id')

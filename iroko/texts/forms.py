@@ -1,13 +1,14 @@
 from __future__ import absolute_import, print_function
-from flask_wtf import FlaskForm
+
 from flask_babelex import lazy_gettext as _
-from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, HiddenField, TextAreaField, validators
-from wtforms.widgets import HiddenInput, ListWidget, CheckboxInput
+from flask_wtf import FlaskForm
+from wtforms import StringField, SelectMultipleField, TextAreaField, validators
+from wtforms.widgets import ListWidget, CheckboxInput
 
 
 class MultiCheckboxField(SelectMultipleField):
-    widget			= ListWidget(prefix_label=False)
-    option_widget	= CheckboxInput()
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 
 class FaqForm(FlaskForm):
@@ -24,5 +25,3 @@ class FaqForm(FlaskForm):
     # def validate_name(self, field):
     #     if Vocabulary.query.filter_by(identifier=field.data).first():
     #         raise validators.ValidationError(_('Name must not exist'))
-
-

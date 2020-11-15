@@ -1,8 +1,8 @@
 {%- extends config.BASE_TEMPLATE %}
 
 {% macro errors(field) %}
-  {% if field.errors %}
-  <span class="help-block">
+{% if field.errors %}
+<span class="help-block">
     <ul class=errors>
     {% for error in field.errors %}
     <li><span style="color: red;">{{ error }}</span></li>
@@ -14,67 +14,68 @@
 
 {% block page_body %}
 <br/>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h2>{{ _('Editing Term') }}</h2>
-      </div>
-      <div class="col-md-offset-3 col-md-6 well">
-        <form action="{{ url_for('iroko_curator.edit_term', id=id) }}" method="POST">   
-            <div class="form-group">              
-                {{ form.id(class_="form-control")|safe }}              
-            </div>         
-            <div class="form-group {{ 'has-error' if form.name.errors }}">
-                <label for="name">{{ form.name.label }}</label>
-                {{ form.name(class_="form-control")|safe }}
-                {{ errors(form.name) }}
-            </div>
-            <div class="form-group {{ 'has-error' if form.description.errors }}">
-                <label for="description">{{ form.description.label }}</label>
-                {{ form.description(class_="form-control")|safe }}
-                {{ errors(form.description) }}
-            </div>
-            <div class="form-group {{ 'has-error' if form.vocabulary.errors }}">
-                <label for="vocabulary">{{ form.vocabulary.label }}</label>
-                {{ form.vocabulary(class_="form-control")|safe }}
-                {{ errors(form.vocabulary) }}
-            </div>
-            <div id="divgroup" name="divgroup" class="form-group {{ 'has-error' if form.group.errors }}">
-              <label for="group">{{ form.group.label }}</label>
-              {{ form.group(class_="form-control")|safe }}
-              {{ errors(form.group) }}
-            </div>
-            <div class="form-group {{ 'has-error' if form.parent.errors }}">
-                <label for="parent">{{ form.parent.label }}</label>
-                {{ form.parent(class_="form-control")|safe }}
-                {{ errors(form.parent) }}
-            </div>
-              
-            {{ form.csrf_token }}
-            {{ errors(form.csrf_token) }}
-            <button type="submit" class="btn btn-default">{{ _('Save Changes') }}</button>
-        </form>
-      </div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>{{ _('Editing Term') }}</h2>
+    </div>
+    <div class="col-md-offset-3 col-md-6 well">
+      <form action="{{ url_for('iroko_curator.edit_term', id=id) }}" method="POST">
+        <div class="form-group">
+          {{ form.id(class_="form-control")|safe }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.name.errors }}">
+          <label for="name">{{ form.name.label }}</label>
+          {{ form.name(class_="form-control")|safe }}
+          {{ errors(form.name) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.description.errors }}">
+          <label for="description">{{ form.description.label }}</label>
+          {{ form.description(class_="form-control")|safe }}
+          {{ errors(form.description) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.vocabulary.errors }}">
+          <label for="vocabulary">{{ form.vocabulary.label }}</label>
+          {{ form.vocabulary(class_="form-control")|safe }}
+          {{ errors(form.vocabulary) }}
+        </div>
+        <div id="divgroup" name="divgroup" class="form-group {{ 'has-error' if form.group.errors }}">
+          <label for="group">{{ form.group.label }}</label>
+          {{ form.group(class_="form-control")|safe }}
+          {{ errors(form.group) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.parent.errors }}">
+          <label for="parent">{{ form.parent.label }}</label>
+          {{ form.parent(class_="form-control")|safe }}
+          {{ errors(form.parent) }}
+        </div>
+
+        {{ form.csrf_token }}
+        {{ errors(form.csrf_token) }}
+        <button type="submit" class="btn btn-default">{{ _('Save Changes') }}</button>
+      </form>
     </div>
   </div>
-  <script type="text/javascript">
+</div>
+<script type="text/javascript">
 
     muestra_oculta_grupo();
 
     function muestra_oculta_grupo(){
-      var eldiv = document.getElementById('divgroup'); 
-      if (document.getElementById("vocabulary").value == 4) {      
+      var eldiv = document.getElementById('divgroup');
+      if (document.getElementById("vocabulary").value == 4) {
         eldiv.style.display = 'block';
       }
       else {
-        eldiv.style.display = 'none';  
-      } 
+        eldiv.style.display = 'none';
+      }
     };
-      
+
     document.getElementById("vocabulary").onchange = function(){
       muestra_oculta_grupo()
-    };    
-    
-  
-  </script>
+    };
+
+
+
+</script>
 {% endblock page_body %}

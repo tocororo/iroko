@@ -26,8 +26,8 @@ class MyListWidget(ListWidget):
 
 
 class MultiCheckboxField(SelectMultipleField):
-    widget			= MyListWidget(prefix_label=False)
-    option_widget	= CheckboxInput()
+    widget = MyListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 
 class InclusionForm(FlaskForm):
@@ -59,14 +59,9 @@ class InclusionForm(FlaskForm):
         super(InclusionForm, self).__init__()
         requeriments = {}
         choices = []
-        with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+ '/inclusion_requeriments.json') as file:
+        with open(
+            current_app.config['INIT_STATIC_JSON_PATH'] + '/' + get_locale() + '/inclusion_requeriments.json') as file:
             requeriments = json.load(file)
             for item in requeriments:
                 choices.append((item, requeriments[item]))
         self.requeriments.choices = choices
-
-
-
-
-
-

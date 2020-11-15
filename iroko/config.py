@@ -15,7 +15,6 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
-import os
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
@@ -146,10 +145,12 @@ SEARCH_UI_JSTEMPLATE_FACETS = 'templates/search_ui/facets.html'
 SEARCH_UI_JSTEMPLATE_RANGE = 'templates/search_ui/range.html'
 """Configure the range template."""
 
-SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS = {'histogramId': '#year_hist',
-                                      'selectionId': '#year_select',
-                                      'name': 'years',
-                                      'width': 180}
+SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS = {
+    'histogramId': '#year_hist',
+    'selectionId': '#year_select',
+    'name':        'years',
+    'width':       180
+}
 """Configure the range template options."""
 
 SEARCH_UI_JSTEMPLATE_LOADING = 'templates/search_ui/loading.html'
@@ -175,7 +176,7 @@ SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
 RECORDS_UI_ENDPOINTS = {
     'recid': {
         'pid_type': 'irouid',
-        'route': '/records/<pid_value>',
+        'route':    '/records/<pid_value>',
         'template': 'iroko_theme/records/record.html',
         'view_imp': 'iroko.records.views.iroko_record_view'
     },
@@ -253,7 +254,7 @@ RECORDS_REST_ENDPOINTS = dict(
         error_handlers=dict(),
         create_permission_factory_imp=deny_all,
         read_permission_factory_imp=check_source_status,
-        update_permission_factory_imp= deny_all,
+        update_permission_factory_imp=deny_all,
         delete_permission_factory_imp=deny_all,
         list_permission_factory_imp=allow_all,
     )
@@ -271,7 +272,7 @@ RECORDS_REST_FACETS = dict(
         filters=dict(
             keywords=terms_filter('keywords'),
             creators=terms_filter('creators.name'),
-            sources=terms_filter('source.name'),
+            sources=terms_filter('source_repo.name'),
             status=terms_filter('status'),
             terms=terms_filter('terms')
         ),
@@ -303,7 +304,7 @@ RECORDS_REST_FACETS = dict(
             ),
             sources=dict(
                 terms=dict(
-                    field='source.name',
+                    field='source_repo.name',
                     size=5
                 ),
                 meta=dict(
@@ -333,30 +334,30 @@ RECORDS_REST_FACETS = dict(
 RECORDS_REST_SORT_OPTIONS = {
     'records': {
         'mostrecent': {
-            'title': 'Most recent',
-            'fields': ['-publication_date'],
+            'title':         'Most recent',
+            'fields':        ['-publication_date'],
             'default_order': 'asc',
-            'order': 1,
+            'order':         1,
         },
-        'bestmatch': {
-            'title': 'Best match',
-            'fields': ['-_score'],
+        'bestmatch':  {
+            'title':         'Best match',
+            'fields':        ['-_score'],
             'default_order': 'asc',
-            'order': 2,
+            'order':         2,
         },
     },
     'sources': {
         'mostrecent': {
-            'title': 'Most recent',
-            'fields': ['-_save_info_updated'],
+            'title':         'Most recent',
+            'fields':        ['-_save_info_updated'],
             'default_order': 'asc',
-            'order': 1,
+            'order':         1,
         },
-        'bestmatch': {
-            'title': 'Best match',
-            'fields': ['-_score'],
+        'bestmatch':  {
+            'title':         'Best match',
+            'fields':        ['-_score'],
             'default_order': 'asc',
-            'order': 2,
+            'order':         2,
         },
     }
 }
@@ -364,16 +365,15 @@ RECORDS_REST_SORT_OPTIONS = {
 
 RECORDS_REST_DEFAULT_SORT: {
     'records': {
-        'query': 'bestmatch',
+        'query':   'bestmatch',
         'noquery': 'bestmatch',
     },
     'sources': {
-        'query': 'bestmatch',
+        'query':   'bestmatch',
         'noquery': 'bestmatch',
     }
 }
 """Set default sorting options."""
-
 
 # Assets
 # ======
@@ -383,7 +383,7 @@ COLLECT_STORAGE = 'flask_collect.storage.file'
 # Accounts
 # ========
 #: Email address used as sender of account registration emails.
-MAIL_SUPPRESS_SEND=False
+MAIL_SUPPRESS_SEND = False
 SUPPORT_EMAIL = SMTP_DEFAULT_SENDER
 SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
@@ -407,12 +407,12 @@ CELERY_BROKER_URL = 'amqp://iroko:iroko@' + IP_RABBIT + ':5672/'
 CELERY_RESULT_BACKEND = 'redis://' + IP_REDIS + ':6379/2'
 #: Scheduled tasks configuration (aka cronjobs).
 CELERY_BEAT_SCHEDULE = {
-    'indexer': {
-        'task': 'invenio_indexer.tasks.process_bulk_queue',
+    'indexer':  {
+        'task':     'invenio_indexer.tasks.process_bulk_queue',
         'schedule': timedelta(minutes=5),
     },
     'accounts': {
-        'task': 'invenio_accounts.tasks.clean_session_table',
+        'task':     'invenio_accounts.tasks.clean_session_table',
         'schedule': timedelta(minutes=60),
     },
 }
@@ -432,7 +432,6 @@ JSONSCHEMAS_HOST = 'iroko.tocororo.cu'
 # ===================
 # See details on
 # http://flask.pocoo.org/docs/0.12/config/#builtin-configuration-values
-
 
 
 #: Max upload size for form data via application/mulitpart-formdata.
@@ -482,27 +481,27 @@ OAUTHCLIENT_REMOTE_APPS = dict(
 OAUTH2_PROVIDER_TOKEN_EXPIRES_IN = 86400
 
 APP_DEFAULT_SECURE_HEADERS = {
-    'force_https': True,
-    'force_https_permanent': False,
-    'force_file_save': False,
-    'frame_options': 'sameorigin',
-    'frame_options_allow_from': None,
-    'strict_transport_security': True,
-    'strict_transport_security_preload': False,
-    'strict_transport_security_max_age': 31556926,  # One year in seconds
+    'force_https':                                  True,
+    'force_https_permanent':                        False,
+    'force_file_save':                              False,
+    'frame_options':                                'sameorigin',
+    'frame_options_allow_from':                     None,
+    'strict_transport_security':                    True,
+    'strict_transport_security_preload':            False,
+    'strict_transport_security_max_age':            31556926,  # One year in seconds
     'strict_transport_security_include_subdomains': True,
-    'content_security_policy': {
+    'content_security_policy':                      {
         'default-src': ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'"],
-        'object-src': ["'none'"],
-        'script-src': ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'", "'unsafe-eval'"],
-        'style-src': ["'self'", "'unsafe-inline'"],
-        'font-src': ["'self'", "data:"],
-        'img-src': ["'self'", "data:"]
+        'object-src':  ["'none'"],
+        'script-src':  ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'", "'unsafe-eval'"],
+        'style-src':   ["'self'", "'unsafe-inline'"],
+        'font-src':    ["'self'", "data:"],
+        'img-src':     ["'self'", "data:"]
     },
-    'content_security_policy_report_uri': None,
-    'content_security_policy_report_only': False,
-    'session_cookie_secure': True,
-    'session_cookie_http_only': True
+    'content_security_policy_report_uri':           None,
+    'content_security_policy_report_only':          False,
+    'session_cookie_secure':                        True,
+    'session_cookie_http_only':                     True
 }
 
 #

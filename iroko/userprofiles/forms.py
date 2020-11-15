@@ -34,7 +34,7 @@ from .models import UserProfile
 from .validators import USERNAME_RULES, validate_username
 
 
-#photos = UploadSet('photos', IMAGES)
+# photos = UploadSet('photos', IMAGES)
 
 
 def strip_filter(text):
@@ -72,7 +72,7 @@ class ProfileForm(FlaskForm):
     avatar = FileField(_(
         'Avatar'),
         description=_('An imagen for representing yourself')
-        )
+    )
 
     biography = TextAreaField(
         _('Biography'),
@@ -103,8 +103,8 @@ class ProfileForm(FlaskForm):
         try:
             user_profile = UserProfile.get_by_username(field.data)
             if current_userprofile.is_anonymous or \
-                    (current_userprofile.user_id != user_profile.user_id and
-                     field.data != current_userprofile.username):
+                (current_userprofile.user_id != user_profile.user_id and
+                 field.data != current_userprofile.username):
                 # NOTE: Form validation error.
                 raise ValidationError(_('Username already exists.'))
         except NoResultFound:
@@ -116,7 +116,6 @@ class ProfileForm(FlaskForm):
             msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
             if institution:
                 self.institution.data = institution
-
 
 
 class EmailProfileForm(ProfileForm):
@@ -155,9 +154,9 @@ class VerificationForm(FlaskForm):
     send_verification_email = SubmitField(_('Resend verification email'))
 
 
-
 def register_form_factory(Form):
     """Factory for creating an extended user registration form."""
+
     class CsrfDisabledProfileForm(ProfileForm):
         """Subclass of ProfileForm to disable CSRF token in the inner form.
 
@@ -180,6 +179,7 @@ def register_form_factory(Form):
 
 def confirm_register_form_factory(Form):
     """Factory for creating a confirm register form."""
+
     class CsrfDisabledProfileForm(ProfileForm):
         """Subclass of ProfileForm to disable CSRF token in the inner form.
 

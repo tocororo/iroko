@@ -14,10 +14,10 @@ import enum
 
 from .ext import iroko
 
-__all__ = ('iroko', )
+__all__ = ('iroko',)
+
 
 class ContributorRole(enum.Enum):
-
     Author = "Author"
     ContactPerson = "ContactPerson"
     DataCollector = "DataCollector"

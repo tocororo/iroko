@@ -1,4 +1,3 @@
-
 import enum
 
 from invenio_db import db
@@ -12,11 +11,12 @@ class HarvestType(enum.Enum):
 
 
 class HarvestedItemStatus(enum.Enum):
-
     # se elimino el item en la fuente
     DELETED = "DELETED"
     # ocurrio algun error en alguna de las fases
     ERROR = "ERROR"
+    # identificado el item
+    IDENTIFIED = 'IDENTIFIED'
     # se recolecto el item
     HARVESTED = "HARVESTED"
     # se inserto el item en un IrokoRecord
@@ -46,7 +46,7 @@ class Repository(db.Model):
     status = db.Column(db.Enum(HarvestedItemStatus))
     error_log = db.Column(db.String)
 
-    data = db.Column( JSONType )
+    data = db.Column(JSONType)
     """Any relevant data, dependent of the harvest_type, this could mean one thing. Eg, for oai-pmh the information about the set could be here."""
 
 
@@ -55,12 +55,12 @@ class HarvestedItem(db.Model):
 
     __tablename__ = 'iroko_harvest_items'
     __table_args__ = (db.UniqueConstraint('source_uuid', 'identifier', name='identifier_in_repository'),
-                     )
+                      )
     id = db.Column(db.Integer, primary_key=True)
 
     source_uuid = db.Column(UUIDType,
-                        db.ForeignKey('iroko_source_repositories.source_uuid', ondelete='CASCADE'),
-                        nullable=False, index=True)
+                            db.ForeignKey('iroko_source_repositories.source_uuid', ondelete='CASCADE'),
+                            nullable=False, index=True)
     repository = db.relationship("Repository", backref=db.backref("harvested_items"))
 
     # el identificador en el repo asociado
@@ -72,7 +72,7 @@ class HarvestedItem(db.Model):
     status = db.Column(db.Enum(HarvestedItemStatus))
     error_log = db.Column(db.String)
 
-    data = db.Column( JSONType )
+    data = db.Column(JSONType)
     """Any other relevant data to be used in the future could be here."""
 
     def __str__(self):

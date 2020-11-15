@@ -1,9 +1,7 @@
-
 """Iroko minters."""
 
 import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as providers
-
 
 
 def iroko_uuid_minter(record_uuid, data):
@@ -46,8 +44,6 @@ def iroko_source_uuid_minter(source_uuid, data):
     )
     return provider.pid
 
-
-
 # # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
 # def iroko_source_source_record_minter(record_uuid, data):
 #     provider = providers.IrokoSourceSourceRecordProvider.create(
@@ -56,4 +52,3 @@ def iroko_source_uuid_minter(source_uuid, data):
 #         data=data
 #     )
 #     return provider.pid
-

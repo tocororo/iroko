@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import, division, print_function
 
 import json
@@ -19,7 +18,7 @@ def init_taxonomy():
     """Init vocabularies"""
     delete_all_vocabs()
     # print('delete all vocabs and terms')
-#     tax_path = '../../data/taxonomy.json' .
+    #     tax_path = '../../data/taxonomy.json' .
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
 
     init_cuntries(os.path.join(datadir, 'countries.json'))
@@ -110,7 +109,6 @@ def init_cuntries(path):
 
 
 def init_unesco(path):
-
     subjects = Vocabulary()
     subjects.identifier = IrokoVocabularyIdentifiers.SUBJECTS.value
     subjects.human_name = 'Cobertura tematica'
@@ -120,22 +118,22 @@ def init_unesco(path):
 
     groups = [
         {
-            'name': 'http://vocabularies.unesco.org/thesaurus/domain1',
+            'name':        'http://vocabularies.unesco.org/thesaurus/domain1',
             'description': 'Educación'
-        },{
-            'name': 'http://vocabularies.unesco.org/thesaurus/domain2',
+        }, {
+            'name':        'http://vocabularies.unesco.org/thesaurus/domain2',
             'description': 'Ciencia'
-        },{
-            'name': 'http://vocabularies.unesco.org/thesaurus/domain3',
+        }, {
+            'name':        'http://vocabularies.unesco.org/thesaurus/domain3',
             'description': 'Cultura'
-        },{
-            'name': 'http://vocabularies.unesco.org/thesaurus/domain4',
+        }, {
+            'name':        'http://vocabularies.unesco.org/thesaurus/domain4',
             'description': 'Ciencias sociales y humanas'
-        },{
-            'name': 'http://vocabularies.unesco.org/thesaurus/domain5',
+        }, {
+            'name':        'http://vocabularies.unesco.org/thesaurus/domain5',
             'description': 'Información y comunicación'
-        },{
-            'name': 'http://vocabularies.unesco.org/thesaurus/domain6',
+        }, {
+            'name':        'http://vocabularies.unesco.org/thesaurus/domain6',
             'description': 'Política, derecho y economía'
         }
     ]
@@ -166,8 +164,8 @@ def _add_group_terms(graph, top_group, parent, vocab):
             term.vocabulary_id = vocab.identifier
             db.session.add(term)
 
-def init_indexes():
 
+def init_indexes():
     indexes = Vocabulary()
     indexes.identifier = IrokoVocabularyIdentifiers.INDEXES.value
     indexes.human_name = 'Indices, Bases de Datos'
@@ -177,6 +175,7 @@ def init_indexes():
     work_dir = current_app.config['HARVESTER_SECONDARY_DIRECTORY']
     miar_harvester = MiarHarvester(work_dir)
     miar_harvester.syncronize_miar_databases()
+
 
 def delete_all_vocabs():
     ts = TermSources.query.all()
@@ -188,6 +187,3 @@ def delete_all_vocabs():
     for so in s:
         db.session.delete(so)
     db.session.commit()
-
-
-

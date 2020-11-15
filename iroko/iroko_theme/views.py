@@ -34,6 +34,7 @@ blueprint = Blueprint(
     static_folder='static',
 )
 
+
 @blueprint.context_processor
 def get_about():
     about = {}
@@ -68,7 +69,8 @@ def index(form=None):
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
     texts = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json', encoding="utf-8") as file:
+    with open(current_app.config['INIT_STATIC_JSON_PATH'] + '/' + get_locale() + '/texts.json',
+              encoding="utf-8") as file:
         texts = json.load(file)
 
     faqs = {}
@@ -120,8 +122,6 @@ def politicas():
     return redirect('/page/politicas')
 
 
-
-
 # @blueprint.route('/faq')
 # @register_menu(blueprint, 'main.faq', _('FAQ'), order=3)
 # def faq():
@@ -140,20 +140,23 @@ def view_source_id(uuid):
     # source = source_schema_many.dump(src)
     return render_template('iroko_theme/sources/source.html', source=src)
 
+
 @blueprint.route('/aggr/sources')
 def view_aggr_sources():
     sources = IrokoAggs.getAggrs("source.name")
-    return render_template('iroko_theme/records/aggr.html',name="Sources" ,aggrs=sources,keyword='sources')
+    return render_template('iroko_theme/records/aggr.html', name="Sources", aggrs=sources, keyword='sources')
+
 
 @blueprint.route('/aggr/keywords')
 def view_aggr_keywords():
     sources = IrokoAggs.getAggrs("keywords")
-    return render_template('iroko_theme/records/aggr.html',name="Keywords" ,aggrs=sources,keyword='keywords')
+    return render_template('iroko_theme/records/aggr.html', name="Keywords", aggrs=sources, keyword='keywords')
+
 
 @blueprint.route('/aggr/authors')
 def view_aggr_authors():
     sources = IrokoAggs.getAggrs("creators.name")
-    return render_template('iroko_theme/records/aggr.html',name="Creators" ,aggrs=sources,keyword='creators')
+    return render_template('iroko_theme/records/aggr.html', name="Creators", aggrs=sources, keyword='creators')
 
 
 @blueprint.route('/page/<slug>')
@@ -170,7 +173,8 @@ def static_page(slug):
     with open(os.path.join(basedir, 'static/staticpages/static_pages.json'), encoding="utf-8") as file:
         slugs = json.load(file)
     if slugs:
-        with open(os.path.join(basedir, 'static/staticpages/'+get_locale()+'/'+slugs[slug][get_locale()]["url"]), 'r', encoding="utf-8") as file:
+        with open(os.path.join(basedir, 'static/staticpages/' + get_locale() + '/' + slugs[slug][get_locale()]["url"]),
+                  'r', encoding="utf-8") as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
@@ -180,16 +184,18 @@ def static_page(slug):
 
 @blueprint.route('/page/images/<image>')
 def static_page_image(image):
-    directory = os.path.join(current_app.config['INIT_STATIC_JSON_PATH'],'images')
+    directory = os.path.join(current_app.config['INIT_STATIC_JSON_PATH'], 'images')
     # print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     # print(directory)
     # print(image)
     return send_file(os.path.join(directory, image))
     # return send_from_directory(directory, image)
 
+
 def unauthorized(e):
     """Error handler to show a 401.html page in case of a 401 error."""
     return render_template(current_app.config['THEME_401_TEMPLATE']), 401
+
 
 # @blueprint.route('/search', methods=['GET','POST'])
 # def iroko_search():
@@ -209,6 +215,7 @@ def unauthorized(e):
 @blueprint.route('/irokosearch', methods=['GET'])
 def iroko_search():
     return render_template('iroko_theme/search/index.html')
+
 
 @blueprint.route('/revistasmes', methods=['GET'])
 def iroko_revistasmes():
@@ -234,7 +241,7 @@ def is_human(captcha_response):
     # return True
     try:
         secret = current_app.config.get('RECAPTCHA_PRIVATE_KEY')
-        payload = {'response':captcha_response, 'secret':secret}
+        payload = {'response': captcha_response, 'secret': secret}
         response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
         response_text = json.loads(response.text)
         return response_text['success']
@@ -253,7 +260,8 @@ def valid(form):
 
 @blueprint.route('/send_mail_contact', methods=['POST'])
 def send_mail_contact():
-    send_contact_email('rafael.martinez@upr.edu.cu', 'rafael.martinez@upr.edu.cu', 'Se ha enviado un mensaje desde sceiba... ')
+    send_contact_email('rafael.martinez@upr.edu.cu', 'rafael.martinez@upr.edu.cu',
+                       'Se ha enviado un mensaje desde sceiba... ')
     if request.method == 'POST':
         form = ContactForm()
 

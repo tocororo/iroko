@@ -1,20 +1,16 @@
-
 import enum
 from time import sleep
 
-# from iroko.sources.models import Source
 from iroko.sources.api import SourceRecord
 
 
 class Item:
-
     format = ''
     raw = ''
     data = {}
 
 
 class SourceHarvesterMode(enum.Enum):
-
     FILE_SYSTEM = "ERROR"
     REMOTE = "HARVESTED"
 
@@ -69,5 +65,3 @@ class Formater(object):
     def ProcessItem(self, item):
         """given an item return a dict given an item"""
         raise NotImplementedError
-
-

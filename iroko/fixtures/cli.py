@@ -42,6 +42,7 @@ def initvocabs():
     """Init vocabularies."""
     init_taxonomy()
 
+
 @fixtures.command()
 @with_appcontext
 def initjournals():
@@ -54,10 +55,3 @@ def initjournals():
 def initjournalsrelations():
     """Init journals relations with terms."""
     init_term_sources()
-
-
-
-
-
-
-

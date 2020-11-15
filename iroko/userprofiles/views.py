@@ -95,7 +95,7 @@ def profile():
     return render_template(
         current_app.config['USERPROFILES_PROFILE_TEMPLATE'],
         profile_form=profile_form,
-        verification_form=verification_form,)
+        verification_form=verification_form, )
 
 
 def profile_form_factory():
@@ -105,10 +105,14 @@ def profile_form_factory():
     t_institution_rol = ''
     t_avatar = ''
     if current_userprofile_json_metadata:
-                t_biography = current_userprofile_json_metadata["biography"] if "biography" in current_userprofile_json_metadata.keys() else ""
-                msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"]) if "institution_id" in current_userprofile_json_metadata.keys() else 0
-                t_institution_rol = current_userprofile_json_metadata["institution_rol"] if "institution_rol" in current_userprofile_json_metadata.keys() else ""
-                t_avatar = current_userprofile_json_metadata["avatar"] if "avatar" in current_userprofile_json_metadata.keys() else ""
+        t_biography = current_userprofile_json_metadata[
+            "biography"] if "biography" in current_userprofile_json_metadata.keys() else ""
+        msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata[
+                                                      "institution_id"]) if "institution_id" in current_userprofile_json_metadata.keys() else 0
+        t_institution_rol = current_userprofile_json_metadata[
+            "institution_rol"] if "institution_rol" in current_userprofile_json_metadata.keys() else ""
+        t_avatar = current_userprofile_json_metadata[
+            "avatar"] if "avatar" in current_userprofile_json_metadata.keys() else ""
 
     if current_app.config['USERPROFILES_EMAIL_ENABLED']:
         return EmailProfileForm(
@@ -182,7 +186,7 @@ def handle_profile_form(form):
 
             # Update email
             if current_app.config['USERPROFILES_EMAIL_ENABLED'] and \
-               form.email.data != current_user.email:
+                form.email.data != current_user.email:
                 current_user.email = form.email.data
                 current_user.confirmed_at = None
                 db.session.add(current_user)

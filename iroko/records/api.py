@@ -28,7 +28,7 @@ class IrokoAggs:
                 "sources": {
                     "terms": {
                         "field": field,
-                        "size" : size
+                        "size":  size
                     }
                 }
             }
@@ -41,7 +41,7 @@ class IrokoAggs:
         for item in t.aggregations.sources.buckets:
             # item.key will the house number
             result.append({
-                'key': item.key,
+                'key':       item.key,
                 'doc_count': item.doc_count
             })
         # s = Search(using=client, index="records")
@@ -50,10 +50,10 @@ class IrokoAggs:
         # s = s.execute()
         return result
 
-class IrokoRecord (Record):
+
+class IrokoRecord(Record):
     """IrokoRecord class
     en general esto no esta muy bien, hay que profundizar en el problema de los PID, ahora mismo es solo un UUID, pero el PID no se puede generar a partir de la data... lo cual puede no ser muy bueno pues para manipular el record hay que saber el uuid, esto es contradictorio, pues en la data pueden venir doi, oai y otras formas de identificar el record..."""
-
 
     uuid_minter = iroko_minters.iroko_uuid_minter
     uuid_fetcher = iroko_fetchers.iroko_uuid_fetcher
@@ -99,14 +99,14 @@ class IrokoRecord (Record):
         cls.uuid_minter(id_, data)
         # # print("######### {0}".format(id_))
         cls.oai_minter(id_, data)
-        data['suggest_title']= data.get('title')
+        data['suggest_title'] = data.get('title')
         record = super(IrokoRecord, cls).create(data=data, id_=id_, **kwargs)
         if dbcommit:
             record.dbcommit(reindex)
         return record
 
     @classmethod
-    def delete( cls, data, vendor=None, delindex=True, force=False):
+    def delete(cls, data, vendor=None, delindex=True, force=False):
         """Delete a IrokoRecord record."""
         assert data.get(cls.pid_uuid_field)
         pid = data.get(cls.pid_uuid_field)
@@ -156,7 +156,6 @@ class IrokoRecord (Record):
         except PIDDoesNotExistError:
             return None
 
-
     def update(self, data, dbcommit=False, reindex=False):
         """Update data for record."""
         super(IrokoRecord, self).update(data)
@@ -177,7 +176,3 @@ class IrokoRecord (Record):
             RecordIndexer(version_type="external_gte").index(self)
         else:
             RecordIndexer().index(self)
-
-
-
-

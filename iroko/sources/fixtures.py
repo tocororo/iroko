@@ -1,5 +1,3 @@
-
-
 """Fixtures for users, roles and actions."""
 
 from __future__ import absolute_import, division, print_function
@@ -38,7 +36,7 @@ def init_journals():
         data = json.load(fsource, object_hook=remove_nulls)
         urls = json.load(foai)
         tax = json.load(ftax)
-        inserted= {}
+        inserted = {}
         if isinstance(data, dict):
             for k, record in data.items():
                 if not inserted.__contains__(record['title']):
@@ -62,28 +60,27 @@ def init_journals():
                         ids.append(dict(idtype='url', value=record['url']))
 
                     if 'rnps' in record:
-                        data['rnps']= {'p': record['rnps'], 'e': ''}
+                        data['rnps'] = {'p': record['rnps'], 'e': ''}
                         ids.append(dict(idtype='prnps', value=record['rnps']))
 
-                    issn= {}
+                    issn = {}
                     issn_org = None
                     if 'p' in record['issn']:
-                        issn['p']=record['issn']['p']
+                        issn['p'] = record['issn']['p']
                         issn_org = IssnDataParser.parse(record['issn']['p'])
                         # ids.append(dict(idtype='issn_p', value=record['issn']['p']))
                     if 'e' in record['issn']:
                         issn_org = IssnDataParser.parse(record['issn']['e'])
-                        issn['e']=record['issn']['e']
+                        issn['e'] = record['issn']['e']
                     if 'l' in record['issn']:
                         issn_org = IssnDataParser.parse(record['issn']['l'])
-                        issn['l']=record['issn']['l']
-                    data['issn']= issn
+                        issn['l'] = record['issn']['l']
+                    data['issn'] = issn
                     if issn_org:
                         data['name'] = issn_org['name']
                         data['title'] = issn_org['title']
                         data['aliases'] = issn_org['aliases']
                         ids.extend(issn_org['identifiers'])
-
 
                     for url in urls:
                         if url['id'] == k:
@@ -93,13 +90,14 @@ def init_journals():
                     data[pids.IDENTIFIERS_FIELD] = ids
                     # SourceRecord.delete_all_pids_without_object(data[pids.IDENTIFIERS_FIELD])
 
-                    source['data']= data
+                    source['data'] = data
 
                     if 'licence' in record:
                         data['classifications'] = []
                         name = string_as_identifier(tax['licences'][record['licence']]["name"])
                         term = Term.query.filter_by(identifier=name).first()
-                        data['classifications'].append({'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
+                        data['classifications'].append(
+                            {'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
                     if 'institution' in record:
                         # print(tax['institutions'][record['institution']]["name"])
                         data['organizations'] = []
@@ -120,7 +118,7 @@ def init_journals():
                         if org:
                             data['organizations'].append(
                                 {
-                                    'id': org['id'],
+                                    'id':   org['id'],
                                     'name': org['metadata']['name'],
                                     'role': 'MAIN'
                                 }
@@ -149,7 +147,6 @@ def init_journals():
                                         'role': 'COLABORATOR'
                                     }
                                 )
-
 
                     data['source_type'] = SourceType.JOURNAL.value
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
@@ -193,13 +190,14 @@ def init_journals():
     # init_repositories()
     # Sources.sync_source_index()
 
+
 def init_term_sources():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
     path_tax = current_app.config['INIT_TAXONOMY_JSON_PATH']
     with open(path) as fsource, open(path_tax) as ftax:
         data = json.load(fsource, object_hook=remove_nulls)
         tax = json.load(ftax)
-        inserted= {}
+        inserted = {}
         if isinstance(data, dict):
             for k, record in data.items():
                 SourceRecord.get()
@@ -226,6 +224,7 @@ def init_term_sources():
 
         db.session.commit()
 
+
 def delete_all_sources():
     ts = TermSources.query.all()
     for t in ts:
@@ -244,14 +243,15 @@ def delete_all_sources():
 
 def _assing_if_exist(data, record, field):
     if field in record:
-        data[field]= record[field]
+        data[field] = record[field]
+
 
 def get_term_by_name(name):
     term = Term.query.filter_by(identifier=name).first()
     return term.id
 
-def add_term_source(source, record, tid, tax, tax_key, data=None):
 
+def add_term_source(source, record, tid, tax, tax_key, data=None):
     # tid = record[record_key]
     name = string_as_identifier(tax[tax_key][tid]["name"])
     term = Term.query.filter_by(identifier=name).first()
@@ -263,8 +263,10 @@ def add_term_source(source, record, tid, tax, tax_key, data=None):
         ts.data = data
         db.session.add(ts)
 
+
 def remove_nulls(d):
     return {k: v for k, v in d.items() if v is not None}
+
 
 def init_repositories():
     path = current_app.config['INIT_JOURNALS_JSON_PATH']
@@ -293,6 +295,7 @@ def init_repositories():
                             # src.repository = repo
             db.session.commit()
 
+
 def add_terms_to_data():
     sources = Source.query.order_by('name').all()
     for source in sources:
@@ -300,9 +303,9 @@ def add_terms_to_data():
         for ts in source.term_sources:
             term_sources.append(
                 {
-                    'term_id': ts.term_id,
+                    'term_id':    ts.term_id,
                     'sources_id': source.id,
-                    'data': ts.data
+                    'data':       ts.data
                 }
             )
         data = dict(source.data)
@@ -310,8 +313,8 @@ def add_terms_to_data():
         source.data = data
     db.session.commit()
 
-def set_initial_versions():
 
+def set_initial_versions():
     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
     sources = Source.query.order_by('name').all()
     for source in sources:

@@ -1,4 +1,3 @@
-
 """Celery tasks used by Iroko-Harvester."""
 
 from __future__ import absolute_import, print_function

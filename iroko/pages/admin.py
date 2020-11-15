@@ -1,6 +1,4 @@
-from flask_admin.contrib.sqla import ModelView
-
-#from iroko.pages.models import Faq
+# from iroko.pages.models import Faq
 
 
 # class FaqModelView(ModelView):
@@ -19,14 +17,12 @@ from flask_admin.contrib.sqla import ModelView
 #     form_columns = ('question', 'answer')
 
 
-
 # faq_adminview = dict(
 #     modelview=FaqModelView,
 #     model=Faq,
 #     name='FAQ',
 #     category='Iroko'
 # )
-
 
 
 # __all__ = ('faq_adminview')

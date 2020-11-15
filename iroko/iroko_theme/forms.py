@@ -7,14 +7,13 @@ from iroko.vocabularies.models import Vocabulary, Term
 
 
 class ContactForm(FlaskForm):
-      email = StringField(_('Email'), [validators.DataRequired(), validators.Email()])
-      subject = StringField(_('Subject'), [validators.DataRequired(), validators.Length(max=150)])
-      message = TextAreaField(_('Message'), [validators.DataRequired()])
-      recaptcha = RecaptchaField()
+    email = StringField(_('Email'), [validators.DataRequired(), validators.Email()])
+    subject = StringField(_('Subject'), [validators.DataRequired(), validators.Length(max=150)])
+    message = TextAreaField(_('Message'), [validators.DataRequired()])
+    recaptcha = RecaptchaField()
 
 
 class IrokoSearchForm(FlaskForm):
-
     institutions = SelectField(
         _("Institucion"),
         id='iroko_search_form_institutions',
@@ -24,5 +23,5 @@ class IrokoSearchForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(IrokoSearchForm, self).__init__()
         voc = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.CUBAN_INTITUTIONS.value).first()
-        self.institutions.choices=[(str(choice.uuid), choice.name) for choice in Term.query.filter_by(vocabulary_id=voc.identifier, parent_id=None).all()]
-
+        self.institutions.choices = [(str(choice.uuid), choice.name) for choice in
+                                     Term.query.filter_by(vocabulary_id=voc.identifier, parent_id=None).all()]

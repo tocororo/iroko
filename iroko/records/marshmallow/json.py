@@ -25,12 +25,12 @@ def get_recid(obj, context):
     return pid.pid_value if pid else missing
 
 
-
 class PersonIdsSchemaV1(StrictKeysMixin):
     """Ids schema."""
 
     source = SanitizedUnicode()
     value = SanitizedUnicode()
+
 
 class ReferenceSchemaV1(StrictKeysMixin):
     # use SanitizedUnicode()?
@@ -60,21 +60,21 @@ class IdentifierSchemaV1(StrictKeysMixin):
 
 
 class SourceSchemaV1(StrictKeysMixin):
-
     uuid = fields.Str()
     name = SanitizedUnicode()
 
-class SpecSchemaV1(StrictKeysMixin):
 
+class SpecSchemaV1(StrictKeysMixin):
     code = fields.Str()
     name = SanitizedUnicode(validate=validate.Length(min=3))
+
 
 class MetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
     id = PersistentIdentifier()
     identifiers = Nested(IdentifierSchemaV1, many=True)
-    source = Nested(SourceSchemaV1)
+    source_repo = Nested(SourceSchemaV1)
     spec = Nested(SpecSchemaV1)
     title = SanitizedUnicode(required=True, validate=validate.Length(min=3))
     creators = Nested(ContributorSchemaV1, many=True)

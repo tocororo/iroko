@@ -48,6 +48,7 @@ def source_admin_required(fn):
 
     return wrapper
 
+
 def notification_admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):

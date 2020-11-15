@@ -10,16 +10,16 @@ class SourcesRoles(Schema):
     source_uuid = fields.Str(allow_none=True)
     role = fields.Str(allow_none=True)
 
-class UserProfileDataSchema(Schema):
 
+class UserProfileDataSchema(Schema):
     biography = fields.Str()
     institution_id = fields.Integer()
     institution_rol = fields.Str()
     avatar = fields.Str()
     sources = fields.Nested(SourcesRoles, many=True)
 
-class UserProfilesSchema(Schema):
 
+class UserProfilesSchema(Schema):
     _username = fields.Str()
     """Lower-case version of username to assert uniqueness."""
 
