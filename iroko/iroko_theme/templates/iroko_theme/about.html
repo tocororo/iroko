@@ -1,3 +1,11 @@
+{# -*- coding: utf-8 -*-
+
+  This file is part of SCEIBA.
+  Copyright (c) 2020. UPR
+  SCEIBA is free software; you can redistribute it and/or modify it
+  under the terms of the MIT License; see LICENSE file for more details.
+#}
+
 {%- extends config.BASE_TEMPLATE %}
 {%- block page_header %}
 
@@ -8,7 +16,8 @@
 
 {%- block page_body %}
 
-  <div class="container py-5 my-5 z-depth-1">
+
+<div class="container py-5 my-5 z-depth-1">
       <section class="p-md-3 mx-md-5">
         <h2 class="text-center mx-auto font-weight-bold mb-5 pb-2">{{ _('Nuestro Equipo') }}</h2>
 
@@ -28,7 +37,7 @@
 
           <!-- Carmen -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                 title="María del Carmen Martínez Díaz"
                 src="{{ url_for('static', filename='images/team/Maria-del-Carmen-Hernandez.png') }}"
                 aria-label="María del Carmen Martínez Díaz"
@@ -43,12 +52,12 @@
 
           <!-- Mabel -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
             src="{{ url_for('static', filename='images/team/Mabel-Rodriguz Poo.jpg') }}"
                  aria-label="Mabel Rodríguez Poo"
                  title="Mabel Rodríguez Poo"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Mabel Rodríguez Poo</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -58,12 +67,12 @@
 
           <!-- rafael -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
             src="{{ url_for('static', filename='images/team/Rafael-Martinez-Estevez.jpg') }}"
                  aria-label="Rafael Martínez Estévez"
                  title="Rafael Martínez Estévez"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Rafael Martínez Estévez</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -73,12 +82,12 @@
 
           <!-- Edel -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Edel-Abreu-Hernandez.jpeg') }}"
                  aria-label="Edel Abreu Hernández"
                  title="Edel Abreu Hernández"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Edel Abreu Hernández</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -88,12 +97,12 @@
 
           <!-- Eduardo -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Eduardo-Arencibia-Cabeza.jpg') }}"
                  aria-label="Eduardo Arencibia Cabeza"
                  title="Eduardo Arencibia Cabeza"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Eduardo Arencibia Cabeza</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -103,12 +112,12 @@
 
           <!-- Luis E. -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
             src="{{ url_for('static', filename='images/team/Luis-Enrique-Cabezas-Curbelo.jpeg') }}"
                  aria-label="Luis Enrique Cabezas Curbelo"
                  title="Luis Enrique Cabezas Curbelo"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Luis Enrique Cabezas Curbelo</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -118,12 +127,12 @@
 
           <!-- Reinier -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Reinier-Lorenzo-Cabezas.jpg') }}"
                  aria-label="Reinier Lorenzo Cabezas"
                  title="Reinier Lorenzo Cabezas"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Reinier Lorenzo Cabezas</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -133,12 +142,12 @@
 
           <!-- Diego -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Diego-Miguel-Ferreiro-Garcia2.jpg') }}"
                  aria-label="Diego Miguel Ferreiro Garcia"
                  title="Diego Miguel Ferreiro Garcia"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Diego Miguel Ferreiro Garcia</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -148,12 +157,12 @@
 
           <!-- Erdin -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/erdin-espinosa.jpg') }}"
                   aria-label="Erdin Espinosa"
                   title="Erdin Espinosa"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Erdin Espinosa</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -163,12 +172,12 @@
 
           <!-- Alejandro -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Alejandro-Cabrera-Mendez.jpeg') }}"
                  aria-label="Alejandro Cabrera Mendez"
                  title="Alejandro Cabrera Mendez"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Alejandro Cabrera Mendez</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -196,12 +205,12 @@
 
           <!-- yohanis -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Yohannis-Marti.jpg') }}"
                  aria-label="Yohannis Martí Lahera"
                  title="Yohannis Martí Lahera"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Yohannis Martí Lahera</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -211,12 +220,12 @@
 
           <!-- Alina -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Alina_Ruiz_Jhones.jpg') }}"
                  aria-label="Alina Ruiz Jhones"
                  title="Alina Ruiz Jhones"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Alina Ruiz Jhones</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -226,12 +235,12 @@
 
           <!-- Pedro -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                  src="{{ url_for('static', filename='images/team/Pedro Andres Urra Gonzalez.jpg') }}"
                  aria-label="Pedro Andres Urra Gonzalez"
                  title="Pedro Andres Urra Gonzalez"
                  style="object-fit: cover;"/>
-                 
+
             <h4>Pedro Andres Urra Gonzalez</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -257,12 +266,12 @@
         <div class="row">
           <!-- marc -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Marc_GOOVAERTS .jpg') }}"
                   aria-label="Marc Goovaerts "
                   title="Marc Goovaerts "
                   style="object-fit: cover;"/>
-                  
+
             <h4>Marc Goovaerts </h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -272,12 +281,12 @@
 
           <!-- Sadia Vancauwenbergh -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Sadia-VANCAUWENBERGH.jpg') }}"
                   aria-label="Sadia Vancauwenbergh"
                   title="Sadia Vancauwenbergh"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Sadia Vancauwenbergh</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -287,12 +296,12 @@
 
           <!-- Stephanie FRERE -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Stephanie-FRERE.jpg') }}"
                   aria-label="Stephanie Frere"
                   title="Stephanie Frere"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Stephanie Frere</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -302,12 +311,12 @@
 
           <!-- Ann Peters -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/ann-peters.jpg') }}"
                   aria-label="Ann Peters"
                   title="Ann Peters"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Ann Peters</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -334,27 +343,27 @@
         <div class="row">
           <!-- Raf Guns -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Raf-Guns.jpg') }}"
                   aria-label="Raf Guns"
                   title="Raf Guns"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Raf Guns</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
                 <!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. -->
             </p>
           </div>
-          
+
           <!-- Tim -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Tim-Engels.jpg') }}"
                   aria-label="Tim Engels"
                   title="Tim Engels"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Tim Engels</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -373,19 +382,19 @@
                 alt="{{_(config.THEME_SITENAME)}}" width="100">
             <!-- </a> -->
             <a href="http://www.lamolina.edu.pe/" target="block" class="text-dark h3">
-              Universidad Nacional Agraria La Molina 
+              Universidad Nacional Agraria La Molina
             </a>
           </div>
         </div>
         <div class="row">
           <!-- Eduardo Fuentes -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Eduardo-Fuentes-Navarro.jpg') }}"
                   aria-label="Eduardo Fuentes Navarro"
                   title="Eduardo Fuentes Navarro"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Eduardo Fuentes Navarro</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -395,12 +404,12 @@
 
           <!-- Carmen Velezmoro Sanchez -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/CARMEN-VELEZMORO-SANCHEZ.jpg') }}"
                   aria-label="Carmen Velezmoro Sanchez"
                   title="Carmen Velezmoro Sanchez"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Carmen Velezmoro Sanchez</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -420,19 +429,19 @@
                 alt="{{_(config.THEME_SITENAME)}}" width="100">
             <!-- </a> -->
             <a href="https://www.usil.edu.pe/" target="block" class="text-dark h3">
-              Universidad San Ignacio de Loyola 
+              Universidad San Ignacio de Loyola
             </a>
           </div>
         </div>
         <div class="row">
           <!-- Josmel -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/Josmel-Pacheco-Mendoza.jpg') }}"
                   aria-label="Josmel Pacheco Mendoza"
                   title="Josmel Pacheco Mendoza"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Josmel Pacheco Mendoza</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -458,12 +467,12 @@
         <div class="row">
           <!-- Liliam Chang -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/lilliam-chang.jpg') }}"
                   aria-label="Liliam Chang"
                   title="Liliam Chang"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Liliam Chang</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -473,12 +482,12 @@
 
           <!-- Concepcion Diaz Mayans -->
           <div class="col-md-3 col-sm-6 text-center">
-            <img class="bd-placeholder-img rounded-circle" width="140" height="140" 
+            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
                   src="{{ url_for('static', filename='images/team/concepcion-diaz-mayans.jpg') }}"
                   aria-label="Concepcion Diaz Mayans"
                   title="Concepcion Diaz Mayans"
                   style="object-fit: cover;"/>
-                  
+
             <h4>Concepcion Diaz Mayans</h4>
             <p class="font-weight-normal">{{ _(' ') }}</p>
             <p class="text-muted mb-lg-0">
@@ -486,7 +495,7 @@
             </p>
           </div>
         </div>
-          
+
       </section>
   </div>
 

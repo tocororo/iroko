@@ -1,3 +1,10 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
+
 """Document fetchers."""
 
 from invenio_pidstore.fetchers import FetchedPID

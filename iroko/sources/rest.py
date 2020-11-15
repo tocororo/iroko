@@ -1,4 +1,10 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
 """Iroko sources api views."""
+
 
 from __future__ import absolute_import, print_function
 
@@ -39,6 +45,7 @@ from iroko.userprofiles.marshmallow import user_schema_many
 from iroko.utils import iroko_json_response, IrokoResponseStatus, CuorHelper, IrokoVocabularyIdentifiers
 from iroko.vocabularies.marshmallow import term_schema_many
 from iroko.vocabularies.models import Term
+
 
 api_blueprint = Blueprint(
     'iroko_api_sources',

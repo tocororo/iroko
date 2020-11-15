@@ -1,18 +1,18 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of Invenio.
-  Copyright (C) 2015-2018 CERN.
-
-  Invenio is free software; you can redistribute it and/or modify it
+  This file is part of SCEIBA.
+  Copyright (c) 2020. UPR
+  SCEIBA is free software; you can redistribute it and/or modify it
   under the terms of the MIT License; see LICENSE file for more details.
 #}
-
 {% macro menu_icon(item) -%}
 {% set icon_type = item.get_icon_type() %}
 {%- if icon_type %}
   {% set icon_value = item.get_icon_value() %}
   {% if icon_type == 'glyph' %}
-    <i class="glyphicon {{ icon_value }}"></i>
+
+
+<i class="glyphicon {{ icon_value }}"></i>
   {% elif icon_type == 'fa' %}
     <i class="fa {{ icon_value }}"></i>
   {% elif icon_type == 'image' %}

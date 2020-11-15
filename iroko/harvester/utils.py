@@ -1,3 +1,10 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
+
 import os
 import re
 from collections import defaultdict
@@ -6,6 +13,7 @@ from zipfile import ZipFile
 from lxml import etree
 
 from iroko.harvester.oai import nsmap
+
 
 """
 several functions and classes that utils across the harvester module, 

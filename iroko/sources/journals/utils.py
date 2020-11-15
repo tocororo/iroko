@@ -1,7 +1,15 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
+
 """
 Helper function to several task related to Sources, sources types,
  sources fields, etc..
 """
+
 
 from iroko.sources.models import Source
 

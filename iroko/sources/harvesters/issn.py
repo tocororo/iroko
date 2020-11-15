@@ -1,3 +1,9 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
 import binascii
 import json
 import os
@@ -246,7 +252,7 @@ class IssnDataParser:
 
         source = SourceRawData.query.filter_by(identifier=identifier).first()
         if not source:
-            # return None
+            return None
             # esto significa que no se recolecto el issn, recolectarlo entonces!!!!
             print('NO SOURCE', identifier)
             issndata = collect_issn_info_single(identifier)

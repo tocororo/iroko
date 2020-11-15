@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
 #
-# Copyright (C) 2018 UPR.
-#
+
 
 from invenio_pidstore.errors import PIDDoesNotExistError, PIDAlreadyExists
 from invenio_pidstore.models import PersistentIdentifier

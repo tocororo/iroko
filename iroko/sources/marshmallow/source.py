@@ -1,3 +1,10 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
+
 from marshmallow import Schema, fields, post_dump, INCLUDE
 from marshmallow_enum import EnumField
 from sqlalchemy import desc

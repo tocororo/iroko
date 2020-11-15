@@ -1,11 +1,19 @@
 
+{# -*- coding: utf-8 -*-
 
+  This file is part of SCEIBA.
+  Copyright (c) 2020. UPR
+  SCEIBA is free software; you can redistribute it and/or modify it
+  under the terms of the MIT License; see LICENSE file for more details.
+#}
 {%- extends config.THEME_BASE_TEMPLATE %}
 
 {%- block header %}
-<base href="{{iroko_host}}/catalog"> 
-<meta charset="utf-8">    
-<meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+
+
+<base href="{{iroko_host}}/catalog">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 
 <style type="text/css">
@@ -63,7 +71,7 @@
         stroke-dashoffset: -124px;
       }
     }
-  </style>  
+  </style>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='catalog/styles.f5a4a6bc158a5aa37805.css') }}">
 

@@ -1,3 +1,10 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
+
 def iroko_permissions():
     # concediendo acceso a un usuario, puede ser por rol# 1- si es por usuario hay q obtener el usuario, si es por rol igual#
     eduardo = db.session.query(User).filter_by(email="eduardo.arencibia@upr.edu.cu").first()

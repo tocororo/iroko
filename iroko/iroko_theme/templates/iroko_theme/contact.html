@@ -1,4 +1,12 @@
+{# -*- coding: utf-8 -*-
+
+  This file is part of SCEIBA.
+  Copyright (c) 2020. UPR
+  SCEIBA is free software; you can redistribute it and/or modify it
+  under the terms of the MIT License; see LICENSE file for more details.
+#}
 {% if form %}
+
 <div class="container my-5 py-5 z-depth-1">
     <!--Section: Content-->
     <section class="px-md-5 mx-md-5 text-center text-lg-left dark-grey-text">
@@ -26,8 +34,8 @@
         <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
 
             <form action="{{ url_for('iroko_theme.send_mail_contact') }}" method="post">
-                {{ form.csrf_token }}  
-                {{ form.hidden_tag() }}                
+                {{ form.csrf_token }}
+                {{ form.hidden_tag() }}
                 <div class="md-form md-outline mt-3">
                     {{ form.email(class="form-control", placeholder=_('Correo electrónico')) }}
                     {% for error in form.email.errors %}
@@ -46,13 +54,13 @@
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </div>
-                <div class="md-form md-outline mb-3" > 
+                <div class="md-form md-outline mb-3" >
                     {{ form.recaptcha }}
                     {% for error in form.recaptcha.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </div>
-                    
+
 
                 <button type="submit" class="btn btn-default">{{ _('Enviar') }}<i class="fa fa-paper-plane ml-2"></i></button>
             </form>

@@ -1,3 +1,9 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
 from invenio_records_rest.schemas import StrictKeysMixin
 from invenio_records_rest.schemas.fields import DateString, SanitizedUnicode, PersistentIdentifier
 from marshmallow import Schema, fields, post_dump, INCLUDE

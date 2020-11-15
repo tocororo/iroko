@@ -1,3 +1,9 @@
+#  This file is part of SCEIBA.
+#  Copyright (c) 2020. UPR
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+#
+
 from flask_login import current_user
 from invenio_access import action_factory, Permission
 from invenio_access.utils import get_identity
