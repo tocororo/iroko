@@ -1286,3 +1286,11 @@ class OaiHarvesterDeprecated:
                 # print(e)
                 # print(e.args)
         time.sleep(self.request_wait_time)
+
+
+
+# Traceback (most recent call last):  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/harvester/oai/harvester.py",
+# line 376, in record_items    data, dbcommit=True, reindex=True  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/records/api.py",
+# line 89, in create_or_update    record = cls.get_record_by_data(data)  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/records/api.py", line 156, in get_record_by_data
+# pid = cls.oai_provider.get_pid_from_data(data=data)  File "/Users/malayo/Documents/dev/tocororo/iroko/iroko/iroko/pidstore/providers.py",
+# line 76, in get_pid_from_data    assert 'source' in data, "no source in data"AssertionError: no source in data

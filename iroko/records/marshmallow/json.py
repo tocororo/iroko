@@ -48,8 +48,8 @@ class ContributorSchemaV1(StrictKeysMixin):
     email = fields.Email()
     roles = fields.List(SanitizedUnicode())
 
-    @post_dump
-    def no_email(self, contributor):
+    @post_dump(pass_many=False)
+    def no_email(self, contributor, **kwargs):
         contributor['email'] = ''
         return contributor
 

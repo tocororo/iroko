@@ -356,7 +356,7 @@ class SourceRecord(Record):
                     #     'harvest_type':  repo.harvest_type.value,
                     #     'harvest_endpoint': repo.harvest_endpoint,
                     #     'last_harvest_run': repo.last_harvest_run,
-                    #     'status':  repo.status.value
+                    #     'status':  re.status.value
                     # }
 
     def _update_pids(self):

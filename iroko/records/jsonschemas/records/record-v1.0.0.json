@@ -370,7 +370,7 @@
   },
   "required": [
     "id",
-    "source",
+    "source_repo",
     "title"
   ]
 }

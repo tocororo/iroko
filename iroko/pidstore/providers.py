@@ -73,8 +73,8 @@ class IrokoSourceOAIProvider(BaseProvider):
     @classmethod
     def get_pid_from_data(cls, data=None):
         assert data, "no data"
-        assert 'source' in data, "no source in data"
-        assert 'uuid' in data['source'], "no source uuid"
+        assert 'source_repo' in data, "no source in data"
+        assert 'uuid' in data['source_repo'], "no source uuid"
 
         oai_id = None
         for idf in data['identifiers']:
@@ -82,7 +82,7 @@ class IrokoSourceOAIProvider(BaseProvider):
                 oai_id = idf['value']
         assert oai_id, "no oai in idenfitiers in data, or not value for it"
 
-        return data['source']['uuid'] + '-' + oai_id
+        return data['source_repo']['uuid'] + '-' + oai_id
 
 
 class IrokoRecordsIdentifiersProvider(BaseProvider):
