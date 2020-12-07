@@ -32,6 +32,8 @@ from iroko.sources.api import SourceRecord
 from iroko.sources.permissions import check_source_status
 from iroko.sources.search import SourceSearch
 
+import os 
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
