@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function
 import click
 from flask.cli import with_appcontext
 
-from iroko.sources.fixtures import init_journals
+from iroko.sources.fixtures import init_journals, init_repos
 from iroko.sources.harvesters.issn import IssnHarvesterManager
 from iroko.sources.harvesters.miar import MiarHarvesterManager
 
@@ -18,6 +18,10 @@ from iroko.sources.harvesters.miar import MiarHarvesterManager
 def sources():
     """Command related to Iroko Sources iroko data."""
 
+@sources.command()
+@with_appcontext
+def init_repos_data():
+    init_repos()
 
 @sources.command()
 @with_appcontext

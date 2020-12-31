@@ -27,6 +27,43 @@ from iroko.utils import string_as_identifier, CuorHelper, get_default_user
 from iroko.vocabularies.models import Term
 
 
+def init_repos():
+    datadir = current_app.config['IROKO_DATA_DIRECTORY']
+
+    path = os.path.join(datadir, 'repos.json')
+    user = get_default_user()
+
+    with open(path) as repos:
+        raw = json.load(repos, object_hook=remove_nulls)
+        for k, record in raw.items():
+            source = dict()
+            data = dict()
+            data['source_type'] = SourceType.REPOSITORY.value
+            data['name'] = record['name']
+            ids = []
+
+            if 'url' in record:
+                data['url'] = record['url']
+                ids.append(dict(idtype='url', value=record['url']))
+            if 'oaiurl' in record:
+                data['oaiurl'] = record['oaiurl']
+                ids.append(dict(idtype='oaiurl', value=record['oaiurl']))
+
+            data[pids.IDENTIFIERS_FIELD] = ids
+
+            source['data'] = data
+
+            data['source_status'] = SourceStatus.UNOFFICIAL.value
+
+            user = get_default_user()
+            data['_save_info'] = {
+                'user_id': str(user.id),
+                'comment': 'seed data',
+                'updated': str(datetime.date.today())
+            }
+
+            new_source = SourceRecord.new_source_revision(data, user.id, 'seed data')
+
 def init_journals():
     # sources_path = '../../data/journals.json'
     # delete_all_sources()
