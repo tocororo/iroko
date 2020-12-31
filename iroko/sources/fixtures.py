@@ -40,6 +40,7 @@ def init_repos():
             data = dict()
             data['source_type'] = SourceType.REPOSITORY.value
             data['name'] = record['name']
+            data['title'] = record['name']
             ids = []
 
             if 'url' in record:
