@@ -134,7 +134,7 @@ class OaiHarvester:
                 source_id = OaiFetcherProcessor.process_file(file_path, dst_dir)
                 OaiArchivist.archive_source(source_id, dst_dir)
             except Exception as e:
-                print(traceback.format_exc(e))
+                print(e)
 
 
     @staticmethod
@@ -157,7 +157,7 @@ class OaiHarvester:
                     source_id = OaiFetcherProcessor.process_file(item_path, dst_dir)
                     OaiArchivist.archive_source(source_id, dst_dir)
                 except Exception as e:
-                    print(traceback.format_exc(e))
+                    print(e)
 
     @staticmethod
     def fetch_all_repos(data_dir=None):
