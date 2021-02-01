@@ -136,7 +136,7 @@ def get_terms_list():
 
 
 @api_blueprint.route('/term/list/<vocabulary_id>')
-@cached_unless_authenticated(timeout=5000)
+#@cached_unless_authenticated(timeout=5000)
 def get_terms(vocabulary_id):
     """Get all terms of a vocabulary in a list """
     try:
@@ -148,7 +148,7 @@ def get_terms(vocabulary_id):
 
 
 @api_blueprint.route('/term/tree/<vocabulary_id>')
-@cached_unless_authenticated(timeout=5000)
+#@cached_unless_authenticated(timeout=5000)
 def get_terms_tree(vocabulary_id):
     """List all the terms in a vocabulary, in a tree
     Receive <level> as an argument, defining the level of the tree you want.
@@ -196,7 +196,7 @@ def term_get_tree_by_id(id):
 
 
 @api_blueprint.route('/term/<uuid>')
-@cached_unless_authenticated(timeout=5000)
+#@cached_unless_authenticated(timeout=5000)
 def term_get_tree(uuid):
     """Get a term given the uuid, in deep, meaning the children
     Receive <level> as an argument, defining the level of the tree considering the children as level=1 and parent as level=-1
@@ -223,7 +223,7 @@ def term_get_tree(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@cached_unless_authenticated(timeout=5000)
+#@cached_unless_authenticated(timeout=5000)
 @api_blueprint.route('/term/inlist', methods=['GET'])
 def get_term_in_list():
     try:

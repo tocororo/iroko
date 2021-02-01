@@ -47,6 +47,10 @@ from iroko.vocabularies.models import Term
 
 
 class SourceRecord(Record):
+
+    # TODO: en algunos casos hace falta hacer PATCH en vez de UPDATE.
+    # por ejemplo, cuando vienen los datos de issn.org
+
     _schema = "sources/source-v1.0.0.json"
 
     def __str__(self):
@@ -54,6 +58,7 @@ class SourceRecord(Record):
 
     @classmethod
     def new_source_revision(cls, data, user_id=None, comment='no comment'):
+
 
         if data and \
             (data['source_status'] == SourceStatus.UNOFFICIAL.value or
@@ -303,27 +308,29 @@ class SourceRecord(Record):
         if data and type(data) == dict:
             # print('super(SourceRecord, self).update(data)')
             super(SourceRecord, self).update(data)
-            # print('******')
-            if 'organizations' in old:
-                self['organizations'] = old['organizations']
-            if 'organizations' in data:
-                for org in data['organizations']:
-                    self._add_update_item_to_list('organizations', 'id', org)
-            # print('******', dict(self))
-            if 'classifications' in old:
-                self['classifications'] = old['classifications']
-            if 'classifications' in data:
-                for term in data['classifications']:
-                    self._add_update_item_to_list('classifications', 'id', term)
-            # print('******', dict(self))
-            if pids.IDENTIFIERS_FIELD in old:
-                self[pids.IDENTIFIERS_FIELD] = old[pids.IDENTIFIERS_FIELD]
-            if pids.IDENTIFIERS_FIELD in data:
-                for _id in data[pids.IDENTIFIERS_FIELD]:
-                    self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
-            # print('******', dict(self))
 
-        print('update pids?')
+            # if 'organizations' in old:
+            #     for org in old['organizations']:
+            #         self._add_update_item_to_list('organizations', 'id', org)
+            # if 'organizations' in data:
+            #     for org in data['organizations']:
+            #         self._add_update_item_to_list('organizations', 'id', org)
+            #
+            # if 'classifications' in old:
+            #     for term in old['classifications']:
+            #         self._add_update_item_to_list('classifications', 'id', term)
+            # if 'classifications' in data:
+            #     for term in data['classifications']:
+            #         self._add_update_item_to_list('classifications', 'id', term)
+            #
+            # if pids.IDENTIFIERS_FIELD in old:
+            #     for _id in old[pids.IDENTIFIERS_FIELD]:
+            #         self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
+            # if pids.IDENTIFIERS_FIELD in data:
+            #     for _id in data[pids.IDENTIFIERS_FIELD]:
+            #         self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
+
+        print('update pids ')
         self._update_pids()
 
         self['_save_info_updated'] = str(date.today())
@@ -361,6 +368,7 @@ class SourceRecord(Record):
 
     def _update_pids(self):
         newPids = []
+        # TODO: que pasa si se eliminan PIDS? !!!!!
         if pids.IDENTIFIERS_FIELD in self:
             for ids in self[pids.IDENTIFIERS_FIELD]:
                 if ids['idtype'] in identifiers_schemas:

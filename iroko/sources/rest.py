@@ -206,16 +206,15 @@ def source_publish(uuid):
             data = dict(input_data['data'])
             data['source_status'] = SourceStatus.APPROVED.value
 
-            source.update(data)
-
             source_version = IrokoSourceVersions.new_version(source.id,
                                                              data,
                                                              user_id=user_id,
                                                              comment=comment,
                                                              is_current=True)
-
             if not source_version:
                 raise Exception('Not source for changing found')
+
+            source.update(data)
 
             # TODO: aqui hay un error con los get managers
             # notification = NotificationSchema()
@@ -614,7 +613,7 @@ def get_sources_stats():
         cache = current_cache.get("get_sources_stats:{0}{1}".format(org_id, offset)) or {}
         if "date" not in cache:
             cache["date"] = datetime.datetime.now()
-        if datetime.datetime.now() - cache["date"] < datetime.timedelta(days=1) and "stats" in cache:
+        if datetime.datetime.now() - cache["date"] < datetime.timedelta(seconds=3000) and "stats" in cache:
             print("USING CACHE STATS")
             result = cache["stats"]
             return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)

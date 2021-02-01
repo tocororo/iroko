@@ -157,6 +157,9 @@ class CuorHelper:
                 cache["date"] = datetime.now()
             if datetime.now() - cache["date"] < timedelta(days=1) and "org" in cache:
                 print("USING CACHE ORGANIZATION")
+                if 'status' in cache["org"] and cache["org"]['status'] == '404':
+                    cache["org"] = None
+                    return None
                 return cache["org"]
 
             api_endpoint = current_app.config['CUOR_API_ENDPOINT']
@@ -164,6 +167,8 @@ class CuorHelper:
             url = api_endpoint + '/pid?value=' + pid
             response = session.get(url, verify=False)
             result = json.loads(response.text)
+            if 'status' in result and result['status'] == '404':
+                return None
             cache["org"] = result
             cache["date"] = datetime.now()
             current_cache.set("query_cuor_by_pid:{0}".format(pid), cache, timeout=-1)

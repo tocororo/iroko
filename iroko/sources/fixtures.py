@@ -203,6 +203,7 @@ def init_journals():
                         'updated': str(datetime.date.today())
                     }
 
+                    # TODO: en este caso hace falta hacer patch en vez de update, porque ya issn trajo datos...
                     new_source = SourceRecord.new_source_revision(data, user.id, 'seed data')
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
                     # # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
