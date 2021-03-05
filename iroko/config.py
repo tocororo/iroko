@@ -32,7 +32,7 @@ from iroko.sources.api import SourceRecord
 from iroko.sources.permissions import check_source_status
 from iroko.sources.search import SourceSearch
 
-import os 
+import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -76,34 +76,29 @@ REQUIREJS_CONFIG = 'js/build.js'
 SASS_BIN = 'node-sass'
 
 #: Global base template.
-BASE_TEMPLATE = 'iroko_theme/page.html'
-THEME_BASE_TEMPLATE = 'iroko_theme/page.html'
+
+# Base templates
+# ==============
+#: Global base template.
+BASE_TEMPLATE = 'invenio_theme/page.html'
 #: Cover page base template (used for e.g. login/sign-up).
-COVER_TEMPLATE = 'iroko_theme/page_cover.html'
-
-THEME_BODY_TEMPLATE = 'iroko_theme/body.html'
-
-#: Header base template.
-THEME_HEADER_TEMPLATE = 'iroko_theme/header.html'
+COVER_TEMPLATE = 'invenio_theme/page_cover.html'
 #: Footer base template.
-THEME_FOOTER_TEMPLATE = 'iroko_theme/footer.html'
-
-SECURITY_LOGIN_USER_TEMPLATE = 'iroko_theme/accounts/login_user.html'
-
-SECURITY_REGISTER_USER_TEMPLATE = 'iroko_theme/accounts/register_user.html'
-
-THEME_SEARCHBAR = True
-
-THEME_HEADER_LOGIN_TEMPLATE = 'iroko_theme/header_login.html'
+FOOTER_TEMPLATE = 'invenio_theme/footer.html'
+#: Header base template.
+HEADER_TEMPLATE = 'invenio_theme/header.html'
 #: Settings base template.
-SETTINGS_TEMPLATE = 'iroko_theme/page_settings.html'
+SETTINGS_TEMPLATE = 'invenio_theme/page_settings.html'
 
 # Theme configuration
 # ===================
+#: The Invenio theme.
+APP_THEME = ['semantic-ui']
+
 #: Site name
 THEME_SITENAME = _('sceiba')
 #: Use default frontpage.
-THEME_FRONTPAGE = False
+THEME_FRONTPAGE = True
 #: Frontpage title.
 THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
 #: Theme logo.
@@ -113,61 +108,63 @@ CATALOG_LOGO_ADMIN = 'images/archives_icon_129343.png'
 TAXONOMY_LOGO_ADMIN = 'images/checklist_icon_129189.png'
 MES_LOGO_ADMIN = 'images/mes.png'
 CUOR_LOGO_ADMIN = 'images/organizacion.svg'
-#: Frontpage template.
-THEME_FRONTPAGE_TEMPLATE = 'iroko_theme/frontpage.html'
-THEME_JAVASCRIPT_TEMPLATE = 'iroko_theme/javascript.html'
 
-THEME_CONTACT_TEMPLATE = 'iroko_theme/contact.html'
+#: Frontpage template.
+THEME_FRONTPAGE_TEMPLATE = 'iroko/frontpage.html'
+
+# THEME_JAVASCRIPT_TEMPLATE = 'invenio_theme/javascript.html'
+#
+# THEME_CONTACT_TEMPLATE = 'invenio_theme/contact.html'
 
 # Search configuration
 # ===================
 
-"""Records UI for iroko."""
-SEARCH_UI_SEARCH_API = '/api/records/'
-"""Configure the search engine endpoint."""
-
-SEARCH_UI_SEARCH_INDEX = 'records'
-"""Name of the search index used."""
-
-SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/search_ui/results.html'
-"""Result list template."""
-
-SEARCH_UI_HEADER_TEMPLATE = 'iroko_theme/search_ui/base_header.html'
-
-SEARCH_UI_SEARCH_TEMPLATE = 'iroko_theme/search_ui/search.html'
+# """Records UI for iroko."""
+# SEARCH_UI_SEARCH_API = '/api/records/'
+# """Configure the search engine endpoint."""
+#
+# SEARCH_UI_SEARCH_INDEX = 'records'
+# """Name of the search index used."""
+#
+# SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/search_ui/results.html'
+# """Result list template."""
+#
+# SEARCH_UI_HEADER_TEMPLATE = 'invenio_theme/search_ui/base_header.html'
+#
+SEARCH_UI_SEARCH_TEMPLATE = 'iroko/search.html'
 """Configure the search page template."""
-
-SEARCH_UI_JSTEMPLATE_COUNT = 'templates/search_ui/count.html'
-"""Configure the count template."""
-
-SEARCH_UI_JSTEMPLATE_ERROR = 'templates/search_ui/error.html'
-"""Configure the error page template."""
-
-SEARCH_UI_JSTEMPLATE_FACETS = 'templates/search_ui/facets.html'
-"""Configure the facets template."""
-
-SEARCH_UI_JSTEMPLATE_RANGE = 'templates/search_ui/range.html'
-"""Configure the range template."""
-
-SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS = {
-    'histogramId': '#year_hist',
-    'selectionId': '#year_select',
-    'name':        'years',
-    'width':       180
-}
-"""Configure the range template options."""
-
-SEARCH_UI_JSTEMPLATE_LOADING = 'templates/search_ui/loading.html'
-"""Configure the loading template."""
-
-SEARCH_UI_JSTEMPLATE_PAGINATION = 'templates/search_ui/pagination.html'
-"""Configure the pagination template."""
-
-SEARCH_UI_JSTEMPLATE_SELECT_BOX = 'templates/search_ui/selectbox.html'
-"""Configure the select box template."""
-
-SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
-"""Configure the toggle button template."""
+#
+# SEARCH_UI_JSTEMPLATE_COUNT = 'templates/search_ui/count.html'
+# """Configure the count template."""
+#
+# SEARCH_UI_JSTEMPLATE_ERROR = 'templates/search_ui/error.html'
+# """Configure the error page template."""
+#
+# SEARCH_UI_JSTEMPLATE_FACETS = 'templates/search_ui/facets.html'
+# """Configure the facets template."""
+#
+# SEARCH_UI_JSTEMPLATE_RANGE = 'templates/search_ui/range.html'
+# """Configure the range template."""
+#
+# SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS = {
+#     'histogramId': '#year_hist',
+#     'selectionId': '#year_select',
+#     'name':        'years',
+#     'width':       180
+# }
+# """Configure the range template options."""
+#
+# SEARCH_UI_JSTEMPLATE_LOADING = 'templates/search_ui/loading.html'
+# """Configure the loading template."""
+#
+# SEARCH_UI_JSTEMPLATE_PAGINATION = 'templates/search_ui/pagination.html'
+# """Configure the pagination template."""
+#
+# SEARCH_UI_JSTEMPLATE_SELECT_BOX = 'templates/search_ui/selectbox.html'
+# """Configure the select box template."""
+#
+# SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
+# """Configure the toggle button template."""
 
 # Static page
 # ==================
@@ -178,11 +175,10 @@ SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
 
 
 RECORDS_UI_ENDPOINTS = {
-    'recid': {
-        'pid_type': 'irouid',
-        'route':    '/records/<pid_value>',
-        'template': 'iroko_theme/records/record.html',
-        'view_imp': 'iroko.records.views.iroko_record_view'
+    'irouid': {
+        "pid_type": "irouid",
+        "route": "/records/<pid_value>",
+        "template": "invenio_records_ui/detail.html"
     },
 }
 
@@ -229,7 +225,8 @@ RECORDS_REST_ENDPOINTS = dict(
                     'field': 'suggest_title'
                 }
             )
-        )
+        ),
+        search_index='records'
     )
     ,
     srcid=dict(
