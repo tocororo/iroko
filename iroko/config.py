@@ -17,6 +17,7 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
+import copy
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
@@ -33,6 +34,7 @@ from iroko.sources.permissions import check_source_status
 from iroko.sources.search import SourceSearch
 
 import os
+from invenio_oauthclient.contrib import keycloak as k
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -177,7 +179,7 @@ SEARCH_UI_SEARCH_TEMPLATE = 'iroko/search.html'
 RECORDS_UI_ENDPOINTS = {
     'irouid': {
         "pid_type": "irouid",
-        "route": "/records/<pid_value>",
+        "route":    "/records/<pid_value>",
         "template": "invenio_records_ui/detail.html"
     },
 }
@@ -475,10 +477,6 @@ JSONSCHEMAS_URL_SCHEME = 'https'
 
 REST_ENABLE_CORS = True
 
-OAUTHCLIENT_REMOTE_APPS = dict(
-    orcid=orcid.REMOTE_APP,
-)
-
 OAUTH2_PROVIDER_TOKEN_EXPIRES_IN = 86400
 
 APP_DEFAULT_SECURE_HEADERS = {
@@ -518,4 +516,60 @@ OAISERVER_RECORD_INDEX = '_all'
 OAISERVER_ID_PREFIX = 'oai:localhost:records/'
 OAISERVER_QUERY_PARSER_FIELDS = ["title_statement"]
 
-# Iroko Vocabularies
+# Sceiba oauth keycloak
+
+
+helper = k.KeycloakSettingsHelper(
+    base_url="https://personas.sceiba.cu/",
+    realm="sceiba"
+)
+
+OAUTHCLIENT_KEYCLOAK_REMOTE_APP = helper.remote_app()
+print('#################################################################################')
+print(OAUTHCLIENT_KEYCLOAK_REMOTE_APP)
+
+OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP = helper.remote_rest_app()
+print('#################################################################################')
+print(OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP)
+
+USERPROFILES_EXTEND_SECURITY_FORMS = True
+OAUTHCLIENT_KEYCLOAK_REALM_URL = helper.realm_url
+OAUTHCLIENT_KEYCLOAK_USER_INFO_URL = helper.user_info_url
+OAUTHCLIENT_KEYCLOAK_VERIFY_AUD = True
+OAUTHCLIENT_KEYCLOAK_AUD = "invenio"
+OAUTHCLIENT_KEYCLOAK_VERIFY_EXP = True
+
+
+KEYCLOAK_APP_CREDENTIALS = dict(
+    consumer_key='sceiba-dev',
+    consumer_secret='d22812e0-38e7-43a8-9f57-08bccbbd98c3',
+)
+OAUTHCLIENT_REMOTE_APPS = dict(
+    keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_APP,
+    # sceiba=SCEIBA_APP,
+)
+
+# OAUTHCLIENT_REST_REMOTE_APPS = dict(
+#     keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP
+# )
+
+SECURITY_CONFIRMABLE = False
+
+# from iroko.auth import sceiba_openid
+
+# SCEIBA_APP = copy.deepcopy(sceiba_openid.REMOTE_APP)
+# print(SCEIBA_APP)
+# add Keycloak to the dictionary of remote apps
+
+
+# OAUTH_REMOTE_REST_APP = copy.deepcopy(sceiba_openid.REMOTE_REST_APP)
+# update any params if needed
+# OAUTH_REMOTE_REST_APP["params"].update({})
+# OAUTHCLIENT_REST_REMOTE_APPS = dict(
+#     keycloak=OAUTH_REMOTE_REST_APP,
+# )
+#
+# SCEIBA_APP_OPENID_CREDENTIALS = dict(
+#     consumer_key='sceiba-dev',
+#     consumer_secret='d22812e0-38e7-43a8-9f57-08bccbbd98c3',
+# )
