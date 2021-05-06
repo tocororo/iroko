@@ -20,6 +20,7 @@ from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import userprofile_schema, user_schema_many
 from iroko.utils import iroko_json_response, IrokoResponseStatus
 from .views import init_common
+from iroko.auth import require_keycloak_auth
 
 api_blueprint = Blueprint(
     'iroko_api_userprofiles',
@@ -34,8 +35,7 @@ def init_api(state):
 
 
 @api_blueprint.route('/me', methods=['GET'])
-@require_api_auth()
-# @require_oauth_scopes(email_scope.id_)
+@require_keycloak_auth(require_token=True, scopes_required=['openid'])
 def get_user_info():
     try:
         biography = ""
