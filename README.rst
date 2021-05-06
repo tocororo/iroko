@@ -15,5 +15,11 @@ Iroko is the source code of SCEIBA
 sceiba project, iroko software, invenio repository software
 
 
+======
+Project development
+======
+
+This project is using Github Flow. Go to https://guides.github.com/introduction/flow/ to see how it work.
+
 
 
