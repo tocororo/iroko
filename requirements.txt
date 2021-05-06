@@ -26,7 +26,7 @@ check-manifest==0.41
 click==7.1.1
 cookiecutter==1.7.0
 coverage==5.0.4
-cryptography==2.8
+cryptography==3.3.2
 decorator==4.4.1
 defusedxml==0.6.0
 docutils==0.16
