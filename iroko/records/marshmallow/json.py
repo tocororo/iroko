@@ -19,7 +19,7 @@ from invenio_records_rest.schemas.fields import (
 from marshmallow import fields, missing, validate, post_dump
 
 from iroko.sources.marshmallow.base import OrganizationDataSchema, ClasificationDataSchema
-
+from iroko.sources.api import SourceRecord
 
 def get_recid(obj, context):
     """Get record id."""
@@ -71,8 +71,8 @@ class SpecSchemaV1(StrictKeysMixin):
     name = SanitizedUnicode(validate=validate.Length(min=3))
 
 
-class MetadataSchemaV1(StrictKeysMixin):
-    """Schema for the record metadata."""
+class MetadataSchemaBaseV1(StrictKeysMixin):
+    """Base Schema for the record metadata."""
 
     id = PersistentIdentifier()
     identifiers = Nested(IdentifierSchemaV1, many=True)
@@ -89,7 +89,6 @@ class MetadataSchemaV1(StrictKeysMixin):
     formats = fields.List(SanitizedUnicode(), many=True)
     language = fields.Str()
     publication_date = DateString()
-    contributors = Nested(ContributorSchemaV1, many=True)
     references = Nested(ReferenceSchemaV1, many=True)
     terms = fields.List(SanitizedUnicode(), many=True)
     status = fields.Str()
@@ -97,7 +96,25 @@ class MetadataSchemaV1(StrictKeysMixin):
     classifications = Nested(ClasificationDataSchema, many=True)
 
 
-class RecordSchemaV1(StrictKeysMixin):
+class MetadataFullSchemaV1(MetadataSchemaBaseV1):
+    """Schema for the record metadata."""
+    source_repo = Nested(SourceSchemaV1)
+    contributors = Nested(ContributorSchemaV1, many=True)
+
+    @post_dump(pass_many=False)
+    def full_source(self, record, **kwargs):
+        source_uuid = record['source_repo']['uuid']
+        source = SourceRecord.get_record(source_uuid)
+        record['source_repo'] = source
+        return record
+
+
+class MetadataSchemaV1(MetadataSchemaBaseV1):
+    """Schema for the record metadata."""
+    source_repo = Nested(SourceSchemaV1)
+
+
+class RecordSchemaBaseV1(StrictKeysMixin):
     """Record schema."""
 
     metadata = fields.Nested(MetadataSchemaV1)
@@ -106,3 +123,13 @@ class RecordSchemaV1(StrictKeysMixin):
     updated = fields.Str(dump_only=True)
     links = fields.Dict(dump_only=True)
     id = PersistentIdentifier()
+
+class RecordSchemaV1(RecordSchemaBaseV1):
+    """Record schema."""
+
+    metadata = fields.Nested(MetadataSchemaV1)
+
+class RecordFullSchemaV1(RecordSchemaBaseV1):
+    """Record schema."""
+
+    metadata = fields.Nested(MetadataFullSchemaV1)
