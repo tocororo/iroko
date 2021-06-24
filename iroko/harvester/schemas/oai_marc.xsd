@@ -1,3 +1,10 @@
+<!--
+  ~ Copyright (c) 2021. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
+
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.openarchives.org/OAI/1.1/oai_marc"
         xmlns:oai_marc="http://www.openarchives.org/OAI/1.1/oai_marc" elementFormDefault="qualified"
         attributeFormDefault="unqualified">

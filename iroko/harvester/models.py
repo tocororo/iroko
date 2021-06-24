@@ -1,5 +1,5 @@
-#  This file is part of SCEIBA.
-#  Copyright (c) 2020. UPR
+#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
@@ -32,16 +32,19 @@ class HarvestedItemStatus(enum.Enum):
 
 
 class Repository(db.Model):
-    """Repository is the information of the Source related to its condition of a repository, the harvest data, etc...is here"""
+    """Repository is the information of the Source related to
+    its condition of a repository, the harvest data, etc...is here"""
 
     __tablename__ = 'iroko_source_repositories'
 
     # id = db.Column( db.Integer, primary_key=True)
 
-    # source_id = db.Column(db.Integer, db.ForeignKey(Source.id, name='fk_iroko_source_repository_source_id'))
+    # source_id = db.Column(db.Integer, db.ForeignKey(Source.id,
+    # name='fk_iroko_source_repository_source_id'))
     # """ID of Source for this inclusion."""
     #
-    # source = db.relationship("Source", backref=db.backref("repository",cascade="all, delete-orphan", lazy='dynamic'))
+    # source = db.relationship("Source", backref=db.backref("repository",cascade="all,
+    # delete-orphan", lazy='dynamic'))
 
     source_uuid = db.Column(UUIDType, primary_key=True)
 
@@ -53,23 +56,38 @@ class Repository(db.Model):
     error_log = db.Column(db.String)
 
     data = db.Column(JSONType)
-    """Any relevant data, dependent of the harvest_type, this could mean one thing. Eg, for oai-pmh the information about the set could be here."""
+    """Any relevant data, dependent of the harvest_type,
+    this could mean one thing. Eg, for oai-pmh the information about the set
+    could be here."""
 
 
 class HarvestedItem(db.Model):
     """The items harvested from a repository"""
 
     __tablename__ = 'iroko_harvest_items'
-    __table_args__ = (db.UniqueConstraint('source_uuid', 'identifier', name='identifier_in_repository'),
-                      )
+    __table_args__ = (db.UniqueConstraint(
+        'source_uuid',
+        'identifier',
+        name='identifier_in_repository'
+        ),
+        )
     id = db.Column(db.Integer, primary_key=True)
 
-    source_uuid = db.Column(UUIDType,
-                            db.ForeignKey('iroko_source_repositories.source_uuid', ondelete='CASCADE'),
-                            nullable=False, index=True)
-    repository = db.relationship("Repository", backref=db.backref("harvested_items"))
+    source_uuid = db.Column(
+        UUIDType,
+        db.ForeignKey(
+            'iroko_source_repositories'
+            '.source_uuid', ondelete='CASCADE'
+            ),
+        nullable=False, index=True
+        )
+    repository = db.relationship(
+        "Repository", backref=db.backref(
+            'harvested_items'
+            )
+        )
 
-    # el identificador en el repo asociado
+    """el identificador en el repo asociado"""
     identifier = db.Column(db.String, nullable=False)
 
     # el uuid del iroko record asociado

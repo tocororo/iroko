@@ -1,5 +1,5 @@
-#  This file is part of SCEIBA.
-#  Copyright (c) 2020. UPR
+#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
@@ -16,8 +16,8 @@ from iroko.harvester.oai import nsmap
 
 
 """
-several functions and classes that utils across the harvester module, 
-has oai-pmh specifics and other things, 
+several functions and classes that utils across the harvester module,
+has oai-pmh specifics and other things,
 Probably we need a better desing for the hole module, in the mean time, here can be most diverse functions, all related to the task of harvesting....
 """
 
