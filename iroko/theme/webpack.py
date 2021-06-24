@@ -23,20 +23,20 @@ theme = WebpackThemeBundle(
             entry={
                 'iroko-theme': './scss/iroko/theme.scss',
                 'iroko-preview': './js/iroko/previewer.js',
-            },
+                },
             dependencies={},
             aliases={},
-        ),
+            ),
         'semantic-ui': dict(
             entry={
                 'iroko-preview': './js/iroko/previewer.js',
-            },
+                },
             dependencies={
                 # add any additional npm dependencies here...
-            },
+                },
             aliases={
                 '../../theme.config$': 'less/iroko/theme.config',
-            },
-        ),
-    }
-)
+                },
+            ),
+        }
+    )

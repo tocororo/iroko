@@ -9,7 +9,6 @@
 
 """Invenio module that adds userprofiles to the platform."""
 
-
 from __future__ import absolute_import, print_function
 
 import base64
@@ -29,19 +28,19 @@ from .api import current_userprofile, current_userprofile_json_metadata
 from .forms import (
     EmailProfileForm, ProfileForm, VerificationForm,
     confirm_register_form_factory, register_form_factory,
-)
+    )
 from .models import UserProfile
 
 blueprint = Blueprint(
     'invenio_userprofiles',
     __name__,
     template_folder='templates',
-)
+    )
 
 blueprint_ui_init = Blueprint(
     'invenio_userprofiles_ui_init',
     __name__,
-)
+    )
 
 
 def init_common(app):
@@ -49,9 +48,11 @@ def init_common(app):
     if app.config['USERPROFILES_EXTEND_SECURITY_FORMS']:
         security_ext = app.extensions['security']
         security_ext.confirm_register_form = confirm_register_form_factory(
-            security_ext.confirm_register_form)
+            security_ext.confirm_register_form
+            )
         security_ext.register_form = register_form_factory(
-            security_ext.register_form)
+            security_ext.register_form
+            )
 
 
 @blueprint_ui_init.record_once
@@ -62,7 +63,8 @@ def init_ui(state):
 
     # Register blueprint for templates
     app.register_blueprint(
-        blueprint, url_prefix=app.config['USERPROFILES_PROFILE_URL'])
+        blueprint, url_prefix=app.config['USERPROFILES_PROFILE_URL']
+        )
 
 
 @blueprint.app_template_filter()
@@ -77,10 +79,11 @@ def userprofile(value):
     blueprint, 'settings.profile',
     # NOTE: Menu item text (icon replaced by a user icon).
     _('%(icon)s Profile', icon='<i class="fa fa-user fa-fw"></i>'),
-    order=0)
+    order=0
+    )
 @register_breadcrumb(
     blueprint, 'breadcrumbs.settings.profile', _('Profile')
-)
+    )
 def profile():
     """View for editing a profile."""
     # Create forms
@@ -109,10 +112,13 @@ def profile_form_factory():
     if current_userprofile_json_metadata:
         t_biography = current_userprofile_json_metadata[
             "biography"] if "biography" in current_userprofile_json_metadata.keys() else ""
-        msg, t_institution = Terms.get_term_by_id(current_userprofile_json_metadata[
-                                                      "institution_id"]) if "institution_id" in current_userprofile_json_metadata.keys() else 0
+        msg, t_institution = Terms.get_term_by_id(
+            current_userprofile_json_metadata[
+                "institution_id"]
+            ) if "institution_id" in current_userprofile_json_metadata.keys() else 0
         t_institution_rol = current_userprofile_json_metadata[
-            "institution_rol"] if "institution_rol" in current_userprofile_json_metadata.keys() else ""
+            "institution_rol"] if "institution_rol" in current_userprofile_json_metadata.keys() \
+            else ""
         t_avatar = current_userprofile_json_metadata[
             "avatar"] if "avatar" in current_userprofile_json_metadata.keys() else ""
 
@@ -198,10 +204,14 @@ def handle_profile_form(form):
         if email_changed:
             send_confirmation_instructions(current_user)
             # NOTE: Flash message after successful update of profile.
-            flash(_('Profile was updated. We have sent a verification '
+            flash(
+                _(
+                    'Profile was updated. We have sent a verification '
                     'email to %(email)s. Please check it.',
-                    email=current_user.email),
-                  category='success')
+                    email=current_user.email
+                    ),
+                category='success'
+                )
         else:
             # NOTE: Flash message after successful update of profile.
             flash(_('Profile was updated.'), category='success')

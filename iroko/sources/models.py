@@ -1,4 +1,3 @@
-
 #  Copyright (c) 2021. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
@@ -13,7 +12,7 @@ import uuid
 
 from invenio_accounts.models import User
 from invenio_db import db
-from sqlalchemy_utils.types import UUIDType, JSONType
+from sqlalchemy_utils.types import JSONType, UUIDType
 
 
 class SourceInstitutionRole(enum.Enum):
@@ -53,7 +52,8 @@ class SourceStatus(enum.Enum):
 class Source(db.Model):
     """Source, fuente, es define una fuente primaria de datos, eg: las revistas.
     Aqui se tiene la informacion basica de la fuente,
-    su relacion con la taxonomia y la informacion de la fuente en tanto repositorio de documentos """
+    su relacion con la taxonomia y la informacion de la fuente en tanto repositorio de documentos
+    """
 
     __tablename__ = 'iroko_sources'
 
@@ -63,9 +63,13 @@ class Source(db.Model):
     source_type = db.Column(db.Enum(SourceType))
     source_status = db.Column(db.Enum(SourceStatus))
 
-    # TODO: decidir sobre esto:  Aunque este repetido, creo que es conveniente poner aqui (y manejar en las apps, en consecuencia), las relaciones con los terminos. En las tablas se pone por facilidad, pero aunque este repetido, a la hora de "editar" un Source, me parece que es mas facil asi..
+    # TODO: decidir sobre esto:  Aunque este repetido, creo que es conveniente poner aqui (y
+    #  manejar en las apps, en consecuencia), las relaciones con los terminos. En las tablas se
+    #  pone por facilidad, pero aunque este repetido, a la hora de "editar" un Source, me parece
+    #  que es mas facil asi..
     data = db.Column(JSONType)
-    """The data of the Source, dependent on the source type, including the relationships with Terms"""
+    """The data of the Source, dependent on the source type, including the relationships with
+    Terms"""
 
     # term_sources = db.relationship("Term_sources", back_populates="sources")
 
@@ -90,14 +94,21 @@ class TermSources(db.Model):
 
 
 class SourceVersion(db.Model):
-    """Version de una fuente. Se utiliza para el proceso de inclusion y modificacion de los datos de una fuente. Al solicitar la inclusion de una nueva fuente, un usuario crea una version, posteriormente un editor valida esta version. En otro momento el usuario puede modificar los datos, que deberan ser validados, en todos los casos se crean versiones del source.  Un SourceVersion, no se puede modificar."""
+    """Version de una fuente. Se utiliza para el proceso de inclusion y modificacion de los datos
+    de una fuente. Al solicitar la inclusion de una nueva fuente, un usuario crea una version,
+    posteriormente un editor valida esta version. En otro momento el usuario puede modificar los
+    datos, que deberan ser validados, en todos los casos se crean versiones del source.  Un
+    SourceVersion, no se puede modificar."""
 
     __tablename__ = 'iroko_source_versions'
 
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        User.id, name='fk_iroko_source_versions_user_id'))
+    user_id = db.Column(
+        db.Integer, db.ForeignKey(
+            User.id, name='fk_iroko_source_versions_user_id'
+            )
+        )
     """ID of user to whom this inclusion belongs."""
 
     user = db.relationship(User, backref='iroko_source_versions')
@@ -117,9 +128,12 @@ class SourceVersion(db.Model):
     #                          )
     comment = db.Column(db.String)
 
-    # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en las bases de datos.
+    # TODO: Creo que es conveniente que aqui se incluyan las relaciones con los terminos (en
+    #  principio usando IDs)asi, al crear una nueva version, se pueden reflejar los cambios en
+    #  las bases de datos.
     data = db.Column(JSONType)
-    """The data of the Source, dependent on the source type, including the relationships with Terms"""
+    """The data of the Source, dependent on the source type, including the relationships with
+    Terms"""
 
     created_at = db.Column(db.DateTime)
 

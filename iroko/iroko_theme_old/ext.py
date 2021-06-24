@@ -20,7 +20,7 @@ from . import config
 from .views import (
     blueprint, insufficient_permissions, internal_error,
     page_not_found, unauthorized,
-)
+    )
 
 
 class InvenioTheme(object):
@@ -52,12 +52,14 @@ class InvenioTheme(object):
         self.breadcrumbs.init_app(app)
 
         # Register blueprint in order to register template and static folder.
-        app.register_blueprint(Blueprint(
-            'iroko_theme',
-            __name__,
-            template_folder='templates',
-            static_folder='static',
-        ))
+        app.register_blueprint(
+            Blueprint(
+                'iroko_theme',
+                __name__,
+                template_folder='templates',
+                static_folder='static',
+                )
+            )
 
         # Register frontpage blueprint if enabled.
         if app.config['THEME_FRONTPAGE']:
@@ -97,4 +99,5 @@ class InvenioTheme(object):
                 app.config[theme_varname] = app.config[varname]
 
         app.config.setdefault(
-            'ADMIN_BASE_TEMPLATE', config.ADMIN_BASE_TEMPLATE)
+            'ADMIN_BASE_TEMPLATE', config.ADMIN_BASE_TEMPLATE
+            )

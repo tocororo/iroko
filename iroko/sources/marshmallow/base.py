@@ -5,8 +5,8 @@
 #
 
 from invenio_records_rest.schemas import StrictKeysMixin
-from invenio_records_rest.schemas.fields import DateString, SanitizedUnicode, PersistentIdentifier
-from marshmallow import Schema, fields, post_dump, INCLUDE
+from invenio_records_rest.schemas.fields import DateString, PersistentIdentifier, SanitizedUnicode
+from marshmallow import INCLUDE, Schema, fields, post_dump
 
 from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import UserProfilesSchema, userprofile_schema
@@ -32,7 +32,8 @@ class TermSourcesSchema(Schema):
 
     @post_dump
     def dump_term(self, termSource, **kwargs):
-        # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current.
+        # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la
+        #  version current.
         # # print("################################")
         # # print(termSource)
         # if termSource and 'term_id' in termSource:

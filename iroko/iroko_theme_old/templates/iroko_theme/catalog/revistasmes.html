@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.THEME_BASE_TEMPLATE %}
@@ -20,11 +20,10 @@
 
 <base href="https://localhost:5000/revistasmes">
 <meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
 
 
-
-<link rel="stylesheet" href="https://localhost:5000/static/revistasmes/styles.css">
+<link href="https://localhost:5000/static/revistasmes/styles.css" rel="stylesheet">
 
 
 <script>
@@ -44,6 +43,7 @@
       // Setting this to false will disable console output
       window.__env.enableDebug = true;
   }(this));
+
 </script>
 
 {% endblock header %}
@@ -51,17 +51,18 @@
 
 {%- block page_body %}
 
-      <div class="container">
-        <app-root>
-          <div class="app-loading">
-            <div class="logo"></div>
-            <svg class="spinner" viewBox="25 25 50 50">
-              <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-            </svg>
-          </div>
-        </app-root>
+<div class="container">
+  <app-root>
+    <div class="app-loading">
+      <div class="logo"></div>
+      <svg class="spinner" viewBox="25 25 50 50">
+        <circle class="path" cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10"
+                stroke-width="2"/>
+      </svg>
+    </div>
+  </app-root>
 
-      </div>
+</div>
 {%- endblock page_body %}
 
 {%- block javascript %}

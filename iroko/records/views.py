@@ -18,7 +18,7 @@ blueprint = Blueprint(
     __name__,
     template_folder='templates',
     static_folder='static',
-)
+    )
 """Blueprint used for loading templates and static assets
 
 The sole purpose of this blueprint is to ensure that Invenio can find the

@@ -7,7 +7,7 @@
 import click
 from flask.cli import with_appcontext
 
-from iroko.harvester.oai.harvester import OaiHarvester, OaiFetcher
+from iroko.harvester.oai.harvester import OaiFetcher, OaiHarvester
 
 
 @click.group()

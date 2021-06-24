@@ -5,7 +5,7 @@
 #
 
 
-from os import path, listdir
+from os import listdir, path
 
 from flask import current_app
 from lxml import etree
@@ -31,7 +31,8 @@ class OaiPreprocessor:
         self.formats = ['marcxml', 'nlm', 'oai_dc', 'oai_marc', 'rfc1807']
 
     def process_all_items(self):
-        """using the directory structure, iterate over the source folders and retrieve all the metadata of all records."""
+        """using the directory structure, iterate over the source folders and retrieve all the
+        metadata of all records."""
         if path.exists(self.harvest_dir):
             for item in listdir(self.harvest_dir):
                 self.process_full_item(item)
@@ -44,7 +45,9 @@ class OaiPreprocessor:
             dc = self.process_metadata(item, 'oai_dc', self.dc)
             nlm = self.process_metadata(item, 'nlm', self.dc)
             data = self.create_record_data(dc, nlm)
-            record, status = IrokoRecord.create_or_update(data, vendor=source, dbcommit=True, reindex=True)
+            record, status = IrokoRecord.create_or_update(
+                data, vendor=source, dbcommit=True, reindex=True
+                )
 
     def process_metadata(self, item, metadata_format, formater):
         xmlpath = path.join(self.harvest_dir, item, metadata_format + ".xml")

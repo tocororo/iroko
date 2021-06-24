@@ -17,13 +17,13 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
-import copy
+import os
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
-from invenio_oauthclient.contrib import orcid
+from invenio_oauthclient.contrib import keycloak as k
 from invenio_records_rest.facets import terms_filter
-from invenio_records_rest.utils import allow_all, deny_all, check_elasticsearch
+from invenio_records_rest.utils import allow_all, check_elasticsearch, deny_all
 
 from iroko.deployment import *
 from iroko.pidstore import pids as pids
@@ -32,9 +32,6 @@ from iroko.records.search import IrokoRecordSearch
 from iroko.sources.api import SourceRecord
 from iroko.sources.permissions import check_source_status
 from iroko.sources.search import SourceSearch
-
-import os
-from invenio_oauthclient.contrib import keycloak as k
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -50,10 +47,10 @@ CACHE_TYPE = 'redis'
 # SEARCH_ELASTIC_HOSTS='["http://"]'
 params = dict(
     #    http_auth=('user', 'uRTbYRZH268G'),
-)
+    )
 SEARCH_ELASTIC_HOSTS = [
     dict(host=IP_ELASTIC, **params)
-]
+    ]
 
 # Rate limiting
 # =============
@@ -69,7 +66,7 @@ BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 #: Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
     ('es', _('Spanish')),
-]
+    ]
 
 # Base templates
 # ==============
@@ -179,10 +176,10 @@ SEARCH_UI_SEARCH_TEMPLATE = 'iroko/search.html'
 RECORDS_UI_ENDPOINTS = {
     'irouid': {
         "pid_type": "irouid",
-        "route":    "/records/<pid_value>",
+        "route": "/records/<pid_value>",
         "template": "invenio_records_ui/detail.html"
-    },
-}
+        },
+    }
 
 _RECORD_CONVERTER = (
     'pid(irouid, record_class="iroko.records.api:IrokoRecord")'
@@ -202,15 +199,15 @@ RECORDS_REST_ENDPOINTS = dict(
         record_loaders={
             "application/json": ("iroko.records.loaders"
                                  ":json_v1"),
-        },
+            },
         record_serializers={
             "application/json": ("iroko.records.serializers"
                                  ":json_v1_response"),
-        },
+            },
         search_serializers={
             "application/json": ("iroko.records.serializers"
                                  ":json_v1_search"),
-        },
+            },
         list_route="/records/",
         item_route="/records/<{0}:pid_value>".format(_RECORD_CONVERTER),
         default_media_type="application/json",
@@ -225,11 +222,11 @@ RECORDS_REST_ENDPOINTS = dict(
             title=dict(
                 completion={
                     'field': 'suggest_title'
-                }
-            )
-        ),
+                    }
+                )
+            ),
         search_index='records'
-    )
+        )
     ,
     srcid=dict(
         pid_type=pids.SOURCE_UUID_PID_TYPE,
@@ -241,15 +238,15 @@ RECORDS_REST_ENDPOINTS = dict(
         record_loaders={
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_loader_v1"),
-        },
+            },
         record_serializers={
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_v1_response"),
-        },
+            },
         search_serializers={
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_v1_search"),
-        },
+            },
         list_route="/sources/",
         item_route="/sources/<pid(srcid):pid_value>",
         default_media_type="application/json",
@@ -260,8 +257,8 @@ RECORDS_REST_ENDPOINTS = dict(
         update_permission_factory_imp=deny_all,
         delete_permission_factory_imp=deny_all,
         list_permission_factory_imp=allow_all,
+        )
     )
-)
 
 """REST API for iroko."""
 
@@ -278,104 +275,104 @@ RECORDS_REST_FACETS = dict(
             sources=terms_filter('source_repo.name'),
             status=terms_filter('status'),
             terms=terms_filter('terms')
-        ),
+            ),
         aggs=dict(
             keywords=dict(
                 terms=dict(
                     field='keywords',
                     size=5
-                ),
+                    ),
                 meta=dict(
                     title=_("Keywords"),
                     order=3
-                )
-            ),
+                    )
+                ),
             creators=dict(
                 terms=dict(
                     field='creators.name',
                     size=5
-                ),
+                    ),
                 meta=dict(
                     title=_("Creators"),
                     order=2
-                )
-            ),
+                    )
+                ),
             terms=dict(
                 terms=dict(
                     field='terms'
-                )
-            ),
+                    )
+                ),
             sources=dict(
                 terms=dict(
                     field='source_repo.name',
                     size=5
-                ),
+                    ),
                 meta=dict(
                     title=_("Sources"),
                     order=1
+                    )
                 )
             )
         )
-    )
     ,
     sources=dict(
         filters=dict(
             source_type=terms_filter('source_type')
-        ),
+            ),
         aggs=dict(
             source_type=dict(
                 terms=dict(
                     field='source_type',
                     size=5
+                    )
                 )
             )
         )
     )
-)
 """Introduce searching facets."""
 
 RECORDS_REST_SORT_OPTIONS = {
     'records': {
         'mostrecent': {
-            'title':         'Most recent',
-            'fields':        ['-publication_date'],
+            'title': 'Most recent',
+            'fields': ['-publication_date'],
             'default_order': 'asc',
-            'order':         1,
-        },
-        'bestmatch':  {
-            'title':         'Best match',
-            'fields':        ['-_score'],
+            'order': 1,
+            },
+        'bestmatch': {
+            'title': 'Best match',
+            'fields': ['-_score'],
             'default_order': 'asc',
-            'order':         2,
+            'order': 2,
+            },
         },
-    },
     'sources': {
         'mostrecent': {
-            'title':         'Most recent',
-            'fields':        ['-_save_info_updated'],
+            'title': 'Most recent',
+            'fields': ['-_save_info_updated'],
             'default_order': 'asc',
-            'order':         1,
-        },
-        'bestmatch':  {
-            'title':         'Best match',
-            'fields':        ['-_score'],
+            'order': 1,
+            },
+        'bestmatch': {
+            'title': 'Best match',
+            'fields': ['-_score'],
             'default_order': 'asc',
-            'order':         2,
-        },
+            'order': 2,
+            },
+        }
     }
-}
 """Setup sorting options."""
 
 RECORDS_REST_DEFAULT_SORT: {
     'records': {
-        'query':   'bestmatch',
+        'query': 'bestmatch',
         'noquery': 'bestmatch',
-    },
+        },
     'sources': {
-        'query':   'bestmatch',
+        'query': 'bestmatch',
         'noquery': 'bestmatch',
+        }
     }
-}
 """Set default sorting options."""
 
 # Assets
@@ -391,7 +388,8 @@ SUPPORT_EMAIL = SMTP_DEFAULT_SENDER
 SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
 SECURITY_EMAIL_SUBJECT_REGISTER = _(
-    "Welcome to iroko!")
+    "Welcome to iroko!"
+    )
 #: Redis session storage URL.
 ACCOUNTS_SESSION_REDIS_URL = 'redis://' + IP_REDIS + ':6379/1'
 #: Enable session/user id request tracing. This feature will add X-Session-ID
@@ -410,15 +408,15 @@ CELERY_BROKER_URL = 'amqp://iroko:iroko@' + IP_RABBIT + ':5672/'
 CELERY_RESULT_BACKEND = 'redis://' + IP_REDIS + ':6379/2'
 #: Scheduled tasks configuration (aka cronjobs).
 CELERY_BEAT_SCHEDULE = {
-    'indexer':  {
-        'task':     'invenio_indexer.tasks.process_bulk_queue',
+    'indexer': {
+        'task': 'invenio_indexer.tasks.process_bulk_queue',
         'schedule': timedelta(minutes=5),
-    },
+        },
     'accounts': {
-        'task':     'invenio_accounts.tasks.clean_session_table',
+        'task': 'invenio_accounts.tasks.clean_session_table',
         'schedule': timedelta(minutes=60),
-    },
-}
+        },
+    }
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 # Database
@@ -480,28 +478,29 @@ REST_ENABLE_CORS = True
 OAUTH2_PROVIDER_TOKEN_EXPIRES_IN = 86400
 
 APP_DEFAULT_SECURE_HEADERS = {
-    'force_https':                                  True,
-    'force_https_permanent':                        False,
-    'force_file_save':                              False,
-    'frame_options':                                'sameorigin',
-    'frame_options_allow_from':                     None,
-    'strict_transport_security':                    True,
-    'strict_transport_security_preload':            False,
-    'strict_transport_security_max_age':            31556926,  # One year in seconds
+    'force_https': True,
+    'force_https_permanent': False,
+    'force_file_save': False,
+    'frame_options': 'sameorigin',
+    'frame_options_allow_from': None,
+    'strict_transport_security': True,
+    'strict_transport_security_preload': False,
+    'strict_transport_security_max_age': 31556926,  # One year in seconds
     'strict_transport_security_include_subdomains': True,
-    'content_security_policy':                      {
+    'content_security_policy': {
         'default-src': ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'"],
-        'object-src':  ["'none'"],
-        'script-src':  ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'", "'unsafe-eval'"],
-        'style-src':   ["'self'", "'unsafe-inline'"],
-        'font-src':    ["'self'", "data:"],
-        'img-src':     ["'self'", "data:"]
-    },
-    'content_security_policy_report_uri':           None,
-    'content_security_policy_report_only':          False,
-    'session_cookie_secure':                        True,
-    'session_cookie_http_only':                     True
-}
+        'object-src': ["'none'"],
+        'script-src': ["'self'", "www.google.com", "www.gstatic.com", "'unsafe-inline'",
+                       "'unsafe-eval'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'font-src': ["'self'", "data:"],
+        'img-src': ["'self'", "data:"]
+        },
+    'content_security_policy_report_uri': None,
+    'content_security_policy_report_only': False,
+    'session_cookie_secure': True,
+    'session_cookie_http_only': True
+    }
 
 #
 # Variables para OAIServer
@@ -510,7 +509,7 @@ APP_DEFAULT_SECURE_HEADERS = {
 OAISERVER_ADMIN_EMAILS = [
     'rafael.martinez@upr.edu.cu',
     'eduardo.arencibia@upr.edu.cu'
-]
+    ]
 
 OAISERVER_RECORD_INDEX = '_all'
 OAISERVER_ID_PREFIX = 'oai:localhost:records/'
@@ -522,7 +521,7 @@ OAISERVER_QUERY_PARSER_FIELDS = ["title_statement"]
 helper = k.KeycloakSettingsHelper(
     base_url="https://personas.sceiba.cu/",
     realm="sceiba"
-)
+    )
 
 OAUTHCLIENT_KEYCLOAK_REMOTE_APP = helper.remote_app()
 print('#################################################################################')
@@ -539,15 +538,14 @@ OAUTHCLIENT_KEYCLOAK_VERIFY_AUD = True
 OAUTHCLIENT_KEYCLOAK_AUD = "invenio"
 OAUTHCLIENT_KEYCLOAK_VERIFY_EXP = True
 
-
 KEYCLOAK_APP_CREDENTIALS = dict(
     consumer_key='sceiba-dev',
     consumer_secret='d22812e0-38e7-43a8-9f57-08bccbbd98c3',
-)
+    )
 OAUTHCLIENT_REMOTE_APPS = dict(
     keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_APP,
     # sceiba=SCEIBA_APP,
-)
+    )
 
 # OAUTHCLIENT_REST_REMOTE_APPS = dict(
 #     keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP

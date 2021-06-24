@@ -1,13 +1,13 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- if config.ACCOUNTS %}
-    {%- if not current_user.is_authenticated %}
+{%- if not current_user.is_authenticated %}
 
 
 <!--
@@ -18,67 +18,69 @@
   -->
 
 <div class="btn-group dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                <span class="fa fa-user"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right">
-                <li>
-                    <a class="dropdown-item" href="{{url_for_security('login', next=request.path)}}">
-                        <i class="fa fa-sign-in"></i>
-                        {{_('Log in')}}
-                    </a>
-                </li>
+  <button aria-expanded="false" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+          type="button">
+    <span class="fa fa-user"></span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-right">
+    <li>
+      <a class="dropdown-item" href="{{url_for_security('login', next=request.path)}}">
+        <i class="fa fa-sign-in"></i>
+        {{_('Log in')}}
+      </a>
+    </li>
 
-                {% if security.registerable %}
-                    <li>
-                        <a class="dropdown-item" href="{{url_for_security('register')}}">
-                            <i class="fa fa-edit"></i>
-                            {{_('Sign up')}}
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-        <!-- <form class="navbar-form navbar-right">
-            <a href="{{url_for_security('login', next=request.path)}}" class="btn btn-default"><i class="fa fa-sign-in"></i> {{_('Log in')}}</a>
-            {% if security.registerable %}<a href="{{url_for_security('register')}}" type="submit" class="btn btn-info"><i class="fa fa-edit"></i> {{_('Sign up')}}</a>{% endif %}
-        </form> -->
+    {% if security.registerable %}
+    <li>
+      <a class="dropdown-item" href="{{url_for_security('register')}}">
+        <i class="fa fa-edit"></i>
+        {{_('Sign up')}}
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+<!-- <form class="navbar-form navbar-right">
+    <a href="{{url_for_security('login', next=request.path)}}" class="btn btn-default"><i class="fa fa-sign-in"></i> {{_('Log in')}}</a>
+    {% if security.registerable %}<a href="{{url_for_security('register')}}" type="submit" class="btn btn-info"><i class="fa fa-edit"></i> {{_('Sign up')}}</a>{% endif %}
+</form> -->
 
 
-    {%- else %}
+{%- else %}
 
-        {%- if config.USERPROFILES %}
-            <div class="btn-group dropdown">
-                <button class="btn btn-default mr-0">
-                    <i class="fa fa-user"></i>
-                    <!-- {{current_user.email}} -->
-                </button>
-                <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-split ml-0" data-toggle="dropdown" aria-expanded="false">
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                    {%- for item in current_menu.submenu('settings').children if item.visible %}
-                        <a href="{{ item.url }}" class="dropdown-item pl-3 pr-3">
-                            {{ item.text|safe }}
-                        </a>
-                    {%- endfor %}
+{%- if config.USERPROFILES %}
+<div class="btn-group dropdown">
+  <button class="btn btn-default mr-0">
+    <i class="fa fa-user"></i>
+    <!-- {{current_user.email}} -->
+  </button>
+  <button aria-expanded="false" class="btn btn-default dropdown-toggle dropdown-toggle-split ml-0"
+          data-toggle="dropdown" type="button">
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-right" role="menu">
+    {%- for item in current_menu.submenu('settings').children if item.visible %}
+    <a class="dropdown-item pl-3 pr-3" href="{{ item.url }}">
+      {{ item.text|safe }}
+    </a>
+    {%- endfor %}
 
-                    <samp class="divider"></samp>
+    <samp class="divider"></samp>
 
-                    <a href="{{url_for_security('logout')}}" class="dropdown-item pl-3 pr-3">
-                        <i class="fa fa-sign-out"></i>
-                            {{_('Log out')}}
-                    </a>
+    <a class="dropdown-item pl-3 pr-3" href="{{url_for_security('logout')}}">
+      <i class="fa fa-sign-out"></i>
+      {{_('Log out')}}
+    </a>
 
-                </ul>
-            </div>
+  </ul>
+</div>
 
-        {%- else %}
-            <a href=" {{url_for_security('logout')}}" class="btn btn-default">
-                <i class="fa fa-sign-out"></i>
-                {{_('Log out')}}
-            </a>
-        {%- endif %}
+{%- else %}
+<a class="btn btn-default" href=" {{url_for_security('logout')}}">
+  <i class="fa fa-sign-out"></i>
+  {{_('Log out')}}
+</a>
+{%- endif %}
 
-    {%- endif %}
+{%- endif %}
 {%- endif %}

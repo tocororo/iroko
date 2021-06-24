@@ -44,13 +44,14 @@ class UserProfile(db.Model):
         db.Integer,
         db.ForeignKey(User.id),
         primary_key=True
-    )
+        )
     """Foreign key to :class:`~invenio_accounts.models.User`."""
 
     user = db.relationship(
         User, backref=db.backref(
-            'profile', uselist=False, cascade='all, delete-orphan')
-    )
+            'profile', uselist=False, cascade='all, delete-orphan'
+            )
+        )
     """User relationship."""
 
     _username = db.Column('username', db.String(255), unique=True)
@@ -89,7 +90,7 @@ class UserProfile(db.Model):
         """
         return cls.query.filter(
             UserProfile._username == username.lower()
-        ).one()
+            ).one()
 
     @classmethod
     def get_by_userid(cls, user_id):

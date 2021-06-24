@@ -30,7 +30,7 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], [u'accounts_user.id'], ),
         sa.PrimaryKeyConstraint('user_id'),
         sa.UniqueConstraint('username')
-    )
+        )
 
 
 def downgrade():

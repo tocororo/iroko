@@ -111,7 +111,8 @@
     <xs:complexType name="elementContainer">
         <xs:annotation>
             <xs:documentation xml:lang="en">
-                This complexType is included as a convenience for schema authors who need to define a root
+                This complexType is included as a convenience for schema authors who need to define
+                a root
                 or container element for all of the DC elements.
             </xs:documentation>
         </xs:annotation>

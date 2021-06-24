@@ -31,7 +31,8 @@ class BaseHarvester(object):
 
 
 class SourceHarvester(BaseHarvester):
-    """An iterator is responsible iterate over the items of a source, the OAI case is the most simple, in other case, is also responsible for discover the iterm before iterate over its"""
+    """An iterator is responsible iterate over the items of a source, the OAI case is the most
+    simple, in other case, is also responsible for discover the iterm before iterate over its"""
 
     def __init__(self, source: SourceRecord, work_remote=True, request_wait_time=3):
         self.work_remote = work_remote
@@ -39,11 +40,14 @@ class SourceHarvester(BaseHarvester):
         self.source = source
 
     def identity_source(self):
-        """ en oai esto significa identify, metadata formats, es decir, aqui se trata lo que tiene que ver con el source"""
+        """ en oai esto significa identify, metadata formats, es decir, aqui se trata lo que
+        tiene que ver con el source"""
         raise NotImplementedError
 
     def discover_items(self):
-        """descubrir los items que tiene, en el caso de oai es el verbo getIdentifiers y posteriormente , se traen los datos, en el caso de oai, esto es traer para cada item todos los metadata formats y guardarlo como ficheros xml en el HARVESTER_DATA_DIRECTORY"""
+        """descubrir los items que tiene, en el caso de oai es el verbo getIdentifiers y
+        posteriormente , se traen los datos, en el caso de oai, esto es traer para cada item
+        todos los metadata formats y guardarlo como ficheros xml en el HARVESTER_DATA_DIRECTORY"""
         raise NotImplementedError
 
     def process_items(self):

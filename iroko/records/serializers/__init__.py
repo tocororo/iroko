@@ -15,9 +15,9 @@ from invenio_records_rest.serializers.json import JSONSerializer
 from invenio_records_rest.serializers.response import (
     record_responsify,
     search_responsify,
-)
+    )
 
-from ..marshmallow import (RecordSchemaV1, RecordFullSchemaV1)
+from ..marshmallow import (RecordFullSchemaV1, RecordSchemaV1)
 
 # Serializers
 # ===========
@@ -36,4 +36,4 @@ __all__ = (
     'json_v1',
     'json_v1_response',
     'json_v1_search',
-)
+    )

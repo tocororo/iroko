@@ -16,12 +16,12 @@ import os
 
 import mistune
 import requests
-from flask import Blueprint, current_app, render_template, redirect, send_file, request, flash
+from flask import Blueprint, current_app, flash, redirect, render_template, request, send_file
 from flask_babelex import lazy_gettext as _
 from invenio_i18n.selectors import get_locale
+from iroko.iroko_theme.forms import ContactForm
 
 from iroko.harvester.models import HarvestedItem, HarvestedItemStatus
-from iroko.iroko_theme.forms import ContactForm
 from iroko.records.api import IrokoAggs
 from iroko.sources.api import SourceRecord
 from iroko.utils import send_contact_email
@@ -33,13 +33,14 @@ blueprint = Blueprint(
     __name__,
     template_folder='templates',
     static_folder='static',
-)
+    )
 
 
 @blueprint.context_processor
 def get_about():
     about = {}
-    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json', encoding="utf-8") as file:
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/texts.json',
+    # encoding="utf-8") as file:
     #     texts = json.load(file)
     #     if texts and 'about' in texts.keys():
     #         about = dict(about=texts['about'])
@@ -70,8 +71,10 @@ def index(form=None):
     # ensure_ascii=False para que las tildes y demas se pongan bien
 
     texts = {}
-    with open(current_app.config['INIT_STATIC_JSON_PATH'] + '/' + get_locale() + '/texts.json',
-              encoding="utf-8") as file:
+    with open(
+        current_app.config['INIT_STATIC_JSON_PATH'] + '/' + get_locale() + '/texts.json',
+        encoding="utf-8"
+        ) as file:
         texts = json.load(file)
 
     faqs = {}
@@ -79,7 +82,8 @@ def index(form=None):
         faqs = texts['faq']
 
     # texts = ''
-    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md', 'r') as file:
+    # with open(current_app.config['INIT_STATIC_JSON_PATH']+'/'+get_locale()+'/faqs.md',
+    # 'r') as file:
     #      texts = file.read()
     #      file.close()
     # markdown = mistune.Markdown()
@@ -90,7 +94,8 @@ def index(form=None):
     # vocab_stats.append({'Keywords':str(len(keywords))})
     #
     # for vocab in vocabularies:
-    #     vocab_stats.append({vocab.identifier:str(Term.query.filter_by(vocabulary_id=vocab.identifier).count())})
+    #     vocab_stats.append({vocab.identifier:str(Term.query.filter_by(
+    #     vocabulary_id=vocab.identifier).count())})
 
     if not form:
         form = ContactForm()
@@ -105,7 +110,7 @@ def index(form=None):
         faqs=faqs,
         form=form,
         records=None,
-    )
+        )
 
 
 @blueprint.route('/about')
@@ -145,19 +150,25 @@ def view_source_id(uuid):
 @blueprint.route('/aggr/sources')
 def view_aggr_sources():
     sources = IrokoAggs.getAggrs("source.name")
-    return render_template('iroko_theme/records/aggr.html', name="Sources", aggrs=sources, keyword='sources')
+    return render_template(
+        'iroko_theme/records/aggr.html', name="Sources", aggrs=sources, keyword='sources'
+        )
 
 
 @blueprint.route('/aggr/keywords')
 def view_aggr_keywords():
     sources = IrokoAggs.getAggrs("keywords")
-    return render_template('iroko_theme/records/aggr.html', name="Keywords", aggrs=sources, keyword='keywords')
+    return render_template(
+        'iroko_theme/records/aggr.html', name="Keywords", aggrs=sources, keyword='keywords'
+        )
 
 
 @blueprint.route('/aggr/authors')
 def view_aggr_authors():
     sources = IrokoAggs.getAggrs("creators.name")
-    return render_template('iroko_theme/records/aggr.html', name="Creators", aggrs=sources, keyword='creators')
+    return render_template(
+        'iroko_theme/records/aggr.html', name="Creators", aggrs=sources, keyword='creators'
+        )
 
 
 @blueprint.route('/page/<slug>')
@@ -171,16 +182,25 @@ def static_page(slug):
     basedir = os.path.abspath(os.path.dirname(__file__))
     data_file = os.path.join(basedir, 'static/js/large.js')
 
-    with open(os.path.join(basedir, 'static/staticpages/static_pages.json'), encoding="utf-8") as file:
+    with open(
+        os.path.join(basedir, 'static/staticpages/static_pages.json'), encoding="utf-8"
+        ) as file:
         slugs = json.load(file)
     if slugs:
-        with open(os.path.join(basedir, 'static/staticpages/' + get_locale() + '/' + slugs[slug][get_locale()]["url"]),
-                  'r', encoding="utf-8") as file:
+        with open(
+            os.path.join(
+                basedir, 'static/staticpages/' + get_locale() + '/' + slugs[slug][get_locale()][
+                    "url"]
+                ),
+            'r', encoding="utf-8"
+            ) as file:
             aux_text = file.read()
             file.close()
         markdown = mistune.Markdown()
         aux_text = markdown(aux_text)
-    return render_template('iroko_theme/static_pages.html', title=slugs[slug][get_locale()]["title"], text=aux_text)
+    return render_template(
+        'iroko_theme/static_pages.html', title=slugs[slug][get_locale()]["title"], text=aux_text
+        )
 
 
 @blueprint.route('/page/images/<image>')
@@ -202,14 +222,17 @@ def unauthorized(e):
 # def iroko_search():
 
 #     # form = IrokoSearchForm()
-#     # search_hidden_params={'terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status': 'UNOFFICIAL'}
+#     # search_hidden_params={'terms':'5dec47e5-4795-4039-ad51-aa35df8ed642', 'status':
+#     'UNOFFICIAL'}
 #     # search_extra_params={}
 #     # inst = ""
 #     # if form.validate_on_submit():
 #     #     inst = form.institutions.data
-#     #     return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
+#     #     return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'],
+#     search_hidden_params=search_hidden_params, form=form, inst=inst)
 
-#     # return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'], search_hidden_params=search_hidden_params, form=form, inst=inst)
+#     # return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'],
+#     search_hidden_params=search_hidden_params, form=form, inst=inst)
 
 #     return render_template(current_app.config['SEARCH_UI_SEARCH_TEMPLATE'])
 
@@ -261,8 +284,10 @@ def valid(form):
 
 @blueprint.route('/send_mail_contact', methods=['POST'])
 def send_mail_contact():
-    send_contact_email('rafael.martinez@upr.edu.cu', 'rafael.martinez@upr.edu.cu',
-                       'Se ha enviado un mensaje desde sceiba... ')
+    send_contact_email(
+        'rafael.martinez@upr.edu.cu', 'rafael.martinez@upr.edu.cu',
+        'Se ha enviado un mensaje desde sceiba... '
+        )
     if request.method == 'POST':
         form = ContactForm()
 

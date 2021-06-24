@@ -6,8 +6,9 @@
   ~ under the terms of the MIT License; see LICENSE file for more details.
   -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.w3.org/1999/xlink"
-           xmlns:xlink="http://www.w3.org/1999/xlink">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xlink="http://www.w3.org/1999/xlink"
+           targetNamespace="http://www.w3.org/1999/xlink">
 
     <xs:annotation>
         <xs:documentation>This schema document provides attribute declarations and
@@ -32,7 +33,8 @@
 </xs:schema>]]></xs:documentation>
     </xs:annotation>
 
-    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+               schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 
     <xs:attribute name="type" type="xlink:typeType"/>
 

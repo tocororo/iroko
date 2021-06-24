@@ -30,7 +30,8 @@ class IrokoPerson:
             aff = contrib.find(xmlns + 'aff')
             email = contrib.find(xmlns + 'email')
             if given_names is None and surname is None:
-                # FIXME if a person dont have surname or given name, then is not a person.... even if there is an email?
+                # FIXME if a person dont have surname or given name, then is not a person....
+                #  even if there is an email?
                 continue
             else:
                 name = ""

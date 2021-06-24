@@ -35,7 +35,7 @@ class LazyNpmBundle(NpmBundle):
         return [
             str(value) if is_lazy_string(value) else value
             for value in super(LazyNpmBundle, self)._get_contents()
-        ]
+            ]
 
     contents = property(_get_contents, NpmBundle._set_contents)
 
@@ -46,13 +46,13 @@ css = NpmBundle(
     filters='node-scss,cleancssurl',
     output='gen/styles.%(version)s.css',
     npm={
-        'almond':       '~0.3.1',
-        'mdbootstrap':  '~4.8.0',
-        'bootstrap':    '~4.3.1',
+        'almond': '~0.3.1',
+        'mdbootstrap': '~4.8.0',
+        'bootstrap': '~4.3.1',
         'font-awesome': '~4.4.0',
-        'jquery':       '~1.9.1',
-    }
-)
+        'jquery': '~1.9.1',
+        }
+    )
 """Default CSS bundle with Bootstrap and Font-Awesome."""
 
 
@@ -60,7 +60,7 @@ def lazy_skin():
     """Generate skin path."""
     return 'node_modules/admin-lte/dist/css/skins/{0}.min.css'.format(
         current_app.config.get('ADMIN_UI_SKIN', 'skin-blue')
-    )
+        )
 
 
 admin_lte_css = LazyNpmBundle(
@@ -71,16 +71,16 @@ admin_lte_css = LazyNpmBundle(
     output='gen/styles.admin-lte.%(version)s.css',
     npm={
         'admin-lte': '~2.3.6',
-        'select2':   '~4.0.2',
-    }
-)
+        'select2': '~4.0.2',
+        }
+    )
 """Admin LTE CSS."""
 
 admin_css = NpmBundle(
     'scss/iroko_theme/admin.scss',
     filters='node-scss,cleancssurl',
     output='gen/styles.admin.%(version)s.css'
-)
+    )
 """Default style for admin interface."""
 
 js = Bundle(
@@ -89,18 +89,18 @@ js = Bundle(
         'js/settings.js',
         filters='uglifyjs',
         npm={
-            'almond':  '~0.3.1',
+            'almond': '~0.3.1',
             'angular': '~1.4.9',
-            'jquery':  '~1.9.1',
-        }
-    ),
+            'jquery': '~1.9.1',
+            }
+        ),
     Bundle(
         'js/base.js',
         filters='requirejs',
-    ),
+        ),
     filters='jsmin',
     output='gen/packed.%(version)s.js',
-)
+    )
 """Default JavaScript bundle with Almond, JQuery and RequireJS."""
 
 admin_js = NpmBundle(
@@ -112,9 +112,9 @@ admin_js = NpmBundle(
     output='gen/admin.%(version)s.js',
     filters='jsmin',
     npm={
-        'jquery':  '~1.9.1',
-        'moment':  '~2.9.0',
+        'jquery': '~1.9.1',
+        'moment': '~2.9.0',
         'select2': '~4.0.2',
-    }
-)
+        }
+    )
 """AdminJS contains JQuery, Moment, Select2, Bootstrap, and Admin-LTE."""

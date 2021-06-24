@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.BASE_TEMPLATE %}
@@ -23,169 +23,175 @@
 
 <div class="container">
 
-    <div class="row justify-content-center mt-4">
-        <div class="col-lg-4 text-center">
-            <a>
-                <img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
-                    alt="{{_('Sceiba Catalog')}}" title="{{_('Sceiba Catalog')}}">
-            </a>
-            <p>
-                <br/>Sistema de fuentes registradas en Sceiba y su manejo por editores y gestores.
-            </p>
-            <h4><a class="text-default" href="">¿Quiere ser parte de Sceiba? </a></h2>
+  <div class="row justify-content-center mt-4">
+    <div class="col-lg-4 text-center">
+      <a>
+        <img alt="{{_('Sceiba Catalog')}}" class="bd-placeholder-img rounded-circle"
+             src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
+             title="{{_('Sceiba Catalog')}}" width="140">
+      </a>
+      <p>
+        <br/>Sistema de fuentes registradas en Sceiba y su manejo por editores y gestores.
+      </p>
+      <h4><a class="text-default" href="">¿Quiere ser parte de Sceiba? </a></h2>
 
-            <a class="btn btn-info btn-orange" href="#" role="button">Catátogo »</a>
-        </div>
-
-        <div class="col-lg-4 text-center">
-            <a>
-                <img class="bd-placeholder-img rounded-circle" width="140" src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
-                    alt="{{_('Sceiba Taxonomy')}}" title="{{_('Sceiba Taxonomy')}}">
-            </a>
-
-            <p></p>
-            <p>Sistema de vocabularios y términos controlados para lograr la estandarización y la unicidad en las búsquedas...</p>
-            <a class="btn btn-info btn-orange" href="#" role="button">Taxonomía »</a>
-        </div>
-    </div>
-    <br/>
-    <br/>
-    <div class="row justify-content-center mb-4">
-        <!-- {{vocab_stats}} -->
-        {% for stat in vocab_stats %}
-        {% if stat['records'] %}
-        <a href="search?">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Records') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['records'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-list fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
-        {% elif stat['sources'] %}
-        <a href="aggr/sources">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Sources') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['sources'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-home fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
-        {% elif stat['authors'] %}
-        <a href="aggr/authors">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Creators') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['authors'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-user fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
-        {% elif stat['Keywords'] %}
-        <a href="aggr/keywords">
-            <div class="row mt-3 ml-2">
-                <div class="col my-1">
-                    <div class="card border-left-primary shadow h-100 py-2"
-                        style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        {{ _('Keywords') }}</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['Keywords'] }}</div>
-                                </div>
-                                <div>
-                                    <i class="fa fa-bookmark fa-2x text-default"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-        {% endif %}
-
-        {% endfor %}
-
+        <a class="btn btn-info btn-orange" href="#" role="button">Catátogo »</a>
     </div>
 
+    <div class="col-lg-4 text-center">
+      <a>
+        <img alt="{{_('Sceiba Taxonomy')}}" class="bd-placeholder-img rounded-circle"
+             src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
+             title="{{_('Sceiba Taxonomy')}}" width="140">
+      </a>
 
-    {% if faqs != '' %}
-    <div id="faq" class="d-flex py-5">
-        <div class="row">
-            <div class="col-xs-12">
-                <h2 class="text-default">{{ _('FAQ') }}</h2>
-            </div>
-            <div class="col-xs-12">
-                {{ faqs|safe }}
-            </div>
-        </div>
+      <p></p>
+      <p>Sistema de vocabularios y términos controlados para lograr la estandarización y la unicidad
+        en las búsquedas...</p>
+      <a class="btn btn-info btn-orange" href="#" role="button">Taxonomía »</a>
     </div>
+  </div>
+  <br/>
+  <br/>
+  <div class="row justify-content-center mb-4">
+    <!-- {{vocab_stats}} -->
+    {% for stat in vocab_stats %}
+    {% if stat['records'] %}
+    <a href="search?">
+      <div class="row mt-3 ml-2">
+        <div class="col my-1">
+          <div class="card border-left-primary shadow h-100 py-2"
+               style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    {{ _('Records') }}
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['records'] }}</div>
+                </div>
+                <div>
+                  <i class="fa fa-list fa-2x text-default"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    {% elif stat['sources'] %}
+    <a href="aggr/sources">
+      <div class="row mt-3 ml-2">
+        <div class="col my-1">
+          <div class="card border-left-primary shadow h-100 py-2"
+               style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    {{ _('Sources') }}
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['sources'] }}</div>
+                </div>
+                <div>
+                  <i class="fa fa-home fa-2x text-default"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    {% elif stat['authors'] %}
+    <a href="aggr/authors">
+      <div class="row mt-3 ml-2">
+        <div class="col my-1">
+          <div class="card border-left-primary shadow h-100 py-2"
+               style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    {{ _('Creators') }}
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['authors'] }}</div>
+                </div>
+                <div>
+                  <i class="fa fa-user fa-2x text-default"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    {% elif stat['Keywords'] %}
+    <a href="aggr/keywords">
+      <div class="row mt-3 ml-2">
+        <div class="col my-1">
+          <div class="card border-left-primary shadow h-100 py-2"
+               style="border-left: 5px solid rgb(78, 107, 85) !important;border: transparent;">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    {{ _('Keywords') }}
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stat['Keywords'] }}</div>
+                </div>
+                <div>
+                  <i class="fa fa-bookmark fa-2x text-default"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
     {% endif %}
 
+    {% endfor %}
 
-    <!-- {% if texts and texts['faq'] %}
-  <div id="faq" class="row text-center py-5">
-      <div class="row">
-          <div class="col-10 mx-auto">
-            <h2 class="text-default">{{ _('FAQ') }}</h2>
-          </div>
-          {% for item in texts['faq'] %}
-          <div class="col-md-4 col-xs-12 mx-auto">
-            <h5>{{ item.question }}</h5>
-            <p>
-              {{ item.answer }}
-            </p>
-          </div>
-          {% endfor %}
-      </div>
   </div>
-  {% endif %} -->
+
+
+  {% if faqs != '' %}
+  <div class="d-flex py-5" id="faq">
+    <div class="row">
+      <div class="col-xs-12">
+        <h2 class="text-default">{{ _('FAQ') }}</h2>
+      </div>
+      <div class="col-xs-12">
+        {{ faqs|safe }}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- {% if texts and texts['faq'] %}
+<div id="faq" class="row text-center py-5">
+    <div class="row">
+        <div class="col-10 mx-auto">
+          <h2 class="text-default">{{ _('FAQ') }}</h2>
+        </div>
+        {% for item in texts['faq'] %}
+        <div class="col-md-4 col-xs-12 mx-auto">
+          <h5>{{ item.question }}</h5>
+          <p>
+            {{ item.answer }}
+          </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %} -->
 
 
 </div>
-
 
 
 {%- endblock page_body %}

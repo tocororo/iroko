@@ -13,16 +13,14 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, request
 from flask_principal import PermissionDenied
-from invenio_cache import cached_unless_authenticated
 from invenio_oauth2server import require_api_auth
 
 from iroko.decorators import taxonomy_admin_required
-from iroko.utils import iroko_json_response, IrokoResponseStatus
-from iroko.vocabularies.api import Vocabularies, Terms, get_current_user_permissions
+from iroko.utils import IrokoResponseStatus, iroko_json_response
+from iroko.vocabularies.api import Terms, Vocabularies, get_current_user_permissions
 from iroko.vocabularies.marshmallow import (
-    vocabulary_schema_many, vocabulary_schema, term_schema_many, term_schema,
-    term_node_schema,
-)
+    term_node_schema, term_schema, term_schema_many, vocabulary_schema, vocabulary_schema_many,
+    )
 from iroko.vocabularies.models import Vocabulary
 from iroko.vocabularies.permissions import vocabulary_editor_permission_factory
 
@@ -30,7 +28,7 @@ api_blueprint = Blueprint(
     'iroko_api_taxonomys',
     __name__,
     url_prefix='/vocabularies'
-)
+    )
 
 
 # TODO: Cambiar todos los POST de editar para PUT
@@ -45,8 +43,10 @@ def get_vocabularies():
         if not result:
             raise Exception('Vocabularies not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'vocabularies',
-                                   vocabulary_schema_many.dump(result))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, 'ok', 'vocabularies',
+            vocabulary_schema_many.dump(result)
+            )
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -60,9 +60,11 @@ def vocabulary_get(id):
         if not vocab:
             raise Exception('Not vocabulary found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'vocabulary', \
-                                   vocabulary_schema.dump(vocab))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'vocabulary', \
+            vocabulary_schema.dump(vocab)
+            )
 
     except Exception as e:
         msg = str(e)
@@ -86,9 +88,11 @@ def vocabulary_edit(id):
         if not vocab:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'vocabulary', \
-                                   vocabulary_schema.dump(vocab))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'vocabulary', \
+            vocabulary_schema.dump(vocab)
+            )
 
     except Exception as e:
         msg = str(e)
@@ -110,9 +114,11 @@ def vocabulary_new():
         if not vocab:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'vocabulary', \
-                                   vocabulary_schema.dump(vocab))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'vocabulary', \
+            vocabulary_schema.dump(vocab)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -127,28 +133,32 @@ def get_terms_list():
         if not result:
             raise Exception('No terms found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'terms', \
-                                   term_schema_many.dump(result))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'terms', \
+            term_schema_many.dump(result)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/list/<vocabulary_id>')
-#@cached_unless_authenticated(timeout=5000)
+# @cached_unless_authenticated(timeout=5000)
 def get_terms(vocabulary_id):
     """Get all terms of a vocabulary in a list """
     try:
         msg, terms = Terms.get_terms_by_vocab(vocabulary_id)
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'terms', term_schema_many.dump(terms))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, 'ok', 'terms', term_schema_many.dump(terms)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 @api_blueprint.route('/term/tree/<vocabulary_id>')
-#@cached_unless_authenticated(timeout=5000)
+# @cached_unless_authenticated(timeout=5000)
 def get_terms_tree(vocabulary_id):
     """List all the terms in a vocabulary, in a tree
     Receive <level> as an argument, defining the level of the tree you want.
@@ -158,19 +168,22 @@ def get_terms_tree(vocabulary_id):
 
     try:
         level = int(request.args.get('level')) if request.args.get('level') and int(
-            request.args.get('level')) >= 0 else 0
+            request.args.get('level')
+            ) >= 0 else 0
 
         vocab = Vocabulary.query.filter_by(identifier=vocabulary_id).first()
         if not vocab:
             raise Exception('Invalid Vocabulary identifier {0}'.format(vocabulary_id))
         terms = vocab.terms.filter_by(parent_id=None).all()
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'tree', \
-                                   {
-                                       'vocab':     vocabulary_schema.dump(vocab), \
-                                       'term_node': term_node_schema.dump_term_node_list(terms, level, 0)
-                                   })
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'tree', \
+            {
+                'vocab': vocabulary_schema.dump(vocab), \
+                'term_node': term_node_schema.dump_term_node_list(terms, level, 0)
+                }
+            )
     except Exception as e:
         # print(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -187,8 +200,10 @@ def term_get_tree_by_id(id):
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg, 'term_node',
-                                   term_node_schema.dump_term_node(term, level, 0))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, msg, 'term_node',
+            term_node_schema.dump_term_node(term, level, 0)
+            )
 
     except Exception as e:
         msg = str(e)
@@ -196,10 +211,11 @@ def term_get_tree_by_id(id):
 
 
 @api_blueprint.route('/term/<uuid>')
-#@cached_unless_authenticated(timeout=5000)
+# @cached_unless_authenticated(timeout=5000)
 def term_get_tree(uuid):
     """Get a term given the uuid, in deep, meaning the children
-    Receive <level> as an argument, defining the level of the tree considering the children as level=1 and parent as level=-1
+    Receive <level> as an argument, defining the level of the tree considering the children as
+    level=1 and parent as level=-1
     If argument <level> is not provided or equal 0, returns the first level, meaning only the term.
     Whith negative values it gets to the parents.
     TermNode
@@ -215,15 +231,17 @@ def term_get_tree(uuid):
         if not term:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, msg, 'term_node',
-                                   term_node_schema.dump_term_node(term, level, 0))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, msg, 'term_node',
+            term_node_schema.dump_term_node(term, level, 0)
+            )
 
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-#@cached_unless_authenticated(timeout=5000)
+# @cached_unless_authenticated(timeout=5000)
 @api_blueprint.route('/term/inlist', methods=['GET'])
 def get_term_in_list():
     try:
@@ -239,7 +257,9 @@ def get_term_in_list():
         terms = Terms.get_terms_by_id_list(idlist)
         if not terms:
             raise Exception('no terms in list')
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'term', term_schema_many.dump(terms))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, 'ok', 'term', term_schema_many.dump(terms)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -267,9 +287,11 @@ def term_edit(uuid):
             if not term:
                 raise Exception(msg)
 
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       msg, 'term', \
-                                       term_schema.dump(term))
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                msg, 'term', \
+                term_schema.dump(term)
+                )
     except PermissionDenied as err:
         msg = 'Permission denied for editing term'
     except Exception as e:
@@ -307,9 +329,11 @@ def term_new():
             msg, term = Terms.new_term(input_data)
             if not term:
                 raise Exception(msg)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       msg, 'term', \
-                                       term_schema.dump(term))
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                msg, 'term', \
+                term_schema.dump(term)
+                )
 
     except PermissionDenied as err:
         msg = 'Permission denied for adding term'
@@ -329,7 +353,7 @@ def taxonomy_current_user_permissions():
             msg,
             'permissions',
             {actions: vocabs}
-        )
+            )
 
     except Exception as e:
         msg = str(e)

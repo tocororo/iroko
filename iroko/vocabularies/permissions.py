@@ -5,7 +5,7 @@
 #
 
 from flask_login import current_user
-from invenio_access import action_factory, Permission
+from invenio_access import Permission, action_factory
 from invenio_access.models import ActionUsers
 from invenio_access.utils import get_identity
 
@@ -37,7 +37,8 @@ def is_current_user_taxonomy_admin():
         admin = ActionUsers.query.filter_by(
             user=current_user,
             exclude=False,
-            action='vocabularies_full_editor_actions').first()
+            action='vocabularies_full_editor_actions'
+            ).first()
 
         if admin:
             its = True

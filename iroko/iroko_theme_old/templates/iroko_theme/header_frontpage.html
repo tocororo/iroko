@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 {%- include "iroko_theme/beta_warning.html" %}
 
@@ -17,85 +17,87 @@
 
 <header>
 
-    <!--Navbar-->
+  <!--Navbar-->
 
-    {%- block navbar %}
-    <!--Navbar-->
-    <nav class="navbar navbar-expand-lg bg-transparent scrolling-navbar" style="z-index:1000">
-      <div class="container">
-          {%- block brand %}
+  {%- block navbar %}
+  <!--Navbar-->
+  <nav class="navbar navbar-expand-lg bg-transparent scrolling-navbar" style="z-index:1000">
+    <div class="container">
+      {%- block brand %}
 
-          {%- if config.THEME_LOGO %}
-          <a href="/">
-              <img class="navbar-brand" src="{{ url_for('static', filename=config.THEME_LOGO)}}"
-                  alt="{{_(config.THEME_SITENAME)}}" width="200">
-          </a>
+      {%- if config.THEME_LOGO %}
+      <a href="/">
+        <img alt="{{_(config.THEME_SITENAME)}}" class="navbar-brand"
+             src="{{ url_for('static', filename=config.THEME_LOGO)}}" width="200">
+      </a>
+      {%- else %}
+      <a class="navbar-brand" href="/"><strong>{{_(config.THEME_SITENAME)}} - </strong></a>
+
+      {%- endif %}
+      <!-- <h2 class="navbar-brand"
+      data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}</h2> -->
+      {%- endblock brand %}
+
+      <button aria-controls="navbarSupportedContent-7" aria-expanded="false" aria-label="Toggle navigation"
+              class="navbar-toggler" data-target="#navbarSupportedContent-7"
+              data-toggle="collapse" type="button">
+        <i class="fa fa-bars"></i>
+
+      </button>
+      {%- block navbar_inner %}
+      <div class="collapse navbar-collapse" id="navbarSupportedContent-7">
+
+        {%- block navbar_nav %}
+        <ul class="navbar-nav mr-auto">
+          {%- for item in current_menu.submenu('main').children|sort(attribute='order') if
+          item.visible recursive %}
+          {%- if item.children %}
+          <li class="nav-item dropdown{{ ' active' if item.active else ''}}">
+            <a aria-expanded="false" aria-haspopup="true" class="dropdown-toggle" data-toggle="dropdown"
+               href="{{ item.url }}" role="button">{{ item.text|safe }} <b
+              class="caret"></b></a>
+            <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
+          </li>
           {%- else %}
-          <a class="navbar-brand" href="/"><strong>{{_(config.THEME_SITENAME)}} - </strong></a>
-
+          <li {{
+          ' class="nav-item active"' |safe if item.active and loop.depth == 1 else '' }}>
+          <a class="nav-link" href="{{ item.url }}">{{ item.text|safe }}</a>
+          </li>
           {%- endif %}
-          <!-- <h2 class="navbar-brand"
-          data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}</h2> -->
-          {%- endblock brand %}
-
-          <button class="navbar-toggler" type="button" data-toggle="collapse"
-              data-target="#navbarSupportedContent-7" aria-controls="navbarSupportedContent-7"
-              aria-expanded="false" aria-label="Toggle navigation">
-              <i class="fa fa-bars"></i>
-
-          </button>
-          {%- block navbar_inner %}
-          <div class="collapse navbar-collapse" id="navbarSupportedContent-7">
-
-              {%- block navbar_nav %}
-              <ul class="navbar-nav mr-auto">
-                  {%- for item in current_menu.submenu('main').children|sort(attribute='order') if item.visible recursive %}
-                  {%- if item.children %}
-                  <li class="nav-item dropdown{{ ' active' if item.active else ''}}">
-                      <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                          aria-expanded="false" href="{{ item.url }}">{{ item.text|safe }} <b
-                              class="caret"></b></a>
-                      <ul class="dropdown-menu">{{ loop(item.children|sort(attribute='order')) }}</ul>
-                  </li>
-                  {%- else %}
-                  <li {{' class="nav-item active"' |safe if item.active and loop.depth == 1 else '' }}>
-                      <a class="nav-link" href="{{ item.url }}">{{ item.text|safe }}</a>
-                  </li>
-                  {%- endif %}
-                  {%- endfor %}
-              </ul>
-              {%- endblock navbar_nav %}
+          {%- endfor %}
+        </ul>
+        {%- endblock navbar_nav %}
 
 
-              {%- if config.THEME_SEARCHBAR %}
-              {%- block navbar_search %}
-              <!-- <form class="form-inline" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
-                  <div class="md-form my-0">
-                      <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                  </div>
-              </form> -->
-              {%- endblock navbar_search %}
-              {%- endif %}
+        {%- if config.THEME_SEARCHBAR %}
+        {%- block navbar_search %}
+        <!-- <form class="form-inline" action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
+            <div class="md-form my-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            </div>
+        </form> -->
+        {%- endblock navbar_search %}
+        {%- endif %}
 
-              {%- block navbar_right %}
+        {%- block navbar_right %}
 
-              {%- include config.THEME_HEADER_LOGIN_TEMPLATE %}
+        {%- include config.THEME_HEADER_LOGIN_TEMPLATE %}
 
-              {%- endblock navbar_right %}
+        {%- endblock navbar_right %}
 
-          </div>
-          {%- endblock navbar_inner %}
       </div>
+      {%- endblock navbar_inner %}
+    </div>
   </nav>
-    <!-- Navbar -->
+  <!-- Navbar -->
 
-    {%- endblock navbar %}
+  {%- endblock navbar %}
 
-    {%- block flashmessages %}
+  {%- block flashmessages %}
 
-    {%- endblock %}
+  {%- endblock %}
 
-    {%- block breadcrumbs %}
+  {%- block breadcrumbs %}
 
-    {%- endblock breadcrumbs %}
+  {%- endblock breadcrumbs %}
 </header>

@@ -1,18 +1,18 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 
 {% extends config.SEARCH_UI_BASE_TEMPLATE %}
 
 {%- block css %}
-    {{ super() }}
-    {{ webpack['search_ui_theme.css'] }}
-    {# assets "invenio_search_ui_search_css" %}
+{{ super() }}
+{{ webpack['search_ui_theme.css'] }}
+{# assets "invenio_search_ui_search_css" %}
 
 <!--
   ~ Copyright (c) 2021. Universidad de Pinar del Rio
@@ -25,21 +25,22 @@
 {%- endblock css %}
 
 {%- block javascript %}
-  {{ super() }}
-  {{ webpack['search_ui_app.js'] }}
-  {# assets "invenio_search_ui_search_js" %}<script src="{{ ASSET_URL }}"></script>{% endassets #}
+{{ super() }}
+{{ webpack['search_ui_app.js'] }}
+{# assets "invenio_search_ui_search_js" %}
+<script src="{{ ASSET_URL }}"></script>{% endassets #}
 {%- endblock javascript %}
 
 {%- block body_inner %}
 
 
-
 <div id="invenio-search">
   <invenio-search
-   search-endpoint="{{ config.SEARCH_UI_SEARCH_API }}"
-   search-extra-params='{% if search_extra_params %}{{search_extra_params|tojson}}{% endif %}'
-   search-hidden-params='{% if search_hidden_params %}{{search_hidden_params|tojson}}{% endif %}'
-   search-headers='{"Accept": "{{ config.SEARCH_UI_SEARCH_MIMETYPE|default('application/json')}}"}'>
+    application
+    search-endpoint="{{ config.SEARCH_UI_SEARCH_API }}"
+    search-extra-params='{% if search_extra_params %}{{search_extra_params|tojson}}{% endif %}'
+    search-headers='{"Accept": "{{ config.SEARCH_UI_SEARCH_MIMETYPE|default(' search-hidden-params='{% if search_hidden_params %}{{search_hidden_params|tojson}}{% endif %}'
+  /json')}}"}'>
   {{super()}}
   </invenio-search>
 </div>
@@ -56,14 +57,13 @@
 <div class="container search-page">
 
 
-    {%- block search_block %}
-      <invenio-search-bar class="container d-flex justify-content-start"
-        template="{{ url_for('static', filename='templates/search_ui/page_searchbar.html') }}"
-        placeholder="{{ search_input_placeholder|default(_('Search')) }}">
-      </invenio-search-bar>
-    {%- endblock search_block %}
-    <div class="row">
-
+  {%- block search_block %}
+  <invenio-search-bar class="container d-flex justify-content-start"
+                      placeholder="{{ search_input_placeholder|default(_('Search')) }}"
+                      template="{{ url_for('static', filename='templates/search_ui/page_searchbar.html') }}">
+  </invenio-search-bar>
+  {%- endblock search_block %}
+  <div class="row">
 
 
     {%- block search_body %}
@@ -73,7 +73,7 @@
         {%- block search_count %}
         <div class="col-md-2 col-sm-12">
           <invenio-search-count
-           template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_COUNT) }}">
+            template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_COUNT) }}">
           </invenio-search-count>
         </div>
         {%- endblock search_count %}
@@ -85,22 +85,23 @@
         </div>
         {%- endblock search_pagination_top %}
         {%- block search_sort %}
-        {%- set sort_options = config.get('RECORDS_REST_SORT_OPTIONS', {}).get(config.SEARCH_UI_SEARCH_INDEX) %}
+        {%- set sort_options = config.get('RECORDS_REST_SORT_OPTIONS',
+        {}).get(config.SEARCH_UI_SEARCH_INDEX) %}
         {%- if sort_options %}
         <div class="col-md-3 col-sm-12 text-right">
           {%- block search_sort_select scoped %}
           Ordenar por:
           <invenio-search-select-box
-             sort-key="sort"
-             available-options='{{ sort_options|format_sortoptions|safe }}'
-             template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_SELECT_BOX) }}"
-            >
+            available-options='{{ sort_options|format_sortoptions|safe }}'
+            sort-key="sort"
+            template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_SELECT_BOX) }}"
+          >
           </invenio-search-select-box>
           {%- endblock search_sort_select %}
           {%- block search_sort_order scoped %}
           <invenio-search-sort-order
-           sort-key="sort"
-           template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_SORT_ORDER) }}"
+            sort-key="sort"
+            template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_SORT_ORDER) }}"
           >
           </invenio-search-sort-order>
           {%- endblock search_sort_order %}
@@ -108,29 +109,29 @@
         {%- endif %}
         {%- endblock search_sort %}
       </div>
-      <hr class="no-margin-top" />
+      <hr class="no-margin-top"/>
       {%- endblock search_header %}
       {%- block search_error %}
       <invenio-search-error
-       template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_ERROR) }}"
-       message="{{ _('Search failed.') }}">
+        message="{{ _('Search failed.') }}"
+        template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_ERROR) }}">
       </invenio-search-error>
       {%- endblock search_error %}
       {%- block search_loading %}
       <invenio-search-loading
-       template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_LOADING) }}"
-       message="{{ _('Loading...') }}">
+        message="{{ _('Loading...') }}"
+        template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_LOADING) }}">
       </invenio-search-loading>
       {%- endblock search_loading %}
       {%- block search_results %}
       <invenio-search-results
-       template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_RESULTS) }}">
+        template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_RESULTS) }}">
       </invenio-search-results>
       {%- endblock search_results %}
       {%- block search_pagination_bottom %}
       <div align="center">
         <invenio-search-pagination
-         template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_PAGINATION) }}">
+          template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_PAGINATION) }}">
         </invenio-search-pagination>
       </div>
       {%- endblock search_pagination_bottom %}
@@ -140,12 +141,12 @@
     <div class="col-md-3 col-md-pull-9 col-xs-12">
       {%- block search_range %}
       <invenio-search-range
-       options='{{ config.SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS | tojson }}'
-       template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_RANGE) }}">
+        options='{{ config.SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS | tojson }}'
+        template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_RANGE) }}">
       </invenio-search-range>
       {%- endblock search_range %}
       <invenio-search-facets
-       template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_FACETS) }}">
+        template="{{ url_for('static', filename=config.SEARCH_UI_JSTEMPLATE_FACETS) }}">
       </invenio-search-facets>
     </div>
     {%- endblock search_facets %}

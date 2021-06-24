@@ -17,7 +17,7 @@ from rdflib.namespace import SKOS
 from iroko.sources.harvesters.miar import MiarHarvester
 from iroko.sources.models import TermSources
 from iroko.utils import IrokoVocabularyIdentifiers, string_as_identifier
-from iroko.vocabularies.models import Vocabulary, Term
+from iroko.vocabularies.models import Term, Vocabulary
 
 
 def init_taxonomy():
@@ -124,25 +124,25 @@ def init_unesco(path):
 
     groups = [
         {
-            'name':        'http://vocabularies.unesco.org/thesaurus/domain1',
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain1',
             'description': 'Educación'
-        }, {
-            'name':        'http://vocabularies.unesco.org/thesaurus/domain2',
+            }, {
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain2',
             'description': 'Ciencia'
-        }, {
-            'name':        'http://vocabularies.unesco.org/thesaurus/domain3',
+            }, {
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain3',
             'description': 'Cultura'
-        }, {
-            'name':        'http://vocabularies.unesco.org/thesaurus/domain4',
+            }, {
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain4',
             'description': 'Ciencias sociales y humanas'
-        }, {
-            'name':        'http://vocabularies.unesco.org/thesaurus/domain5',
+            }, {
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain5',
             'description': 'Información y comunicación'
-        }, {
-            'name':        'http://vocabularies.unesco.org/thesaurus/domain6',
+            }, {
+            'name': 'http://vocabularies.unesco.org/thesaurus/domain6',
             'description': 'Política, derecho y economía'
-        }
-    ]
+            }
+        ]
 
     graph = Graph()
     graph.load(path)

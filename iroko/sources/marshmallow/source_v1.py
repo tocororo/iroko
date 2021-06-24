@@ -12,7 +12,7 @@ from invenio_records_rest.serializers.json import JSONSerializer
 from invenio_records_rest.serializers.response import (
     record_responsify,
     search_responsify,
-)
+    )
 from marshmallow import fields
 
 from iroko.sources.marshmallow.journal import JournalDataSchema

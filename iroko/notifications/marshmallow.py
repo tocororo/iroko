@@ -29,6 +29,8 @@ class NotificationSchema(Schema):
         return item
 
 
-notification_schema_many = NotificationSchema(many=True, only=(
-'id', 'classification', 'description', 'receiver_id', 'emiter', 'viewed'))
+notification_schema_many = NotificationSchema(
+    many=True, only=(
+        'id', 'classification', 'description', 'receiver_id', 'emiter', 'viewed')
+    )
 notification_schema = NotificationSchema(many=False)

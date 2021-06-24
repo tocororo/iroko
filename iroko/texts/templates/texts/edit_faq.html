@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.BASE_TEMPLATE %}
@@ -51,9 +51,9 @@
 
         {{ form.csrf_token }}
         {{ errors(form.csrf_token) }}
-        <button type="button" class="btn btn-default">{{ _('Prev') }}</button>
-        <button type="button" class="btn btn-default">{{ _('Next') }}</button>
-        <button type="button" class="btn btn-default">{{ _('Save Changes') }}</button>
+        <button class="btn btn-default" type="button">{{ _('Prev') }}</button>
+        <button class="btn btn-default" type="button">{{ _('Next') }}</button>
+        <button class="btn btn-default" type="button">{{ _('Save Changes') }}</button>
       </form>
     </div>
   </div>

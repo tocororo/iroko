@@ -6,16 +6,16 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Blueprint, request, render_template, flash, url_for, redirect
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_babelex import lazy_gettext as _
 from flask_login import login_required
 from invenio_db import db
 
-from iroko.curator.permissions import vocabulary_create_permission, source_create_permission
+from iroko.curator.permissions import source_create_permission, vocabulary_create_permission
 from iroko.sources.models import Source
 from iroko.utils import IrokoVocabularyIdentifiers
-from iroko.vocabularies.models import Vocabulary, Term, TermClasification
-from .forms import VocabularyForm, TermForm, SourceForm
+from iroko.vocabularies.models import Term, TermClasification, Vocabulary
+from .forms import SourceForm, TermForm, VocabularyForm
 
 blueprint = Blueprint(
     'iroko_curator',
@@ -24,7 +24,7 @@ blueprint = Blueprint(
 
     template_folder='templates',
     static_folder='static'
-)
+    )
 
 
 @blueprint.route('/add/vocabulary', methods=['GET', 'POST'])
@@ -75,7 +75,8 @@ def add_term():
         if new_term.vocabulary.name == 'data_bases' and form.group.data != 0:
             new_group = TermClasification()
             new_group.term_base_id = new_term.id  # id del termino que es base de datos
-            new_group.term_group_id = form.group.data  # id del termino del combo que dice el grupo mes
+            new_group.term_group_id = form.group.data  # id del termino del combo que dice el
+            # grupo mes
             db.session.add(new_group)
 
         db.session.commit()
@@ -175,7 +176,9 @@ def edit_term(id=None):
         aux_term.name = form.name.data
         aux_term.description = form.description.data
 
-        data_base_vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
+        data_base_vocab = Vocabulary.query.filter_by(
+            identifier=IrokoVocabularyIdentifiers.INDEXES.value
+            ).first()
         if aux_term.vocabulary_id == data_base_vocab.identifier:
             group = TermClasification.query.filter_by(term_base_id=aux_term.id).first()
             if group:
@@ -217,7 +220,8 @@ def edit_source(id=None):
         form.source_type.data = aux_source.source_type
         form.repo_harvest_type.data = aux_source.repo_harvest_type
         form.repo_harvest_endpoint.data = aux_source.repo_harvest_endpoint
-        # form.terms.choices = [(tm.term_id, tm.term.name) for tm in  TermSources.query.filter_by(sources_id=id)]
+        # form.terms.choices = [(tm.term_id, tm.term.name) for tm in
+        # TermSources.query.filter_by(sources_id=id)]
         # print(aux_source.source_type)
 
     if form.validate_on_submit():

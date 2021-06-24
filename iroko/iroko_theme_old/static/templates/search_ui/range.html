@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 <!--
   ~ Copyright (c) 2021. Universidad de Pinar del Rio
@@ -12,12 +12,13 @@
   ~ under the terms of the MIT License; see LICENSE file for more details.
   -->
 
-<div class="panel panel-default" ng-show="vm.invenioSearchResults.aggregations.years.buckets.length > 0">
+<div class="panel panel-default"
+     ng-show="vm.invenioSearchResults.aggregations.years.buckets.length > 0">
   <div class="panel-heading">
-      <h3 class="panel-title">year</h3>
+    <h3 class="panel-title">year</h3>
   </div>
   <div class="panel-body">
-      <div ng-style="{width: '80%', margin: '0 auto'}" id="year_hist"></div>
-      <div ng-style="{width: '80%', margin: '0 auto'}" id="year_select"></div>
+    <div id="year_hist" ng-style="{width: '80%', margin: '0 auto'}"></div>
+    <div id="year_select" ng-style="{width: '80%', margin: '0 auto'}"></div>
   </div>
 </div>

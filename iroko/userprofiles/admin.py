@@ -45,7 +45,7 @@ class UserProfileView(ModelView):
         'user_id',
         '_displayname',
         'full_name',
-    )
+        )
 
     column_searchable_list = \
         column_filters = \
@@ -57,18 +57,18 @@ class UserProfileView(ModelView):
 
     column_labels = {
         '_displayname': _('Username'),
-    }
+        }
 
     column_formatters = {
         'json_metadata': json_formatter,
-    }
+        }
 
 
 user_profile_adminview = {
-    'model':     UserProfile,
+    'model': UserProfile,
     'modelview': UserProfileView,
-    'category':  _('User Management'),
-}
+    'category': _('User Management'),
+    }
 
 # class MyView(ModelView)
 #     def _user_formatter(view, context, model, name):

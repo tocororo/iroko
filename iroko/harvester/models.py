@@ -7,7 +7,7 @@
 import enum
 
 from invenio_db import db
-from sqlalchemy_utils.types import UUIDType, JSONType
+from sqlalchemy_utils.types import JSONType, UUIDType
 
 
 class HarvestType(enum.Enum):

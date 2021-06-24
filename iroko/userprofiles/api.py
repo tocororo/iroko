@@ -7,7 +7,6 @@
 #
 
 
-
 """API for user profiles."""
 
 from __future__ import absolute_import, print_function
@@ -35,7 +34,8 @@ def _get_current_userprofile():
 
     profile = g.get(
         'userprofile',
-        UserProfile.get_by_userid(current_user.get_id()))
+        UserProfile.get_by_userid(current_user.get_id())
+        )
     # UserProfile.get_or_create_by_userid(current_user.get_id()))
 
     if profile is None:

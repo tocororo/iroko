@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-    Copyright (C) 2021 CERN.
+Copyright (C) 2021 CERN.
 
-    iroko is free software; you can redistribute it and/or modify it under
-  the terms of the MIT License; see LICENSE file for more details.
+iroko is free software; you can redistribute it and/or modify it under
+the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.RECORDS_UI_BASE_TEMPLATE %}
@@ -11,73 +11,73 @@
 {% from 'invenio_previewer/macros.html' import file_list, preview_file %}
 
 {%- macro record_content(data) %}
-  {% set ignore_list = ['_bucket', '$schema'] %}
-  {% for key, value in data.items() if key not in ignore_list recursive %}
-    <!--
-  ~ Copyright (c) 2021. Universidad de Pinar del Rio
-  ~ This file is part of SCEIBA (sceiba.cu).
-  ~ SCEIBA is free software; you can redistribute it and/or modify it
-  ~ under the terms of the MIT License; see LICENSE file for more details.
-  -->
+{% set ignore_list = ['_bucket', '$schema'] %}
+{% for key, value in data.items() if key not in ignore_list recursive %}
+<!--
+~ Copyright (c) 2021. Universidad de Pinar del Rio
+~ This file is part of SCEIBA (sceiba.cu).
+~ SCEIBA is free software; you can redistribute it and/or modify it
+~ under the terms of the MIT License; see LICENSE file for more details.
+-->
 
 <li class="list-group-item">
-    {% if value is mapping %}
-        <strong>{{ key }}:</strong>
-        <ul class="list-group">{{ loop(value.items()) }}</ul>
-    {% elif value is iterable and value is not string %}
-        <strong>{{ key }}:</strong>
-        <ol>
-        {% for item in value %}
-          <li>
-          {% if item is mapping %}
-            <ul class="list-group">
-              {{ record_content(item) }}
-            </ul>
-          {% else %}
-            {{ item }}
-          {% endif %}
-          </li>
-        {% endfor %}
-        </ol>
-    {% else %}
-      <strong>{{ key }}:</strong> {{ value }}
-    {% endif %}
+  {% if value is mapping %}
+  <strong>{{ key }}:</strong>
+  <ul class="list-group">{{ loop(value.items()) }}</ul>
+  {% elif value is iterable and value is not string %}
+  <strong>{{ key }}:</strong>
+  <ol>
+    {% for item in value %}
+    <li>
+      {% if item is mapping %}
+      <ul class="list-group">
+        {{ record_content(item) }}
+      </ul>
+      {% else %}
+      {{ item }}
+      {% endif %}
     </li>
-  {% endfor %}
+    {% endfor %}
+  </ol>
+  {% else %}
+  <strong>{{ key }}:</strong> {{ value }}
+  {% endif %}
+</li>
+{% endfor %}
 {%- endmacro %}
 
 {% macro preview(files) %}
-  {% set selected_file = files|select_preview_file %}
-  {%- if selected_file -%}
-    <div class="panel" id="preview">
-      <div class="panel-heading">
-        <a class="panel-toggle" data-toggle="collapse" href="#collapsablePreview">
-          {{_('Preview')}}
-          <span class="pull-right show-on-collapsed"><i class="fa fa-chevron-right"></i></span>
-          <span class="pull-right hide-on-collapsed"><i class="fa fa-chevron-down"></i></span>
-        </a>
-      </div>
-      <div id="collapsablePreview" class="collapse in">
-        {{- preview_file('invenio_records_ui.recid_previewer', pid=pid, filename=selected_file.key) }}
-      </div>
-    </div>
-  {%- endif %}
+{% set selected_file = files|select_preview_file %}
+{%- if selected_file -%}
+<div class="panel" id="preview">
+  <div class="panel-heading">
+    <a class="panel-toggle" data-toggle="collapse" href="#collapsablePreview">
+      {{_('Preview')}}
+      <span class="pull-right show-on-collapsed"><i class="fa fa-chevron-right"></i></span>
+      <span class="pull-right hide-on-collapsed"><i class="fa fa-chevron-down"></i></span>
+    </a>
+  </div>
+  <div class="collapse in" id="collapsablePreview">
+    {{- preview_file('invenio_records_ui.recid_previewer', pid=pid, filename=selected_file.key) }}
+  </div>
+</div>
+{%- endif %}
 {%- endmacro %}
 
 {%- block page_body %}
-  <div class="container">
-    <h2>{{record.title}}</h2>
-    <div class="panel panel-default">
-      <ul class="list-group">
-        {{ record_content(record) }}
-      </ul>
-    </div>
-    {% set files = record._files %}
-    {{ preview(files) }}
-    {%- if files -%}
-      {{ file_list(files, pid) }}
-    {%- endif %}
+<div class="container">
+  <h2>{{record.title}}</h2>
+  <div class="panel panel-default">
+    <ul class="list-group">
+      {{ record_content(record) }}
+    </ul>
   </div>
-  {{ webpack['iroko-preview.js'] }}
+  {% set files = record._files %}
+  {{ preview(files) }}
+  {%- if files -%}
+  {{ file_list(files, pid) }}
+  {%- endif %}
+</div>
+{{ webpack['iroko-preview.js'] }}
 {%- endblock %}
 

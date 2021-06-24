@@ -16,16 +16,16 @@ from flask_login import current_user
 from invenio_accounts.models import User
 from invenio_oauth2server import require_api_auth
 
-from iroko.userprofiles import UserProfile
-from iroko.userprofiles.marshmallow import userprofile_schema, user_schema_many
-from iroko.utils import iroko_json_response, IrokoResponseStatus
-from .views import init_common
 from iroko.auth import require_keycloak_auth
+from iroko.userprofiles import UserProfile
+from iroko.userprofiles.marshmallow import user_schema_many, userprofile_schema
+from iroko.utils import IrokoResponseStatus, iroko_json_response
+from .views import init_common
 
 api_blueprint = Blueprint(
     'iroko_api_userprofiles',
     __name__,
-)
+    )
 
 
 @api_blueprint.record_once
@@ -48,26 +48,28 @@ def get_user_info():
         # print("en me", profile)
         # if current_userprofile_json_metadata:
         #     biography = current_userprofile_json_metadata["biography"]
-        #     msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
+        #     msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata[
+        #     "institution_id"])
         #     if institution:
         #         institution_name = institution.name
         #         institution_id = institution.id
         #     institution_rol = current_userprofile_json_metadata["institution_rol"]
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'userprofile', \
-                                   userprofile_schema.dump(profile)
-                                   # {
-                                   #     'email': current_user.email,
-                                   #     'id': current_user.id,
-                                   #     'username': current_userprofile.username,
-                                   #     'full_name':current_userprofile.full_name,
-                                   #     'biography':biography,
-                                   #     'institution_id':institution_id,
-                                   #     'institution':institution_name,
-                                   #     'institution_rol':institution_rol,
-                                   # }
-                                   )
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'userprofile', \
+            userprofile_schema.dump(profile)
+            # {
+            #     'email': current_user.email,
+            #     'id': current_user.id,
+            #     'username': current_userprofile.username,
+            #     'full_name':current_userprofile.full_name,
+            #     'biography':biography,
+            #     'institution_id':institution_id,
+            #     'institution':institution_name,
+            #     'institution_rol':institution_rol,
+            # }
+            )
     except Exception as e:
         raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -92,7 +94,7 @@ def get_users_by_email():
             'ok',
             'users',
             user_schema_many.dump(users[offset:limit])
-        )
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)

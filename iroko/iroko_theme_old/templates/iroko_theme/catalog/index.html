@@ -1,10 +1,9 @@
-
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 {%- extends config.THEME_BASE_TEMPLATE %}
 
@@ -20,7 +19,7 @@
 
 <base href="{{iroko_host}}/catalog">
 <meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
 
 
 <style type="text/css">
@@ -78,9 +77,11 @@
         stroke-dashoffset: -124px;
       }
     }
-  </style>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='catalog/styles.f5a4a6bc158a5aa37805.css') }}">
+</style>
+
+<link href="{{ url_for('static', filename='catalog/styles.f5a4a6bc158a5aa37805.css') }}"
+      rel="stylesheet">
 
 
 {% endblock header %}
@@ -88,25 +89,29 @@
 
 {%- block page_body %}
 
-      <div class="container">
-        <toco-root>
-                <div class="app-loading">
-                  <div class="logo"></div>
-                  <svg class="spinner" viewBox="25 25 50 50">
-                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-                  </svg>
-                </div>
-        </toco-root>
-      </div>
+<div class="container">
+  <toco-root>
+    <div class="app-loading">
+      <div class="logo"></div>
+      <svg class="spinner" viewBox="25 25 50 50">
+        <circle class="path" cx="50" cy="50" fill="none" r="20" stroke-miterlimit="10"
+                stroke-width="2"/>
+      </svg>
+    </div>
+  </toco-root>
+</div>
 {%- endblock page_body %}
 
 {%- block javascript %}
 {# {% include config.THEME_JAVASCRIPT_TEMPLATE %} #}
 
-<script type="text/javascript" src="{{ url_for('static', filename='catalog/runtime.9973a5161db514865cba.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='catalog/polyfills.33ae7ba55e2c12e2e97e.js') }}">
+<script src="{{ url_for('static', filename='catalog/runtime.9973a5161db514865cba.js') }}"
+        type="text/javascript"></script>
+<script src="{{ url_for('static', filename='catalog/polyfills.33ae7ba55e2c12e2e97e.js') }}"
+        type="text/javascript">
 </script>
-<script type="text/javascript" src="{{ url_for('static', filename='catalog/main.3dda7a52361252f5fda5.js') }}"></script>
+<script src="{{ url_for('static', filename='catalog/main.3dda7a52361252f5fda5.js') }}"
+        type="text/javascript"></script>
 
 {%- endblock javascript %}
 

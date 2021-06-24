@@ -19,7 +19,7 @@ from lxml import html
 from iroko.harvester.base import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.sources.api import SourceRecord
-from iroko.sources.models import SourceRawData, SourceType, SourceStatus
+from iroko.sources.models import SourceRawData, SourceStatus, SourceType
 from iroko.utils import IrokoVocabularyIdentifiers, get_default_user
 from iroko.vocabularies.models import Term, Vocabulary
 
@@ -49,21 +49,21 @@ class MiarHarvester(BaseHarvester):
         self.miar_groups = [
             {
                 'name': 'WoS / Scopus',
-                'url':  'http://miar.ub.edu/databases/GRUPO/G'
-            },
+                'url': 'http://miar.ub.edu/databases/GRUPO/G'
+                },
             {
                 'name': 'Bases de datos multidisciplinares',
-                'url':  'http://miar.ub.edu/databases/GRUPO/S'
-            },
+                'url': 'http://miar.ub.edu/databases/GRUPO/S'
+                },
             {
                 'name': 'Bases de datos especializadas',
-                'url':  'http://miar.ub.edu/databases/GRUPO/E'
-            },
+                'url': 'http://miar.ub.edu/databases/GRUPO/E'
+                },
             {
                 'name': 'Sistemas de evaluación',
-                'url':  'http://miar.ub.edu/databases/GRUPO/M'
-            }
-        ]
+                'url': 'http://miar.ub.edu/databases/GRUPO/M'
+                }
+            ]
 
     def collect_databases(self):
         """recolecta las bases de datos de MIAR, segun los tipos de bases de datos.
@@ -81,8 +81,10 @@ class MiarHarvester(BaseHarvester):
                 noerror = self._collect_dbs_alldatabases_information()
 
         else:
-            with open(self.miar_dbs_file, 'r',
-                      encoding='UTF-8') as file_db:
+            with open(
+                self.miar_dbs_file, 'r',
+                encoding='UTF-8'
+                ) as file_db:
                 self.miar_groups = json.load(file_db)
 
     def _collect_dbs_database_group(self, sess, url):
@@ -103,20 +105,23 @@ class MiarHarvester(BaseHarvester):
 
         return result
 
-    def _collect_dbs_database_group_pagination(self, url: str, result, sess: requests.Session, count):
+    def _collect_dbs_database_group_pagination(
+        self, url: str, result, sess: requests.Session, count
+        ):
         value_ini = 0
         value_content_length = 35
         headers = {
-            'Accept':                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            'Accept-Encoding':           "gzip, deflate",
-            'Accept-Language':           "en-US,en;q=0.5",
-            'Connection':                "keep-alive",
-            'Content-Length':            str(value_content_length),
-            'Content-Type':              "application/x-www-form-urlencoded",
+            'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            'Accept-Encoding': "gzip, deflate",
+            'Accept-Language': "en-US,en;q=0.5",
+            'Connection': "keep-alive",
+            'Content-Length': str(value_content_length),
+            'Content-Type': "application/x-www-form-urlencoded",
             'Upgrade-Insecure-Requests': "1",
-            'User-Agent':                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0",
-            'Cache-Control':             "max-age=0",
-        }
+            'User-Agent': "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 "
+                          "Firefox/64.0",
+            'Cache-Control': "max-age=0",
+            }
 
         while int(count) >= int(value_ini):
             if value_ini > 0:
@@ -154,7 +159,8 @@ class MiarHarvester(BaseHarvester):
                 a = element1[1].xpath('.//a')
                 dictionary[element1[0].text_content()] = a[0].get('href')
             else:
-                dictionary[element1[0].text_content()] = element1[1].text_content().split(sep='\n')[1]
+                dictionary[element1[0].text_content()] = element1[1].text_content().split(sep='\n')[
+                    1]
             # sleep_time = randint(3, 9)
             # time.sleep(sleep_time)
 
@@ -197,8 +203,10 @@ class MiarHarvester(BaseHarvester):
         """
         # TODO: crear un rdf skos a partir de lo que hay en el fichero....
 
-        with open(self.miar_dbs_file, 'r',
-                  encoding='UTF-8') as file_dbs:
+        with open(
+            self.miar_dbs_file, 'r',
+            encoding='UTF-8'
+            ) as file_dbs:
             archive = json.load(file_dbs)
 
         if archive:
@@ -289,7 +297,9 @@ class MiarHarvester(BaseHarvester):
             icds_year = element_history1[0]
             timeout = 120
             response = sess.get(url_history, timeout=timeout)
-            jounrnal_info['icds'].append({'icd_year': icds_year, 'html_text': response.content.decode('UTF-8')})
+            jounrnal_info['icds'].append(
+                {'icd_year': icds_year, 'html_text': response.content.decode('UTF-8')}
+                )
 
             # self._collect_journal_information_parse_icds(response.content.decode('UTF-8'))
 
@@ -307,16 +317,21 @@ class MiarHarvester(BaseHarvester):
         issn_list = SourceRawData.query.all()
         if issn_list:
             for issn in issn_list:
-                if collect_new and os.path.exists(os.path.join(self.issn_info_miar_dir, issn.identifier)):
+                if collect_new and os.path.exists(
+                    os.path.join(self.issn_info_miar_dir, issn.identifier)
+                    ):
                     return 'collected'
 
                 print('getting miar info of: {0}'.format(issn.identifier))
 
-                # if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier) or self.work_remote:
+                # if not os.path.exists(self.issn_info_miar_dir + '/' + issn.identifier) or
+                # self.work_remote:
                 jounrnal_info = self._collect_journal_information(issn.identifier)
 
-                with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+',
-                          encoding='UTF-8') as file_issn:
+                with open(
+                    os.path.join(self.issn_info_miar_dir, issn.identifier), 'w+',
+                    encoding='UTF-8'
+                    ) as file_issn:
                     json.dump(jounrnal_info, file_issn, ensure_ascii=False)
                 # with open(os.path.join(self.issn_info_miar_dir, issn.identifier + '-html'), 'w+',
                 #           encoding=('UTF-8')) as file_issn:
@@ -338,8 +353,10 @@ class MiarHarvester(BaseHarvester):
             for issn in issn_list:
                 if os.path.exists(os.path.join(self.issn_info_miar_dir, issn.identifier)):
                     print(os.path.join(self.issn_info_miar_dir, issn.identifier))
-                    with open(os.path.join(self.issn_info_miar_dir, issn.identifier), 'r',
-                              encoding='UTF-8') as file_journal:
+                    with open(
+                        os.path.join(self.issn_info_miar_dir, issn.identifier), 'r',
+                        encoding='UTF-8'
+                        ) as file_journal:
                         data = json.load(file_journal)
                         issn.set_data_field('miar', data)
                         print('save info colected of', issn.identifier)
@@ -355,7 +372,9 @@ class MiarHarvester(BaseHarvester):
             dictionary = {}
             doc1 = html.fromstring(html_text)
             element_not_found = doc1.xpath('.//div[@class="alert alert-danger"]')
-            element = doc1.xpath('.//div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]')
+            element = doc1.xpath(
+                './/div[@id="gtb_div_Revista"]//div[@style="display:table-row-group"]'
+                )
 
             if len(element_not_found) > 0:
                 return element_not_found[0].text
@@ -432,7 +451,8 @@ class MiarHarvester(BaseHarvester):
         Source es el source dado el issn
         Term, es el Tems con el nombre de la base de datos en cuestion
         Source es el que tenga el issn que se recolecto.
-        Si no existe el Source, se debe crear uno nuevo utilizando la informacion que hay en el model ISSN
+        Si no existe el Source, se debe crear uno nuevo utilizando la informacion que hay en el
+        model ISSN
         """
         issncount = 0
         sourcecount = 0
@@ -443,7 +463,9 @@ class MiarHarvester(BaseHarvester):
 
                     issncount = issncount + 1
                     data = issn.get_data_field('miar')
-                    if type(data) == str and data == issn.identifier + ' IS NOT LISTED IN MIAR DATABASE':
+                    if type(
+                        data
+                        ) == str and data == issn.identifier + ' IS NOT LISTED IN MIAR DATABASE':
                         print(issn.identifier + ' IS NOT LISTED IN MIAR DATABASE')
                         continue
                     else:
@@ -451,16 +473,20 @@ class MiarHarvester(BaseHarvester):
                         try:
                             # atribute = archive_issn_miar['Indexed\xa0in:']
                             dbs_split = []
-                            print('****************************************************************')
+                            print(
+                                '****************************************************************'
+                                )
                             print(archive_issn_miar)
-                            print('****************************************************************')
+                            print(
+                                '****************************************************************'
+                                )
                             # TODO: en algun momento debe ser posible mejorar el parser..
                             keys = [
                                 # 'Indexed\xa0in:',
                                 'Indexed\u00a0in:',
                                 # 'Evaluated\xa0in:',
                                 'Evaluated\u00a0in:'
-                            ]
+                                ]
                             # index = miar['Indexed\xa0in:']
                             for key in keys:
                                 if key in archive_issn_miar:
@@ -473,7 +499,10 @@ class MiarHarvester(BaseHarvester):
                             to_add = []
                             for dbs in dbs_split:
                                 miar = Term.query.filter_by(
-                                    identifier='http://miar.ub.edu/databases/ID/' + dbs.lower().strip()).first()
+                                    identifier='http://miar.ub.edu/databases/ID/' + dbs.lower(
+
+                                        ).strip()
+                                    ).first()
                                 if miar:
                                     print("add {0}".format(dbs))
                                     to_add.append(miar)
@@ -481,40 +510,52 @@ class MiarHarvester(BaseHarvester):
                                 #     vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value).all()
                                 #
                                 # for miar in miar_db_type_terms:
-                                #     if miar.identifier == 'http://miar.ub.edu/databases/ID/' + dbs.lower().strip():
+                                #     if miar.identifier == 'http://miar.ub.edu/databases/ID/' +
+                                #     dbs.lower().strip():
                                 #         print("add {0}".format(dbs))
                                 #         to_add.append(miar)
                             for t in to_add:
-                                print("----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(t.uuid,
-                                                                                                 t.description,
-                                                                                                 t.vocabulary_id,
-                                                                                                 t.parent_id))
+                                print(
+                                    "----------- !! ADD a Clasfication {0}-{1}-{2}-{3}".format(
+                                        t.uuid,
+                                        t.description,
+                                        t.vocabulary_id,
+                                        t.parent_id
+                                        )
+                                    )
                                 source.add_classification(
                                     str(t.uuid),
                                     t.description,
                                     t.vocabulary_id,
                                     dict(
                                         url='', initial_cover='', end_cover=''
+                                        )
                                     )
-                                )
                                 # add also the parent, meaning the miar_groups
                                 if t.parent_id and t.parent_id != 0:
                                     parent = Term.query.filter_by(id=t.parent_id).first()
-                                    print("----------- !! ADD a parent {0}- {1}".format(parent.uuid,
-                                                                                        parent.description))
+                                    print(
+                                        "----------- !! ADD a parent {0}- {1}".format(
+                                            parent.uuid,
+                                            parent.description
+                                            )
+                                        )
                                     source.add_classification(
                                         str(parent.uuid),
                                         parent.description,
                                         parent.vocabulary_id,
                                         dict()
-                                    )
+                                        )
 
                             print('***********', dict(source), source)
-                            source.new_revision(user_id=get_default_user().id,
-                                                comment='MIAR Classifications Update')
+                            source.new_revision(
+                                user_id=get_default_user().id,
+                                comment='MIAR Classifications Update'
+                                )
                             # SourceRecord.new_source_revision(data=source.model.json,
                             #                                  user_id=get_default_user().id,
-                            #                                  comment='MIAR Classifications Update')
+                            #                                  comment='MIAR Classifications
+                            #                                  Update')
                             #
                             # source.update(data=source.model.json, dbcommit=True, reindex=True)
                             # IrokoSourceVersions.new_version(
@@ -552,7 +593,9 @@ class MiarHarvesterManager:
     @classmethod
     def sync_databases(cls, recheck=True):
         work_dir = current_app.config['IROKO_DATA_DIRECTORY']
-        indexes = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
+        indexes = Vocabulary.query.filter_by(
+            identifier=IrokoVocabularyIdentifiers.INDEXES.value
+            ).first()
         if not indexes:
             indexes = Vocabulary()
             indexes.identifier = IrokoVocabularyIdentifiers.INDEXES.value
@@ -582,7 +625,10 @@ class MiarHarvesterManager:
 
 # {"title": "Agrotecnia de Cuba",
 # "description":
-# "Contiene art\u00edculos, editoriales, metodolog\u00eda, res\u00famenes de tesis y rese\u00f1as de los resultados de investigaciones cient\u00edficas y aplicadas en los campos de la sanidad vegetal y ciencias afines, con \u00e9nfasis en las tecnolog\u00edas que est\u00e1n listas para su generalizaci\u00f3n en la pr\u00e1ctica agraria.",
+# "Contiene art\u00edculos, editoriales, metodolog\u00eda, res\u00famenes de tesis y rese\u00f1as
+# de los resultados de investigaciones cient\u00edficas y aplicadas en los campos de la sanidad
+# vegetal y ciencias afines, con \u00e9nfasis en las tecnolog\u00edas que est\u00e1n listas para
+# su generalizaci\u00f3n en la pr\u00e1ctica agraria.",
 #     "url": "http://www.actaf.co.cu/agrotecnia-de-cuba.html",
 #     "rnps": "2120",
 #     "seriadas_cubanas": "http://www.seriadascubanas.cult.cu/publicaci%C3%B3n-seriada/agrotecnia-de-cuba-2",

@@ -5,11 +5,11 @@
 #
 
 from flask_babelex import lazy_gettext as _
-from flask_wtf import RecaptchaField, FlaskForm
-from wtforms import TextAreaField, StringField, validators, BooleanField, SelectField
+from flask_wtf import FlaskForm, RecaptchaField
+from wtforms import BooleanField, SelectField, StringField, TextAreaField, validators
 
 from iroko.utils import IrokoVocabularyIdentifiers
-from iroko.vocabularies.models import Vocabulary, Term
+from iroko.vocabularies.models import Term, Vocabulary
 
 
 class ContactForm(FlaskForm):
@@ -23,11 +23,16 @@ class IrokoSearchForm(FlaskForm):
     institutions = SelectField(
         _("Institucion"),
         id='iroko_search_form_institutions',
-        coerce=str)
+        coerce=str
+        )
     status = BooleanField(label=_("Oficial"))
 
     def __init__(self, *args, **kwargs):
         super(IrokoSearchForm, self).__init__()
-        voc = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.CUBAN_INTITUTIONS.value).first()
+        voc = Vocabulary.query.filter_by(
+            identifier=IrokoVocabularyIdentifiers.CUBAN_INTITUTIONS.value
+            ).first()
         self.institutions.choices = [(str(choice.uuid), choice.name) for choice in
-                                     Term.query.filter_by(vocabulary_id=voc.identifier, parent_id=None).all()]
+                                     Term.query.filter_by(
+                                         vocabulary_id=voc.identifier, parent_id=None
+                                         ).all()]

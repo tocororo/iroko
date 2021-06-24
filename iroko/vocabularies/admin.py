@@ -9,7 +9,7 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import Vocabulary, Term
+from .models import Term, Vocabulary
 
 
 class VocabularyModelView(ModelView):
@@ -50,13 +50,13 @@ vocabularies_adminview = dict(
     model=Vocabulary,
     name='Vocabularies',
     category='Iroko'
-)
+    )
 
 terms_adminview = dict(
     modelview=TermModelView,
     model=Term,
     name='Terms',
     category='Iroko'
-)
+    )
 
 __all__ = ('vocabularies_adminview', 'terms_adminview')

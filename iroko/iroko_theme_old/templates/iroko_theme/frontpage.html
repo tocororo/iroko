@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.BASE_TEMPLATE %}
@@ -12,274 +12,298 @@
 {%- include "iroko_theme/header_frontpage.html" %}
 
 
-
-    <!--
-  ~ Copyright (c) 2021. Universidad de Pinar del Rio
-  ~ This file is part of SCEIBA (sceiba.cu).
-  ~ SCEIBA is free software; you can redistribute it and/or modify it
-  ~ under the terms of the MIT License; see LICENSE file for more details.
-  -->
-
+<!--
+~ Copyright (c) 2021. Universidad de Pinar del Rio
+~ This file is part of SCEIBA (sceiba.cu).
+~ SCEIBA is free software; you can redistribute it and/or modify it
+~ under the terms of the MIT License; see LICENSE file for more details.
+-->
 
 
-    <!-- Full Page Intro -->
+<!-- Full Page Intro -->
 
-  <div class="view jarallax iroko-jumbo" data-jarallax='{"speed": 0.2}'>
+<div class="view jarallax iroko-jumbo" data-jarallax='{"speed": 0.2}'>
 
-    <!-- Mask & flexbox options-->
-    <div class="mask rgba-white-light d-flex justify-content-center align-items-center">
-        <!-- Content -->
-        <div class="container">
-            <!--Grid row-->
-            <div class="row">
-                <!--Grid column-->
-                <div class="col-md-12 text-center">
-                    <h2 class="text-uppercase pt-md-5 pt-sm-2 pb-md-5 pb-sm-3 pb-5 font-weight-bold wow fadeInDown"
-                        data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}
-                    </h2>
-                    {%- if config.THEME_SEARCHBAR %}
-                        {%- block navbar_search %}
-                        <form action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
-                            <div class="form-row col-md-12 justify-content-center">
-                              <div class="col-auto w-75">
-                                {% if not stat %}
-                                  <input type="text" class="form-control form-control-lg m-1" name="q" placeholder="{{records}} {{_('Registros')}}">
-                                {% else %}
-                                  <input type="text" class="form-control form-control-lg m-1" name="q" placeholder="{{_('Buscar')}}">
-                                {% endif %}
-                              </div>
-                              <div class="col-auto">
-                                <button type="submit" class="btn btn-dark m-1" style="padding: .69em 1em;"><i class="fa fa-search mr-2"></i>{{_('Buscar')}}</button>
-                              </div>
-                            </div>
-                        </form>
-                        {%- endblock navbar_search %}
-                    {%- endif %}
-                    <!-- <div class="wow fadeInDown" data-wow-delay="0.3s">
-                        {% if not stat %}
-                        <section class="after-loop">
-                            <div class="container">
-                                <div class="row">
-                                    <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50% !important;">
-                                        <h1 class="text-dark">{{records}}</h1>
-                                        <h1 class="text-dark"> Records</h1>
-                                    </a>
-                                </div>
-                            </div>
-                        </section>
-                        {% endif %}
-                    </div> -->
-                </div>
-                <!--Grid column-->
+  <!-- Mask & flexbox options-->
+  <div class="mask rgba-white-light d-flex justify-content-center align-items-center">
+    <!-- Content -->
+    <div class="container">
+      <!--Grid row-->
+      <div class="row">
+        <!--Grid column-->
+        <div class="col-md-12 text-center">
+          <h2
+            class="text-uppercase pt-md-5 pt-sm-2 pb-md-5 pb-sm-3 pb-5 font-weight-bold wow fadeInDown"
+            data-wow-delay="0.3s">{{_(config.THEME_FRONTPAGE_TITLE)}}
+          </h2>
+          {%- if config.THEME_SEARCHBAR %}
+          {%- block navbar_search %}
+          <form action="{{config.THEME_SEARCH_ENDPOINT}}" role="search">
+            <div class="form-row col-md-12 justify-content-center">
+              <div class="col-auto w-75">
+                {% if not stat %}
+                <input class="form-control form-control-lg m-1" name="q" placeholder="{{records}} {{_('Registros')}}"
+                       type="text">
+                {% else %}
+                <input class="form-control form-control-lg m-1" name="q" placeholder="{{_('Buscar')}}"
+                       type="text">
+                {% endif %}
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-dark m-1" style="padding: .69em 1em;" type="submit"><i
+                  class="fa fa-search mr-2"></i>{{_('Buscar')}}
+                </button>
+              </div>
             </div>
-            <!--Grid row-->
-
+          </form>
+          {%- endblock navbar_search %}
+          {%- endif %}
+          <!-- <div class="wow fadeInDown" data-wow-delay="0.3s">
+              {% if not stat %}
+              <section class="after-loop">
+                  <div class="container">
+                      <div class="row">
+                          <a href="/search" class="after-loop-item card mx-auto p-5 bg-transparent" style="border-radius: 50% !important;">
+                              <h1 class="text-dark">{{records}}</h1>
+                              <h1 class="text-dark"> Records</h1>
+                          </a>
+                      </div>
+                  </div>
+              </section>
+              {% endif %}
+          </div> -->
         </div>
-        <!-- Content -->
+        <!--Grid column-->
+      </div>
+      <!--Grid row-->
+
     </div>
-    <!-- Mask & flexbox options-->
+    <!-- Content -->
   </div>
+  <!-- Mask & flexbox options-->
+</div>
 
-    <!-- Full Page Intro -->
-    {%- block homeflashmessages %}
-      {%- from "iroko_theme/macros/messages.html" import flashed_messages with context -%}
-      {{ flashed_messages() }}
-    {%- endblock homeflashmessages %}
+<!-- Full Page Intro -->
+{%- block homeflashmessages %}
+{%- from "iroko_theme/macros/messages.html" import flashed_messages with context -%}
+{{ flashed_messages() }}
+{%- endblock homeflashmessages %}
 
-    {%- block homebreadcrumbs %}
-      {%- include "iroko_theme/breadcrumbs.html" %}
-    {%- endblock homebreadcrumbs %}
+{%- block homebreadcrumbs %}
+{%- include "iroko_theme/breadcrumbs.html" %}
+{%- endblock homebreadcrumbs %}
 
 {%- endblock page_header %}
 
 {%- block page_body %}
-  <section id="products" >
-      <h3 class="font-weight-bold black-text py-5 text-center">{{ _('Productos y Servicios') }}</h3>
-      <div class="container">
-          <section class="p-md-3 mx-md-5">
-              <div class="row mb-5 d-flex align-items-center justify-content-end">
-                  <div class="col-md-6 col-lg-4">
-                      <div class="item-preview mb-5">
-                          <a class="item-preview-img box-shadow-lg d-block mb-3" href="https://tocororo.upr.edu.cu/revistasmes/" target="_blank">
-                              <img class="img-fluid" width="400px"
-                              src="{{ url_for('static', filename=config.MES_LOGO_ADMIN)}}"
-                              alt="{{_('MES Directory')}}" title="{{_('Registro de Revistas Científicas del Ministerio de Educación Superior')}}">
-                          </a>
+<section id="products">
+  <h3 class="font-weight-bold black-text py-5 text-center">{{ _('Productos y Servicios') }}</h3>
+  <div class="container">
+    <section class="p-md-3 mx-md-5">
+      <div class="row mb-5 d-flex align-items-center justify-content-end">
+        <div class="col-md-6 col-lg-4">
+          <div class="item-preview mb-5">
+            <a class="item-preview-img box-shadow-lg d-block mb-3"
+               href="https://tocororo.upr.edu.cu/revistasmes/" target="_blank">
+              <img alt="{{_('MES Directory')}}" class="img-fluid"
+                   src="{{ url_for('static', filename=config.MES_LOGO_ADMIN)}}"
+                   title="{{_('Registro de Revistas Científicas del Ministerio de Educación Superior')}}"
+                   width="400px">
+            </a>
 
-                    </div>
-                  </div>
-                  <div class="col-lg-6 col-md-6">
-                    <div class="card">
-                      <div class="card-header white">
-                        <h4 class="font-weight-bold mb-0">{{ _('Registro de Revistas Científicas del MES') }}</h4>
-                      </div>
-                      <div class="card-body">
-                        <p class="card-text">
-                            {{ _('El Registro Nacional es la lista nacional oficial de revistas gestionadas por instituciones adscritas al Ministerio de Educación Superior de Cuba. Es mantenido por las Direcciones de Ciencia e Informatización del MES.... ') }}
-                        </p>
-                        <a class="btn btn-secundary font-weight-bold text-danger" href="https://tocororo.upr.edu.cu/revistasmes/" target="_blank">{{ _('Acceder') }}</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <div class="row mb-5 d-flex align-items-center">
-                <div class="col-lg-6 col-md-6">
-                  <div class="card">
-                    <div class="card-header white">
-                      <h4 class="font-weight-bold mb-0">{{ _('Sistema de identificación de Organizaciones') }}</h4>
-                    </div>
-                    <div class="card-body">
-                      <p class="card-text">
-                        {{ _('La gestión de la lista oficial y pública de organizaciones cubanas
-                        que tienen su código REUP y ofrece la posibilidad de identificarlas por
-                        los identificadores internacionalmente usados y estandarizados desde la red cubana,
-                        en este caso el código de GRID, de ROR, de Wikidata y de ISNI. ') }}
-                      </p>
-                      <a class="btn btn-secundary font-weight-bold text-danger" href="https://cuor-lab.upr.edu.cu" target="_blank">{{ _('Acceder') }}</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="item-preview mb-5">
-                        <a class="item-preview-img box-shadow-lg mb-3" href="https://cuor-lab.upr.edu.cu" target="_blank">
-                            <img class="img-fluid" width="250px"
-                            src="{{ url_for('static', filename=config.CUOR_LOGO_ADMIN)}}"
-                            alt="{{_('Sistema de identificación de organizaciones cubanas')}}" title="{{_('Sistema de identificación de organizaciones cubanas')}}">
-                        </a>
-                    </div>
-                </div>
-              </div>
-            <div class="row mb-5 d-flex align-items-center justify-content-end">
-                <div class="col-md-6 col-lg-4">
-                    <div class="item-preview mb-5">
-                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="https://tocororo.upr.edu.cu/vocbench/" target="_blank">
-                            <img class="img-fluid"
-                            src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}"
-                            alt="{{_('Vocabularios de Sceiba')}}" title="{{_('Vocabularios de Sceiba')}}">
-                        </a>
-
-                  </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                  <div class="card">
-                    <div class="card-header white">
-                      <h4 class="font-weight-bold mb-0">{{ _('Vocabularios') }}</h4>
-                    </div>
-                    <div class="card-body">
-                      <p class="card-text">
-                          {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización y
-                          la unicidad en las búsquedas y evaluación de los resultados.... ') }}
-                      </p>
-                      <a class="btn btn-secundary font-weight-bold text-danger" href="https://tocororo.upr.edu.cu/vocbench/" target="_blank">{{ _('Acceder') }}</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <div class="row mb-5 d-flex align-items-center">
-              <div class="col-lg-6 col-md-6">
-                <div class="card">
-                  <div class="card-header white">
-                    <h4 class="font-weight-bold mb-0">{{ _('Catálogo de Publicaciones Científicas') }}</h4>
-                  </div>
-                  <div class="card-body">
-                    <p class="card-text">
-                      {{ _('Colección de revistas científicas cubanas en acceso abierto,
-                      incluidas en la base de datos de Sceiba.
-                      No es un registro oficial o exhaustivo de toda revista existente.
-                      Incluye el registro de dichas fuentes y su manejo por los editores
-                        y gestores del sistema. ') }}
-                    </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="/page/catalogmto">{{ _('Acceder') }}</a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-4">
-                  <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/catalogmto">
-                          <img class="img-fluid"
-                          src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
-                          alt="{{_('Catálogo de Publicaciones Científicas en Sceiba')}}" title="{{_('Catálogo de Publicaciones Científicas en Sceiba')}}">
-                      </a>
-                  </div>
-              </div>
-            </div>
-            <div class="row mb-5 d-flex align-items-center justify-content-end">
-                <div class="col-md-6 col-lg-4">
-                    <div class="item-preview mb-5">
-                        <a class="item-preview-img box-shadow-lg d-block mb-3" href="search">
-                            <img class="img-fluid" style="max-width:320px;"
-                            src="{{ url_for('static', filename='images/iconfinder_search_126577.png')}}"
-                            alt="{{_('Buscador')}}" title="{{_('Buscador')}}">
-                        </a>
-
-                  </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                  <div class="card">
-                    <div class="card-header white">
-                      <h4 class="font-weight-bold mb-0">{{ _('Buscador') }}</h4>
-                    </div>
-                    <div class="card-body">
-                      <p class="card-text">
-                          {{ _('Buscador sobre los archivos del repositorio, incluyendo filtros y
-                          posibilidades ayudando a que encuentres información que necesites dentro
-                          de Sceiba ') }}
-                      </p>
-                      <a class="btn btn-secundary font-weight-bold text-danger" href="search">{{ _('Acceder') }}</a>
-                    </div>
-                  </div>
-                </div>
-            </div>
-            <div class="row d-flex align-items-center">
-              <div class="col-lg-6 col-md-6">
-                <div class="card">
-                  <div class="card-header white">
-                    <h4 class="font-weight-bold mb-0">{{ _('APIs') }}</h4>
-                  </div>
-                  <div class="card-body">
-                    <p class="card-text">
-                      {{ _('Servicios de API-Rest para Revistas científicas registradas en Sceiba, así como vocabularios
-                      controlados. Los datos están protegidos de acuerdo a las') }}
-                      <a href="/politicas">{{ _('políticas de privacidad') }}</a>
-                      {{ _('del sistema y es compartido según los términos de servicio. Contacte al administrador para más detalles') }}
-                    </p>
-                    <a class="btn btn-secundary font-weight-bold text-danger" href="#divcontacto">{{ _('Contactar') }}</a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-4">
-                  <div class="item-preview mb-5">
-                      <a class="item-preview-img box-shadow-lg d-block mb-3" href="#divcontacto">
-                          <img class="img-fluid"
-                          src="{{ url_for('static', filename='images/api_icon_129131.png')}}"
-                          alt="{{_('Sceiba APIs')}}" title="{{_('Sceiba APIs')}}">
-                      </a>
-                </div>
-              </div>
-            </div>
-
-          </section>
+          </div>
         </div>
-  </section>
-
-    <!-- <section class="after-loop">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-8 mb-5 mb-lg-0 mx-auto">
-                    <a href="" class="after-loop-item card border-0 card-templates shadow-lg">
-                        <div class="card-body d-flex align-items-end flex-column text-right">
-                            <h4>Templates</h4>
-                            <p class="w-75">Unstyled layouts to help you get started!</p>
-                            <i class="fal fa-pencil-ruler"></i>
-                        </div>
-                    </a>
-                </div>
+        <div class="col-lg-6 col-md-6">
+          <div class="card">
+            <div class="card-header white">
+              <h4 class="font-weight-bold mb-0">{{ _('Registro de Revistas Científicas del MES')
+                }}</h4>
             </div>
+            <div class="card-body">
+              <p class="card-text">
+                {{ _('El Registro Nacional es la lista nacional oficial de revistas gestionadas por
+                instituciones adscritas al Ministerio de Educación Superior de Cuba. Es mantenido
+                por las Direcciones de Ciencia e Informatización del MES.... ') }}
+              </p>
+              <a class="btn btn-secundary font-weight-bold text-danger"
+                 href="https://tocororo.upr.edu.cu/revistasmes/" target="_blank">{{ _('Acceder')
+                }}</a>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="row mb-5 d-flex align-items-center">
+        <div class="col-lg-6 col-md-6">
+          <div class="card">
+            <div class="card-header white">
+              <h4 class="font-weight-bold mb-0">{{ _('Sistema de identificación de Organizaciones')
+                }}</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                {{ _('La gestión de la lista oficial y pública de organizaciones cubanas
+                que tienen su código REUP y ofrece la posibilidad de identificarlas por
+                los identificadores internacionalmente usados y estandarizados desde la red cubana,
+                en este caso el código de GRID, de ROR, de Wikidata y de ISNI. ') }}
+              </p>
+              <a class="btn btn-secundary font-weight-bold text-danger"
+                 href="https://cuor-lab.upr.edu.cu" target="_blank">{{ _('Acceder') }}</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="item-preview mb-5">
+            <a class="item-preview-img box-shadow-lg mb-3" href="https://cuor-lab.upr.edu.cu"
+               target="_blank">
+              <img alt="{{_('Sistema de identificación de organizaciones cubanas')}}" class="img-fluid"
+                   src="{{ url_for('static', filename=config.CUOR_LOGO_ADMIN)}}"
+                   title="{{_('Sistema de identificación de organizaciones cubanas')}}"
+                   width="250px">
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-5 d-flex align-items-center justify-content-end">
+        <div class="col-md-6 col-lg-4">
+          <div class="item-preview mb-5">
+            <a class="item-preview-img box-shadow-lg d-block mb-3"
+               href="https://tocororo.upr.edu.cu/vocbench/" target="_blank">
+              <img alt="{{_('Vocabularios de Sceiba')}}"
+                   class="img-fluid"
+                   src="{{ url_for('static', filename=config.TAXONOMY_LOGO_ADMIN)}}" title="{{_('Vocabularios de Sceiba')}}">
+            </a>
+
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+          <div class="card">
+            <div class="card-header white">
+              <h4 class="font-weight-bold mb-0">{{ _('Vocabularios') }}</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                {{ _('Sistema de vocabularios y términos controlados para lograr la estandarización
+                y
+                la unicidad en las búsquedas y evaluación de los resultados.... ') }}
+              </p>
+              <a class="btn btn-secundary font-weight-bold text-danger"
+                 href="https://tocororo.upr.edu.cu/vocbench/" target="_blank">{{ _('Acceder') }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-5 d-flex align-items-center">
+        <div class="col-lg-6 col-md-6">
+          <div class="card">
+            <div class="card-header white">
+              <h4 class="font-weight-bold mb-0">{{ _('Catálogo de Publicaciones Científicas')
+                }}</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                {{ _('Colección de revistas científicas cubanas en acceso abierto,
+                incluidas en la base de datos de Sceiba.
+                No es un registro oficial o exhaustivo de toda revista existente.
+                Incluye el registro de dichas fuentes y su manejo por los editores
+                y gestores del sistema. ') }}
+              </p>
+              <a class="btn btn-secundary font-weight-bold text-danger" href="/page/catalogmto">{{
+                _('Acceder') }}</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="item-preview mb-5">
+            <a class="item-preview-img box-shadow-lg d-block mb-3" href="/page/catalogmto">
+              <img alt="{{_('Catálogo de Publicaciones Científicas en Sceiba')}}"
+                   class="img-fluid"
+                   src="{{ url_for('static', filename=config.CATALOG_LOGO_ADMIN)}}"
+                   title="{{_('Catálogo de Publicaciones Científicas en Sceiba')}}">
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-5 d-flex align-items-center justify-content-end">
+        <div class="col-md-6 col-lg-4">
+          <div class="item-preview mb-5">
+            <a class="item-preview-img box-shadow-lg d-block mb-3" href="search">
+              <img alt="{{_('Buscador')}}" class="img-fluid"
+                   src="{{ url_for('static', filename='images/iconfinder_search_126577.png')}}"
+                   style="max-width:320px;" title="{{_('Buscador')}}">
+            </a>
+
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+          <div class="card">
+            <div class="card-header white">
+              <h4 class="font-weight-bold mb-0">{{ _('Buscador') }}</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                {{ _('Buscador sobre los archivos del repositorio, incluyendo filtros y
+                posibilidades ayudando a que encuentres información que necesites dentro
+                de Sceiba ') }}
+              </p>
+              <a class="btn btn-secundary font-weight-bold text-danger" href="search">{{
+                _('Acceder') }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row d-flex align-items-center">
+        <div class="col-lg-6 col-md-6">
+          <div class="card">
+            <div class="card-header white">
+              <h4 class="font-weight-bold mb-0">{{ _('APIs') }}</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                {{ _('Servicios de API-Rest para Revistas científicas registradas en Sceiba, así
+                como vocabularios
+                controlados. Los datos están protegidos de acuerdo a las') }}
+                <a href="/politicas">{{ _('políticas de privacidad') }}</a>
+                {{ _('del sistema y es compartido según los términos de servicio. Contacte al
+                administrador para más detalles') }}
+              </p>
+              <a class="btn btn-secundary font-weight-bold text-danger" href="#divcontacto">{{
+                _('Contactar') }}</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="item-preview mb-5">
+            <a class="item-preview-img box-shadow-lg d-block mb-3" href="#divcontacto">
+              <img alt="{{_('Sceiba APIs')}}"
+                   class="img-fluid"
+                   src="{{ url_for('static', filename='images/api_icon_129131.png')}}" title="{{_('Sceiba APIs')}}">
+            </a>
+          </div>
+        </div>
+      </div>
+
     </section>
+  </div>
+</section>
 
-  <br/>
-    <br/> -->
+<!-- <section class="after-loop">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-8 mb-5 mb-lg-0 mx-auto">
+                <a href="" class="after-loop-item card border-0 card-templates shadow-lg">
+                    <div class="card-body d-flex align-items-end flex-column text-right">
+                        <h4>Templates</h4>
+                        <p class="w-75">Unstyled layouts to help you get started!</p>
+                        <i class="fal fa-pencil-ruler"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<br/>
+<br/> -->
 <div class="container mt-5 pt-5 pb-3 px-5 z-depth-1">
   <h3 class="font-weight-bold black-text text-center">{{ _('Próximamente') }}</h3>
   <!--Section: Content-->
@@ -298,7 +322,8 @@
       <div class="col-lg-3 col-md-6 mb-4">
         <i class="fa fa-balance-scale fa-3x mb-4 grey-text"></i>
         <h5 class="font-weight-normal mb-3">{{ _('Evaluación') }}</h5>
-        <p class="text-muted mb-0">{{ _('Evaluaciones a la ciencia desde la metodología cubana') }}</p>
+        <p class="text-muted mb-0">{{ _('Evaluaciones a la ciencia desde la metodología cubana')
+          }}</p>
       </div>
       <!-- <div class="col-lg-3 col-md-6 mb-4">
         <i class="fa fa-key fa-3x mb-4 grey-text"></i>
@@ -310,69 +335,73 @@
 </div>
 
 
+{% if faqs %}
+<div class="container my-5">
+  <!--Section: Content-->
+  <section>
+    <!-- <h6 class="font-weight-normal text-uppercase font-small grey-text mb-4 text-center">FAQ</h6> -->
+    <!-- Section heading -->
+    <h3 class="font-weight-bold black-text mb-4 pb-2 text-center">{{ _('Preguntas Frecuentes')
+      }}</h3>
+    <hr class="w-header">
+    <!-- Section description -->
+    <p class="lead text-muted mx-auto mt-4 pt-2 mb-5 text-center">{{ _("¿Tienes una pregunta?
+      Tenemos respuestas. Si tienes otras preguntas Contáctanos.") }}</p>
 
-    {% if faqs %}
-    <div class="container my-5">
-        <!--Section: Content-->
-        <section>
-          <!-- <h6 class="font-weight-normal text-uppercase font-small grey-text mb-4 text-center">FAQ</h6> -->
-          <!-- Section heading -->
-          <h3 class="font-weight-bold black-text mb-4 pb-2 text-center">{{ _('Preguntas Frecuentes') }}</h3>
-          <hr class="w-header">
-          <!-- Section description -->
-          <p class="lead text-muted mx-auto mt-4 pt-2 mb-5 text-center">{{ _("¿Tienes una pregunta? Tenemos respuestas. Si tienes otras preguntas Contáctanos.") }}</p>
+    <div class="row">
+      <div class="col-md-12 col-lg-10 mx-auto mb-5">
+        <!--Accordion wrapper-->
+        <div aria-multiselectable="true" class="accordion md-accordion" id="accordionEx"
+             role="tablist">
 
-          <div class="row">
-            <div class="col-md-12 col-lg-10 mx-auto mb-5">
-              <!--Accordion wrapper-->
-              <div class="accordion md-accordion" id="accordionEx" role="tablist" aria-multiselectable="true">
+          {% for faq in faqs%}
+          <!-- Accordion card -->
+          <div class="card border-bottom-0 border-left border-right border-light">
 
-                {% for faq in faqs%}
-                <!-- Accordion card -->
-                <div class="card border-bottom-0 border-left border-right border-light">
-
-                  <!-- Card header -->
-                  <div class="card-header border-bottom border-light" role="tab" id="headingOne{{loop.index}}">
-                    <a data-toggle="collapse" data-parent="#accordionEx" href="#collapseOne{{loop.index}}" aria-expanded="true"
-                      aria-controls="collapseOne{{loop.index}}">
-                      <h5 class="black-text font-weight-normal mb-0">
-                        {{ faq.question }} <i class="fa fa-angle-down rotate-icon"></i>
-                      </h5>
-                    </a>
-                  </div>
-
-                  <!-- Card body -->
-                  <div id="collapseOne{{loop.index}}" class="collapse {% if loop.index == 1 %} show {% endif %}" role="tabpanel" aria-labelledby="headingOne{{loop.index}}"
-                    data-parent="#accordionEx">
-                    <div class="card-body">
-                      {{ faq.answer }}
-                    </div>
-                  </div>
-
-                </div>
-                <!-- Accordion card -->
-                {% endfor %}
-
-
-              </div>
-              <!-- Accordion wrapper -->
-
+            <!-- Card header -->
+            <div class="card-header border-bottom border-light" id="headingOne{{loop.index}}"
+                 role="tab">
+              <a aria-controls="collapseOne{{loop.index}}" aria-expanded="true" data-parent="#accordionEx"
+                 data-toggle="collapse"
+                 href="#collapseOne{{loop.index}}">
+                <h5 class="black-text font-weight-normal mb-0">
+                  {{ faq.question }} <i class="fa fa-angle-down rotate-icon"></i>
+                </h5>
+              </a>
             </div>
+
+            <!-- Card body -->
+            <div aria-labelledby="headingOne{{loop.index}}"
+                 class="collapse {% if loop.index == 1 %} show {% endif %}" data-parent="#accordionEx"
+                 id="collapseOne{{loop.index}}"
+                 role="tabpanel">
+              <div class="card-body">
+                {{ faq.answer }}
+              </div>
+            </div>
+
           </div>
+          <!-- Accordion card -->
+          {% endfor %}
 
-          </section>
 
+        </div>
+        <!-- Accordion wrapper -->
 
       </div>
-    {% endif %}
-    <div id="divcontacto">
-      {% include config.THEME_CONTACT_TEMPLATE %}
     </div>
+
+  </section>
 
 
 </div>
+{% endif %}
+<div id="divcontacto">
+  {% include config.THEME_CONTACT_TEMPLATE %}
+</div>
 
 
+</div>
 
 
 {%- endblock page_body %}

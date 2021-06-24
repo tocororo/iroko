@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {% extends config.SEARCH_UI_HEADER_TEMPLATE %}
@@ -18,9 +18,9 @@
   -->
 
 <invenio-search-bar
-    template="{{ url_for('static', filename='templates/search_ui/searchbar.html') }}"
-    placeholder="{{ search_input_placeholder|default(_('Search')) }}">
-  </invenio-search-bar>
+  placeholder="{{ search_input_placeholder|default(_('Search')) }}"
+  template="{{ url_for('static', filename='templates/search_ui/searchbar.html') }}">
+</invenio-search-bar>
 
 
 {%- endblock navbar_search %}

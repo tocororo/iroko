@@ -10,8 +10,6 @@
 from __future__ import absolute_import, division, print_function
 
 import click
-from flask.cli import with_appcontext
-
 
 
 @click.group()

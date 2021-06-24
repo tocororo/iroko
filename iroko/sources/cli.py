@@ -18,10 +18,12 @@ from iroko.sources.harvesters.miar import MiarHarvesterManager
 def sources():
     """Command related to Iroko Sources iroko data."""
 
+
 @sources.command()
 @with_appcontext
 def init_repos_data():
     init_repos()
+
 
 @sources.command()
 @with_appcontext

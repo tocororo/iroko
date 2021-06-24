@@ -5,7 +5,7 @@
 #
 
 from flask_login import current_user
-from invenio_access import action_factory, Permission
+from invenio_access import Permission, action_factory
 from invenio_access.utils import get_identity
 
 # creando action

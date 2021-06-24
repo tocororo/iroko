@@ -15,11 +15,12 @@ from invenio_records_rest.schemas import Nested, StrictKeysMixin
 from invenio_records_rest.schemas.fields import (
     DateString,
     PersistentIdentifier, SanitizedUnicode,
-)
-from marshmallow import fields, missing, validate, post_dump
+    )
+from marshmallow import fields, missing, post_dump, validate
 
-from iroko.sources.marshmallow.base import OrganizationDataSchema, ClasificationDataSchema
 from iroko.sources.api import SourceRecord
+from iroko.sources.marshmallow.base import ClasificationDataSchema, OrganizationDataSchema
+
 
 def get_recid(obj, context):
     """Get record id."""
@@ -124,10 +125,12 @@ class RecordSchemaBaseV1(StrictKeysMixin):
     links = fields.Dict(dump_only=True)
     id = PersistentIdentifier()
 
+
 class RecordSchemaV1(RecordSchemaBaseV1):
     """Record schema."""
 
     metadata = fields.Nested(MetadataSchemaV1)
+
 
 class RecordFullSchemaV1(RecordSchemaBaseV1):
     """Record schema."""

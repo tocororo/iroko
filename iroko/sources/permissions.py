@@ -9,8 +9,8 @@ from __future__ import absolute_import, print_function
 from functools import partial
 
 from flask_login import current_user
-from flask_principal import PermissionDenied, ActionNeed
-from invenio_access import action_factory, Permission
+from flask_principal import ActionNeed, PermissionDenied
+from invenio_access import Permission, action_factory
 from invenio_access.models import ActionUsers
 from invenio_access.permissions import ParameterizedActionNeed
 from invenio_access.utils import get_identity
@@ -44,7 +44,8 @@ def iroko_action_factory(name, parameter=False):
 #   son administradas por el usuario.
 
 # 4- source_organization_manager_actions: se le asigna a un usuario para un Organization.id:
-#   significa que todas las SourcesRecord que tengan en el campo organizations.id ese Organization.id
+#   significa que todas las SourcesRecord que tengan en el campo organizations.id ese
+#   Organization.id
 #   son administradas por el usuario.
 
 
@@ -61,7 +62,9 @@ source_manager_actions = ObjectSourceManager(None)
 ObjectSourceTermManager = action_factory('source_term_manager_actions', parameter=True)
 source_term_manager_actions = ObjectSourceTermManager(None)
 
-ObjectSourceOrganizationManager = action_factory('source_organization_manager_actions', parameter=True)
+ObjectSourceOrganizationManager = action_factory(
+    'source_organization_manager_actions', parameter=True
+    )
 source_organization_manager_actions = ObjectSourceOrganizationManager(None)
 
 
@@ -253,20 +256,34 @@ def user_has_editor_or_manager_permissions(obj):
 
 
 def get_arguments_for_source_from_action(puser, paction):
-    arguments = list(map(lambda x: x.argument,
-                         db.session.query(ActionUsers).filter_by(user=puser, exclude=False, action=paction).all()))
+    arguments = list(
+        map(
+            lambda x: x.argument,
+            db.session.query(ActionUsers).filter_by(user=puser, exclude=False, action=paction).all()
+            )
+        )
 
     return arguments
 
 
 def get_user_ids_for_source_from_action(paction, p_argument=None):
     if p_argument:
-        user_ids = list(map(lambda x: x.user.id,
-                            db.session.query(ActionUsers).filter_by(argument=str(p_argument), exclude=False,
-                                                                    action=paction).all()))
+        user_ids = list(
+            map(
+                lambda x: x.user.id,
+                db.session.query(ActionUsers).filter_by(
+                    argument=str(p_argument), exclude=False,
+                    action=paction
+                    ).all()
+                )
+            )
     else:
         user_ids = list(
-            map(lambda x: x.user.id, db.session.query(ActionUsers).filter_by(exclude=False, action=paction).all()))
+            map(
+                lambda x: x.user.id,
+                db.session.query(ActionUsers).filter_by(exclude=False, action=paction).all()
+                )
+            )
 
     return user_ids
 

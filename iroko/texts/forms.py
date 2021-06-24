@@ -8,8 +8,8 @@ from __future__ import absolute_import, print_function
 
 from flask_babelex import lazy_gettext as _
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectMultipleField, TextAreaField, validators
-from wtforms.widgets import ListWidget, CheckboxInput
+from wtforms import SelectMultipleField, StringField, TextAreaField, validators
+from wtforms.widgets import CheckboxInput, ListWidget
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -22,11 +22,11 @@ class FaqForm(FlaskForm):
         _('Question'),
         description=_('Common question people can ask theirself'),
         validators=[validators.DataRequired()]
-    )
+        )
     answer = TextAreaField(
         _('Answer'),
         description=_('A sumarized answer for that question')
-    )
+        )
 
     # def validate_name(self, field):
     #     if Vocabulary.query.filter_by(identifier=field.data).first():

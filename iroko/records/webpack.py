@@ -24,14 +24,14 @@ search_app = WebpackThemeBundle(
         'semantic-ui': dict(
             entry={
                 'iroko-search-app':
-                './js/iroko_records/index.js',
-            },
+                    './js/iroko_records/index.js',
+                },
             dependencies={
                 "react": "^16.9.0",
                 "react-dom": "^16.9.0",
                 "react-overridable": "^0.0.2",
                 "semantic-ui-react": "^0.88.0"
-            }
-        )
-    }
-)
+                }
+            )
+        }
+    )

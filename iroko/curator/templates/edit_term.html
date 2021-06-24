@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.BASE_TEMPLATE %}
@@ -56,7 +56,8 @@
           {{ form.vocabulary(class_="form-control")|safe }}
           {{ errors(form.vocabulary) }}
         </div>
-        <div id="divgroup" name="divgroup" class="form-group {{ 'has-error' if form.group.errors }}">
+        <div class="form-group {{ 'has-error' if form.group.errors }}" id="divgroup"
+             name="divgroup">
           <label for="group">{{ form.group.label }}</label>
           {{ form.group(class_="form-control")|safe }}
           {{ errors(form.group) }}
@@ -69,7 +70,7 @@
 
         {{ form.csrf_token }}
         {{ errors(form.csrf_token) }}
-        <button type="submit" class="btn btn-default">{{ _('Save Changes') }}</button>
+        <button class="btn btn-default" type="submit">{{ _('Save Changes') }}</button>
       </form>
     </div>
   </div>
@@ -91,6 +92,7 @@
     document.getElementById("vocabulary").onchange = function(){
       muestra_oculta_grupo()
     };
+
 
 
 

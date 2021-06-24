@@ -19,26 +19,26 @@ from iroko.notifications.marshmallow import NotificationSchema
 from iroko.notifications.models import NotificationType
 from iroko.records.api import IrokoAggs
 from iroko.sources.api import (
-    SourcesDeprecated, get_current_user_source_permissions, SourceRecord, IrokoSourceVersions,
+    IrokoSourceVersions, SourceRecord, SourcesDeprecated, get_current_user_source_permissions,
     helper_get_classifications_string,
-)
+    )
 from iroko.sources.marshmallow.source import (
     source_schema, source_schema_many, source_schema_no_versions,
     source_version_schema, source_version_schema_many,
-)
+    )
 from iroko.sources.models import SourceStatus
 from iroko.sources.permissions import (
-    source_term_manager_permission_factory, source_editor_permission_factory,
-    source_manager_permission_factory, user_has_editor_or_manager_permissions,
-)
-from iroko.utils import iroko_json_response, IrokoResponseStatus
+    source_editor_permission_factory, source_manager_permission_factory,
+    source_term_manager_permission_factory, user_has_editor_or_manager_permissions,
+    )
+from iroko.utils import IrokoResponseStatus, iroko_json_response
 from iroko.vocabularies.api import Terms
 
 api_blueprint = Blueprint(
     'iroko_api_sources_dep',
     __name__,
     url_prefix='/source_dep'
-)
+    )
 
 
 @api_blueprint.route('/<uuid>/versions')
@@ -71,9 +71,11 @@ def get_source_by_uuid(uuid):
             #     # print(v.term_id, v.sources_id, v.data)
             #     # # print(v.data)
             versions = IrokoSourceVersions.get_versions(uuid)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'versions', \
-                                       source_version_schema_many.dump(versions))
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'versions', \
+                source_version_schema_many.dump(versions)
+                )
 
         raise PermissionDenied('No tiene permiso')
 
@@ -97,7 +99,9 @@ def source_new():
 
         notification = NotificationSchema()
         notification.classification = NotificationType.INFO
-        notification.description = _('Nueva fuente ingresada, requiere revisión de un gestor {0}'.format(source.name))
+        notification.description = _(
+            'Nueva fuente ingresada, requiere revisión de un gestor {0}'.format(source.name)
+            )
         notification.emiter = _('Sistema')
 
         msg, users = SourcesDeprecated.get_user_ids_source_managers(source.uuid)
@@ -106,9 +110,11 @@ def source_new():
                 notification.receiver_id = user_id
                 Notifications.new_notification(notification)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'source', \
-                                   {'data': source_schema.dump(source), 'count': 1})
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'source', \
+            {'data': source_schema.dump(source), 'count': 1}
+            )
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -137,9 +143,11 @@ def get_source_by_uuid_no_versions(uuid):
         if not source:
             raise Exception('Source not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'sources', \
-                                   source_schema_no_versions.dump(source))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'sources', \
+            source_schema_no_versions.dump(source)
+            )
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -173,8 +181,10 @@ def get_sources_clasification(uuid):
     result = SourcesDeprecated.count_sources_clasified_by_term(uuid, level)
     if not result:
         raise Exception('Source not found')
-    return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                               'ok', 'relations', result.data)
+    return iroko_json_response(
+        IrokoResponseStatus.SUCCESS, \
+        'ok', 'relations', result.data
+        )
     # except Exception as e:
     #     return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -201,7 +211,8 @@ def get_sources_by_term_uuid(uuid):
 
 @api_blueprint.route('/count/<vocabulary_id>')
 def sources_count_by_vocabulary(vocabulary_id):
-    """List all the terms name from vocabulary_id and count of filtered by some relations with terms,
+    """List all the terms name from vocabulary_id and count of filtered by some relations with
+    terms,
     also by type and status,
 
     Receive
@@ -225,9 +236,9 @@ def sources_count_by_vocabulary(vocabulary_id):
             'sources count',
             {
                 'counts': count_list,
-                'total':  len(count_list)
-            }
-        )
+                'total': len(count_list)
+                }
+            )
 
     except Exception as e:
         msg = str(e)
@@ -237,7 +248,8 @@ def sources_count_by_vocabulary(vocabulary_id):
     # Crear un Source y un SourceVersion que tienen el mismo Data.
     # comprobar que no exista otro ISSN, RNPS o URL igual, sino da error
     # source_status = REview
-    # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que reflejarlo en la tabla TermSources
+    # supuestamente en source.data.terms vienen los terminos relacionados y eso hay que
+    # reflejarlo en la tabla TermSources
     # Aqui no se trata la parte que tiene en ver con repo!!!!
 
 
@@ -245,7 +257,8 @@ def sources_count_by_vocabulary(vocabulary_id):
 @require_api_auth()
 def source_new_version(uuid):
     # inserta un nuevo sourceVersion de un source que ya existe
-    # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
+    # hay que comprobar que el usuario que inserta, es quien creo el source (el que tiene el
+    # sourceversion mas antiguo) o un usuario con el role para crear cualquier tipo de versiones.
     # input_data = request.json
     # source = Sources.get_source_by_id(uuid=uuid)
     # Sources.insert_new_source_version(input_data, source, False)
@@ -276,15 +289,19 @@ def source_new_version(uuid):
                 # si esta aprobada el proceso es otro
                 # print(input_data)
                 is_current = source.source_status is not SourceStatus.APPROVED
-                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, source.uuid,
-                                                                                          is_current,
-                                                                                          comment=comment)
+                msg, source, source_version = SourcesDeprecated.insert_new_source_version(
+                    input_data, source.uuid,
+                    is_current,
+                    comment=comment
+                    )
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
-                notification.description = _('Editor has change this source: {0}.'.format(source.name))
+                notification.description = _(
+                    'Editor has change this source: {0}.'.format(source.name)
+                    )
                 notification.emiter = _('Sistema')
 
                 msg, users = SourcesDeprecated.get_user_ids_source_managers(source.uuid)
@@ -293,19 +310,25 @@ def source_new_version(uuid):
                         notification.receiver_id = user_id
                         Notifications.new_notification(notification)
 
-                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                           'ok', 'source', \
-                                           source_schema.dump(source))
+                return iroko_json_response(
+                    IrokoResponseStatus.SUCCESS, \
+                    'ok', 'source', \
+                    source_schema.dump(source)
+                    )
         except PermissionDenied as e:
             with source_term_manager_permission_factory({'terms': terms, 'uuid': uuid}).require():
-                msg, source, source_version = SourcesDeprecated.insert_new_source_version(input_data, uuid, True,
-                                                                                          comment=comment)
+                msg, source, source_version = SourcesDeprecated.insert_new_source_version(
+                    input_data, uuid, True,
+                    comment=comment
+                    )
                 if not source or not source_version:
                     raise Exception('Not source for changing found')
 
                 notification = NotificationSchema()
                 notification.classification = NotificationType.INFO
-                notification.description = _('Gestor has reviewed this source: {0}.'.format(source.name))
+                notification.description = _(
+                    'Gestor has reviewed this source: {0}.'.format(source.name)
+                    )
                 notification.emiter = _('Sistema')
 
                 msg, users = SourcesDeprecated.get_user_ids_source_editor(source.uuid)
@@ -314,9 +337,11 @@ def source_new_version(uuid):
                         notification.receiver_id = user_id
                         Notifications.new_notification(notification)
 
-                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                           'ok', 'source', \
-                                           source_schema.dump(source))
+                return iroko_json_response(
+                    IrokoResponseStatus.SUCCESS, \
+                    'ok', 'source', \
+                    source_schema.dump(source)
+                    )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -351,7 +376,9 @@ def source_edit_version(id):
 
             notification = NotificationSchema()
             notification.classification = NotificationType.INFO
-            notification.description = _('The edit has change data in version of source: {0}.'.format(source.name))
+            notification.description = _(
+                'The edit has change data in version of source: {0}.'.format(source.name)
+                )
             notification.emiter = _('System')
 
             msg, users = SourcesDeprecated.get_user_ids_source_managers(source.uuid)
@@ -360,13 +387,15 @@ def source_edit_version(id):
                     notification.receiver_id = user_id
                     Notifications.new_notification(notification)
 
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'source', \
-                                       {
-                                           'data':    source_schema_no_versions.dump(source),
-                                           'version': source_version_schema.dump(source_version),
-                                           'count':   1
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'source', \
+                {
+                    'data': source_schema_no_versions.dump(source),
+                    'version': source_version_schema.dump(source_version),
+                    'count': 1
+                    }
+                )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -379,7 +408,8 @@ def source_edit_version(id):
 @api_blueprint.route('/<uuid>/current', methods=['POST'])
 @require_api_auth()
 def source_version_set_current(uuid):
-    # pone un sourceVersion como current version en source y recibe tambien el estatus para el source
+    # pone un sourceVersion como current version en source y recibe tambien el estatus para el
+    # source
     # comprobar que el usuario tiene el role para hacer esto.
     try:
         if not request.is_json:
@@ -403,9 +433,11 @@ def source_version_set_current(uuid):
             if not source:
                 raise Exception('Not source for changing found')
 
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'source', \
-                                       {'data': source_schema.dump(source), 'count': 1})
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'source', \
+                {'data': source_schema.dump(source), 'count': 1}
+                )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -428,7 +460,8 @@ def source_set_approved(uuid):
             notification = NotificationSchema()
             notification.classification = NotificationType.INFO
             notification.description = _(
-                'El gestor ha aprobado para incluir en Sceiba la fuente: {0}.'.format(source.name))
+                'El gestor ha aprobado para incluir en Sceiba la fuente: {0}.'.format(source.name)
+                )
             notification.emiter = _('Sistema')
 
             msg, users = SourcesDeprecated.get_user_ids_source_editor(source.uuid)
@@ -442,7 +475,7 @@ def source_set_approved(uuid):
                 'Source {0} approved.'.format(source.name),
                 'source',
                 source_schema.dump(source)
-            )
+                )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -462,7 +495,7 @@ def sources_current_user_permissions():
             msg,
             'permissions',
             {actions: vocabs}
-        )
+            )
 
     except Exception as e:
         msg = str(e)
@@ -480,7 +513,7 @@ def get_source_manager(uuid):
             msg,
             'users',
             user_ids
-        )
+            )
 
     except Exception as e:
         msg = str(e)
@@ -509,7 +542,7 @@ def get_sources_from_editor(status):
             msg,
             'sources',
             source_schema_many.dump(sources[offset:limit])
-        )
+            )
 
     except Exception as e:
         msg = str(e)
@@ -539,7 +572,7 @@ def get_sources_from_manager(status):
             msg,
             'sources',
             source_schema_many.dump(sources[offset:limit])
-        )
+            )
 
     except Exception as e:
         msg = str(e)
@@ -566,21 +599,26 @@ def get_sources_from_user(status):
         # print(limit)
         # print(status)
         msg, sources_manager = SourcesDeprecated.get_sources_from_manager_current_user(status)
-        # print("## get_sources_from_manager_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## get_sources_from_manager_current_user {0}".format(datetime.datetime.now(
+        # ).strftime("%H:%M:%S")))
         msg, sources_editor = SourcesDeprecated.get_sources_from_editor_current_user(status)
-        # print("## get_sources_from_editor_current_user {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## get_sources_from_editor_current_user {0}".format(datetime.datetime.now(
+        # ).strftime("%H:%M:%S")))
 
         in_first = set(sources_manager)
-        # print("## in_first = set(sources_manager) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## in_first = set(sources_manager) {0}".format(datetime.datetime.now().strftime(
+        # "%H:%M:%S")))
         in_second = set(sources_editor)
-        # print("## in_second = set(sources_editor) {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## in_second = set(sources_editor) {0}".format(datetime.datetime.now().strftime(
+        # "%H:%M:%S")))
 
         in_second_but_not_in_first = in_second - in_first
         # print("## in_second_but_not_in_first = in_second - in_first {0}".format(
         # datetime.datetime.now().strftime("%H:%M:%S")))
 
         result = sources_manager + list(in_second_but_not_in_first)
-        # print("## result = sources_manager + list {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+        # print("## result = sources_manager + list {0}".format(datetime.datetime.now().strftime(
+        # "%H:%M:%S")))
         # result.sort(key=lambda k: int(k['name']), reverse=True)
         # TODO: optimizar esta operacion porque puede ser lenta
         response = iroko_json_response(
@@ -588,7 +626,7 @@ def get_sources_from_user(status):
             msg,
             'sources',
             {'count': len(result), 'sources': source_schema_many.dump(result[offset:limit])}
-        )
+            )
         # print("## iroko_json_response {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
         return response
 
@@ -609,13 +647,15 @@ def get_editor_source_versions(uuid):
 
         with source_editor_permission_factory({'uuid': source.uuid}).require():
             versions = SourcesDeprecated.get_editor_versions_not_reviewed(source)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'source', \
-                                       {
-                                           'data':     source_schema.dump(source),
-                                           'versions': source_version_schema_many.dump(versions),
-                                           'count':    1
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'source', \
+                {
+                    'data': source_schema.dump(source),
+                    'versions': source_version_schema_many.dump(versions),
+                    'count': 1
+                    }
+                )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -628,7 +668,8 @@ def get_editor_source_versions(uuid):
 @require_api_auth()
 def get_sources_by_term_statics(uuid):
     # TODO Mejorar esta api si se quiere que sea realmente generica
-    # TODO verificar los tipos de soruces, pues luego si hay repositorios del MES o del uuid se contaran
+    # TODO verificar los tipos de soruces, pues luego si hay repositorios del MES o del uuid se
+    #  contaran
     # esta api rest debe dar los tres ultimos ingresos
     # cant de revistas de ese termino
     # cant de instituciones
@@ -636,23 +677,29 @@ def get_sources_by_term_statics(uuid):
     # uuid del MES: bb40299a-44bb-43be-a979-cd67dbb923d7
 
     try:
-        ordered = False if request.args.get('ordered') and int(request.args.get('ordered')) == 0 else True
+        ordered = False if request.args.get('ordered') and int(
+            request.args.get('ordered')
+            ) == 0 else True
         status = request.args.get('status') if request.args.get('status') else 'all'
-        sources = SourcesDeprecated.get_all_sources_by_status(status=status, term_uuid=uuid, ordered_by_date=ordered)
+        sources = SourcesDeprecated.get_all_sources_by_status(
+            status=status, term_uuid=uuid, ordered_by_date=ordered
+            )
         three = sources[0:3]
         msg, mes = Terms.get_term(uuid)
         institutions = []
         Terms.get_term_tree_list_by_level(mes, institutions, 1, 1)
         records = IrokoAggs.getAggrs("source.uuid", 50000)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'home_statics', \
-                                   {
-                                       'sources_count':      len(sources),
-                                       'last_sources':       source_schema_many.dump(three),
-                                       'institutions_count': len(institutions),
-                                       'records':            len(records)
-                                   })
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'home_statics', \
+            {
+                'sources_count': len(sources),
+                'last_sources': source_schema_many.dump(three),
+                'institutions_count': len(institutions),
+                'records': len(records)
+                }
+            )
 
         # last_approved = Sources.
 

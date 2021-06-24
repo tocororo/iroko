@@ -7,7 +7,7 @@
 #
 
 
-from invenio_pidstore.errors import PIDDoesNotExistError, PIDAlreadyExists
+from invenio_pidstore.errors import PIDAlreadyExists, PIDDoesNotExistError
 from invenio_pidstore.models import PersistentIdentifier
 
 """Iroko App PIDs."""
@@ -48,7 +48,9 @@ def get_pid_by_data(data):
     for ids in data[IDENTIFIERS_FIELD]:
         if ids[IDENTIFIERS_FIELD_TYPE] in identifiers_schemas:
             try:
-                pid = PersistentIdentifier.get(ids[IDENTIFIERS_FIELD_TYPE], ids[IDENTIFIERS_FIELD_VALUE])
+                pid = PersistentIdentifier.get(
+                    ids[IDENTIFIERS_FIELD_TYPE], ids[IDENTIFIERS_FIELD_VALUE]
+                    )
                 return pid
             except Exception:
                 pass
@@ -66,8 +68,12 @@ def check_data_identifiers(data):
     for ids in data[IDENTIFIERS_FIELD]:
         if ids[IDENTIFIERS_FIELD_TYPE] in identifiers_schemas:
             try:
-                pid = PersistentIdentifier.get(ids[IDENTIFIERS_FIELD_TYPE], ids[IDENTIFIERS_FIELD_VALUE])
-                raise PIDAlreadyExists(pid_type=ids[IDENTIFIERS_FIELD_TYPE], pid_value=ids[IDENTIFIERS_FIELD_VALUE])
+                pid = PersistentIdentifier.get(
+                    ids[IDENTIFIERS_FIELD_TYPE], ids[IDENTIFIERS_FIELD_VALUE]
+                    )
+                raise PIDAlreadyExists(
+                    pid_type=ids[IDENTIFIERS_FIELD_TYPE], pid_value=ids[IDENTIFIERS_FIELD_VALUE]
+                    )
             except PIDDoesNotExistError:
                 pass
     return True
@@ -109,7 +115,7 @@ identifiers_schemas = [
     "fudref",
     "orgref",
     "reup"
-]
+    ]
 
 
 def get_identifier_schema(pid):

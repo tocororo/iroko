@@ -11,7 +11,7 @@
 
 from flask_admin.contrib.sqla import ModelView
 
-from .models import Source, TermSources, SourceVersion
+from .models import Source, SourceVersion, TermSources
 
 
 class SourcesModelView(ModelView):
@@ -64,20 +64,20 @@ sources_adminview = dict(
     model=Source,
     name='Sources',
     category='Iroko'
-)
+    )
 
 sources_version_adminview = dict(
     modelview=SourcesVersionModelView,
     model=SourceVersion,
     name='SourcesVersion',
     category='Iroko'
-)
+    )
 
 term_sources_adminview = dict(
     modelview=TermSourcesModelView,
     model=TermSources,
     name='TermSources',
     category='Iroko'
-)
+    )
 
 __all__ = ('sources_adminview', 'term_sources_adminview')

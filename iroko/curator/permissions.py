@@ -5,7 +5,7 @@
 #
 
 
-from invenio_access import action_factory, Permission
+from invenio_access import Permission, action_factory
 
 # creando action
 create_source_curator = action_factory('curator-source-add')

@@ -10,7 +10,7 @@ from lxml import etree
 
 from iroko.harvester.base import Formater
 from iroko.harvester.oai import nsmap
-from iroko.harvester.utils import get_sigle_element, get_multiple_elements
+from iroko.harvester.utils import get_multiple_elements, get_sigle_element
 from iroko.persons.api import IrokoPerson
 from iroko.pidstore.pids import get_identifier_schema
 from iroko.records import ContributorRole
@@ -24,7 +24,8 @@ class DubliCoreElements(Formater):
         self.xmlns = 'http://purl.org/dc/elements/1.1/'
 
     def ProcessItem(self, xml: etree._Element):
-        """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid and return the data"""
+        """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid and
+        return the data"""
 
         data = {}
         header = xml.find('.//{' + nsmap['oai'] + '}header')
@@ -38,7 +39,9 @@ class DubliCoreElements(Formater):
         identifiers = []
         identifiers.append({'idtype': 'oai', 'value': identifier.text})
 
-        pids = get_multiple_elements(metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None)
+        pids = get_multiple_elements(
+            metadata, 'identifier', xmlns=self.xmlns, itemname=None, language=None
+            )
 
         for pid in pids:
             schema = get_identifier_schema(pid)
@@ -57,8 +60,10 @@ class DubliCoreElements(Formater):
                 creator['roles'].append(ContributorRole.Author.value)
                 data['creators'].append(creator)
         data['contributors'] = []
-        contributors = get_multiple_elements(metadata, 'contributor', xmlns=self.xmlns, itemname='name',
-                                             language='es-ES')
+        contributors = get_multiple_elements(
+            metadata, 'contributor', xmlns=self.xmlns, itemname='name',
+            language='es-ES'
+            )
         for contributor in contributors:
             if isinstance(contributor['name'], str) and contributor['name'] != '':
                 data['contributors'].append(contributor)
@@ -71,9 +76,13 @@ class DubliCoreElements(Formater):
         if desc and desc != '':
             data['description'] = desc
 
-        data['publisher'] = get_sigle_element(metadata, 'publisher', xmlns=self.xmlns, language='es-ES')
+        data['publisher'] = get_sigle_element(
+            metadata, 'publisher', xmlns=self.xmlns, language='es-ES'
+            )
 
-        data['publication_date'] = get_sigle_element(metadata, 'date', xmlns=self.xmlns, language='es-ES')
+        data['publication_date'] = get_sigle_element(
+            metadata, 'date', xmlns=self.xmlns, language='es-ES'
+            )
 
         types = get_multiple_elements(metadata, 'type', xmlns=self.xmlns)
         data['types'] = types
@@ -87,7 +96,8 @@ class DubliCoreElements(Formater):
         data['language'] = get_sigle_element(metadata, 'language', xmlns=self.xmlns)
 
         relations = get_multiple_elements(metadata, 'relation', xmlns=self.xmlns)
-        # separar el caso especial ref, de lo que realmente significa esto: una url con otro objeto relacionado (asumiendo el caso mas comun: el pdf donde esta el articulo...)
+        # separar el caso especial ref, de lo que realmente significa esto: una url con otro
+        # objeto relacionado (asumiendo el caso mas comun: el pdf donde esta el articulo...)
         data['relations'] = relations
 
         coverages = get_multiple_elements(metadata, 'coverage', xmlns=self.xmlns)

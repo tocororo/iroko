@@ -19,7 +19,8 @@ En dependencia del tipo de fuente, existen diferentes marshmallows, apis, views,
 
 el api rest por defecto asume el source sin procesar el campo data.
 las apis rest "herederas" lo que hacen es interpretar el campo data.
-por ejemplo, las journals, interpretan el campo data, con los datos especificos de las revistas academicas.
+por ejemplo, las journals, interpretan el campo data, con los datos especificos de las revistas
+academicas.
 
 
 

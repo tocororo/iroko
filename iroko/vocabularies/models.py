@@ -10,7 +10,7 @@
 import uuid
 
 from invenio_db import db
-from sqlalchemy_utils.types import UUIDType, JSONType
+from sqlalchemy_utils.types import JSONType, UUIDType
 
 
 class Vocabulary(db.Model):
@@ -40,11 +40,15 @@ class Term(db.Model):
     identifier = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String)
 
-    vocabulary_id = db.Column(db.String(),
-                              db.ForeignKey('iroko_vocab.identifier', ondelete='CASCADE'),
-                              nullable=False, index=True)
-    vocabulary = db.relationship("Vocabulary",
-                                 backref=db.backref("terms", cascade="all, delete-orphan", lazy='dynamic'))
+    vocabulary_id = db.Column(
+        db.String(),
+        db.ForeignKey('iroko_vocab.identifier', ondelete='CASCADE'),
+        nullable=False, index=True
+        )
+    vocabulary = db.relationship(
+        "Vocabulary",
+        backref=db.backref("terms", cascade="all, delete-orphan", lazy='dynamic')
+        )
 
     parent_id = db.Column(db.Integer, db.ForeignKey('iroko_terms.id'))
     children = db.relationship("Term", lazy="joined", join_depth=2)

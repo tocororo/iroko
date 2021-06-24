@@ -34,14 +34,18 @@ class Notification(db.Model):
     description = db.Column(db.String)
     emiter = db.Column(db.String)
     viewed = db.Column(db.Boolean, default=False)
-    receiver_id = db.Column(db.Integer,
-                            db.ForeignKey(
-                                User.id, name='fk_iroko_notifications_user_id'))
+    receiver_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            User.id, name='fk_iroko_notifications_user_id'
+            )
+        )
 
     receiver = db.relationship(
         User, backref=db.backref(
-            'notifications', cascade='all, delete-orphan')
-    )
+            'notifications', cascade='all, delete-orphan'
+            )
+        )
     # any data related to the notification
     data = db.Column(JSONType)
 

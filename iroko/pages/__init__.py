@@ -7,5 +7,4 @@
 #
 
 
-
 """Different pages used for simple requeriments like news and faqs."""

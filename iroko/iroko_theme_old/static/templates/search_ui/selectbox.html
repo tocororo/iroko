@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 <!--
@@ -13,8 +13,10 @@
   ~ under the terms of the MIT License; see LICENSE file for more details.
   -->
 
-<select class="form-control" name="select-{{ data.sortParameter }}" ng-model="data.selectedOption" ng-change="handleFieldChange()">
+<select class="form-control" name="select-{{ data.sortParameter }}" ng-change="handleFieldChange()"
+        ng-model="data.selectedOption">
   <option ng-repeat="option in data.availableOptions.options"
-   value="{{ option.value }}"
-   ng-selected="isSelected(option.value)">{{ option.title }}</option>
+          ng-selected="isSelected(option.value)"
+          value="{{ option.value }}">{{ option.title }}
+  </option>
 </select>

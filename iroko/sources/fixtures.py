@@ -22,8 +22,8 @@ import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
 from iroko.sources.api import SourceRecord
 from iroko.sources.harvesters.issn import IssnDataParser
-from iroko.sources.models import Source, SourceType, TermSources, SourceStatus, SourceVersion
-from iroko.utils import string_as_identifier, CuorHelper, get_default_user
+from iroko.sources.models import Source, SourceStatus, SourceType, SourceVersion, TermSources
+from iroko.utils import CuorHelper, get_default_user, string_as_identifier
 from iroko.vocabularies.models import Term
 
 
@@ -61,9 +61,10 @@ def init_repos():
                 'user_id': str(user.id),
                 'comment': 'seed data',
                 'updated': str(datetime.date.today())
-            }
+                }
 
             new_source = SourceRecord.new_source_revision(data, user.id, 'seed data')
+
 
 def init_journals():
     # sources_path = '../../data/journals.json'
@@ -142,7 +143,11 @@ def init_journals():
                         name = string_as_identifier(tax['licences'][record['licence']]["name"])
                         term = Term.query.filter_by(identifier=name).first()
                         data['classifications'].append(
-                            {'id': str(term.uuid), 'description': term.description, 'vocabulary': term.vocabulary_id})
+                            {
+                                'id': str(term.uuid), 'description': term.description,
+                                'vocabulary': term.vocabulary_id
+                                }
+                            )
                     if 'institution' in record:
                         # print(tax['institutions'][record['institution']]["name"])
                         data['organizations'] = []
@@ -163,11 +168,11 @@ def init_journals():
                         if org:
                             data['organizations'].append(
                                 {
-                                    'id':   org['id'],
+                                    'id': org['id'],
                                     'name': org['metadata']['name'],
                                     'role': 'MAIN'
-                                }
-                            )
+                                    }
+                                )
                         parent_id = tax['institutions'][record['institution']]['parents'][0]
                         if parent_id != '0':
                             if "orgaid" in tax['institutions'][parent_id]:
@@ -182,16 +187,18 @@ def init_journals():
                                 if name in org_cache:
                                     parent_org = org_cache[name]
                                 else:
-                                    parent_org = CuorHelper.query_cuor_by_label(name, country='Cuba')
+                                    parent_org = CuorHelper.query_cuor_by_label(
+                                        name, country='Cuba'
+                                        )
                                     org_cache[name] = parent_org
                             if parent_org:
                                 data['organizations'].append(
                                     {
-                                        'id':   parent_org['id'],
+                                        'id': parent_org['id'],
                                         'name': parent_org['metadata']['name'],
                                         'role': 'COLABORATOR'
-                                    }
-                                )
+                                        }
+                                    )
 
                     data['source_type'] = SourceType.JOURNAL.value
                     data['source_status'] = SourceStatus.UNOFFICIAL.value
@@ -201,12 +208,14 @@ def init_journals():
                         'user_id': str(user.id),
                         'comment': 'seed data',
                         'updated': str(datetime.date.today())
-                    }
+                        }
 
-                    # TODO: en este caso hace falta hacer patch en vez de update, porque ya issn trajo datos...
+                    # TODO: en este caso hace falta hacer patch en vez de update, porque ya issn
+                    #  trajo datos...
                     new_source = SourceRecord.new_source_revision(data, user.id, 'seed data')
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
-                    # # msg, new_source = Sources.insert_new_source(source, SourceStatus.UNOFFICIAL, user=user)
+                    # # msg, new_source = Sources.insert_new_source(source,
+                    # SourceStatus.UNOFFICIAL, user=user)
                     #
                     # if 'oaiurl' in data:
                     #     repo = Repository.query.filter_by(source_uuid=new_source.id).first()
@@ -217,7 +226,8 @@ def init_journals():
                     #     repo.harvest_type = HarvestType.OAI
                     #     db.session.add(repo)
                     #
-                    # IrokoSourceVersions.new_version(new_source.id, data, user=user, comment='fixing is_current field', is_current=True)
+                    # IrokoSourceVersions.new_version(new_source.id, data, user=user,
+                    # comment='fixing is_current field', is_current=True)
 
                     # print('-----------------------')
                     # print(new_source)
@@ -257,14 +267,16 @@ def init_term_sources():
                         add_term_source(source, record, record['licence'], tax, 'licences')
 
                     # if record.__contains__('source_category'):
-                    #     add_term_source(source, record, record['source_category'], tax, 'grupo_mes')
+                    #     add_term_source(source, record, record['source_category'], tax,
+                    #     'grupo_mes')
 
                     # for subid in record["subjects"]:
                     #     add_term_source(source, record, subid, tax, 'subjects')
 
                     # for ref in record["referecences"]:
                     #     if ref.__contains__('url'):
-                    #         add_term_source(source, record, ref['name'], tax, 'data_bases', {'url': ref['url']})
+                    #         add_term_source(source, record, ref['name'], tax, 'data_bases',
+                    #         {'url': ref['url']})
                     #     else:
                     #         add_term_source(source, record, ref['name'], tax, 'data_bases')
 
@@ -349,11 +361,11 @@ def add_terms_to_data():
         for ts in source.term_sources:
             term_sources.append(
                 {
-                    'term_id':    ts.term_id,
+                    'term_id': ts.term_id,
                     'sources_id': source.id,
-                    'data':       ts.data
-                }
-            )
+                    'data': ts.data
+                    }
+                )
         data = dict(source.data)
         data['term_sources'] = term_sources
         source.data = data

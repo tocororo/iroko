@@ -26,7 +26,8 @@ class RepositoryModelView(ModelView):
 
     column_filters = ('harvest_type', 'status')
 
-    form_columns = ('harvest_type', 'identifier', 'harvest_endpoint', 'last_harvest_run', 'status', 'error_log')
+    form_columns = (
+    'harvest_type', 'identifier', 'harvest_endpoint', 'last_harvest_run', 'status', 'error_log')
 
 
 class HarvestedItemModelView(ModelView):
@@ -48,12 +49,12 @@ harvester_repositories_adminview = dict(
     model=Repository,
     name='Harvester-Repositories',
     category='Iroko'
-)
+    )
 harvester_items_adminview = dict(
     modelview=HarvestedItemModelView,
     model=HarvestedItem,
     name='Harvester-Items',
     category='Iroko'
-)
+    )
 
 __all__ = ('harvester_items_adminview')

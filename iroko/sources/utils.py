@@ -10,7 +10,6 @@ Helper function to several task related to Sources, sources types,
  sources fields, etc..
 """
 
-
 from iroko.vocabularies.models import Term
 
 

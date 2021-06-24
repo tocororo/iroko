@@ -5,7 +5,6 @@
 #
 """Iroko sources api views."""
 
-
 from __future__ import absolute_import, print_function
 
 import datetime
@@ -22,36 +21,32 @@ from invenio_db import db
 from invenio_oauth2server import require_api_auth
 from invenio_pidstore.errors import PIDObjectAlreadyAssigned
 
-from iroko.sources.api import (
-    SourceRecord, IrokoSourceVersions,
-)
+from iroko.sources.api import (IrokoSourceVersions, SourceRecord)
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
-)
-from iroko.sources.marshmallow.source_v1 import source_v1_response, source_v1
+    )
+from iroko.sources.marshmallow.source_v1 import source_v1, source_v1_response
 from iroko.sources.models import SourceStatus, SourceType
 from iroko.sources.permissions import (
-    is_user_sources_admin, ObjectSourceOrganizationManager, ObjectSourceTermManager,
-    get_arguments_for_source_from_action,
-    ObjectSourceManager,
-    ObjectSourceEditor,
+    ObjectSourceEditor, ObjectSourceManager, ObjectSourceOrganizationManager,
+    ObjectSourceTermManager, get_arguments_for_source_from_action,
+    get_user_ids_for_source_from_action, is_user_sources_admin, user_is_organization_manager,
     user_is_term_manager,
-    user_is_organization_manager,
-    get_user_ids_for_source_from_action,
-)
+    )
 from iroko.sources.search import SourceSearch
 from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import user_schema_many
-from iroko.utils import iroko_json_response, IrokoResponseStatus, CuorHelper, IrokoVocabularyIdentifiers
+from iroko.utils import (
+    CuorHelper, IrokoResponseStatus, IrokoVocabularyIdentifiers, iroko_json_response,
+    )
 from iroko.vocabularies.marshmallow import term_schema_many
 from iroko.vocabularies.models import Term
-
 
 api_blueprint = Blueprint(
     'iroko_api_sources',
     __name__,
     url_prefix='/source'
-)
+    )
 
 
 @api_blueprint.route('/new', methods=['POST'])
@@ -103,16 +98,19 @@ def source_new():
             # notification = NotificationSchema()
             # notification.classification = NotificationType.INFO
             # notification.description = _(
-            #     'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(source, source.id))
+            #     'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(
+            #     source, source.id))
             # notification.emiter = _('Sistema')
             #
             # for user_id in source.get_managers:
             #     notification.receiver_id = user_id
             #     Notifications.new_notification(notification)
 
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'source', \
-                                       {'data': source, 'count': 1})
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'source', \
+                {'data': source, 'count': 1}
+                )
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -151,26 +149,31 @@ def source_new_version(uuid):
             #
             # source.update(data)
 
-            source_version = IrokoSourceVersions.new_version(source.id,
-                                                             data,
-                                                             user_id=user_id,
-                                                             comment=comment,
-                                                             is_current=False)
+            source_version = IrokoSourceVersions.new_version(
+                source.id,
+                data,
+                user_id=user_id,
+                comment=comment,
+                is_current=False
+                )
             if not source_version:
                 raise Exception('Not source for changing found')
 
             # notification = NotificationSchema()
             # notification.classification = NotificationType.INFO
-            # notification.description = _('Editor has change this source: {0}.'.format(source['name']))
+            # notification.description = _('Editor has change this source: {0}.'.format(source[
+            # 'name']))
             # notification.emiter = _('Sistema')
             #
             # for user in source.get_managers:
             #     notification.receiver_id = user
             #     Notifications.new_notification(notification)
 
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'source_version',
-                                       source_version_schema.dump(source_version))
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'source_version',
+                source_version_schema.dump(source_version)
+                )
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -206,11 +209,13 @@ def source_publish(uuid):
             data = dict(input_data['data'])
             data['source_status'] = SourceStatus.APPROVED.value
 
-            source_version = IrokoSourceVersions.new_version(source.id,
-                                                             data,
-                                                             user_id=user_id,
-                                                             comment=comment,
-                                                             is_current=True)
+            source_version = IrokoSourceVersions.new_version(
+                source.id,
+                data,
+                user_id=user_id,
+                comment=comment,
+                is_current=True
+                )
             if not source_version:
                 raise Exception('Not source for changing found')
 
@@ -219,7 +224,8 @@ def source_publish(uuid):
             # TODO: aqui hay un error con los get managers
             # notification = NotificationSchema()
             # notification.classification = NotificationType.INFO
-            # notification.description = _('Se ha publicado una nueva version de la fuente: {0}:{1}.'.format(source['name'], source.id))
+            # notification.description = _('Se ha publicado una nueva version de la fuente: {0}:{
+            # 1}.'.format(source['name'], source.id))
             # notification.emiter = _('Sistema')
             #
             # for user in source.get_managers:
@@ -227,9 +233,11 @@ def source_publish(uuid):
             #     Notifications.new_notification(notification)
 
             # print('************************** to response')
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'source',
-                                       source)
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'source',
+                source
+                )
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
     except PIDObjectAlreadyAssigned as err:
@@ -257,16 +265,19 @@ def source_unpublish(uuid):
             # TODO: aqui hay un error con los get managers
             # notification = NotificationSchema()
             # notification.classification = NotificationType.INFO
-            # notification.description = _('Se ha despublicado la fuente: {0}.'.format(source['name']))
+            # notification.description = _('Se ha despublicado la fuente: {0}.'.format(source[
+            # 'name']))
             # notification.emiter = _('Sistema')
             #
             # for user in source.get_managers:
             #     notification.receiver_id = user
             #     Notifications.new_notification(notification)
             # print('************************** to response')
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'source',
-                                       source)
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'source',
+                source
+                )
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -327,13 +338,14 @@ def get_source_by_uuid_perm(uuid):
         print(dict(source))
         try:
             if source.user_has_manager_permission(current_user):
-                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                           'ok', 'source', \
-                                           {
-                                               'record': source_v1.transform_record(pid, source),
-                                               'allows': 'publish'
-                                           }
-                                           )
+                return iroko_json_response(
+                    IrokoResponseStatus.SUCCESS, \
+                    'ok', 'source', \
+                    {
+                        'record': source_v1.transform_record(pid, source),
+                        'allows': 'publish'
+                        }
+                    )
         except PermissionDenied as err:
             if source.user_has_edit_permission(current_user):
                 # # print('*********************************')
@@ -342,13 +354,14 @@ def get_source_by_uuid_perm(uuid):
                 # # print(record)
                 # # print('*********************************')
                 # record['allows'] = 'edit'
-                return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                           'ok', 'source', \
-                                           {
-                                               'record': source_v1.transform_record(pid, source),
-                                               'allows': 'edit'
-                                           }
-                                           )
+                return iroko_json_response(
+                    IrokoResponseStatus.SUCCESS, \
+                    'ok', 'source', \
+                    {
+                        'record': source_v1.transform_record(pid, source),
+                        'allows': 'edit'
+                        }
+                    )
 
     except Exception as e:
         print(traceback.format_exc())
@@ -369,9 +382,11 @@ def get_source_versions(uuid):
             versions = IrokoSourceVersions.get_versions(uuid)
             dd = source_version_schema_many.dump(versions)
             # print(dd)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'versions', \
-                                       dd)
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'versions', \
+                dd
+                )
     except Exception as e:
         # print()
         return iroko_json_response(IrokoResponseStatus.ERROR, traceback.format_exc(), None, None)
@@ -410,19 +425,20 @@ def get_current_user_sources(status):
             #     iroko_source_uuid_fetcher, ss
             # )
             # por alguna razon esto no funciona,
-            # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto eso no esta.
+            # la forma en que invenio lo hace incluye en los hits '_version', pero por defecto
+            # eso no esta.
             # # print(search_result)
             # # print(source_data_schema_many.dump(search_result))
 
             for hit in search_result:
                 manager.append(
                     {
-                        'id':                hit['id'],
-                        'name':              hit['name'],
-                        'source_status':     hit['source_status'],
+                        'id': hit['id'],
+                        'name': hit['name'],
+                        'source_status': hit['source_status'],
                         'version_to_review': True
-                    }
-                )
+                        }
+                    )
 
         # elif role == 'editor':
         sources = SourceRecord.get_sources_search_of_user_as_editor(current_user, status=status)
@@ -430,16 +446,20 @@ def get_current_user_sources(status):
         for hit in sources:
             editor.append(
                 {
-                    'id':                hit['id'],
-                    'name':              hit['name'],
-                    'source_status':     hit['source_status'],
+                    'id': hit['id'],
+                    'name': hit['name'],
+                    'source_status': hit['source_status'],
                     'version_to_review': True
-                }
+                    }
+                )
+        sources_terms = get_arguments_for_source_from_action(
+            current_user, 'source_term_manager_actions'
             )
-        sources_terms = get_arguments_for_source_from_action(current_user, 'source_term_manager_actions')
         terms = Term.query.filter(Term.uuid.in_(sources_terms)).all()
 
-        sources_orgs = get_arguments_for_source_from_action(current_user, 'source_organization_manager_actions')
+        sources_orgs = get_arguments_for_source_from_action(
+            current_user, 'source_organization_manager_actions'
+            )
         orgs = []
         for org in sources_orgs:
             orgs.append(CuorHelper.query_cuor_by_uuid(org))
@@ -449,13 +469,13 @@ def get_current_user_sources(status):
             'ok',
             'sources',
             {
-                'manager':       manager,
-                'editor':        editor,
-                'terms':         term_schema_many.dump(terms),
+                'manager': manager,
+                'editor': editor,
+                'terms': term_schema_many.dump(terms),
                 'organizations': orgs,
-                'admin':         is_user_sources_admin(current_user)
-            }
-        )
+                'admin': is_user_sources_admin(current_user)
+                }
+            )
 
         # else:
         #     raise Exception("role should be manager or editor")
@@ -480,13 +500,15 @@ def get_editor_source_versions(uuid):
 
         if source.user_has_edit_permission(current_user):
             versions = source.get_editor_versions_not_reviewed()
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       'ok', 'source', \
-                                       {
-                                           'data':     source,
-                                           'versions': source_version_schema_many.dump(versions),
-                                           'count':    1
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'source', \
+                {
+                    'data': source,
+                    'versions': source_version_schema_many.dump(versions),
+                    'count': 1
+                    }
+                )
 
     except PermissionDenied as err:
         msg = 'Permission denied for changing source'
@@ -503,7 +525,8 @@ def _get_sources_stats(org_id, offset):
     # 2- por cada uno de los hijos de la organizacion
     #  por ahora esta bien asi
 
-    # print("************************** START get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    # print("************************** START get aggr {0}".format(datetime.datetime.now(
+    # ).strftime("%H:%M:%S")))
 
     search = SourceSearch()
     org = dict()
@@ -520,19 +543,30 @@ def _get_sources_stats(org_id, offset):
         bucket_org = A('terms', field='organizations.id', size=999999)
         search.aggs.bucket('orgs', bucket_org)
 
-    # print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    # print("************************** CUOR REQUEST get aggr {0}".format(datetime.datetime.now(
+    # ).strftime("%H:%M:%S")))
 
     # classification bucket
     # subjects
-    # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.SUBJECTS.value).first()
-    subjects_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.SUBJECTS.value,
-                                          parent_id=None).all()
-    subjects = term_schema_many.dump(subjects_terms)  # erm_node_schema.dump_term_node_list(subjects_terms, 0, 0)
+    # vocab = Vocabulary.query.filter_by(
+    # identifier=IrokoVocabularyIdentifiers.SUBJECTS.value).first()
+    subjects_terms = Term.query.filter_by(
+        vocabulary_id=IrokoVocabularyIdentifiers.SUBJECTS.value,
+        parent_id=None
+        ).all()
+    subjects = term_schema_many.dump(
+        subjects_terms
+        )  # erm_node_schema.dump_term_node_list(subjects_terms, 0, 0)
     # indexes
-    # vocab = Vocabulary.query.filter_by(identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
-    indexes_terms = Term.query.filter_by(vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value,
-                                         parent_id=None).all()
-    indexes = term_schema_many.dump(indexes_terms)  # term_node_schema.dump_term_node_list(indexes_terms, 0, 0)
+    # vocab = Vocabulary.query.filter_by(
+    # identifier=IrokoVocabularyIdentifiers.INDEXES.value).first()
+    indexes_terms = Term.query.filter_by(
+        vocabulary_id=IrokoVocabularyIdentifiers.INDEXES.value,
+        parent_id=None
+        ).all()
+    indexes = term_schema_many.dump(
+        indexes_terms
+        )  # term_node_schema.dump_term_node_list(indexes_terms, 0, 0)
 
     # bucket
     bucket_classifications = A('terms', field='classifications.id', size=999999)
@@ -541,14 +575,17 @@ def _get_sources_stats(org_id, offset):
     # source_type bucket
     source_types = []
     for k in SourceType:
-        source_types.append({
-            'source_type': k.value
-        })
+        source_types.append(
+            {
+                'source_type': k.value
+                }
+            )
         # print(k.value, '*****')
     bucket_source_type = A('terms', field='source_type', size=999999)
     search.aggs.bucket('source_type', bucket_source_type)
 
-    # print("************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    # print("************************** SEARCH EXEC get aggr {0}".format(datetime.datetime.now(
+    # ).strftime("%H:%M:%S")))
     search.sort('_save_info_updated')
     response = search[0:offset].execute()
 
@@ -556,18 +593,21 @@ def _get_sources_stats(org_id, offset):
     for hit in response.hits:
         hits.append(
             {
-                'id':   hit['id'],
+                'id': hit['id'],
                 'name': hit['name']
-            }
-        )
+                }
+            )
 
-    # print("************************** MI COSA get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    # print("************************** MI COSA get aggr {0}".format(datetime.datetime.now(
+    # ).strftime("%H:%M:%S")))
 
     if org_id:
         org['metadata']['source_count'] = search.count()
         for item in response.aggregations.orgs.buckets:
             # print('****** org ******', item.doc_count, item.key)
-            CuorHelper.append_key_value_to_relationship(org, item.key, 'child', 'source_count', item.doc_count)
+            CuorHelper.append_key_value_to_relationship(
+                org, item.key, 'child', 'source_count', item.doc_count
+                )
 
     for item in response.aggregations.classifications.buckets:
         # print('****** class ******', item.doc_count, item.key)
@@ -585,16 +625,17 @@ def _get_sources_stats(org_id, offset):
             if t['source_type'] == item.key:
                 t['source_count'] = item.doc_count
 
-    # print("************************** END get aggr {0}".format(datetime.datetime.now().strftime("%H:%M:%S")))
+    # print("************************** END get aggr {0}".format(datetime.datetime.now(
+    # ).strftime("%H:%M:%S")))
 
     result = {
         'sources_count': search.count(),
-        'last_sources':  hits,
-        'org':           org,
-        'subjects':      subjects,
-        'indexes':       indexes,
-        'source_types':  source_types
-    }
+        'last_sources': hits,
+        'org': org,
+        'subjects': subjects,
+        'indexes': indexes,
+        'source_types': source_types
+        }
     return result
 
 
@@ -613,7 +654,9 @@ def get_sources_stats():
         cache = current_cache.get("get_sources_stats:{0}{1}".format(org_id, offset)) or {}
         if "date" not in cache:
             cache["date"] = datetime.datetime.now()
-        if datetime.datetime.now() - cache["date"] < datetime.timedelta(seconds=3000) and "stats" in cache:
+        if datetime.datetime.now() - cache["date"] < datetime.timedelta(
+            seconds=3000
+            ) and "stats" in cache:
             print("USING CACHE STATS")
             result = cache["stats"]
             return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
@@ -651,10 +694,10 @@ def get_users_source_editor(uuid):
                 {
                     'action': 'editor',
                     'source': uuid,
-                    'users':  user_schema_many.dump(users)
-                }
+                    'users': user_schema_many.dump(users)
+                    }
 
-            )
+                )
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -683,10 +726,10 @@ def get_users_source_manager(uuid):
                 {
                     'action': 'manager',
                     'source': uuid,
-                    'users':  user_schema_many.dump(users)
-                }
+                    'users': user_schema_many.dump(users)
+                    }
 
-            )
+                )
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -713,12 +756,12 @@ def get_users_organization(uuid):
                 'ok',
                 'permission',
                 {
-                    'action':       'manager',
+                    'action': 'manager',
                     'organization': uuid,
-                    'users':        user_schema_many.dump(users)
-                }
+                    'users': user_schema_many.dump(users)
+                    }
 
-            )
+                )
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -746,11 +789,11 @@ def get_users_term(uuid):
                 'permission',
                 {
                     'action': 'manager',
-                    'term':   uuid,
-                    'users':  user_schema_many.dump(users)
-                }
+                    'term': uuid,
+                    'users': user_schema_many.dump(users)
+                    }
 
-            )
+                )
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
@@ -786,21 +829,25 @@ def set_source_editor(user, uuid, allow=False):
 
         if source.user_has_manager_permission(current_user):
             with db.session.begin_nested():
-                ActionUsers.query.filter_by(user_id=user, action='source_editor_actions',
-                                            argument=uuid).delete()
+                ActionUsers.query.filter_by(
+                    user_id=user, action='source_editor_actions',
+                    argument=uuid
+                    ).delete()
                 if allow:
                     db.session.add(ActionUsers.allow(ObjectSourceEditor(uuid), user=userObj))
                 else:
                     db.session.add(ActionUsers.deny(ObjectSourceEditor(uuid), user=userObj))
             db.session.commit()
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'permission',
-                                       {
-                                           'source':     uuid,
-                                           'user':       user,
-                                           'permission': 'editor',
-                                           'allow':      allow
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'permission',
+                {
+                    'source': uuid,
+                    'user': user,
+                    'permission': 'editor',
+                    'allow': allow
+                    }
+                )
         raise PermissionDenied()
 
     except PermissionDenied as err:
@@ -839,21 +886,25 @@ def set_source_manager(user, uuid, allow=False):
             raise Exception('User not found')
         if source.user_has_manager_permission(current_user):
             with db.session.begin_nested():
-                ActionUsers.query.filter_by(user_id=user, action='source_manager_actions',
-                                            argument=uuid).delete()
+                ActionUsers.query.filter_by(
+                    user_id=user, action='source_manager_actions',
+                    argument=uuid
+                    ).delete()
                 if allow:
                     db.session.add(ActionUsers.allow(ObjectSourceManager(uuid), user=userObj))
                 else:
                     db.session.add(ActionUsers.deny(ObjectSourceManager(uuid), user=userObj))
             db.session.commit()
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'permission',
-                                       {
-                                           'term':       uuid,
-                                           'user':       user,
-                                           'permission': 'manager',
-                                           'allow':      allow
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'permission',
+                {
+                    'term': uuid,
+                    'user': user,
+                    'permission': 'manager',
+                    'allow': allow
+                    }
+                )
 
         raise PermissionDenied()
 
@@ -904,21 +955,29 @@ def set_organization_manager(user, uuid, allow=False):
             allow_parent or \
             user_is_organization_manager(org['id'], current_user):
             with db.session.begin_nested():
-                ActionUsers.query.filter_by(user_id=user, action='source_organization_manager_actions',
-                                            argument=uuid).delete()
+                ActionUsers.query.filter_by(
+                    user_id=user, action='source_organization_manager_actions',
+                    argument=uuid
+                    ).delete()
                 if allow:
-                    db.session.add(ActionUsers.allow(ObjectSourceOrganizationManager(uuid), user=userObj))
+                    db.session.add(
+                        ActionUsers.allow(ObjectSourceOrganizationManager(uuid), user=userObj)
+                        )
                 else:
-                    db.session.add(ActionUsers.deny(ObjectSourceOrganizationManager(uuid), user=userObj))
+                    db.session.add(
+                        ActionUsers.deny(ObjectSourceOrganizationManager(uuid), user=userObj)
+                        )
             db.session.commit()
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'permission',
-                                       {
-                                           'org':        uuid,
-                                           'user':       user,
-                                           'permission': 'manager',
-                                           'allow':      allow
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'permission',
+                {
+                    'org': uuid,
+                    'user': user,
+                    'permission': 'manager',
+                    'allow': allow
+                    }
+                )
 
         raise PermissionDenied()
 
@@ -965,21 +1024,25 @@ def set_term_manager(user, uuid, allow=False):
             (parent and user_is_term_manager(parent.uuid, current_user)):
 
             with db.session.begin_nested():
-                ActionUsers.query.filter_by(user_id=user, action='source_term_manager_actions',
-                                            argument=uuid).delete()
+                ActionUsers.query.filter_by(
+                    user_id=user, action='source_term_manager_actions',
+                    argument=uuid
+                    ).delete()
                 if allow:
                     db.session.add(ActionUsers.allow(ObjectSourceTermManager(uuid), user=userObj))
                 else:
                     db.session.add(ActionUsers.deny(ObjectSourceTermManager(uuid), user=userObj))
             db.session.commit()
-            return iroko_json_response(IrokoResponseStatus.SUCCESS,
-                                       'ok', 'permission',
-                                       {
-                                           'term':       uuid,
-                                           'user':       user,
-                                           'permission': 'manager',
-                                           'allow':      allow
-                                       })
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS,
+                'ok', 'permission',
+                {
+                    'term': uuid,
+                    'user': user,
+                    'permission': 'manager',
+                    'allow': allow
+                    }
+                )
 
         raise PermissionDenied()
 

@@ -5,9 +5,10 @@
   ~ under the terms of the MIT License; see LICENSE file for more details.
   -->
 
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:rfc1807="http://info.internet.isi.edu:80/in-notes/rfc/files/rfc1807.txt"
-        targetNamespace="http://info.internet.isi.edu:80/in-notes/rfc/files/rfc1807.txt" elementFormDefault="qualified"
+<schema xmlns:rfc1807="http://info.internet.isi.edu:80/in-notes/rfc/files/rfc1807.txt"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://info.internet.isi.edu:80/in-notes/rfc/files/rfc1807.txt"
+        elementFormDefault="qualified"
         attributeFormDefault="unqualified">
 
 
@@ -19,7 +20,8 @@
 
             the Open Archives Initiative. 2000.
 
-            rfc1807 semantics available at http://info.internet.isi.edu:80/in-notes/rfc/files/rfc1807.txt
+            rfc1807 semantics available at
+            http://info.internet.isi.edu:80/in-notes/rfc/files/rfc1807.txt
 
             XML transportation format on which this schema is inspired
 

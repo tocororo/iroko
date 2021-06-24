@@ -39,11 +39,14 @@
             This complexType permits the derivation of other complexTypes
             which would permit child elements.
 
-            XML elements corresponding to DC elements are declared as substitutable for the abstract element dc:any, and
-            XML elements corresponding to DC element refinements are defined as substitutable for the base elements
+            XML elements corresponding to DC elements are declared as substitutable for the abstract
+            element dc:any, and
+            XML elements corresponding to DC element refinements are defined as substitutable for
+            the base elements
             which they refine.
 
-            This means that the default type for all XML elements (i.e. corresponding to all DC elements and
+            This means that the default type for all XML elements (i.e. corresponding to all DC
+            elements and
             element refinements) is dc:SimpleLiteral.
 
             Encoding schemes are defined as complexTypes which are restrictions
@@ -60,7 +63,8 @@
 
             Changes in 2008-02-11 version:
 
-            Add element declarations corresponding to 15 new dcterms URIs, and amend use of substitutionGroups.
+            Add element declarations corresponding to 15 new dcterms URIs, and amend use of
+            substitutionGroups.
 
             Add compexType definitions corresponding to ISO639-3, RFC4646.
 

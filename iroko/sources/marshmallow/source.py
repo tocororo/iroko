@@ -5,15 +5,17 @@
 #
 
 
-from marshmallow import Schema, fields, post_dump, INCLUDE
+from marshmallow import INCLUDE, Schema, fields, post_dump
 from marshmallow_enum import EnumField
 from sqlalchemy import desc
 
 from iroko.harvester.marshmallow import RepositorySchema
 from iroko.sources.api import SourceRecord
-from iroko.sources.marshmallow.base import source_base_data_schema, TermSourcesSchema, SourceDataSchema
+from iroko.sources.marshmallow.base import (
+    SourceDataSchema, TermSourcesSchema, source_base_data_schema,
+    )
 from iroko.sources.marshmallow.journal import journal_data_schema
-from iroko.sources.models import Source, SourceVersion, SourceType, SourceStatus
+from iroko.sources.models import Source, SourceStatus, SourceType, SourceVersion
 from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import UserProfilesSchema, userprofile_schema
 
@@ -82,9 +84,11 @@ class SourceSchema(Schema):
 
     @post_dump
     def dump_need_review_version(self, source, **kwargs):
-        # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la version current.
+        # TODO: version_to_review is true cuando tiene una version con una fecha posterior a la
+        #  version current.
         versions = SourceVersion.query.filter_by(source_id=source['id']).order_by(
-            desc(SourceVersion.created_at)).first()
+            desc(SourceVersion.created_at)
+            ).first()
         if versions and not versions.is_current:
             source['version_to_review'] = True
         else:
@@ -100,7 +104,9 @@ class IssnSchema(Schema):
     miar_data = fields.Raw(many=False)
 
 
-source_schema_many = SourceSchema(many=True, exclude=['versions', 'term_sources', 'data', 'repository'])
+source_schema_many = SourceSchema(
+    many=True, exclude=['versions', 'term_sources', 'data', 'repository']
+    )
 source_schema = SourceSchema()
 source_schema_no_versions = SourceSchema(exclude=['versions'])
 

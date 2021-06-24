@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 {%- extends config.BASE_TEMPLATE %}
@@ -19,74 +19,86 @@
   -->
 
 <div class="container show-page">
-    {%- if source %}
-        {%- if source.name %}
-            <div class="col-lg-12 py-md-3">
-                <h1 class="text-center">{{source.name}}</h1>
-            </div>
+  {%- if source %}
+  {%- if source.name %}
+  <div class="col-lg-12 py-md-3">
+    <h1 class="text-center">{{source.name}}</h1>
+  </div>
+  {%- endif %}
+
+  {%- if source.data %}
+  <div class="d-flex justify-content-center flex-wrap card-deck">
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        <!-- quitar el "not" cuando esten los logos en la aplicacion -->
+        {%- if not source.data.logo and source.data.logo != '' %}
+        <img alt="{{source.data.logo}}" class="card-img-top"
+             src="{{ url_for('static', filename='images/source.data.logo') }}">
+        {%- else %}
+        <img alt="{{source.data.logo}}" class="card-img-top"
+             src="{{ url_for('static', filename='images/sceiba-logo.png') }}">
         {%- endif %}
-
-        {%- if source.data %}
-            <div class="d-flex justify-content-center flex-wrap card-deck">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <!-- quitar el "not" cuando esten los logos en la aplicacion -->
-                        {%- if not source.data.logo and source.data.logo != '' %}
-                            <img src="{{ url_for('static', filename='images/source.data.logo') }}" class="card-img-top" alt="{{source.data.logo}}">
-                        {%- else %}
-                            <img src="{{ url_for('static', filename='images/sceiba-logo.png') }}" class="card-img-top" alt="{{source.data.logo}}">
-                        {%- endif %}
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card shadow-none border-light">
-                            <div class="card-body">
-                            {%- if source.data.url %}
-                                <h5 class="card-title">{{ _('Web Site') }}</h5>
-                                <div class="row">
-                                    <p class="card-text ml-3">{{ _('URL') }}:</p>
-                                    <a href="{{ source.data.url}}" target="blank" class="card-text text-info col-10 text-truncate">
-                                        {%- if not source.name %} {{source.name}}
-                                        {%- else %} {{source.data.url}}
-                                        {%- endif %}
-                                    </a>
-                                </div>
-                                <p class="card-text">{{ _('Platform')}}: <a href="#" class="text-info">Open Journal System</a></p>
-                                {%- if source.repo_last_harvest_run %} <p class="card-text">{{ _('Last Check')}}: {{source.repo_last_harvest_run}}</p> {%- endif %}
-                                {%- if source.data.seriadas_cubanas %} <p class="card-text">{{ _('Access in')}}: <a href="{{ source.data.seriadas_cubanas }}" class="card-text text-info">Seriadas Cubanas</a> </p> {%- endif %}
-                                {%- if source.data.year_start %} <p class="card-text">{{ _('Creation date')}}: {{source.data.year_start}} </p> {%- endif %}
-                            {%- endif %}
-
-                            {%- if source.data.issn %}
-                                <h5 class="card-title">{{ _('ISSN') }}</h5>
-                                {%- if source.data.issn.p %}<p class="card-text">{{ _('Printed') }}: {{ source.data.issn.p }}</p>{%- endif %}
-                                {%- if source.data.issn.e %}<p class="card-text">{{ _('Electronic') }}: {{ source.data.issn.e }}</p>{%- endif %}
-                                {%- if source.data.issn.l %}<p class="card-text">{{ _('l') }}: {{ source.data.issn.l }}</p>{%- endif %}
-
-                            {%- endif %}
-                            {%- if source.data.rnps %}<p class="card-title">{{ _('RNPS') }}:&nbsp;<span class="card-text">{{ source.data.rnps }}</span></p>{%- endif %}
-                            <p class="card-text"><small class="text-muted">{{source.source_type}}</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
+      </div>
+      <div class="col-md-8">
+        <div class="card shadow-none border-light">
+          <div class="card-body">
+            {%- if source.data.url %}
+            <h5 class="card-title">{{ _('Web Site') }}</h5>
+            <div class="row">
+              <p class="card-text ml-3">{{ _('URL') }}:</p>
+              <a class="card-text text-info col-10 text-truncate" href="{{ source.data.url}}"
+                 target="blank">
+                {%- if not source.name %} {{source.name}}
+                {%- else %} {{source.data.url}}
+                {%- endif %}
+              </a>
             </div>
-            <div class="card mt-5">
-                <div class="card-header font-weight-bold">
-                    {{ _('Description')}}
-                </div>
-                <div class="card-body">
-                    <p class="card-text text-justify">{{ source.data.description }}</p>
-                </div>
-            </div>
-        {%- endif %}
-    {%- else %}
-        <h1>
-            <i class="fa fa-flash"></i>
-            {{_('Source not found')}}
-        </h1>
-        <p>{{_('The source you are looking for could not be found.')}}</p>
-    {%- endif %}
+            <p class="card-text">{{ _('Platform')}}: <a class="text-info" href="#">Open Journal
+              System</a></p>
+            {%- if source.repo_last_harvest_run %} <p class="card-text">{{ _('Last Check')}}:
+            {{source.repo_last_harvest_run}}</p> {%- endif %}
+            {%- if source.data.seriadas_cubanas %} <p class="card-text">{{ _('Access in')}}: <a
+            class="card-text text-info" href="{{ source.data.seriadas_cubanas }}">Seriadas
+            Cubanas</a></p> {%- endif %}
+            {%- if source.data.year_start %} <p class="card-text">{{ _('Creation date')}}:
+            {{source.data.year_start}} </p> {%- endif %}
+            {%- endif %}
+
+            {%- if source.data.issn %}
+            <h5 class="card-title">{{ _('ISSN') }}</h5>
+            {%- if source.data.issn.p %}<p class="card-text">{{ _('Printed') }}: {{
+            source.data.issn.p }}</p>{%- endif %}
+            {%- if source.data.issn.e %}<p class="card-text">{{ _('Electronic') }}: {{
+            source.data.issn.e }}</p>{%- endif %}
+            {%- if source.data.issn.l %}<p class="card-text">{{ _('l') }}: {{ source.data.issn.l
+            }}</p>{%- endif %}
+
+            {%- endif %}
+            {%- if source.data.rnps %}<p class="card-title">{{ _('RNPS') }}:&nbsp;<span
+            class="card-text">{{ source.data.rnps }}</span></p>{%- endif %}
+            <p class="card-text"><small class="text-muted">{{source.source_type}}</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="card mt-5">
+    <div class="card-header font-weight-bold">
+      {{ _('Description')}}
+    </div>
+    <div class="card-body">
+      <p class="card-text text-justify">{{ source.data.description }}</p>
+    </div>
+  </div>
+  {%- endif %}
+  {%- else %}
+  <h1>
+    <i class="fa fa-flash"></i>
+    {{_('Source not found')}}
+  </h1>
+  <p>{{_('The source you are looking for could not be found.')}}</p>
+  {%- endif %}
 </div>
 {%- endblock page_body %}

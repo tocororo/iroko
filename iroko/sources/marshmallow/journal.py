@@ -4,7 +4,7 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 
-from marshmallow import Schema, fields, post_dump, INCLUDE
+from marshmallow import INCLUDE, Schema, fields, post_dump
 
 from iroko.sources.harvesters.issn import IssnDataParser
 from iroko.sources.marshmallow.base import SourceDataSchema

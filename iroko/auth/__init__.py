@@ -7,16 +7,20 @@
 
 from functools import wraps
 
-from flask import session, request
+from flask import request, session
 from flask_login import current_user
 
 
-def require_keycloak_auth(require_token=False, scopes_required=None,
-                           render_errors=True):
+def require_keycloak_auth(
+    require_token=False, scopes_required=None,
+    render_errors=True
+    ):
     """
     """
+
     def wrapper(f):
         """Wrap function with oauth require decorator."""
+
         @wraps(f)
         def decorated(*args, **kwargs):
             """Require OAuth 2.0 Authentication."""
@@ -28,7 +32,9 @@ def require_keycloak_auth(require_token=False, scopes_required=None,
             print(current_user)
             print('------------------------------------------------')
 
-            if 'Authorization' in request.headers and request.headers['Authorization'].startswith('Bearer '):
+            if 'Authorization' in request.headers and request.headers['Authorization'].startswith(
+                'Bearer '
+                ):
                 token = request.headers['Authorization'].split(None, 1)[1].strip()
             if 'access_token' in request.form:
                 token = request.form['access_token']
@@ -54,5 +60,7 @@ def require_keycloak_auth(require_token=False, scopes_required=None,
             # else:
             #     # otherwise, try oauth2
             #     return f_oauth_required(*args, **kwargs)
+
         return decorated
+
     return wrapper

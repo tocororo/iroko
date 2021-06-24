@@ -16,7 +16,7 @@ from flask_login import current_user
 from flask_security.forms import (
     email_required, email_validator,
     unique_user_email,
-)
+    )
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 # from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
@@ -26,7 +26,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import (
     DataRequired, EqualTo, StopValidation,
     ValidationError,
-)
+    )
 
 from iroko.vocabularies.api import Terms
 from .api import current_userprofile, current_userprofile_json_metadata
@@ -59,8 +59,10 @@ class ProfileForm(FlaskForm):
         # NOTE: Form field label
         _('Username'),
         # NOTE: Form field help text
-        description=_('Required. %(username_rules)s',
-                      username_rules=USERNAME_RULES),
+        description=_(
+            'Required. %(username_rules)s',
+            username_rules=USERNAME_RULES
+            ),
         validators=[DataRequired(message=_('Username not provided.'))],
         filters=[strip_filter], )
 
@@ -69,16 +71,18 @@ class ProfileForm(FlaskForm):
         _('Full name'),
         filters=[strip_filter], )
 
-    avatar = FileField(_(
-        'Avatar'),
+    avatar = FileField(
+        _(
+            'Avatar'
+            ),
         description=_('An imagen for representing yourself')
-    )
+        )
 
     biography = TextAreaField(
         _('Biography'),
         description=_('Short description of your biography'),
         validators=[validators.DataRequired()]
-    )
+        )
 
     institution = QuerySelectField(
         label=_('Institution'),
@@ -86,7 +90,7 @@ class ProfileForm(FlaskForm):
         widget=Select2Widget(),
         allow_blank=True,
         blank_text=_('Select Institution')
-    )
+        )
 
     institution_rol = StringField(
         _('Role'),
@@ -113,7 +117,9 @@ class ProfileForm(FlaskForm):
     def __init__(self, formdata=None, **kwargs):
         super(ProfileForm, self).__init__(formdata, **kwargs)
         if not current_userprofile.is_anonymous and current_userprofile_json_metadata:
-            msg, institution = Terms.get_term_by_id(current_userprofile_json_metadata["institution_id"])
+            msg, institution = Terms.get_term_by_id(
+                current_userprofile_json_metadata["institution_id"]
+                )
             if institution:
                 self.institution.data = institution
 
@@ -130,8 +136,8 @@ class EmailProfileForm(ProfileForm):
             current_user_email,
             email_validator,
             unique_user_email,
-        ],
-    )
+            ],
+        )
 
     email_repeat = StringField(
         # NOTE: Form field label
@@ -143,8 +149,8 @@ class EmailProfileForm(ProfileForm):
             email_required,
             # NOTE: Form validation error.
             EqualTo('email', message=_('Email addresses do not match.'))
-        ]
-    )
+            ]
+        )
 
 
 class VerificationForm(FlaskForm):
@@ -212,7 +218,8 @@ def _update_with_csrf_disabled(d=None):
     import flask_wtf
     from pkg_resources import parse_version
     supports_meta = parse_version(flask_wtf.__version__) >= parse_version(
-        "0.14.0")
+        "0.14.0"
+        )
     if supports_meta:
         d.setdefault('meta', {})
         d['meta'].update({'csrf': False})

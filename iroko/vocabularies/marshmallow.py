@@ -58,7 +58,8 @@ class TermSchema(Schema):
     #     item['clasified_ids'] = item['clasified_ids'] if 'clasified_ids' in item else []
     #     item['data'] = item['data'] if 'data' in item else {}
     #
-    #     item['parent_id'] = item['parent_id'] if 'parent_id' in item and item['parent_id'] and item['parent_id']>0 else None
+    #     item['parent_id'] = item['parent_id'] if 'parent_id' in item and item['parent_id'] and
+    #     item['parent_id']>0 else None
     #     return item
     #
     # @pre_dump
@@ -69,7 +70,8 @@ class TermSchema(Schema):
     #             term.class_ids.append(term_class.term_class_id)
     #
     #         term.clasified_ids = []
-    #         for term_clasification in TermClasification.query.filter_by(term_class_id=term.id).all():
+    #         for term_clasification in TermClasification.query.filter_by(
+    #         term_class_id=term.id).all():
     #             term.clasified_ids.append(term_clasification.term_clasified_id)
     #
     #     return term
@@ -104,12 +106,15 @@ class TermSchema(Schema):
 
 
 class TermNodeSchema(Schema):
-    """I'm not sure that this is the way marshmallow should be used, but this is a better place to put the tree recursive function dump_term.
-    At the end, this is an special dump, probably the way to go is redefining somehow the dump function of marshmallow, but y think this is not pre_dump or post_dump problem.
+    """I'm not sure that this is the way marshmallow should be used, but this is a better place
+    to put the tree recursive function dump_term.
+    At the end, this is an special dump, probably the way to go is redefining somehow the dump
+    function of marshmallow, but y think this is not pre_dump or post_dump problem.
     Any way, this Schema should be used calling dump_term_node, not dump.
 
     TODO: Creo que esto deberia ponerse en TermSchema,
-    y aunque logicamente afectaria los clientes, me parece mas consistente lograr eso mismo usando el dump propio de marshmallow,
+    y aunque logicamente afectaria los clientes, me parece mas consistente lograr eso mismo
+    usando el dump propio de marshmallow,
     lo que habria que buscar como pasar los argumentos  level_to_reach y current_level
 
      """
@@ -122,29 +127,29 @@ class TermNodeSchema(Schema):
         if level_to_reach < 0:
             if term.parent_id is None or level_to_reach == current_level:
                 return {
-                    'term':   term_schema.dump(term),
+                    'term': term_schema.dump(term),
                     'parent': None
-                }
+                    }
             if level_to_reach < current_level:
                 parent = Term.query.filter_by(id=term.parent_id).first()
                 return {
-                    'term':   term_schema.dump(term),
+                    'term': term_schema.dump(term),
                     'parent': self.dump_term_node(parent, level_to_reach, current_level - 1)
-                }
+                    }
         elif level_to_reach > 0:
             if current_level < level_to_reach:
                 children = []
                 for child in term.children:
                     children.append(self.dump_term_node(child, level_to_reach, current_level + 1))
                 return {
-                    'term':     term_schema.dump(term),
+                    'term': term_schema.dump(term),
                     'children': children
-                }
+                    }
             else:
                 return {
-                    'term':     term_schema.dump(term),
+                    'term': term_schema.dump(term),
                     'children': None
-                }
+                    }
         else:
             return {'term': term_schema.dump(term)}
 
@@ -156,10 +161,12 @@ class TermNodeSchema(Schema):
 
 
 # unknown='EXCLUDE', esto se pone para que el load excluya los campos que no se conoce,
-# lo estamos usando aqui porque los campos dump_only se interpretan por marshmallow 3 como desconocidos
+# lo estamos usando aqui porque los campos dump_only se interpretan por marshmallow 3 como
+# desconocidos
 # si no se pone unknown='EXCLUDE' entonces en los PUT (que hace load) no pueden venir los dump_only
 # basicamente los dump_only nuestros son id y uuid
-# https://stackoverflow.com/questions/54391524/sqlalchemy-property-causes-unknown-field-error-in-marshmallow-with-dump-only/54405610#54405610
+# https://stackoverflow.com/questions/54391524/sqlalchemy-property-causes-unknown-field-error-in
+# -marshmallow-with-dump-only/54405610#54405610
 # https://github.com/marshmallow-code/marshmallow/issues/875
 
 # al final el cliente, debe manejar el problema de excluir los campos id y uuid del input en un PUT
@@ -170,5 +177,7 @@ term_node_schema = TermNodeSchema(many=False)
 term_schema_many = TermSchema(many=True)
 term_schema = TermSchema(many=False)
 term_schema_no_clases = TermSchema(many=False, exclude=('class_ids', 'clasified_ids'))
-vocabulary_schema_many = VocabularySchema(many=True, only=('id', 'identifier', 'name', 'human_name', 'description'))
+vocabulary_schema_many = VocabularySchema(many=True, only=(
+'id', 'identifier', 'name', 'human_name', 'description')
+                                          )
 vocabulary_schema = VocabularySchema(many=False)

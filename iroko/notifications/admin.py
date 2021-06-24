@@ -35,6 +35,6 @@ notifications_adminview = dict(
     model=Notification,
     name='Notifications',
     category='Iroko'
-)
+    )
 
 __all__ = ('notifications_adminview')

@@ -26,4 +26,4 @@ json_v1 = marshmallow_loader(MetadataSchemaV1)
 
 __all__ = (
     'json_v1',
-)
+    )

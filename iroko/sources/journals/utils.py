@@ -10,7 +10,6 @@ Helper function to several task related to Sources, sources types,
  sources fields, etc..
 """
 
-
 from iroko.sources.models import Source
 
 
@@ -31,7 +30,8 @@ def _filter_data_args(source: Source, data_args, and_op):
     # esto es ineficiente... pero es lo que hay.. por el momento..
     # solo debe usarse para la lista de revistas que no pasa de 300
     # TODO: como optimizar...?
-    #  En todo caso se puede generalizar para cualquier nombre dentro de data.... lo que habria que pasar la forma de evaluacion o algo asi (por el caso de issn)
+    #  En todo caso se puede generalizar para cualquier nombre dentro de data.... lo que habria
+    #   que pasar la forma de evaluacion o algo asi (por el caso de issn)
 
     if source.data is None:
         return False
@@ -46,20 +46,36 @@ def _filter_data_args(source: Source, data_args, and_op):
 
     issn = False
     if 'issn' in source.data:
-        issn_p = data_args['issn'].lower() in source.data['issn']['p'].lower() if 'p' in source.data['issn'] else False
-        issn_e = data_args['issn'].lower() in source.data['issn']['e'].lower() if 'e' in source.data['issn'] else False
-        issn_l = data_args['issn'].lower() in source.data['issn']['l'].lower() if 'l' in source.data['issn'] else False
+        issn_p = data_args['issn'].lower() in source.data['issn']['p'].lower() if 'p' in \
+                                                                                  source.data[
+                                                                                      'issn'] \
+            else False
+        issn_e = data_args['issn'].lower() in source.data['issn']['e'].lower() if 'e' in \
+                                                                                  source.data[
+                                                                                      'issn'] \
+            else False
+        issn_l = data_args['issn'].lower() in source.data['issn']['l'].lower() if 'l' in \
+                                                                                  source.data[
+                                                                                      'issn'] \
+            else False
         issn = issn_p or issn_e or issn_l
 
     rnps = False
     if 'rnps' in source.data:
-        rnps_p = data_args['rnps'].lower() in source.data['rnps']['p'].lower() if 'p' in source.data['rnps'] else False
-        rnps_e = data_args['rnps'].lower() in source.data['rnps']['e'].lower() if 'e' in source.data['rnps'] else False
+        rnps_p = data_args['rnps'].lower() in source.data['rnps']['p'].lower() if 'p' in \
+                                                                                  source.data[
+                                                                                      'rnps'] \
+            else False
+        rnps_e = data_args['rnps'].lower() in source.data['rnps']['e'].lower() if 'e' in \
+                                                                                  source.data[
+                                                                                      'rnps'] \
+            else False
         rnps = rnps_p or rnps_e
 
     year_start = data_args['year_start'].lower() in source.data[
         'year_start'].lower() if 'year_start' in source.data else False
-    year_end = data_args['year_end'].lower() in source.data['year_end'].lower() if 'year_end' in source.data else False
+    year_end = data_args['year_end'].lower() in source.data[
+        'year_end'].lower() if 'year_end' in source.data else False
 
     if and_op:
         return title and description and url and issn and rnps and year_start and year_end
@@ -126,7 +142,9 @@ def field_is_in_data(data, field_name: str, field_value: str, equal: bool):
     result = False
     if field_value:
         if equal:
-            result = field_value.lower() == data[field_name].lower() if field_name in data else False
+            result = field_value.lower() == data[
+                field_name].lower() if field_name in data else False
         else:
-            result = field_value.lower() in data[field_name].lower() if field_name in data else False
+            result = field_value.lower() in data[
+                field_name].lower() if field_name in data else False
     return result

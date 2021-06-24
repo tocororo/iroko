@@ -7,7 +7,6 @@
 
 """Iroko Providers."""
 
-
 import uuid
 
 from invenio_pidstore.models import PIDStatus
@@ -41,15 +40,18 @@ class IrokoUUIDProvider(BaseProvider):
             kwargs.setdefault('pid_value', str(uuid.uuid4()))
         kwargs.setdefault('status', cls.default_status)
         return super(IrokoUUIDProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs)
+            object_type=object_type, object_uuid=object_uuid, **kwargs
+            )
 
 
 class IrokoSourceOAIProvider(BaseProvider):
     """Provider in the form of {Source.uuid}-{Item.oaiIdentifier}
-    When a record is harvested using OAI-PMH, is allways from a valid Source inside iroko, meaning that the Source must have an UUID.
+    When a record is harvested using OAI-PMH, is allways from a valid Source inside iroko,
+    meaning that the Source must have an UUID.
     All items must have an oai identifier, since is harvested used OAI-PMH.
     So the persistent identifier use the form {Source.uuid}-{Item.oaiIdentifier}
-    When migrating data across different installations of iroko, this need to be taken into consideration.
+    When migrating data across different installations of iroko, this need to be taken into
+    consideration.
     """
 
     pid_type = pids.RECORD_SOURCE_OAI_PID_TYPE
@@ -68,7 +70,8 @@ class IrokoSourceOAIProvider(BaseProvider):
             kwargs.setdefault('pid_value', pid_value)
         kwargs.setdefault('status', cls.default_status)
         return super(IrokoSourceOAIProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs)
+            object_type=object_type, object_uuid=object_uuid, **kwargs
+            )
 
     @classmethod
     def get_pid_from_data(cls, data=None):
@@ -119,14 +122,16 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
                     object_type=object_type,
                     object_uuid=object_uuid,
                     **kwargs
-                )
+                    )
                 # print('@@@@@@@@', provider.pid)
                 pIDs.append(provider.pid)
                 # print('@@@@@@@@')
         return pIDs
 
     @classmethod
-    def create_pid(cls, pid_type, pid_value, object_type=None, object_uuid=None, data=None, **kwargs):
+    def create_pid(
+        cls, pid_type, pid_value, object_type=None, object_uuid=None, data=None, **kwargs
+        ):
         assert data, "no data"
         assert pids.IDENTIFIERS_FIELD in data
         assert pid_type
@@ -138,7 +143,7 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
             object_type=object_type,
             object_uuid=object_uuid,
             **kwargs
-        )
+            )
         return provider.pid
 
 
@@ -174,11 +179,12 @@ class IrokoSourceUUIDProvider(BaseProvider):
             pid_type=pids.SOURCE_UUID_PID_TYPE,
             pid_value=data[pids.SOURCE_UUID_FIELD],
             **kwargs
-        )
+            )
 
 # class IrokoSourceSourceRecordProvider(BaseProvider):
 #     """Provider to relate Iroko's table Source, with SourceRecord in invenio Records ."""
-#     # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
+#     # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo
+#      del 2020
 
 #     pid_type = pids.SOURCE_UUID_PID_TYPE
 

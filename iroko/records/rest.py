@@ -8,13 +8,13 @@
 from flask import Blueprint, request
 
 from iroko.records.api import IrokoAggs
-from iroko.utils import iroko_json_response, IrokoResponseStatus
+from iroko.utils import IrokoResponseStatus, iroko_json_response
 
 api_blueprint = Blueprint(
     'iroko_api_records',
     __name__,
     url_prefix='/records'
-)
+    )
 
 
 @api_blueprint.route('/aggs/<field>')
@@ -22,7 +22,9 @@ def get_aggregations(field):
     """return aggregation"""
 
     try:
-        size = int(request.args.get('size')) if request.args.get('size') and int(request.args.get('size')) >= 0 else 10
+        size = int(request.args.get('size')) if request.args.get('size') and int(
+            request.args.get('size')
+            ) >= 0 else 10
 
         result = IrokoAggs.getAggrs(field, size)
         if not result:

@@ -1,14 +1,14 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 {%- macro flashed_messages() -%}
-  {%- block messages %}
-    {%- for category, msg in get_flashed_messages(with_categories=True) %}
-      {%- set category = 'info' if category not in ['info', 'danger', 'warning', 'success'] else category %}
+{%- block messages %}
+{%- for category, msg in get_flashed_messages(with_categories=True) %}
+{%- set category = 'info' if category not in ['info', 'danger', 'warning', 'success'] else category %}
 
 <!--
   ~ Copyright (c) 2021. Universidad de Pinar del Rio
@@ -18,11 +18,11 @@
   -->
 
 <div class="alert alert-{{ category }}">
-        <div class="container">
-          <a class="close" data-dismiss="alert" href="#">&times;</a>
-            {{ msg }}
-        </div>
-      </div>
-    {%- endfor %}
-  {%- endblock messages %}
+  <div class="container">
+    <a class="close" data-dismiss="alert" href="#">&times;</a>
+    {{ msg }}
+  </div>
+</div>
+{%- endfor %}
+{%- endblock messages %}
 {%- endmacro %}

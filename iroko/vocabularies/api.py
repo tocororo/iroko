@@ -17,8 +17,8 @@ from sqlalchemy import exc as sqlalchemyExc
 
 from iroko.sources.models import TermSources
 from iroko.utils import string_as_identifier
-from iroko.vocabularies.marshmallow import vocabulary_schema, term_schema, term_node_schema
-from iroko.vocabularies.models import Vocabulary, Term, TermClasification
+from iroko.vocabularies.marshmallow import term_node_schema, term_schema, vocabulary_schema
+from iroko.vocabularies.models import Term, TermClasification, Vocabulary
 from iroko.vocabularies.permissions import ObjectVocabularyEditor, is_current_user_taxonomy_admin
 
 
@@ -360,7 +360,8 @@ class Terms:
     @classmethod
     def _update_term_clasification(cls, term: Term, data):
         '''
-        this search all clasification of the term, delete it, and then create new clasification based on params
+        this search all clasification of the term, delete it, and then create new clasification
+        based on params
 
         # TODO: This will be replaced by the graph database, when done....
 
@@ -400,11 +401,15 @@ class Terms:
             term = Term.query.filter_by(uuid=uuid).first()
             if term:
                 if len(term.children) > 0:
-                    return _('No se puede eliminar el término cuando otros términos dependen de él'), False
+                    return _(
+                        'No se puede eliminar el término cuando otros términos dependen de él'
+                        ), False
 
                 in_clasification = TermClasification.query.filter_by(term_class_id=term.id).first()
                 if in_clasification:
-                    return _('No se puede eliminar el término si clasificaciones dependen de él'), False
+                    return _(
+                        'No se puede eliminar el término si clasificaciones dependen de él'
+                        ), False
 
                 in_source = TermSources.query.filter_by(term_id=term.id).first()
                 if in_source:
@@ -421,8 +426,11 @@ class Terms:
     @classmethod
     def get_terms_by_vocabulary_name(cls, vocabulary_name):
         try:
-            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(name=vocabulary_name).order_by(
-                Term.identifier)
+            lista = Term.query.join(Term.vocabulary, aliased=True).filter_by(
+                name=vocabulary_name
+                ).order_by(
+                Term.identifier
+                )
             # print(lista[0].id)
             return lista
         except Exception as error:
@@ -478,7 +486,8 @@ def get_current_user_permissions() -> Dict[str, Dict[str, list]]:
         actions = ActionUsers.query.filter_by(
             user=current_user,
             exclude=False,
-            action='vocabulary_editor_actions').all()
+            action='vocabulary_editor_actions'
+            ).all()
 
         for action in actions:
             vocabularies_ids.append(action.argument)
@@ -504,7 +513,8 @@ def get_current_user_described_permissions() -> Dict[str, Dict[str, list]]:
         actions = ActionUsers.query.filter_by(
             user=current_user,
             exclude=False,
-            action='vocabulary_editor_actions').all()
+            action='vocabulary_editor_actions'
+            ).all()
 
         for action in actions:
             vocabularies_ids.append(action.argument)

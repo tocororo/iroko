@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 <!--
   ~ Copyright (c) 2021. Universidad de Pinar del Rio
@@ -12,18 +12,20 @@
   ~ under the terms of the MIT License; see LICENSE file for more details.
   -->
 
-<form class="navbar-form navbar-left col-md-9 col-sm-9" role="search" style="margin: 2em 0; padding-left: 0;">
+<form class="navbar-form navbar-left col-md-9 col-sm-9" role="search"
+      style="margin: 2em 0; padding-left: 0;">
   <div class="input-group">
     <input
-      type="text"
       class="form-control"
-      placeholder="{{placeholder}}"
+      ng-keyup="$event.keyCode == 13 && updateQuery()"
       ng-model="vm.userQuery"
       ng-model-options="{ debounce: { 'default': 500, 'blur': 0 } }"
-      ng-keyup="$event.keyCode == 13 && updateQuery()"
+      placeholder="{{placeholder}}"
+      type="text"
     >
     <div class="input-group-btn">
-      <button ng-click="updateQuery()" type="submit" class="btn btn-default" style="margin: 0 .5em 0 0;"><i class="fa fa-search"></i></button>
+      <button class="btn btn-default" ng-click="updateQuery()" style="margin: 0 .5em 0 0;"
+              type="submit"><i class="fa fa-search"></i></button>
     </div>
   </div>
 </form>

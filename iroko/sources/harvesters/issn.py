@@ -42,11 +42,13 @@ def encode_multipart_formdata(fields):
     boundary = binascii.hexlify(os.urandom(16)).decode('ascii')
 
     body = (
-        "".join("--%s\r\n"
-                "Content-Disposition: form-data; name=\"%s\"\r\n"
-                "\r\n"
-                "%s\r\n" % (boundary, field, value)
-                for field, value in fields.items()) +
+        "".join(
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"%s\"\r\n"
+            "\r\n"
+            "%s\r\n" % (boundary, field, value)
+            for field, value in fields.items()
+            ) +
         "--%s--\r\n" % boundary
     )
 
@@ -107,26 +109,27 @@ def request_advanced_search(country_code):
     time.sleep(sleep_time)
 
     body = {
-        'operator':                                                           'SHOULD',
-        'selectTitle':                                                        'all',
-        'opSpeTitle':                                                         '0',
-        'issnOpt':                                                            'all',
-        'globalField[fld][0][operator]':                                      'MUST',
-        'globalField[fld][0][selector]':                                      'country',
+        'operator': 'SHOULD',
+        'selectTitle': 'all',
+        'opSpeTitle': '0',
+        'issnOpt': 'all',
+        'globalField[fld][0][operator]': 'MUST',
+        'globalField[fld][0][selector]': 'country',
         'globalField[fld][0][countryDiv][countrylist][' + country_code + ']': country_code,
-        'op':                                                                 'Search',
-        'form_id':                                                            dictionary['form_id'],
-        'honeypot_time':                                                      dictionary['honeypot_time'],
-        'form_build_id':                                                      dictionary['form_build_id']
-    }
+        'op': 'Search',
+        'form_id': dictionary['form_id'],
+        'honeypot_time': dictionary['honeypot_time'],
+        'form_build_id': dictionary['form_build_id']
+        }
 
     data, content_type = encode_multipart_formdata(body)
 
     headers = {
-        'User-Agent':    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0',
-        'Content-Type':  content_type,
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 '
+                      'Firefox/64.0',
+        'Content-Type': content_type,
         'Cache-Control': 'no-cache',
-    }
+        }
 
     resp = sess.post(url, data=data, headers=headers)
 
@@ -273,7 +276,9 @@ class IssnDataParser:
 
             # ISSN Link (issn_l) is the main issn
             if '@type' in item and item['@type'] == 'http://id.loc.gov/ontologies/bibframe/IssnL':
-                cls._append_to_identifier_list(identifiers, {'idtype': 'issn_l', 'value': item['value']})
+                cls._append_to_identifier_list(
+                    identifiers, {'idtype': 'issn_l', 'value': item['value']}
+                    )
 
             if '@id' in item and item['@id'] == 'resource/ISSN/' + identifier:
                 cls._append_to_identifier_list(identifiers, cls._get_issn(item))
@@ -388,7 +393,9 @@ class IssnHarvester(BaseHarvester):
 
     # TODO: all functions private, except process_pipeline
 
-    def __init__(self, work_dir, country_code='CUB', country_id='http://id.loc.gov/vocabulary/countries/cu'):
+    def __init__(
+        self, work_dir, country_code='CUB', country_id='http://id.loc.gov/vocabulary/countries/cu'
+        ):
 
         self.work_dir = os.path.join(work_dir, 'issn')
         if not os.path.exists(self.work_dir):
@@ -448,7 +455,8 @@ class IssnHarvesterManager:
         #
         # if info:
         #     infos = harvester.get_cuban_issns_info_json(issns, remoteinfo)
-        #     # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario sea issn...
+        #     # con lo que hay en el dic, crear/actualizar, versiones de source cuyo comentario
+        #     sea issn...
 
     # @classmethod
     # def get_cuban_issns(cls):

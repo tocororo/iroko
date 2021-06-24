@@ -107,7 +107,8 @@ class Notifications:
     #         elif not user:
     #             msg = 'User not found'
     #         else:
-    #             db.session.add(ActionUsers.allow(ObjectNotificationEditor(notification.id), user=user))
+    #             db.session.add(ActionUsers.allow(ObjectNotificationEditor(notification.id),
+    #             user=user))
     #             if not notification.data:
     #                 notification.data = {'editor':[user.id]}
     #             else:
@@ -135,7 +136,9 @@ class Notifications:
             elif not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.deny(ObjectNotificationEditor(notification.id), user=user))
+                db.session.add(
+                    ActionUsers.deny(ObjectNotificationEditor(notification.id), user=user)
+                    )
 
                 db.session.commit()
                 msg = 'Mark as viewed Permission granted '
@@ -164,7 +167,8 @@ class Notifications:
     #     return msg, done
 
     @classmethod
-    def grant_notification_viewed_permission(cls, user_id, notification_id, is_flush=True) -> Dict[str, bool]:
+    def grant_notification_viewed_permission(cls, user_id, notification_id, is_flush=True) -> Dict[
+        str, bool]:
         done = False
         msg = ''
         try:
@@ -172,7 +176,9 @@ class Notifications:
             if not user:
                 msg = 'User not found'
             else:
-                db.session.add(ActionUsers.allow(ObjectNotificationEditor(notification_id), user=user))
+                db.session.add(
+                    ActionUsers.allow(ObjectNotificationEditor(notification_id), user=user)
+                    )
                 if is_flush:
                     db.session.flush()
                 else:

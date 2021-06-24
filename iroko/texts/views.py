@@ -1,4 +1,3 @@
-
 #  Copyright (c) 2021. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
@@ -14,13 +13,12 @@ from flask_login import login_required
 
 from .forms import FaqForm
 
-
 blueprint = Blueprint(
     'iroko_texts',
     __name__,
     url_prefix='/texts',
     template_folder='templates'
-)
+    )
 
 
 @blueprint.route('/faqs')

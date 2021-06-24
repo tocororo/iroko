@@ -15,7 +15,7 @@ from threading import Thread
 from uuid import UUID
 
 import requests
-from flask import jsonify, request, render_template, current_app
+from flask import current_app, jsonify, render_template, request
 from flask_mail import Message
 from invenio_accounts.models import User
 from invenio_cache import current_cache
@@ -24,7 +24,8 @@ from invenio_i18n.selectors import get_locale
 
 # def get_sources_by_terms(tids):
 #     """sources by a list of terms"""
-#     termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(TermSources.sources_id).all()
+#     termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(
+#     TermSources.sources_id).all()
 
 #     result[]
 #     for ts in termsources:
@@ -51,13 +52,15 @@ class IrokoVocabularyIdentifiers(enum.Enum):
 def iroko_json_response(status: IrokoResponseStatus, message, data_type, data):
     """recibe la respuesta de marshmallow.dump(model)"""
 
-    return jsonify({
-        'status':  status.value,
-        'message': message,
-        'data':    {
-            data_type: data
-        }
-    })
+    return jsonify(
+        {
+            'status': status.value,
+            'message': message,
+            'data': {
+                data_type: data
+                }
+            }
+        )
 
 
 # @babel.localeselector
@@ -125,14 +128,20 @@ def send_email(subject, sender, recipients, text_body, html_body):
 def send_contact_email(name, email, user_message):
     language = get_locale().upper()
     client_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-    send_email('message from sceiba',
-               sender=current_app.config['SECURITY_EMAIL_SENDER'],
-               # recipients=current_app.config['ADMINS'],
-               recipients=email,
-               text_body=render_template('iroko_theme/email/contact_email.txt', name=name, email=email,
-                                         user_message=user_message, language=language, ip=client_ip),
-               html_body=render_template('iroko_theme/email/contact_email.html', name=name, email=email,
-                                         user_message=user_message, language=language, ip=client_ip))
+    send_email(
+        'message from sceiba',
+        sender=current_app.config['SECURITY_EMAIL_SENDER'],
+        # recipients=current_app.config['ADMINS'],
+        recipients=email,
+        text_body=render_template(
+            'iroko_theme/email/contact_email.txt', name=name, email=email,
+            user_message=user_message, language=language, ip=client_ip
+            ),
+        html_body=render_template(
+            'iroko_theme/email/contact_email.html', name=name, email=email,
+            user_message=user_message, language=language, ip=client_ip
+            )
+        )
 
 
 def get_default_user():

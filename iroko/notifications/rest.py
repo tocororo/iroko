@@ -15,16 +15,16 @@ from flask_login import current_user
 from invenio_oauth2server import require_api_auth
 
 from iroko.notifications.api import Notifications
-from iroko.notifications.marshmallow import notification_schema_many, notification_schema
+from iroko.notifications.marshmallow import notification_schema, notification_schema_many
 from iroko.notifications.models import Notification
 from iroko.notifications.permissions import notification_viewed_permission_factory
-from iroko.utils import iroko_json_response, IrokoResponseStatus
+from iroko.utils import IrokoResponseStatus, iroko_json_response
 
 api_blueprint = Blueprint(
     'iroko_api_notifications',
     __name__,
     url_prefix='/notification'
-)
+    )
 
 
 @api_blueprint.route('/list')
@@ -48,11 +48,14 @@ def get_notifications():
         count_not_viewed = len(result1)
         count_total = len(result)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   'ok', 'notifications', \
-                                   {'data':           notification_schema_many.dump(result[offset:limit]),
-                                    'total':          count_total, 'total_not_view': count_not_viewed
-                                   })
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'notifications', \
+            {
+                'data': notification_schema_many.dump(result[offset:limit]),
+                'total': count_total, 'total_not_view': count_not_viewed
+                }
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -68,9 +71,11 @@ def notification_get(id):
         if not notif:
             raise Exception('Notification not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'notification', \
-                                   notification_schema.dump(notif))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'notification', \
+            notification_schema.dump(notif)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -86,9 +91,11 @@ def notification_get_receiver(id):
         if not notif:
             raise Exception('Notification not found')
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'notification', \
-                                   notification_schema_many.dump(notif))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'notification', \
+            notification_schema_many.dump(notif)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -110,9 +117,11 @@ def notification_edit(id):
         if not notif:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'notification', \
-                                   notification_schema.dump(notif))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'notification', \
+            notification_schema.dump(notif)
+            )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -129,9 +138,11 @@ def notification_viewed(id):
             if not notif:
                 raise Exception('Notifications not found')
 
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                       msg, 'notification', \
-                                       notification_schema.dump(notif))
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                msg, 'notification', \
+                notification_schema.dump(notif)
+                )
 
     except Exception as e:
         msg = str(e)
@@ -155,9 +166,11 @@ def notification_new():
         if not notif:
             raise Exception(msg)
 
-        return iroko_json_response(IrokoResponseStatus.SUCCESS, \
-                                   msg, 'notification', \
-                                   notification_schema.dump(notif))
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'notification', \
+            notification_schema.dump(notif)
+            )
 
     except Exception as e:
         msg = str(e)

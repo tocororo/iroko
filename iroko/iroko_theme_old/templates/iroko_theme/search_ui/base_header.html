@@ -1,9 +1,9 @@
 {# -*- coding: utf-8 -*-
 
-  This file is part of SCEIBA.
-  Copyright (c) 2020. UPR
-  SCEIBA is free software; you can redistribute it and/or modify it
-  under the terms of the MIT License; see LICENSE file for more details.
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 <!--
@@ -13,12 +13,13 @@
   ~ under the terms of the MIT License; see LICENSE file for more details.
   -->
 
-<form class="navbar-form navbar-left" action="{{url_for('invenio_search_ui.search')}}" role="search">
+<form action="{{url_for('invenio_search_ui.search')}}" class="navbar-form navbar-left"
+      role="search">
   <div class="form-group">
     <div class="input-group">
-      <input type="text" class="form-control" name="q" placeholder="{{_('Search')}}">
+      <input class="form-control" name="q" placeholder="{{_('Search')}}" type="text">
       <div class="input-group-btn">
-        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+        <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
       </div>
     </div>
   </div>
@@ -28,13 +29,15 @@
 
 {% extends config.THEME_HEADER_TEMPLATE %}
 {%- block navbar_search %}
-<form class="navbar-form navbar-left mr-sm-2" action="{{url_for('invenio_search_ui.search')}}" role="search">
+<form action="{{url_for('invenio_search_ui.search')}}" class="navbar-form navbar-left mr-sm-2"
+      role="search">
 
-    <div class="input-group">
-      <input type="text" class="form-control" name="q" placeholder="{{_('Search')}}">
-      <div class="input-group-btn">
-        <button type="submit" class="input-group-text btn btn-default"><i class="fa fa-search"></i></button>
-      </div>
+  <div class="input-group">
+    <input class="form-control" name="q" placeholder="{{_('Search')}}" type="text">
+    <div class="input-group-btn">
+      <button class="input-group-text btn btn-default" type="submit"><i class="fa fa-search"></i>
+      </button>
+    </div>
 
   </div>
 

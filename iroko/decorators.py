@@ -12,7 +12,7 @@ from invenio_access.utils import get_identity
 
 from iroko.notifications.permissions import notification_admin_actions
 from iroko.sources.permissions import is_user_sources_admin
-from iroko.utils import iroko_json_response, IrokoResponseStatus
+from iroko.utils import IrokoResponseStatus, iroko_json_response
 from iroko.vocabularies.permissions import is_current_user_taxonomy_admin
 
 
@@ -32,7 +32,7 @@ def taxonomy_admin_required(fn):
                 'Need to be vocabularies administrator.',
                 None,
                 None
-            )
+                )
         else:
             return fn(*args, **kwargs)
 
@@ -48,7 +48,7 @@ def source_admin_required(fn):
                 'Need to be source administrator.',
                 None,
                 None
-            )
+                )
         else:
             return fn(*args, **kwargs)
 
@@ -66,7 +66,7 @@ def notification_admin_required(fn):
                 'Need to be source administrator.',
                 None,
                 None
-            )
+                )
         else:
             return fn(*args, **kwargs)
 

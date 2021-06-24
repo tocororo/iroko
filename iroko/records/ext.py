@@ -33,13 +33,15 @@ class iroko(object):
         Override configuration variables with the values in this package.
         """
         with_endpoints = app.config.get(
-            'IROKO_ENDPOINTS_ENABLED', True)
+            'IROKO_ENDPOINTS_ENABLED', True
+            )
         for k in dir(config):
             if k.startswith('IROKO_'):
                 app.config.setdefault(k, getattr(config, k))
             elif k == 'SEARCH_UI_JSTEMPLATE_RESULTS':
                 app.config['SEARCH_UI_JSTEMPLATE_RESULTS'] = getattr(
-                    config, k)
+                    config, k
+                    )
             elif k == 'PIDSTORE_RECID_FIELD':
                 app.config['PIDSTORE_RECID_FIELD'] = getattr(config, k)
             else:

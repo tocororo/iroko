@@ -28,8 +28,11 @@ class InvenioUserProfiles(object):
         self.init_config(app)
 
         # Register current_profile
-        app.context_processor(lambda: dict(
-            current_userprofile=current_userprofile))
+        app.context_processor(
+            lambda: dict(
+                current_userprofile=current_userprofile
+                )
+            )
 
         app.extensions['invenio-userprofiles'] = self
 
@@ -38,7 +41,7 @@ class InvenioUserProfiles(object):
         excludes = [
             'USERPROFILES_BASE_TEMPLATE',
             'USERPROFILES_SETTINGS_TEMPLATE',
-        ]
+            ]
         for k in dir(config):
             if k.startswith('USERPROFILES_') and k not in excludes:
                 app.config.setdefault(k, getattr(config, k))
@@ -47,13 +50,19 @@ class InvenioUserProfiles(object):
 
         app.config.setdefault(
             'USERPROFILES_BASE_TEMPLATE',
-            app.config.get('BASE_TEMPLATE',
-                           'invenio_userprofiles/base.html'))
+            app.config.get(
+                'BASE_TEMPLATE',
+                'invenio_userprofiles/base.html'
+                )
+            )
 
         app.config.setdefault(
             'USERPROFILES_SETTINGS_TEMPLATE',
-            app.config.get('SETTINGS_TEMPLATE',
-                           'invenio_userprofiles/settings/base.html'))
+            app.config.get(
+                'SETTINGS_TEMPLATE',
+                'invenio_userprofiles/settings/base.html'
+                )
+            )
 
         if app.config['USERPROFILES_EXTEND_SECURITY_FORMS']:
             app.config.setdefault(
@@ -61,7 +70,7 @@ class InvenioUserProfiles(object):
                 app.config.get(
                     'SECURITY_REGISTER_USER_TEMPLATE',
                     'invenio_accounts/register_user.html'
+                    )
                 )
-            )
             app.config['SECURITY_REGISTER_USER_TEMPLATE'] = \
                 'invenio_userprofiles/register_user.html'

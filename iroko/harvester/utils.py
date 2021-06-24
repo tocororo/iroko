@@ -14,16 +14,16 @@ from lxml import etree
 
 from iroko.harvester.oai import nsmap
 
-
 """
 several functions and classes that utils across the harvester module,
 has oai-pmh specifics and other things,
-Probably we need a better desing for the hole module, in the mean time, here can be most diverse functions, all related to the task of harvesting....
+Probably we need a better desing for the hole module, in the mean time, here can be most diverse
+functions, all related to the task of harvesting....
 """
 
 XMLParser = etree.XMLParser(
     remove_blank_text=True, recover=True, resolve_entities=False
-)
+    )
 
 
 class xmlns():
@@ -97,13 +97,16 @@ def xml_to_dict(tree, paths=None, nsmap=None, strip_ns=False):
         elements = tree.findall(path, nsmap)
         for element in elements:
             tag = re.sub(
-                r'\{.*\}', '', element.tag) if strip_ns else element.tag
+                r'\{.*\}', '', element.tag
+                ) if strip_ns else element.tag
             fields[tag].append(element.text)
     return dict(fields)
 
 
 def get_iroko_harvester_agent():
-    return {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}
+    return {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'
+        }
 
 
 def get_xml_from_file(base_directory, file_name, extra_path=""):
@@ -116,8 +119,8 @@ def get_xml_from_file(base_directory, file_name, extra_path=""):
         raise Exception(
             "Path: {0} not exists".format(
                 xmlpath
+                )
             )
-        )
     return etree.parse(xmlpath, parser=XMLParser)
 
 
@@ -126,9 +129,11 @@ class ZipHelper:
     @classmethod
     def compress_dir(cls, src_path, dst_path, dst_filename):
         """
-        compress the content (files and directory recursivelly) of the directory in the end of src_path
+        compress the content (files and directory recursivelly) of the directory in the end of
+        src_path
         to a zip file in dst_path/dst_filename
-        the idea is not compress the full src_path into the zip, but relative to the directory in the end of the src_path.
+        the idea is not compress the full src_path into the zip, but relative to the directory in
+        the end of the src_path.
         :param src_path: source path
         :param dst_path: destination path, excluding filename
         :param dst_filename: filename in destination path.
@@ -137,7 +142,7 @@ class ZipHelper:
         zip_path = os.path.join(
             dst_path,
             dst_filename
-        )
+            )
         result = []
         if os.path.isdir(src_path):
             cls._get_zip_items(result, src_path, '')
@@ -156,6 +161,6 @@ class ZipHelper:
                     result,
                     os.path.join(src_path, item),
                     os.path.join(item_path, item)
-                )
+                    )
         else:
             result.append({'src': src_path, 'arcname': item_path})
