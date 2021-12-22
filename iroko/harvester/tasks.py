@@ -7,24 +7,42 @@
 
 """Celery tasks used by Iroko-Harvester."""
 
-from __future__ import absolute_import, print_function
-
 # from iroko.harvester.signals import harvest_finished
 #
-# @shared_task
-# def test_task(source):
-#     pass
-#     # harvester = OaiHarvester(source)
-#     # iterator.get_identifiers()
-#     # iterator.get_all_metadata()
+from celery import shared_task
+
+from iroko.harvester.api import BaseHarvester
+
+
+class HarvestersTaskManager(object):
+    """Harvesters Manager"""
+
+    @staticmethod
+    def schedule_harvest(harvester: BaseHarvester, schedule_datetime):
+        """"""
+        # TODO: set this in a celery task at schedule_datetime
+        celery_kwargs = {
+            'kwargs': {
+                'harvester': harvester,
+                'queue': 'iroko',
+                }
+            }
+        task_process_pipeline.apply_async(**celery_kwargs)
+        # harvester.process_pipeline()
+        # return None
+
+
+@shared_task(ignore_result=True)
+def task_process_pipeline(harvester: BaseHarvester):
+    harvester.process_pipeline()
+
+
 #
-# @shared_task
-# def harvest_source_task(source_id, work_remote=True, request_wait_time=3):
-#     pass
-#     # source = Source.query.filter_by(id=source_id).first()
-#     # for i in [0,1000000]:
-#     #     pass
-#         # print(str(i))
+@shared_task(ignore_result=True)
+def iroko_test_task(upto):
+    for i in [0, upto]:
+        pass
+        print(str(i))
 #     # harvest_finished.send(source)
 #     # source = Source.query.filter_by(id=source_id).first()
 #     #     if source is not None:

@@ -15,7 +15,7 @@ from flask import current_app
 from invenio_db import db
 from lxml import html
 
-from iroko.harvester.base import BaseHarvester
+from iroko.harvester.api import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.sources.api import SourceRecord
 from iroko.sources.models import SourceRawData, SourceStatus, SourceType

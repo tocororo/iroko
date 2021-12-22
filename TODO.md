@@ -1,5 +1,30 @@
-#
+# Arreglos urgentes en los datos reales
+repos = Repository.query.filter_by(status=HarvestedItemStatus.HARVESTED.value).all()
+for re in repos:
+    print(re.status)
+    re.status = HarvestedItemStatus.RECORDED
+    source = SourceRecord.get_record(re.source_uuid)
+    source['repository_status'] = HarvestedItemStatus.RECORDED.value
+    source.update()
+    print(source['repository_status'])
+db.session.commit()
 
+from iroko.sources.api import SourceRecord
+
+search = SourceRecord.get_search()
+response = search[0:2000].execute()
+
+for hit in response.hits:
+     source = SourceRecord.get_record(hit['id'])
+     if hit['source_type'] == 'JOURNAL':
+         is_serial = True
+         for identifier in hit['identifiers']:
+             if identifier['idtype']=='oaiurl':
+                 is_serial = False
+                 print(source['name'], identifier['value'])
+         if is_serial:
+             source['source_type'] = 'SERIAL'
+             source.update()
 
 # Cosecha:
 

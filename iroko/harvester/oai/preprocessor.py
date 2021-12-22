@@ -53,7 +53,7 @@ class OaiPreprocessor:
         xmlpath = path.join(self.harvest_dir, item, metadata_format + ".xml")
         if path.exists(xmlpath):
             xml = etree.parse(xmlpath, parser=XMLParser)
-            return formater.ProcessItem(xml)
+            return formater.process_item(xml)
 
     def create_record_data(self, dc, nlm):
         data = {}

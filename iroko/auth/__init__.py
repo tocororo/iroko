@@ -53,7 +53,7 @@ def require_keycloak_auth(
             #         abort(401)
             #     if current_app.config['ACCOUNTS_JWT_ENABLE']:
             #         # Verify the token
-            #         current_oauth2server.jwt_verification_factory(
+            #         current_oauth2server.jwt_verificationjwt_verification_factory(
             #             request.headers)
             #     # fully logged in with normal session
             #     return f(*args, **kwargs)

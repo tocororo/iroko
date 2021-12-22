@@ -655,8 +655,12 @@ def get_sources_stats():
         if "date" not in cache:
             cache["date"] = datetime.datetime.now()
         if datetime.datetime.now() - cache["date"] < datetime.timedelta(
-            seconds=3000
+            seconds=300
             ) and "stats" in cache:
+            print(datetime.datetime.now())
+            print(cache["date"])
+            print(datetime.datetime.now() - cache["date"])
+            print(datetime.timedelta(seconds=300))
             print("USING CACHE STATS")
             result = cache["stats"]
             return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)

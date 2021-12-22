@@ -297,7 +297,8 @@ def check_source_status(record, *args, **kwargs):
 
     def can(self):
         """Try to search for given record."""
-        return record['source_status'] == 'APPROVED'
+        return True
+        # return record['source_status'] == 'APPROVED'
 
     return type('CheckStatus', (), {'can': can})()
 

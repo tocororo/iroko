@@ -11,14 +11,12 @@ from iroko.harvester.models import HarvestType
 
 
 class RepositorySchema(Schema):
-    id = fields.Int(dump_only=True)
-    source_id = fields.Int(dump_only=True)
+    source_uuid = fields.Str()
     harvest_type = fields.Str()
     harvest_endpoint = fields.Str()
     last_harvest_run = DateString()
     identifier = fields.Str()
     status = fields.Str()
-    error_log = fields.Str()
 
 
 class GenericRepositorySchema(RepositorySchema):

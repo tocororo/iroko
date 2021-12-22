@@ -8,7 +8,7 @@ import re
 
 from lxml import etree
 
-from iroko.harvester.base import Formater
+from iroko.harvester.api import Formatter
 from iroko.harvester.oai import nsmap
 from iroko.harvester.utils import get_multiple_elements, get_sigle_element
 from iroko.persons.api import IrokoPerson
@@ -16,14 +16,14 @@ from iroko.pidstore.pids import get_identifier_schema
 from iroko.records import ContributorRole
 
 
-class DubliCoreElements(Formater):
+class DubliCoreElements(Formatter):
 
     def __init__(self):
 
         self.metadataPrefix = 'oai_dc'
         self.xmlns = 'http://purl.org/dc/elements/1.1/'
 
-    def ProcessItem(self, xml: etree._Element):
+    def process_item(self, xml: etree._Element):
         """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid and
         return the data"""
 
@@ -109,13 +109,13 @@ class DubliCoreElements(Formater):
         return data
 
 
-class JournalPublishing(Formater):
+class JournalPublishing(Formatter):
 
     def __init__(self):
         self.metadataPrefix = 'nlm'
         self.xmlns = '{http://dtd.nlm.nih.gov/publishing/2.3}'
 
-    def ProcessItem(self, xml: etree._Element):
+    def process_item(self, xml: etree._Element):
         """given an xml item return a dict, ensure is http://dtd.nlm.nih.gov/publishing/2.3
         is mainly focussed on contributors and authors"""
 

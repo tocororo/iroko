@@ -9,7 +9,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from .cli import harvester_oai
+from .cli import harvester
 
 
 class IrokoHarvester(object):
@@ -18,7 +18,7 @@ class IrokoHarvester(object):
             self.init_app(app)
 
     def init_app(self, app):
-        app.cli.add_command(harvester_oai)
+        app.cli.add_command(harvester)
         app.extensions['iroko-harvester'] = self
 
     # def process_source(self, logger, source_iterator, element_processor):

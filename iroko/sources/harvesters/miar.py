@@ -16,7 +16,7 @@ from flask import current_app
 from invenio_db import db
 from lxml import html
 
-from iroko.harvester.base import BaseHarvester
+from iroko.harvester.api import BaseHarvester
 from iroko.harvester.utils import get_iroko_harvester_agent
 from iroko.sources.api import SourceRecord
 from iroko.sources.models import SourceRawData, SourceStatus, SourceType
@@ -28,6 +28,9 @@ class MiarHarvester(BaseHarvester):
     """
     TODO: Document this!!!!
     """
+
+    def process_pipeline(self):
+        pass
 
     def __init__(self, work_dir, work_remote=False):
         self.work_dir = os.path.join(work_dir, 'miar')
@@ -434,7 +437,7 @@ class MiarHarvester(BaseHarvester):
                 title = item["value"]
                 # print(title)
                 data = dict()
-                data['source_type'] = SourceType.JOURNAL.value
+                data['source_type'] = SourceType.SERIAL.value
                 data['name'] = title
                 data['source_status'] = SourceStatus.UNOFFICIAL.value
                 data['title'] = title

@@ -18,7 +18,7 @@ from lxml import etree
 from sickle import Sickle
 
 import iroko.harvester.utils as utils
-from iroko.harvester.base import Formater
+from iroko.harvester.api import Formatter, SourceHarvester
 from iroko.harvester.errors import IrokoHarvesterError
 from iroko.harvester.models import HarvestType, HarvestedItem, HarvestedItemStatus, Repository
 from iroko.harvester.oai import request_headers
@@ -105,16 +105,13 @@ class OaiHarvesterFileNames(Enum):
     ITEM_IDENTIFIER = "id.xml"
 
 
-class OaiHarvester:
+class OaiHarvester (SourceHarvester):
 
-    @staticmethod
-    def process_repo(repo: Repository):
+    def process_pipeline(self):
         """
         overall process
-        :param repo:
-        :return:
         """
-        file_path = OaiFetcher.fetch_url(repo.harvest_endpoint)
+        file_path = OaiFetcher.fetch_url(self.repo.harvest_endpoint)
         source_id = OaiFetcherProcessor.process_file(file_path)
         OaiArchivist.archive_source(source_id)
 
@@ -172,15 +169,27 @@ class OaiArchivist:
     - lo expande en tmp dir
 
     - se encarga de trabajar con los HarvestedItems:
-        - tomar lo que hay en los ficheros
+        - tomar lo que hay en los ficheros y crear los Records de invenio
         -
     """
 
     @classmethod
     def archive_source(cls, source_id, data_dir=None):
         archivist = OaiArchivist(source_id, data_dir)
-        archivist.record_items()
-        archivist.destroy_work_dir()
+        try:
+            archivist.record_items()
+            archivist.destroy_work_dir()
+            archivist.source.add_classification()
+            archivist.repository.status = HarvestedItemStatus.RECORDED
+            archivist.source['repository_status'] = HarvestedItemStatus.RECORDED.value
+        except Exception as ex:
+            archivist.repository.status = HarvestedItemStatus.ERROR
+            archivist.repository.error_log = traceback.format_exc()
+            archivist.source['repository_status'] = HarvestedItemStatus.ERROR.value
+        finally:
+            archivist.source.update()
+            db.session.commit()
+
 
     def __init__(self, source_id, data_dir=None):
 
@@ -403,14 +412,14 @@ class OaiArchivist:
 
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
-    def _process_format(self, item: HarvestedItem, formater: Formater):
+    def _process_format(self, item: HarvestedItem, formater: Formatter):
 
         try:
             xml = utils.get_xml_from_file(
-                self.working_dir, formater.getMetadataPrefix() + ".xml",
+                self.working_dir, formater.get_metadata_prefix() + ".xml",
                 extra_path=str(item.id)
                 )
-            return formater.ProcessItem(xml)
+            return formater.process_item(xml)
         except Exception as e:
             # nothing to do...
             # TODO: if this is none try to collect this format again
@@ -477,7 +486,8 @@ class OaiArchivist:
 
 class OaiFetcherProcessor:
     """
-    recibe un zip, resultado de OaiFetcher.start_harvest_pipeline()
+    1- Recibe el resultado de OaiFetcher.start_harvest_pipeline(), un zip con todo lo colectado
+    2- Lo procesa dentro de un Repository y crea HarvestItems.
 
     """
 

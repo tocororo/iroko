@@ -86,6 +86,7 @@ class SourceDataSchema(Schema):
 
     source_type = fields.Str(allow_none=False)
     source_status = fields.Str(allow_none=True)
+    repository_status = fields.Str(allow_none=True)
     source_system = fields.Str()
 
     description = fields.Str()

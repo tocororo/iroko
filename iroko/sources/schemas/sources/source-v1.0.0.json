@@ -85,6 +85,7 @@
       "type": "string",
       "enum": [
         "JOURNAL",
+        "SERIAL",
         "STUDENT",
         "POPULARIZATION",
         "REPOSITORY",
@@ -98,6 +99,18 @@
         "APPROVED",
         "TO_REVIEW",
         "UNOFFICIAL"
+      ]
+    },
+    "repository_status": {
+      "type": "string",
+      "enum": [
+        "DELETED",
+        "ERROR",
+        "FETCHING",
+        "IDENTIFIED",
+        "HARVESTED",
+        "RECORDED",
+        "ENRICHED"
       ]
     },
     "source_system": {

@@ -2,14 +2,9 @@
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
-#
 
+from flask_principal import RoleNeed
+from invenio_access import Permission
 
-from __future__ import absolute_import, print_function
+harvester_permission = Permission(RoleNeed('harvester'))
 
-from flask import Blueprint
-
-api_blueprint = Blueprint(
-    'iroko_api_harvester',
-    __name__
-    )

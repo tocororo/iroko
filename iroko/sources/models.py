@@ -40,6 +40,7 @@ class SourceType(enum.Enum):
     REPOSITORY = "REPOSITORY"
     WEBSITE = "WEBSITE"
     OTHER = "OTHER"
+    SERIAL = "SERIAL"
 
 
 class SourceStatus(enum.Enum):

@@ -17,17 +17,19 @@ class HarvestType(enum.Enum):
 
 
 class HarvestedItemStatus(enum.Enum):
-    # se elimino el item en la fuente
+    # the item is deleted in the source
     DELETED = "DELETED"
-    # ocurrio algun error en alguna de las fases
+    # an error
     ERROR = "ERROR"
-    # identificado el item
+    # FETCHING
+    FETCHING = "FETCHING"
+    # item identified
     IDENTIFIED = 'IDENTIFIED'
-    # se recolecto el item
+    # item harvested
     HARVESTED = "HARVESTED"
-    # se inserto el item en un IrokoRecord
+    # item in a record
     RECORDED = "RECORDED"
-    # se enrriquecio el record asociado
+    # item enriched
     ENRICHED = "ENRICHED"
 
 
@@ -87,7 +89,7 @@ class HarvestedItem(db.Model):
             )
         )
 
-    """el identificador en el repo asociado"""
+    """identifier in the repo"""
     identifier = db.Column(db.String, nullable=False)
 
     # el uuid del iroko record asociado

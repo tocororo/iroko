@@ -37,6 +37,9 @@
         "source_status": {
           "type": "keyword"
         },
+        "repository_status": {
+          "type": "keyword"
+        },
         "source_type": {
           "type": "keyword"
         },

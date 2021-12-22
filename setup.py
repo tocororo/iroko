@@ -25,7 +25,7 @@ readme = open('README.rst').read()
 # ]
 tests_require = [
     'pytest-invenio>=1.4.0,<1.5.0',
-]
+    ]
 
 db_version = '>=1.0.8,<1.1.0'
 search_version = '>=1.4.1,<1.5.0'
@@ -41,7 +41,7 @@ extras_require = {
         'invenio-mail>=1.0.2,<1.1.0',
         'invenio-rest>=1.2.3,<1.3.0',
         'invenio-theme>=1.3.5,<1.4.0',
-    ],
+        ],
     'auth': [
         'invenio-access>=1.4.1,<1.5.0',
         'invenio-accounts>=1.4.3,<1.5.0',
@@ -49,7 +49,7 @@ extras_require = {
         'invenio-oauthclient>=1.4.0,<1.5.0',
         # 'invenio-userprofiles>=1.2.1,<1.3.0',
         # esta instancia de invenio usa un userprofiles propio
-    ],
+        ],
     'metadata': [
         'invenio-indexer>=1.2.0,<1.3.0',
         'invenio-jsonschemas>=1.1.1,<1.2.0',
@@ -62,17 +62,17 @@ extras_require = {
         # without having to release Invenio v3.5.
         'invenio-records>=1.4.0,<1.6.0',
         'invenio-search-ui>=2.0.0,<2.1.0',
-    ],
+        ],
     'files': [
         'invenio-files-rest>=1.2.0,<1.3.0',
         'invenio-iiif>=1.1.0,<1.2.0',
         'invenio-previewer>=1.3.2,<1.4.0',
         'invenio-records-files>=1.2.1,<1.3.0',
-    ],
+        ],
     # Database version
     'postgresql': [
         'invenio-db[postgresql,versioning]{}'.format(db_version),
-    ],
+        ],
     # 'mysql': [
     #     'invenio-db[mysql,versioning]{}'.format(db_version),
     # ],
@@ -88,21 +88,20 @@ extras_require = {
     # ],
     'elasticsearch6': [
         'invenio-search[elasticsearch6]{}'.format(search_version),
-    ],
+        ],
     # 'elasticsearch7': [
     #     'invenio-search[elasticsearch7]{}'.format(search_version),
     # ],
     # Docs and test dependencies
     'docs': [
         'Sphinx>=1.5.1',
-    ],
+        ],
     'tests': tests_require,
-}
-
+    }
 
 setup_requires = [
     'pytest-runner>=3.0.0,<5',
-]
+    ]
 
 install_requires = [
     # 'Flask>=1.0.4',
@@ -112,7 +111,7 @@ install_requires = [
     'invenio-celery>=1.2.2,<1.3.0',
     'invenio-config>=1.0.3,<1.1.0',
     'invenio-i18n>=1.3.0,<1.4.0',
-]
+    ]
 
 # extras_require['all'] = []
 for name, reqs in extras_require.items():
@@ -121,7 +120,6 @@ for name, reqs in extras_require.items():
     #     continue
     # extras_require['all'].extend(reqs)
     install_requires.extend(reqs)
-
 
 packages = find_packages()
 
@@ -150,7 +148,7 @@ setup(
     entry_points={
         'console_scripts': [
             'iroko = invenio_app.cli:cli',
-        ],
+            ],
         'invenio_base.apps': [
             'iroko_records = iroko.records:iroko',
             'iroko_sources = iroko.sources.ext:IrokoSources',
@@ -158,7 +156,7 @@ setup(
             'iroko_harvester = iroko.harvester.ext:IrokoHarvester',
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
 
-        ],
+            ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
@@ -167,7 +165,7 @@ setup(
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
 
-        ],
+            ],
         # 'invenio_assets.bundles': [
         #     'iroko_theme_css = iroko.iroko_theme.bundles:css',
         #     'iroko_theme_admin_lte_css = iroko.iroko_theme.bundles:admin_lte_css',
@@ -178,26 +176,26 @@ setup(
         'invenio_assets.webpack': [
             'iroko_theme = iroko.theme.webpack:theme',
             'iroko_search_app = iroko.records.webpack:search_app',
-        ],
+            ],
         'invenio_config.module': [
             'iroko = iroko.config',
-        ],
+            ],
         'invenio_i18n.translations': [
             'messages = iroko',
             'messages_userprofiles = iroko.userprofiles',
-        ],
+            ],
         'invenio_base.api_apps': [
             'iroko = iroko.records:iroko',
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
-         ],
+            ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas',
             'sources = iroko.sources.schemas'
-        ],
+            ],
         'invenio_search.mappings': [
             'records = iroko.records.mappings',
             'sources = iroko.sources.mappings'
-        ],
+            ],
         'invenio_admin.views': [
             'vocabulary_admin = iroko.vocabularies.admin:vocabularies_adminview',
             'term_admin = iroko.vocabularies.admin:terms_adminview',
@@ -211,53 +209,57 @@ setup(
             'iroko.harvester.admin:harvester_items_adminview',
             'invenio_userprofiles_view = '
             'iroko.userprofiles.admin:user_profile_adminview',
-        ],
+            ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.vocabularies.models',
             'iroko_notification = iroko.notifications.models',
             'iroko_sources = iroko.sources.models',
             'iroko_harvester = iroko.harvester.models',
             'invenio_userprofiles = iroko.userprofiles.models',
-        ],
-        'invenio_base.api_blueprints' : [
+            ],
+        'invenio_base.api_blueprints': [
             'iroko_taxonomy = iroko.vocabularies.rest:api_blueprint',
             'iroko_notification = iroko.notifications.rest:api_blueprint',
             'iroko_sources = iroko.sources.rest:api_blueprint',
             'iroko_sources_journals = iroko.sources.journals.rest:api_blueprint',
-            'iroko_harvester = iroko.harvester.views:api_blueprint',
+            'iroko_harvester = iroko.harvester.rest:api_blueprint',
             'invenio_userprofiles = iroko.userprofiles.rest:api_blueprint',
             'iroko_records = iroko.records.rest:api_blueprint',
-        ],
+            ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
-        ],
+            ],
         'invenio_pidstore.fetchers': [
             'irouid = iroko.pidstore.fetchers:iroko_uuid_fetcher',
             'recids = iroko.pidstore.fetchers:iroko_record_identifiers_fetcher',
             'recoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
-        ],
+            ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
             'recids = iroko.pidstore.minters:iroko_record_identifiers_minter',
             'recoai = iroko.pidstore.minters:iroko_source_oai_minter',
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
-        ],
+            ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
-        ],
-        'invenio_access.actions':[
+            ],
+        'invenio_access.actions': [
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'sourceactions = iroko.sources.permissions:source_manager_actions',
             'source_full_manager_actions = iroko.sources.permissions:source_full_manager_actions',
             'source_term_manager_actions = iroko.sources.permissions:source_term_manager_actions',
-            'source_organization_manager_actions = iroko.sources.permissions:source_organization_manager_actions',
+            'source_organization_manager_actions = '
+            'iroko.sources.permissions:source_organization_manager_actions',
             'vocabulary_editor_actions = iroko.vocabularies.permissions:vocabulary_editor_actions',
-            'vocabularies_full_editor_actions = iroko.vocabularies.permissions:vocabularies_full_editor_actions',
-            'notification_admin_actions = iroko.notifications.permissions:notification_admin_actions',
-            'notification_viewed_actions = iroko.notifications.permissions:notification_viewed_actions'
-        ]
-    },
+            'vocabularies_full_editor_actions = '
+            'iroko.vocabularies.permissions:vocabularies_full_editor_actions',
+            'notification_admin_actions = '
+            'iroko.notifications.permissions:notification_admin_actions',
+            'notification_viewed_actions = '
+            'iroko.notifications.permissions:notification_viewed_actions'
+            ]
+        },
     # extras_require=extras_require,
     install_requires=install_requires,
     setup_requires=setup_requires,
@@ -272,5 +274,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Development Status :: 1 - Beta',
-    ],
-)
+        ],
+    )

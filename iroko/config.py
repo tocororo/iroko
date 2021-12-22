@@ -524,12 +524,12 @@ helper = k.KeycloakSettingsHelper(
     )
 
 OAUTHCLIENT_KEYCLOAK_REMOTE_APP = helper.remote_app()
-print('#################################################################################')
-print(OAUTHCLIENT_KEYCLOAK_REMOTE_APP)
+# print('#################################################################################')
+# print(OAUTHCLIENT_KEYCLOAK_REMOTE_APP)
 
 OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP = helper.remote_rest_app()
-print('#################################################################################')
-print(OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP)
+# print('#################################################################################')
+# print(OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP)
 
 USERPROFILES_EXTEND_SECURITY_FORMS = True
 OAUTHCLIENT_KEYCLOAK_REALM_URL = helper.realm_url

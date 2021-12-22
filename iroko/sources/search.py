@@ -21,8 +21,8 @@ def approveds_filter():
         )
 
 
-class SourceSearch(RecordsSearch):
-    """RecordsSearch for sources."""
+class DirectorySourceSearch(RecordsSearch):
+    """Search for Sources, but only approved ones."""
 
     class Meta:
         """Search only on sources index."""
@@ -35,3 +35,13 @@ class SourceSearch(RecordsSearch):
         #     return list(map(lambda x: x, search.get_records(ids=ids)))
         # else:
         #     return list(map(lambda x: x, search.scan()))
+
+
+class SourceSearch(RecordsSearch):
+    """Search for any sources."""
+
+    class Meta:
+        """Search only on sources index. BUT Sources as Repos."""
+
+        index = "sources"
+        doc_types = None

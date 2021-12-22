@@ -4,33 +4,15 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 
-import enum
+# TODO: DELETE THIS FILE!!!!
+
 from time import sleep
+
 
 from iroko.sources.api import SourceRecord
 
 
-class Item:
-    format = ''
-    raw = ''
-    data = {}
-
-
-class SourceHarvesterMode(enum.Enum):
-    FILE_SYSTEM = "ERROR"
-    REMOTE = "HARVESTED"
-
-
-class BaseHarvester(object):
-    """Clase base de todos los harvesters
-    puede ser implementado para fuentes primarias y secundarias."""
-
-    def process_pipeline(self):
-        """Procesar el pipeline que define el harvester"""
-        raise NotImplementedError
-
-
-class SourceHarvester(BaseHarvester):
+class DeprSourceHarvester():
     """An iterator is responsible iterate over the items of a source, the OAI case is the most
     simple, in other case, is also responsible for discover the iterm before iterate over its"""
 
@@ -62,16 +44,3 @@ class SourceHarvester(BaseHarvester):
         self.process_items()
 
 
-class Formater(object):
-    """ A Formater will return a dict given something (xml, html, or something else) """
-
-    def __init__(self):
-        self.metadataPrefix = None
-
-    def getMetadataPrefix(self):
-        """name of the formater oai_dc, nlm, jats"""
-        return self.metadataPrefix
-
-    def ProcessItem(self, item):
-        """given an item return a dict given an item"""
-        raise NotImplementedError
