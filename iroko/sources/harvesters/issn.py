@@ -5,6 +5,7 @@
 #
 
 import binascii
+from genericpath import exists
 import json
 import os
 import time
@@ -75,6 +76,58 @@ def get_info_issn(issn: str, sess: requests.Session):
 
     return json.loads(response.content.decode('UTF-8'))
 
+def get_info_issn_resource_information(issn: str, sess: requests.Session):
+    info_issn_resource_information_dict = {}
+    count = 0
+    sess.headers.update(get_iroko_harvester_agent())
+    url = 'https://portal.issn.org/resource/ISSN/' + issn
+    response = sess.get(url)
+    doc1 = html.fromstring(response.text)
+    element_resource_information = doc1.xpath('count(.//div[@id="tab0"]/div/div[@class="item-result-content-text"]/p)')
+    value_resource_information = int(float(element_resource_information))
+    list_values_resource_information = list(range(value_resource_information))
+    for i in list_values_resource_information:
+        element_label = doc1.xpath('.//div[@id="tab0"]/div/div[@class="item-result-content-text"]/p/span/text()')[i]
+        element = doc1.xpath('.//div[@id="tab0"]/div/div[@class="item-result-content-text"]/p')[i].text_content()
+        indice_1 = element.rfind(':')
+        element_value = element[indice_1+1:len(element)]
+        info_issn_resource_information_dict[str(count+1)+ ' ' +element_label] = element_value
+        count = count+1
+    
+    # TODO: see if we need to do something if response.status_code != 200:
+
+    return info_issn_resource_information_dict
+
+def get_info_issn_record_information(issn: str, sess: requests.Session):
+    info_issn_record_information_dict = {}
+    count = 0
+    sess.headers.update(get_iroko_harvester_agent())
+    url = 'https://portal.issn.org/resource/ISSN/' + issn
+    response = sess.get(url)
+    doc1 = html.fromstring(response.text)
+    element_record_information = doc1.xpath('count(.//div[@class="item-result-block-accordion item-result-block-accordion-open"]/div/div[@class="item-result-content-text"]/p)')
+    value_record_information = int(float(element_record_information))
+    list_values_record_information = list(range(value_record_information))
+    print(value_record_information)
+    for i in list_values_record_information:
+        element_label = doc1.xpath('.//div[@class="item-result-block-accordion item-result-block-accordion-open"]/div/div[@class="item-result-content-text"]/p/span/text()')[i]
+        element = doc1.xpath('.//div[@class="item-result-block-accordion item-result-block-accordion-open"]/div/div[@class="item-result-content-text"]/p')[i].text_content()
+        indice_1 = element.rfind(':')
+        element_value = element[indice_1+1:len(element)]
+        info_issn_record_information_dict[str(count+1)+ ' ' +element_label] = element_value
+        count = count+1
+    
+    # TODO: see if we need to do something if response.status_code != 200:
+
+    return info_issn_record_information_dict
+
+
+def get_more_info_issn(issn: str, sess: requests.Session):
+    other_info_issn = {
+        'Resource information' : get_info_issn_resource_information(issn,sess),
+        'Record information' : get_info_issn_record_information(issn,sess)
+    }
+    return other_info_issn
 
 def getissn(res: requests.Response):
     doc1 = html.fromstring(res.text)
@@ -193,7 +246,6 @@ def collect_issn_info(issn_list):
             time.sleep(sleep_time)
     return result
 
-
 def collect_issn_info_single(issn):
     session = requests.Session()
 
@@ -213,6 +265,49 @@ def collect_issn_info_single(issn):
         pass
     return result
 
+def collect_other_issn_info(issn_list):
+    session = requests.Session()
+
+    session.headers.update(get_iroko_harvester_agent())
+
+    result = dict()
+
+    for issn in issn_list:
+        try:
+            print('try getting {0} info'.format(issn))
+            result[issn] = get_more_info_issn(issn, session)
+        except Exception as e:
+            print('error, getting {0} info, error: {1}'.format(issn, e))
+            result[issn] = {"error": str(e)}
+            pass
+        finally:
+            print('ok, saving to file')
+            # with open(self.issn_info_file, 'w+', encoding=('UTF-8')) as file_issn:
+            #     print('writing to file {0}'.format(self.cuban_issn_info_file))
+            #     json.dump(result, file_issn, ensure_ascii=False)
+            sleep_time = randint(4, 7)
+            print('finally, sleep {0} seconds'.format(sleep_time))
+            time.sleep(sleep_time)
+    return result
+
+def collect_other_issn_info_single(issn):
+    session = requests.Session()
+
+    session.headers.update(get_iroko_harvester_agent())
+
+    result = dict()
+
+    try:
+        print('try getting {0} info'.format(issn))
+        result[issn] = get_more_info_issn(issn, session)
+    except Exception as e:
+        print('error, getting {0} info, error: {1}'.format(issn, e))
+        result[issn] = {"error": str(e)}
+        pass
+    finally:
+        print('ok')
+        pass
+    return result
 
 class IssnDataParser:
     """
