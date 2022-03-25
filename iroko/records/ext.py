@@ -12,6 +12,7 @@
 from __future__ import absolute_import, print_function
 
 from . import config
+from .cli import records
 
 
 class iroko(object):
@@ -24,7 +25,9 @@ class iroko(object):
 
     def init_app(self, app):
         """Flask application initialization."""
+        app.cli.add_command(records)
         self.init_config(app)
+
         app.extensions['iroko'] = self
 
     def init_config(self, app):

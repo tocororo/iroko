@@ -93,7 +93,7 @@ SETTINGS_TEMPLATE = 'invenio_theme/page_settings.html'
 # Theme configuration
 # ===================
 #: The Invenio theme.
-APP_THEME = ['semantic-ui']
+APP_THEME = ['boostrap3']
 
 #: Site name
 THEME_SITENAME = _('sceiba')

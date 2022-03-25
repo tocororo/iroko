@@ -5,12 +5,16 @@ name = "pypi"
 
 [packages]
 lxml = ">=4.3.0,<5.0.0"
-marshmallow = ">=3.0.0,<4.0.0"
-uwsgi = ">=2.0"
-uwsgi-tools = ">=1.1.1"
-uwsgitop = ">=0.11"
-sickle = ">=0.6.4"
+sickle = ">=0.7.0"
 rdflib = "==4.2.2"
+marshmallow-enum = ">=1.5.1"
+
+
+#marshmallow = ">=3.0.0,<4.0.0"
+#uwsgi = ">=2.0"
+#uwsgi-tools = ">=1.1.1"
+#uwsgitop = ">=0.11"
+
 #mistune = "==0.8.4"
 #bokeh = ""
 #marshmallow-enum = "*"
@@ -18,15 +22,17 @@ rdflib = "==4.2.2"
 #flask_uploads = "==0.2.1"
 #
 #click=">=7.0,<8.0"
-marshmallow-enum = "*"
+#marshmallow-enum = "*"
 
 [dev-packages]
 pytest-invenio = ">=1.4.1,<1.5.0"
-Sphinx = ">=3.0.0,<4"
-pylint = "*"
-rope = "*"
-black = "*"
-flask-debugtoolbar = "*"
+Sphinx = ">=3,<4"
+#pytest-invenio = ">=1.4.1,<1.5.0"
+#Sphinx = ">=3.0.0,<4"
+#pylint = "*"
+#rope = "*"
+#black = "*"
+#flask-debugtoolbar = "*"
 
 [requires]
 python_version = "3.6"

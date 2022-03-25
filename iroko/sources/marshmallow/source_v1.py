@@ -13,12 +13,11 @@ from invenio_records_rest.serializers.response import (
     record_responsify,
     search_responsify,
     )
-from marshmallow import Schema, fields, post_dump, pre_dump
+from marshmallow import Schema, fields
 
 from iroko.sources.marshmallow.base import SourceDataSchema
 from iroko.sources.marshmallow.journal import JournalDataSchema
 from iroko.sources.models import SourceType
-from marshmallow_oneofschema import OneOfSchema
 
 
 class SourceDataSchemaV1(Schema):

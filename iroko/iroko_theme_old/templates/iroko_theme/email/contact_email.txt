@@ -1,7 +1,0 @@
-Message from {{ name }}
- 
- Email: {{ email }}
- Language: {{ language }}
- IP: {{ ip }}
-
- Message: {{ user_message }}

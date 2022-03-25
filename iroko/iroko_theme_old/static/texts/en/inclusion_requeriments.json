@@ -1,7 +1,0 @@
-{
-  "R1": "My website has a separate URL for each article, as well as a browse interface for all article URLs.",
-  "R2": "Each article URL contains either the complete author-written abstract or the entire text of the paper.",
-  "R3": "All article URLs can be read by any user without a login or payment.",
-  "R4": "The robots.txt file on my website, if my website has one, allows Googlebot to crawl all article URLs as well as the browse interface.",
-  "R5": "My inclusion request is for an OJS website."
-}

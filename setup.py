@@ -13,19 +13,9 @@ from setuptools import find_packages, setup
 
 readme = open('README.rst').read()
 
-# tests_require = [
-#     'check-manifest>=0.35',
-#     'coverage>=4.5.3',
-#     'isort>=4.3',
-#     'pydocstyle>=3.0.0',
-#     'pytest-cov>=2.7.1',
-#     'pytest-invenio>=1.2.1,<1.3.0',
-#     'pytest-pep8>=1.0.6',
-#     'pytest>=5.2',
-# ]
 tests_require = [
     'pytest-invenio>=1.4.0,<1.5.0',
-    ]
+]
 
 db_version = '>=1.0.8,<1.1.0'
 search_version = '>=1.4.1,<1.5.0'
@@ -94,24 +84,23 @@ extras_require = {
     # ],
     # Docs and test dependencies
     'docs': [
-        'Sphinx>=1.5.1',
+        'Sphinx>=3,<4',
         ],
     'tests': tests_require,
     }
 
 setup_requires = [
     'pytest-runner>=3.0.0,<5',
-    ]
+]
 
 install_requires = [
-    # 'Flask>=1.0.4',
     'invenio-app>=1.3.1,<1.4.0',
-    'invenio-base>=1.2.3,<1.3.0',
+    'invenio-base>=1.2.4,<1.3.0',
     'invenio-cache>=1.1.0,<1.2.0',
     'invenio-celery>=1.2.2,<1.3.0',
     'invenio-config>=1.0.3,<1.1.0',
     'invenio-i18n>=1.3.0,<1.4.0',
-    ]
+]
 
 # extras_require['all'] = []
 for name, reqs in extras_require.items():
@@ -139,7 +128,7 @@ setup(
     keywords='iroko Invenio',
     license='MIT',
     author='UPR',
-    author_email='info@iroko.tocororo.cu',
+    author_email='sceiba.cu@gmail.com',
     url='https://github.com/tocororo/iroko',
     packages=packages,
     zip_safe=False,

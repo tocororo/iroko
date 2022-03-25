@@ -16,7 +16,8 @@ from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
-from invenio_records.api import Record
+# from invenio_records.api import Record
+from invenio_records_files.api import Record
 
 import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters

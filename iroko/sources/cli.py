@@ -94,3 +94,5 @@ def miar_sync_journals():
 def miar_sync_records():
     """parse SourceRawData and sync to SourceRecords"""
     MiarHarvesterManager.sync_journals_records()
+
+
