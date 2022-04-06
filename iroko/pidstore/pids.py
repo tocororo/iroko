@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  Copyright (c) 2022. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
@@ -12,29 +12,28 @@ from invenio_pidstore.models import PersistentIdentifier
 
 """Iroko App PIDs."""
 
-RECORD_PID_TYPE = "irouid"
-"""Persistent Identifier for Source."""
-RECORD_PID_MINTER = "irouid"
-"""Minter PID for Source."""
-RECORD_PID_FETCHER = "irouid"
-"""Fetcher PID for Source."""
-
 RECORD_SOURCE_OAI_PID_TYPE = "recoai"
 
 IDENTIFIERS_FIELD = "identifiers"
 IDENTIFIERS_FIELD_TYPE = "idtype"
 IDENTIFIERS_FIELD_VALUE = "value"
 
-SOURCE_UUID_FIELD = "id"
+RECORD_PID_TYPE = "irouid"
+RECORD_PID_MINTER = "irouid"
+RECORD_PID_FETCHER = "irouid"
 
-SOURCE_TYPE = "rec"
 
 SOURCE_UUID_PID_TYPE = "srcid"
-"""Persistent Identifier for Source."""
 SOURCE_UUID_PID_MINTER = "srcid"
-"""Minter PID for Source."""
 SOURCE_UUID_PID_FETCHER = "srcid"
-"""Fetcher PID for Source."""
+SOURCE_UUID_FIELD = "id"
+SOURCE_TYPE = "rec"
+
+ORGANIZATION_PID_TYPE = "orgid"
+ORGANIZATION_PID_MINTER = "orgid"
+ORGANIZATION_PID_FETCHER = "orgid"
+ORGANIZATION_PID_FIELD = "id"
+ORGANIZATION_TYPE = "rec"
 
 
 def get_pid_by_data(data):
@@ -114,7 +113,17 @@ identifiers_schemas = [
     "isni",
     "fudref",
     "orgref",
-    "reup"
+    "reup",
+    "grid",
+    "wkdata",
+    "ror",
+    "isni",
+    "fudref",
+    "orgref",
+    "reup",
+    "orgaid",
+    "uniid",
+    "sceibaid"
     ]
 
 

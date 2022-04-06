@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2022. Universidad de Pinar del Rio
+#  This file is part of SCEIBA (sceiba.cu).
+#  SCEIBA is free software; you can redistribute it and/or modify it
+#  under the terms of the MIT License; see LICENSE file for more details.
+
 #
-# Copyright (C) 2019 UPR.
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
@@ -144,24 +149,18 @@ setup(
             'iroko_vocabularies= iroko.vocabularies.ext:IrokoVocabularies',
             'iroko_harvester = iroko.harvester.ext:IrokoHarvester',
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
-
+            'iroko_organizations = iroko.organizations:IrokoOrganizations',
             ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_texts = iroko.texts.views:blueprint',
+            'iroko_organizations = iroko.organizations.views:blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
 
             ],
-        # 'invenio_assets.bundles': [
-        #     'iroko_theme_css = iroko.iroko_theme.bundles:css',
-        #     'iroko_theme_admin_lte_css = iroko.iroko_theme.bundles:admin_lte_css',
-        #     'iroko_theme_admin_css = iroko.iroko_theme.bundles:admin_css',
-        #     'iroko_theme_js = iroko.iroko_theme.bundles:js',
-        #     'iroko_theme_admin_js = iroko.iroko_theme.bundles:admin_js',
-        # ],
         'invenio_assets.webpack': [
             'iroko_theme = iroko.theme.webpack:theme',
             'iroko_search_app = iroko.records.webpack:search_app',
@@ -176,14 +175,17 @@ setup(
         'invenio_base.api_apps': [
             'iroko = iroko.records:iroko',
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
+            'iroko_organizations = iroko.organizations:IrokoOrganizations',
             ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas',
-            'sources = iroko.sources.schemas'
+            'sources = iroko.sources.schemas',
+            'organizations = iroko.organizations.jsonschemas'
             ],
         'invenio_search.mappings': [
             'records = iroko.records.mappings',
-            'sources = iroko.sources.mappings'
+            'sources = iroko.sources.mappings',
+            'organizations = iroko.organizations.mappings'
             ],
         'invenio_admin.views': [
             'vocabulary_admin = iroko.vocabularies.admin:vocabularies_adminview',
@@ -223,12 +225,18 @@ setup(
             'recids = iroko.pidstore.fetchers:iroko_record_identifiers_fetcher',
             'recoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
+            'orgid = iroko.pidstore.fetchers:organization_uuid_fetcher',
+            #para eliminar
+            'reids = iroko.pidstore.fetchers:identifiers_fetcher',
             ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
             'recids = iroko.pidstore.minters:iroko_record_identifiers_minter',
             'recoai = iroko.pidstore.minters:iroko_source_oai_minter',
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
+            'orgid = iroko.pidstore.minters:organization_uuid_minter',
+            #para eliminar
+            'reids = iroko.pidstore.minters:identifiers_minter',
             ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',

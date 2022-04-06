@@ -1,4 +1,4 @@
-#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  Copyright (c) 2022. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
@@ -180,6 +180,66 @@ class IrokoSourceUUIDProvider(BaseProvider):
             pid_value=data[pids.SOURCE_UUID_FIELD],
             **kwargs
             )
+
+class OrganizationUUIDProvider(BaseProvider):
+
+    pid_type = pids.ORGANIZATION_PID_TYPE
+    pid_provider = None
+    default_status = PIDStatus.REGISTERED
+
+    @classmethod
+    def create(cls, object_type=None, object_uuid=None, **kwargs):
+        """Create a new record identifier from the depoist PID value."""
+        if 'pid_value' not in kwargs:
+            kwargs.setdefault('pid_value', str(uuid.uuid4()))
+        kwargs.setdefault('status', cls.default_status)
+        return super(OrganizationUUIDProvider, cls).create(
+            object_type=object_type, object_uuid=object_uuid, **kwargs)
+
+
+
+
+class IdentifiersProvider(BaseProvider):
+    default_status = PIDStatus.REGISTERED
+
+    @classmethod
+    def create_identifiers(cls, object_type=None, object_uuid=None, data=None,  **kwargs):
+
+        assert data, "no data"
+        assert pids.IDENTIFIERS_FIELD in data
+        pIDs = []
+        for ids in data[pids.IDENTIFIERS_FIELD]:
+            if ids['idtype'] in identifiers_schemas:
+                provider = super(IdentifiersProvider, cls).create(
+                    pid_type=ids['idtype'],
+                    pid_value=ids['value'],
+                    object_type=object_type,
+                    object_uuid=object_uuid,
+                    status=cls.default_status,
+                    **kwargs
+                )
+                pIDs.append(provider.pid)
+        return pIDs
+
+    @classmethod
+    def create_pid(cls, pid_type, object_type=None, object_uuid=None, data=None,  **kwargs):
+        assert data, "no data"
+        assert pids.IDENTIFIERS_FIELD in data
+        assert pid_type
+        assert pid_type in identifiers_schemas
+        for ids in data[pids.IDENTIFIERS_FIELD]:
+            if ids['idtype'] == pid_type:
+                provider = super(IdentifiersProvider, cls).create(
+                    pid_type=ids['idtype'],
+                    pid_value=ids['value'],
+                    object_type=object_type,
+                    object_uuid=object_uuid,
+                    status=cls.default_status,
+                    **kwargs
+                )
+                return provider.pid
+
+
 
 # class IrokoSourceSourceRecordProvider(BaseProvider):
 #     """Provider to relate Iroko's table Source, with SourceRecord in invenio Records ."""

@@ -1,14 +1,14 @@
 /*
- *   Copyright (C) 2021 CERN.
+ *   Copyright (C) 2022 CERN.
  *
- * iroko is free software; you can redistribute it and/or modify it under
- * the terms of the MIT License; see LICENSE file for more details.
+ * iroko is free software; you can redistribute it and/or modify it under the
+ * terms of the MIT License; see LICENSE file for more details.
  */
 
 import React from "react";
 import { Item, List } from "semantic-ui-react";
 
-const irokoResultsListItem = ({ result, index }) => {
+const IrokoDocumentResultsListItem = ({ result, index }) => {
   const contributors = result.metadata.contributors || [];
   return (
     <Item key={index} href={`/records/${result.id}`}>
@@ -28,7 +28,7 @@ const irokoResultsListItem = ({ result, index }) => {
   );
 };
 
-export default irokoResultsListItem;
+export default IrokoDocumentResultsListItem;
 
 
 

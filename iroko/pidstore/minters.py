@@ -1,4 +1,4 @@
-#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  Copyright (c) 2022. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
@@ -50,6 +50,29 @@ def iroko_source_uuid_minter(source_uuid, data):
         data=data
         )
     return provider.pid
+
+
+def organization_uuid_minter(org_uuid, data):
+
+    assert pids.ORGANIZATION_PID_FIELD not in data
+
+    provider = providers.OrganizationUUIDProvider.create(
+        object_type=pids.ORGANIZATION_TYPE,
+        object_uuid=org_uuid,
+    )
+    data[pids.ORGANIZATION_PID_FIELD] = provider.pid.pid_value
+
+    return provider.pid
+
+
+def identifiers_minter(uuid, data, object_type):
+    prsIDs = providers.IdentifiersProvider.create_identifiers(
+        object_type=object_type,
+        object_uuid=uuid,
+        data=data
+    )
+    return prsIDs
+
 
 # # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
 # def iroko_source_source_record_minter(record_uuid, data):

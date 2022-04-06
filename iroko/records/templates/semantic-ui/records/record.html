@@ -13,11 +13,11 @@ the terms of the MIT License; see LICENSE file for more details.
 {% set ignore_list = ['_bucket', '$schema'] %}
 {% for key, value in data.items() if key not in ignore_list recursive %}
 <!--
-~ Copyright (c) 2021. Universidad de Pinar del Rio
-~ This file is part of SCEIBA (sceiba.cu).
-~ SCEIBA is free software; you can redistribute it and/or modify it
-~ under the terms of the MIT License; see LICENSE file for more details.
--->
+  ~ Copyright (c) 2022. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
 
 <li class="list-group-item">
   {% if value is mapping %}

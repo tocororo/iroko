@@ -1,4 +1,4 @@
-#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  Copyright (c) 2022. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
@@ -58,6 +58,26 @@ def iroko_source_uuid_fetcher(source_uuid, data):
         pid_type=pids.SOURCE_UUID_PID_TYPE,
         pid_value=str(data[pids.SOURCE_UUID_FIELD]),
         )
+
+def organization_uuid_fetcher(org_uuid, data):
+    return FetchedPID(
+        provider=providers.OrganizationUUIDProvider,
+        pid_type=providers.OrganizationUUIDProvider.pid_type,
+        pid_value=str(data[pids.ORGANIZATION_PID_FIELD]),
+    )
+
+
+def identifiers_fetcher(record_uuid, data, pid_type):
+    assert data, "no data"
+    assert pids.IDENTIFIERS_FIELD in data
+    for schema in identifiers_schemas:
+        if schema == pid_type:
+            return FetchedPID(
+                provider=providers.IdentifiersProvider,
+                pid_type=pid_type,
+                pid_value=data[pids.IDENTIFIERS_FIELD][schema]
+                )
+
 
 # # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
 # def iroko_source_source_record_fetcher(record_uuid, data):

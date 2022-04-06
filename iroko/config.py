@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (c) 2021. Universidad de Pinar del Rio
+#  Copyright (c) 2022. Universidad de Pinar del Rio
 #  This file is part of SCEIBA (sceiba.cu).
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
@@ -18,7 +18,6 @@ You overwrite and set instance-specific configuration by either:
 
 from __future__ import absolute_import, print_function
 
-import os
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
@@ -27,7 +26,14 @@ from invenio_records_rest.facets import terms_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch, deny_all
 
 from iroko.deployment import *
+from iroko.organizations.api import OrganizationRecord
+from iroko.organizations.permissions import can_edit_organization_factory
+from iroko.organizations.search import OrganizationSearch
 from iroko.pidstore import pids as pids
+from iroko.pidstore.pids import (
+    ORGANIZATION_PID_FETCHER, ORGANIZATION_PID_MINTER,
+    ORGANIZATION_PID_TYPE,
+    )
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
 from iroko.sources.api import SourceRecord
@@ -63,17 +69,12 @@ RATELIMIT_STORAGE_URL = 'redis://' + IP_REDIS + ':6379/3'
 #: Default language
 BABEL_DEFAULT_LANGUAGE = 'en'
 #: Default time zone
-BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
+BABEL_DEFAULT_TIMEZONE = 'Havana/Cuba'
 #: Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
-    ('es', _('Spanish')),
+    # ('es', _('Spanish')),
     ]
 
-# Base templates
-# ==============
-REQUIREJS_CONFIG = 'js/build.js'
-
-SASS_BIN = 'node-sass'
 
 #: Global base template.
 
@@ -93,94 +94,22 @@ SETTINGS_TEMPLATE = 'invenio_theme/page_settings.html'
 # Theme configuration
 # ===================
 #: The Invenio theme.
-APP_THEME = ['boostrap3']
-
-#: Site name
-THEME_SITENAME = _('sceiba')
+# APP_THEME = ['semantic-ui']
+#: Site name.
+THEME_SITENAME = _('iroko')
 #: Use default frontpage.
 THEME_FRONTPAGE = True
 #: Frontpage title.
 THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
-#: Theme logo.
-THEME_LOGO = 'images/sceiba-logo.png'
-THEME_LOGO_ADMIN = 'images/sceiba-logo.png'
-CATALOG_LOGO_ADMIN = 'images/archives_icon_129343.png'
-TAXONOMY_LOGO_ADMIN = 'images/checklist_icon_129189.png'
-MES_LOGO_ADMIN = 'images/mes.png'
-CUOR_LOGO_ADMIN = 'images/organizacion.svg'
-
 #: Frontpage template.
 THEME_FRONTPAGE_TEMPLATE = 'iroko/frontpage.html'
 
-# THEME_JAVASCRIPT_TEMPLATE = 'invenio_theme/javascript.html'
-#
-# THEME_CONTACT_TEMPLATE = 'invenio_theme/contact.html'
 
-# Search configuration
-# ===================
-
-# """Records UI for iroko."""
-# SEARCH_UI_SEARCH_API = '/api/records/'
-# """Configure the search engine endpoint."""
-#
-# SEARCH_UI_SEARCH_INDEX = 'records'
-# """Name of the search index used."""
-#
-# SEARCH_UI_JSTEMPLATE_RESULTS = 'templates/search_ui/results.html'
-# """Result list template."""
-#
-# SEARCH_UI_HEADER_TEMPLATE = 'invenio_theme/search_ui/base_header.html'
-#
-SEARCH_UI_SEARCH_TEMPLATE = 'iroko/search.html'
-"""Configure the search page template."""
-#
-# SEARCH_UI_JSTEMPLATE_COUNT = 'templates/search_ui/count.html'
-# """Configure the count template."""
-#
-# SEARCH_UI_JSTEMPLATE_ERROR = 'templates/search_ui/error.html'
-# """Configure the error page template."""
-#
-# SEARCH_UI_JSTEMPLATE_FACETS = 'templates/search_ui/facets.html'
-# """Configure the facets template."""
-#
-# SEARCH_UI_JSTEMPLATE_RANGE = 'templates/search_ui/range.html'
-# """Configure the range template."""
-#
-# SEARCH_UI_JSTEMPLATE_RANGE_OPTIONS = {
-#     'histogramId': '#year_hist',
-#     'selectionId': '#year_select',
-#     'name':        'years',
-#     'width':       180
-# }
-# """Configure the range template options."""
-#
-# SEARCH_UI_JSTEMPLATE_LOADING = 'templates/search_ui/loading.html'
-# """Configure the loading template."""
-#
-# SEARCH_UI_JSTEMPLATE_PAGINATION = 'templates/search_ui/pagination.html'
-# """Configure the pagination template."""
-#
-# SEARCH_UI_JSTEMPLATE_SELECT_BOX = 'templates/search_ui/selectbox.html'
-# """Configure the select box template."""
-#
-# SEARCH_UI_JSTEMPLATE_SORT_ORDER = 'templates/search_ui/togglebutton.html'
-# """Configure the toggle button template."""
-
-# Static page
-# ==================
-# INIT_STATIC_JSON_PATH = 'static/texts'
-
-# Records configuration
-# ===================
+#: Theme logo.
+THEME_LOGO = 'images/sceiba-logo.png'
+THEME_LOGO_ADMIN = 'images/sceiba-logo-white.png'
 
 
-RECORDS_UI_ENDPOINTS = {
-    'irouid': {
-        "pid_type": "irouid",
-        "route": "/records/<pid_value>",
-        "template": "invenio_records_ui/detail.html"
-        },
-    }
 
 _RECORD_CONVERTER = (
     'pid(irouid, record_class="iroko.records.api:IrokoRecord")'
@@ -188,78 +117,113 @@ _RECORD_CONVERTER = (
 _SOURCE_CONVERTER = (
     'pid(srcid, record_class="iroko.sources.api:SourceRecord")'
 )
+_ORG_CONVERTER = (
+    'pid(orgid, record_class="iroko..organizations.api.OrganizationRecord")'
+)
 
-RECORDS_REST_ENDPOINTS = dict(
-    irouid=dict(
-        pid_type=pids.RECORD_PID_TYPE,
-        pid_minter=pids.RECORD_PID_MINTER,
-        pid_fetcher=pids.RECORD_PID_FETCHER,
-        search_class=IrokoRecordSearch,
-        record_class=IrokoRecord,
-        indexer_class=RecordIndexer,
-        record_loaders={
+RECORDS_REST_ENDPOINTS = {
+    'irouid': {
+        'pid_type': pids.RECORD_PID_TYPE,
+        'pid_minter': pids.RECORD_PID_MINTER,
+        'pid_fetcher': pids.RECORD_PID_FETCHER,
+        'search_class': IrokoRecordSearch,
+        'record_class': IrokoRecord,
+        'indexer_class': RecordIndexer,
+        'record_loaders': {
             "application/json": ("iroko.records.loaders"
                                  ":json_v1"),
-            },
-        record_serializers={
+        },
+        'record_serializers': {
             "application/json": ("iroko.records.serializers"
                                  ":json_v1_response"),
-            },
-        search_serializers={
+        },
+        'search_serializers': {
             "application/json": ("iroko.records.serializers"
                                  ":json_v1_search"),
-            },
-        list_route="/records/",
-        item_route="/records/<{0}:pid_value>".format(_RECORD_CONVERTER),
-        default_media_type="application/json",
-        max_result_window=10000,
-        error_handlers=dict(),
-        create_permission_factory_imp=deny_all,
-        read_permission_factory_imp=check_elasticsearch,
-        update_permission_factory_imp=deny_all,
-        delete_permission_factory_imp=deny_all,
-        list_permission_factory_imp=allow_all,
-        suggesters=dict(
-            title=dict(
-                completion={
+        },
+        'list_route': "/records/",
+        'item_route': "/records/<{0}:pid_value>".format(_RECORD_CONVERTER),
+        'default_media_type': "application/json",
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': deny_all,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': deny_all,
+        'delete_permission_factory_imp': deny_all,
+        'list_permission_factory_imp': allow_all,
+        'suggesters': {
+            'title': {
+                'completion': {
                     'field': 'suggest_title'
                     }
-                )
-            ),
-        search_index='records'
-        )
-    ,
-    srcid=dict(
-        pid_type=pids.SOURCE_UUID_PID_TYPE,
-        pid_minter=pids.SOURCE_UUID_PID_MINTER,
-        pid_fetcher=pids.SOURCE_UUID_PID_FETCHER,
-        search_class=SourceSearch,
-        record_class=SourceRecord,
-        indexer_class=RecordIndexer,
-        record_loaders={
+                }
+            }, 'search_index': 'records'
+        },
+    'srcid': {
+        'pid_type': pids.SOURCE_UUID_PID_TYPE,
+        'pid_minter': pids.SOURCE_UUID_PID_MINTER,
+        'pid_fetcher': pids.SOURCE_UUID_PID_FETCHER,
+        'search_class': SourceSearch,
+        'record_class': SourceRecord,
+        'indexer_class': RecordIndexer,
+        'record_loaders': {
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_loader_v1"),
-            },
-        record_serializers={
+        },
+        'record_serializers': {
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_v1_response"),
-            },
-        search_serializers={
+        },
+        'search_serializers': {
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_v1_search"),
-            },
-        list_route="/sources/",
-        item_route="/sources/<pid(srcid):pid_value>",
-        default_media_type="application/json",
-        max_result_window=10000,
-        error_handlers=dict(),
-        create_permission_factory_imp=deny_all,
-        read_permission_factory_imp=check_source_status,
-        update_permission_factory_imp=deny_all,
-        delete_permission_factory_imp=deny_all,
-        list_permission_factory_imp=allow_all,
-        )
-    )
+        },
+        'list_route': "/sources/",
+        'item_route': "/sources/<pid(srcid):pid_value>",
+        'default_media_type': "application/json",
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': deny_all,
+        'read_permission_factory_imp': check_source_status,
+        'update_permission_factory_imp': deny_all,
+        'delete_permission_factory_imp': deny_all,
+        'list_permission_factory_imp': allow_all
+        },
+    'orgid': {
+        'pid_type': ORGANIZATION_PID_TYPE,
+        'pid_minter': ORGANIZATION_PID_MINTER,
+        'pid_fetcher': ORGANIZATION_PID_FETCHER,
+        'default_endpoint_prefix': True,
+        'record_class': OrganizationRecord,
+        'search_class': OrganizationSearch,
+        'indexer_class': RecordIndexer,
+        'search_index': 'organizations',
+        'search_type': None,
+        'record_serializers': {
+            'application/json': ('iroko.organizations.serializers'
+                                 ':json_v1_response'),
+        },
+        'search_serializers': {
+            'application/json': ('iroko.organizations.serializers'
+                                 ':json_v1_search'),
+        },
+        'record_loaders': {
+            'application/json': ('iroko.organizations.loaders'
+                                 ':json_v1'),
+        },
+        'list_route': '/organizations/',
+        'item_route': '/organizations/<{0}:pid_value>'.format(_ORG_CONVERTER),
+        'default_media_type': 'application/json',
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': can_edit_organization_factory,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': can_edit_organization_factory,
+        'delete_permission_factory_imp': can_edit_organization_factory,
+        'list_permission_factory_imp': allow_all,
+        'links_factory_imp': 'invenio_records_files.links:default_record_files_links_factory'
+        }
+    }
 
 """REST API for iroko."""
 
@@ -268,68 +232,102 @@ PIDSTORE_RECID_FIELD = 'id'
 IROKO_ENDPOINTS_ENABLED = True
 """Enable/disable automatic endpoint registration."""
 
-RECORDS_REST_FACETS = dict(
-    records=dict(
-        filters=dict(
-            keywords=terms_filter('keywords'),
-            creators=terms_filter('creators.name'),
-            sources=terms_filter('source_repo.name'),
-            status=terms_filter('status'),
-            terms=terms_filter('terms')
-            ),
-        aggs=dict(
-            keywords=dict(
-                terms=dict(
-                    field='keywords',
-                    size=5
-                    ),
-                meta=dict(
-                    title=_("Keywords"),
-                    order=3
-                    )
-                ),
-            creators=dict(
-                terms=dict(
-                    field='creators.name',
-                    size=5
-                    ),
-                meta=dict(
-                    title=_("Creators"),
-                    order=2
-                    )
-                ),
-            terms=dict(
-                terms=dict(
-                    field='terms'
-                    )
-                ),
-            sources=dict(
-                terms=dict(
-                    field='source_repo.name',
-                    size=5
-                    ),
-                meta=dict(
-                    title=_("Sources"),
-                    order=1
-                    )
-                )
-            )
-        )
-    ,
-    sources=dict(
-        filters=dict(
-            source_type=terms_filter('source_type')
-            ),
-        aggs=dict(
-            source_type=dict(
-                terms=dict(
-                    field='source_type',
-                    size=5
-                    )
-                )
-            )
-        )
-    )
+RECORDS_REST_FACETS = {
+    'records': {
+        'filters': {
+            'keywords': terms_filter('keywords'),
+            'creators': terms_filter('creators.name'),
+            'sources': terms_filter('source_repo.name'),
+            'status': terms_filter('status'),
+            'terms': terms_filter('terms')
+            },
+        'aggs': {
+            'keywords': {
+                'terms': {
+                    'field': 'keywords',
+                    'size': 5
+                    },
+                'meta': {
+                    'title': _("Keywords"),
+                    'order': 3
+                    }
+                },
+            'creators': {
+                'terms': {
+                    'field': 'creators.name',
+                    'size': 5
+                    },
+                'meta': {
+                    'title': _("Creators"),
+                    'order': 2
+                    }
+                },
+            'terms': {
+                'terms':
+                    {
+                        'field': 'terms'
+                        }
+                },
+            'sources': {
+                'terms': {
+                    'field': 'source_repo.name',
+                    'size': 5
+                    },
+                'meta': {
+                    'title': _("Sources"),
+                    'order': 1
+                    }
+                }
+            }
+        },
+    'sources': {
+        'filters': {
+            'source_type': terms_filter('source_type')
+            },
+        'aggs': {
+            'source_type': {
+                'terms': {
+                    'field': 'source_type',
+                    'size': 5
+                    }
+                }
+            }
+        },
+    'organizations': {
+        'filters': {
+            'status': terms_filter('status'),
+            'types': terms_filter('types'),
+            'country': terms_filter('addresses.country'),
+            'state': terms_filter('addresses.state')
+            },
+        'aggs': {
+            'status': {
+                'terms': {
+                    'field': 'status',
+                    'size': 5
+                    }
+                },
+            'types': {
+                'terms': {
+                    'field': 'types',
+                    'size': 8
+                    }
+                },
+            'country': {
+                'terms': {
+                    'field': 'addresses.country',
+                    'size': 8
+                    }
+                },
+            'state': {
+                'terms': {
+                    'field': 'addresses.state',
+                    'size': 5
+                    }
+                }
+            }
+        }
+    }
 """Introduce searching facets."""
 
 RECORDS_REST_SORT_OPTIONS = {
@@ -338,28 +336,42 @@ RECORDS_REST_SORT_OPTIONS = {
             'title': 'Most recent',
             'fields': ['-publication_date'],
             'default_order': 'asc',
-            'order': 1,
+            'order': 1
             },
         'bestmatch': {
             'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
-            'order': 2,
-            },
+            'order': 2
+            }
         },
     'sources': {
         'mostrecent': {
             'title': 'Most recent',
             'fields': ['-_save_info_updated'],
             'default_order': 'asc',
-            'order': 1,
+            'order': 1
             },
         'bestmatch': {
             'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
-            'order': 2,
+            'order': 2
+            }
+        },
+    'organizations': {
+        'bestmatch': {
+            'title': _('Best match'),
+            'fields': ['_score'],
+            'default_order': 'desc',
+            'order': 1
             },
+        'mostrecent': {
+            'title': _('Most recent'),
+            'fields': ['-_created'],
+            'default_order': 'asc',
+            'order': 2
+            }
         }
     }
 """Setup sorting options."""
@@ -372,9 +384,24 @@ RECORDS_REST_DEFAULT_SORT: {
     'sources': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
+        },
+    'organizations': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
         }
     }
 """Set default sorting options."""
+
+RECORDS_FILES_REST_ENDPOINTS = {
+    'RECORDS_REST_ENDPOINTS': {
+        'irouid': '/files'
+        },
+    }
+"""Records files integration."""
+
+FILES_REST_PERMISSION_FACTORY = \
+    'iroko.records.permissions:files_permission_factory'
+"""Files-REST permissions factory."""
 
 # Assets
 # ======
@@ -449,7 +476,7 @@ WSGI_PROXIES = 2
 
 # OAI-PMH
 # =======
-OAISERVER_ID_PREFIX = 'oai:iroko.tocororo.cu:'
+OAISERVER_ID_PREFIX = 'oai:sceiba.cu:'
 
 # Debug
 # =====
@@ -520,7 +547,7 @@ OAISERVER_QUERY_PARSER_FIELDS = ["title_statement"]
 
 
 helper = k.KeycloakSettingsHelper(
-    base_url="https://personas.sceiba.cu/",
+    base_url="https://sso.sceiba.cu/",
     realm="sceiba"
     )
 
