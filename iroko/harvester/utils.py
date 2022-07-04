@@ -114,6 +114,7 @@ def get_xml_from_file(base_directory, file_name, extra_path=""):
         base_directory + extra_path + file_name
         rise an Exception if the file not exists
     """
+
     xmlpath = os.path.join(base_directory, extra_path, file_name)
     if not os.path.exists(xmlpath):
         raise Exception(

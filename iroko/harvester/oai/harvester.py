@@ -20,6 +20,7 @@ from sickle import Sickle
 import iroko.harvester.utils as utils
 from iroko.harvester.api import Formatter, SourceHarvester
 from iroko.harvester.errors import IrokoHarvesterError
+from iroko.harvester.fulltext import OJS, get_files
 from iroko.harvester.models import HarvestType, HarvestedItem, HarvestedItemStatus, Repository
 from iroko.harvester.oai import request_headers
 from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
@@ -28,6 +29,7 @@ from iroko.sources.api import SourceRecord
 # from iroko.sources.models import Source
 from iroko.utils import IrokoVocabularyIdentifiers
 from iroko.vocabularies.models import Term, Vocabulary
+from iroko.harvester import fulltext
 
 XMLParser = etree.XMLParser(
     remove_blank_text=True, recover=True, resolve_entities=False
@@ -734,11 +736,11 @@ class OaiFetcher:
     """
 
     @classmethod
-    def fetch_url(cls, url, data_dir=None, wait_time=3):
+    def fetch_url(cls, url, data_dir=None, wait_time=3, source_type=OJS):
         fetcher = OaiFetcher(url, data_dir=data_dir, request_wait_time=wait_time)
         return fetcher.start_harvest_pipeline()
 
-    def __init__(self, url, data_dir=None, request_wait_time=3):
+    def __init__(self, url, data_dir=None, request_wait_time=3, source_type=OJS):
 
         max_retries = 3
         timeout = 30
@@ -746,6 +748,7 @@ class OaiFetcher:
         self.url = url
         self.request_wait_time = request_wait_time
         self.id = str(uuid.uuid4())
+        self.source_type = OJS
 
         if not data_dir:
             self.data_dir = get_current_data_dir()
@@ -877,6 +880,16 @@ class OaiFetcher:
                 record = self.sickle.GetRecord(**arguments)
                 self._write_file(f + ".xml", record.raw, harvest_item_id)
                 time.sleep(self.request_wait_time)
+                if f == "oai_dc":
+                    xml = utils.get_xml_from_file(
+                        self.harvest_dir, f + ".xml", harvest_item_id)
+                    data = self.oai_dc.process_item(xml)
+                    for id in data['identifiers']:
+                        if id['idtype'] == 'url':
+                            get_files[self.source_type](
+                                id['value'],
+                                os.path.join(self.harvest_dir, harvest_item_id, 'files'))
+
             except Exception as e:
                 self._write_file('error', traceback.format_exc(), harvest_item_id)
         time.sleep(self.request_wait_time)
