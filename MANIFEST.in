@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UPR.
+# Copyright (C) 2022 UPR.
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
@@ -28,6 +28,7 @@ include Dockerfile
 include Dockerfile.base
 include LICENSE
 include Pipfile
+include Pipfile.lock
 include pytest.ini
 include scripts/bootstrap
 include scripts/console
@@ -40,6 +41,10 @@ recursive-include docs *.py
 recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
+recursive-include iroko *.config
+recursive-include iroko *.less
+recursive-include iroko *.overrides
+recursive-include iroko *.variables
 recursive-include iroko *.gitkeep
 recursive-include iroko *.po *.pot *.mo
 recursive-include iroko *.json *.html *.js *.scss

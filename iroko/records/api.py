@@ -22,6 +22,7 @@ from invenio_records_files.api import Record
 import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.providers as iroko_providers
+from iroko.api import IrokoBaseRecord
 from iroko.pidstore import pids
 
 
@@ -62,24 +63,12 @@ class IrokoAggs:
         return result
 
 
-class IrokoRecord(Record):
+class IrokoRecord(IrokoBaseRecord):
     """IrokoRecord class
     en general esto no esta muy bien, hay que profundizar en el problema de los PID, ahora mismo
     es solo un UUID, pero el PID no se puede generar a partir de la data... lo cual puede no ser
     muy bueno pues para manipular el record hay que saber el uuid, esto es contradictorio,
     pues en la data pueden venir doi, oai y otras formas de identificar el record..."""
-
-    uuid_minter = iroko_minters.iroko_uuid_minter
-    uuid_fetcher = iroko_fetchers.iroko_uuid_fetcher
-    uuid_provider = iroko_providers.IrokoUUIDProvider
-
-    oai_minter = iroko_minters.iroko_source_oai_minter
-    oai_fetcher = iroko_fetchers.iroko_source_oai_fetcher
-    oai_provider = iroko_providers.IrokoSourceOAIProvider
-
-    object_type = 'rec'
-    uri_key = 'electronic_location_and_access'
-    pid_uuid_field = 'id'
 
     _schema = "records/record-v1.0.0.json"
 
@@ -90,35 +79,31 @@ class IrokoRecord(Record):
         """Create or update IrokoRecord."""
 
         if record_uuid:
-            record = cls.get_record_by_pid(record_uuid, with_deleted=False)
+            record = cls.get_record_by_pid_value(record_uuid)
             if record:
                 # merged_data = cls._merge_uri(data, record)
-                record.update(data, dbcommit=dbcommit, reindex=reindex)
+                record.update_record(data, dbcommit=dbcommit, reindex=reindex)
                 return record, 'updated'
         else:
             record = cls.get_record_by_data(data)
             if record:
-                record.update(data, dbcommit=dbcommit, reindex=reindex)
+                record.update_record(data, dbcommit=dbcommit, reindex=reindex)
                 return record, 'updated'
             created_record = cls.create(data, id_=None, dbcommit=dbcommit, reindex=reindex)
             return created_record, 'created'
 
     @classmethod
-    def create(cls, data, id_=None, dbcommit=False, reindex=False, **kwargs):
+    def create(cls, data, iroko_pid_uuid=None, object_uuid=None, **kwargs):
         """Create a new IrokoRecord."""
-        data['$schema'] = current_jsonschemas.path_to_url(cls._schema)
-        assert cls.uuid_minter
-        assert cls.oai_minter
-        assert not data.get(cls.pid_uuid_field)
-        if not id_:
-            id_ = uuid4()
-        cls.uuid_minter(id_, data)
-        # # print("######### {0}".format(id_))
-        cls.oai_minter(id_, data)
+
         data['suggest_title'] = data.get('title')
-        record = super(IrokoRecord, cls).create(data=data, id_=id_, **kwargs)
-        if dbcommit:
-            record.dbcommit(reindex)
+        record = super(IrokoRecord, cls).create(data=data,
+                                                iroko_pid_type=pids.RECORD_PID_TYPE,
+                                                iroko_pid_value=iroko_pid_uuid,
+                                                object_uuid=object_uuid,
+                                                **kwargs)
+        iroko_minters.iroko_source_oai_minter(record.id, data)
+
         return record
 
     @classmethod
@@ -126,7 +111,7 @@ class IrokoRecord(Record):
         """Delete a IrokoRecord record."""
         assert data.get(cls.pid_uuid_field)
         pid = data.get(cls.pid_uuid_field)
-        record = cls.get_record_by_pid(pid, with_deleted=False)
+        record = cls.get_record_by_pid_value(pid)
         pid.delete()
         result = record.delete(force=force)
         if delindex:
@@ -136,22 +121,6 @@ class IrokoRecord(Record):
                 pass
         return result
 
-    @classmethod
-    def get_record_by_pid(cls, pid, with_deleted=False):
-        assert cls.uuid_provider
-        resolver = Resolver(
-            pid_type=cls.uuid_provider.pid_type,
-            object_type=cls.object_type,
-            getter=cls.get_record,
-            )
-        try:
-            persistent_identifier, record = resolver.resolve(str(pid))
-            return record
-            # return super(IrokoRecord, cls).get_record(
-            #     persistent_identifier.object_uuid, with_deleted=with_deleted
-            # )
-        except PIDDoesNotExistError:
-            return None
 
     @classmethod
     def get_record_by_data(cls, data):
@@ -192,23 +161,3 @@ class IrokoRecord(Record):
         except PIDDoesNotExistError:
             return None
 
-    def update(self, data, dbcommit=False, reindex=False):
-        """Update data for record."""
-        super(IrokoRecord, self).update(data)
-        super(IrokoRecord, self).commit()
-        if dbcommit:
-            self.dbcommit(reindex)
-        return self
-
-    def dbcommit(self, reindex=False, forceindex=False):
-        """Commit changes to db."""
-        db.session.commit()
-        if reindex:
-            self.reindex(forceindex=forceindex)
-
-    def reindex(self, forceindex=False):
-        """Reindex record."""
-        if forceindex:
-            RecordIndexer(version_type="external_gte").index(self)
-        else:
-            RecordIndexer().index(self)

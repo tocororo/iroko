@@ -16,7 +16,7 @@ from invenio_pidstore.resolver import Resolver
 
 from iroko.organizations.harvesters.general import insert_in_organizations
 from iroko.organizations.api import OrganizationRecord
-from iroko.pidstore.pids import ORGANIZATION_TYPE
+from iroko.pidstore.pids import IROKO_OBJECT_TYPE
 
 logger = logging.getLogger('iroko-onei-harvester')
 
@@ -271,7 +271,7 @@ def get_lower_organizations():
 
                 resolver = Resolver(
                     pid_type=top_organizations["organismos"]["id_type"],
-                    object_type=ORGANIZATION_TYPE,
+                    object_type=IROKO_OBJECT_TYPE,
                     getter=OrganizationRecord.get_record,
                 )
                 try:

@@ -1,3 +1,0 @@
-[submodule "ansible/roles"]
-	path = ansible/roles
-	url = git@gitlab.upr.edu.cu:dsti/ansible-roles.git

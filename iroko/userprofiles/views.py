@@ -128,8 +128,8 @@ def profile_form_factory():
             username=current_userprofile.username,
             full_name=current_userprofile.full_name,
             biography=t_biography,
-            institution=t_institution.id if t_institution is not 0 else 0,
-            avatar=base64.b64decode(str('t_avatar')) if t_avatar is not '' else None,
+            institution=t_institution.id if t_institution != 0 else 0,
+            avatar=base64.b64decode(str('t_avatar')) if t_avatar != '' else None,
             email=current_user.email,
             email_repeat=current_user.email,
             prefix='profile', )
@@ -140,8 +140,8 @@ def profile_form_factory():
             username=current_userprofile.username,
             full_name=current_userprofile.full_name,
             biography=t_biography,
-            institution=t_institution.id if t_institution is not 0 else 0,
-            avatar=base64.b64decode(str('t_avatar')) if t_avatar is not '' else None,
+            institution=t_institution.id if t_institution != 0 else 0,
+            avatar=base64.b64decode(str('t_avatar')) if t_avatar != '' else None,
             institution_rol=t_institution_rol,
             prefix='profile', )
 

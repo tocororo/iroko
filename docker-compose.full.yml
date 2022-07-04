@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UPR.
+# Copyright (C) 2022 UPR.
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
@@ -48,7 +48,7 @@ services:
       file: docker-services.yml
       service: frontend
     volumes:
-      - static_data:/opt/invenio/var/instance/static
+      - static_data:/opt/invenio/var/instance/static:ro
     links:
       - web-ui
       - web-api
@@ -63,6 +63,8 @@ services:
       - "5000"
     volumes:
       - static_data:/opt/invenio/var/instance/static
+      - uploaded_data:/opt/invenio/var/instance/data
+      - archived_data:/opt/invenio/var/instance/archive
     links:
       - cache
       - es
@@ -76,15 +78,16 @@ services:
     command: ["uwsgi /opt/invenio/var/instance/uwsgi_rest.ini"]
     image: iroko
     ports:
-      - "5001"
+      - "5000"
     volumes:
-      - static_data:/opt/invenio/var/instance/static
+      - uploaded_data:/opt/invenio/var/instance/data
+      - archived_data:/opt/invenio/var/instance/archive
     links:
       - cache
       - es
       - mq
       - db
-  # Worker 
+  # Worker
   worker:
     extends:
       file: docker-services.yml
@@ -97,6 +100,9 @@ services:
       - es
       - mq
       - db
+    volumes:
+      - uploaded_data:/opt/invenio/var/instance/data
+      - archived_data:/opt/invenio/var/instance/archive
   # Monitoring of Celery
   # http://127.0.0.1:5555
   flower:
@@ -133,3 +139,5 @@ services:
       service: es
 volumes:
   static_data:
+  uploaded_data:
+  archived_data:

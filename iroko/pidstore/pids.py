@@ -26,15 +26,19 @@ RECORD_PID_FETCHER = "irouid"
 SOURCE_UUID_PID_TYPE = "srcid"
 SOURCE_UUID_PID_MINTER = "srcid"
 SOURCE_UUID_PID_FETCHER = "srcid"
-SOURCE_UUID_FIELD = "id"
-SOURCE_TYPE = "rec"
 
 ORGANIZATION_PID_TYPE = "orgid"
 ORGANIZATION_PID_MINTER = "orgid"
 ORGANIZATION_PID_FETCHER = "orgid"
-ORGANIZATION_PID_FIELD = "id"
-ORGANIZATION_TYPE = "rec"
 
+IROKO_OBJECT_TYPE = "rec"
+IROKO_UUID_FIELD = "id"
+
+IROKO_UUID_PID_TYPES = [
+    'irouid',
+    'srcid',
+    'orgid'
+    ]
 
 def get_pid_by_data(data):
     """
@@ -107,13 +111,6 @@ identifiers_schemas = [
     "prnps",
     "ernps",
     "oaiurl",
-    "grid",
-    "wkdata",
-    "ror",
-    "isni",
-    "fudref",
-    "orgref",
-    "reup",
     "grid",
     "wkdata",
     "ror",

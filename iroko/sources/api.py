@@ -20,7 +20,9 @@ from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
-from invenio_records.api import Record
+
+from invenio_records_files.api import Record
+
 from invenio_records_rest.views import lt_es7
 from invenio_rest.serializer import result_wrapper
 from sqlalchemy import desc, func
@@ -29,6 +31,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as iroko_providers
+from iroko.api import IrokoBaseRecord
 from iroko.harvester.models import HarvestType, Repository
 from iroko.pidstore.pids import identifiers_schemas
 from iroko.sources.journals.utils import field_is_in_data, issn_is_in_data
@@ -44,7 +47,7 @@ from iroko.vocabularies.api import Terms
 from iroko.vocabularies.models import Term
 
 
-class SourceRecord(Record):
+class SourceRecord(IrokoBaseRecord):
     # TODO: en algunos casos hace falta hacer PATCH en vez de UPDATE.
     # por ejemplo, cuando vienen los datos de issn.org
 
@@ -95,7 +98,7 @@ class SourceRecord(Record):
         """
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
-            object_type=pids.SOURCE_TYPE,
+            object_type=pids.IROKO_OBJECT_TYPE,
             getter=cls.get_record,
             )
         if source_uuid:
@@ -151,7 +154,7 @@ class SourceRecord(Record):
         # if here, means any persisten identifier is not created, so, create the source!!!
         # print("no pids found, create source")
         source_uuid = uuid4()
-        data[pids.SOURCE_UUID_FIELD] = str(source_uuid)
+        data[pids.IROKO_UUID_FIELD] = str(source_uuid)
         created_source = cls.create(data, id_=source_uuid, dbcommit=dbcommit, reindex=reindex)
         return created_source, 'created'
 
@@ -204,7 +207,7 @@ class SourceRecord(Record):
     def create(cls, data, id_, dbcommit=False, reindex=False, **kwargs):
         """Create a new SourceRecord."""
         data['$schema'] = current_jsonschemas.path_to_url(cls._schema)
-        assert pids.SOURCE_UUID_FIELD in data
+        assert pids.IROKO_UUID_FIELD in data
         assert id_
 
         data['_save_info_updated'] = str(date.today())
@@ -212,7 +215,7 @@ class SourceRecord(Record):
         # print('%%%%%%%%%')
         iroko_minters.iroko_source_uuid_minter(id_, data)
         # print('%%%%%%%%%')
-        iroko_minters.iroko_record_identifiers_minter(id_, data, pids.SOURCE_TYPE)
+        iroko_minters.iroko_record_identifiers_minter(id_, data, pids.IROKO_OBJECT_TYPE)
         # print('%%%%%%%%%')
         # jj = json.dumps(data, ensure_ascii=False)
         source = super(SourceRecord, cls).create(data=data, id_=id_, **kwargs)
@@ -224,8 +227,8 @@ class SourceRecord(Record):
     @classmethod
     def delete(cls, data, delindex=True, force=False):
         """Delete a IrokoRecord record."""
-        assert data.get(pids.SOURCE_UUID_FIELD)
-        pid = data.get(pids.SOURCE_UUID_FIELD)
+        assert data.get(pids.IROKO_UUID_FIELD)
+        pid = data.get(pids.IROKO_UUID_FIELD)
         source = cls.get_source_by_pid(pid, with_deleted=False)
         # pid.delete()
         if source:
@@ -249,7 +252,7 @@ class SourceRecord(Record):
         """
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
-            object_type=pids.SOURCE_TYPE,
+            object_type=pids.IROKO_OBJECT_TYPE,
             getter=cls.get_record,
             )
         if pids.IDENTIFIERS_FIELD in data:
@@ -271,7 +274,7 @@ class SourceRecord(Record):
     def get_source_by_pid(cls, pid_value, with_deleted=False):
         resolver = Resolver(
             pid_type=pids.SOURCE_UUID_PID_TYPE,
-            object_type=pids.SOURCE_TYPE,
+            object_type=pids.IROKO_OBJECT_TYPE,
             getter=cls.get_record,
             )
         try:
@@ -313,24 +316,24 @@ class SourceRecord(Record):
 
             # if 'organizations' in old:
             #     for org in old['organizations']:
-            #         self._add_update_item_to_list('organizations', 'id', org)
+            #         self.add_update_item_to_list_field('organizations', 'id', org)
             # if 'organizations' in data:
             #     for org in data['organizations']:
-            #         self._add_update_item_to_list('organizations', 'id', org)
+            #         self.add_update_item_to_list_field('organizations', 'id', org)
             #
             # if 'classifications' in old:
             #     for term in old['classifications']:
-            #         self._add_update_item_to_list('classifications', 'id', term)
+            #         self.add_update_item_to_list_field('classifications', 'id', term)
             # if 'classifications' in data:
             #     for term in data['classifications']:
-            #         self._add_update_item_to_list('classifications', 'id', term)
+            #         self.add_update_item_to_list_field('classifications', 'id', term)
             #
             # if pids.IDENTIFIERS_FIELD in old:
             #     for _id in old[pids.IDENTIFIERS_FIELD]:
-            #         self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
+            #         self.add_update_item_to_list_field(pids.IDENTIFIERS_FIELD, 'idtype', _id)
             # if pids.IDENTIFIERS_FIELD in data:
             #     for _id in data[pids.IDENTIFIERS_FIELD]:
-            #         self._add_update_item_to_list(pids.IDENTIFIERS_FIELD, 'idtype', _id)
+            #         self.add_update_item_to_list_field(pids.IDENTIFIERS_FIELD, 'idtype', _id)
 
         print('update pids ')
         self._update_pids()
@@ -377,7 +380,7 @@ class SourceRecord(Record):
                     if ids['value'] != '':
                         try:
                             pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
-                            obj_uuid = pid.get_assigned_object(pids.SOURCE_TYPE)
+                            obj_uuid = pid.get_assigned_object(pids.IROKO_OBJECT_TYPE)
                             print('!!!!!!!')
                             print('{0}-{1}'.format(ids['idtype'], ids['value']))
                             print('!!!!!!!')
@@ -396,7 +399,7 @@ class SourceRecord(Record):
                         except PIDDoesNotExistError:
                             iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(
                                 ids['idtype'], ids['value'],
-                                object_type=pids.SOURCE_TYPE,
+                                object_type=pids.IROKO_OBJECT_TYPE,
                                 object_uuid=self.id, data=self
                                 )
                     else:
@@ -404,31 +407,23 @@ class SourceRecord(Record):
                 else:
                     self[pids.IDENTIFIERS_FIELD].remove(ids)
 
-    def _add_update_item_to_list(self, list_key, list_item_id_key, item_to_add):
-        if list_key not in self:
-            self[list_key] = []
-        if type(self[list_key]) == list:
-            for item in self[list_key]:
-                if type(item) == dict() and item[list_item_id_key] == item_to_add[list_item_id_key]:
-                    item.update(item_to_add)
-                    return
-                elif item == item_to_add:
-                    return
-            self[list_key].append(item_to_add)
+    # def _add_update_item_to_list(self, list_key, list_item_id_key, item_to_add):
+    #     """add or update an item to a list field of the record.
+    #     list_key: the name of the field list in the record
+    #     list_item_id_key: the name of the identifier field in the list field
+    #     item_to_add: item to add or update to the list.
+    #     """
+    #     if list_key not in self:
+    #         self[list_key] = []
+    #     if type(self[list_key]) == list:
+    #         for item in self[list_key]:
+    #             if type(item) == dict() and item[list_item_id_key] == item_to_add[list_item_id_key]:
+    #                 item.update(item_to_add)
+    #                 return
+    #             elif item == item_to_add:
+    #                 return
+    #         self[list_key].append(item_to_add)
 
-    def dbcommit(self, reindex=False, forceindex=False):
-        """Commit changes to db."""
-        db.session.commit()
-        if reindex:
-            self.reindex(forceindex=forceindex)
-
-    def reindex(self, forceindex=False):
-        """Reindex record."""
-
-        if forceindex:
-            RecordIndexer(version_type="external_gte").index(self)
-        else:
-            RecordIndexer().index(self)
 
     @property
     def status(self):
@@ -436,7 +431,7 @@ class SourceRecord(Record):
         return self['source_status']
 
     def add_organization(self, _id, name, role):
-        self._add_update_item_to_list(
+        self.add_update_item_to_list_field(
             'organizations', 'id',
             {
                 'id': _id,
@@ -446,7 +441,7 @@ class SourceRecord(Record):
             )
 
     def add_classification(self, _id, description, vocabulary, data):
-        self._add_update_item_to_list(
+        self.add_update_item_to_list_field(
             'classifications', 'id',
             {
                 'id': _id,
@@ -457,7 +452,7 @@ class SourceRecord(Record):
             )
 
     def add_identifier(self, idtype, value):
-        self._add_update_item_to_list(
+        self.add_update_item_to_list_field(
             pids.IDENTIFIERS_FIELD, 'idtype',
             {
                 'idtype': idtype,
@@ -774,7 +769,7 @@ class SourcesDeprecated:
             data = source.data
             if not data:
                 data = dict()
-            data[pids.SOURCE_UUID_FIELD] = str(source.uuid)
+            data[pids.IROKO_UUID_FIELD] = str(source.uuid)
             data['name'] = source.name
             data['source_type'] = source.source_type.value
             data['source_status'] = source.source_status.value
@@ -1071,7 +1066,7 @@ class SourcesDeprecated:
         # print('new source')
         try:
             data = valid_data['data']
-            data[pids.SOURCE_UUID_FIELD] = str(new_source.uuid)
+            data[pids.IROKO_UUID_FIELD] = str(new_source.uuid)
             data['name'] = new_source.name
             data['source_type'] = new_source.source_type.value
             data['source_status'] = new_source.source_status.value

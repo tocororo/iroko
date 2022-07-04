@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UPR.
+# Copyright (C) 2022 UPR.
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
@@ -28,7 +28,7 @@ services:
   lb:
     build: ./docker/haproxy/
     image: iroko-lb
-    restart: "always"
+    restart: "unless-stopped"
     ports:
       - "80:80"
       - "443:443"
@@ -36,19 +36,19 @@ services:
   frontend:
     build: ./docker/nginx/
     image: iroko-frontend
-    restart: "always"
+    restart: "unless-stopped"
     ports:
       - "80"
       - "443"
   cache:
     image: redis
-    restart: "always"
+    restart: "unless-stopped"
     read_only: true
     ports:
       - "6379:6379"
   db:
-    image: postgres:9.6
-    restart: "always"
+    image: postgres:12
+    restart: "unless-stopped"
     environment:
       - "POSTGRES_USER=iroko"
       - "POSTGRES_PASSWORD=iroko"
@@ -57,16 +57,17 @@ services:
       - "5432:5432"
   mq:
     image: rabbitmq:3-management
-    restart: "always"
+    restart: "unless-stopped"
     ports:
       - "15672:15672"
       - "5672:5672"
   es:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.0
-    restart: "always"
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.9
+    restart: "unless-stopped"
     environment:
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
@@ -76,11 +77,11 @@ services:
       - "9200:9200"
       - "9300:9300"
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:6.6.0
+    image: docker.elastic.co/kibana/kibana-oss:6.8.9
     environment:
       - "ELASTICSEARCH_HOSTS=http://es:9200"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports: 
+    ports:
       - "5601:5601"
   flower:
     image: mher/flower

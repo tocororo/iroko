@@ -23,7 +23,7 @@ def records():
 def add_bundles_to_update():
     search = IrokoRecordSearch()
     for hit in search.scan():
-        record = IrokoRecord.get_record_by_pid(hit.id)
+        record = IrokoRecord.get_record_by_pid_value(hit.id)
         if not hasattr(record, 'bucket_id'):
             bucket = IrokoRecord.create_bucket(record)
             if bucket:

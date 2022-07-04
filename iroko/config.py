@@ -94,12 +94,12 @@ SETTINGS_TEMPLATE = 'invenio_theme/page_settings.html'
 # Theme configuration
 # ===================
 #: The Invenio theme.
-# APP_THEME = ['semantic-ui']
+APP_THEME = ['semantic-ui']
 #: Site name.
 THEME_SITENAME = _('iroko')
 #: Use default frontpage.
 THEME_FRONTPAGE = True
-#: Frontpage title.
+#: Froniroko_secret_keytpage title.
 THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
 #: Frontpage template.
 THEME_FRONTPAGE_TEMPLATE = 'iroko/frontpage.html'
@@ -489,6 +489,7 @@ DEBUG_TB_INTERCEPT_REDIRECTS = False
 
 FLASK_ADMIN_SWATCH = 'default'
 
+ADMIN_TEMPLATE_MODE = 'bootstrap3'
 ###############################################################################
 # JSON Schemas
 ###############################################################################
@@ -540,46 +541,48 @@ OAISERVER_ADMIN_EMAILS = [
     ]
 
 OAISERVER_RECORD_INDEX = '_all'
-OAISERVER_ID_PREFIX = 'oai:localhost:records/'
+OAISERVER_ID_PREFIX = 'oai:sceiba.cu:records/'
 OAISERVER_QUERY_PARSER_FIELDS = ["title_statement"]
 
 # Sceiba oauth keycloak
 
-
-helper = k.KeycloakSettingsHelper(
-    base_url="https://sso.sceiba.cu/",
-    realm="sceiba"
-    )
-
-OAUTHCLIENT_KEYCLOAK_REMOTE_APP = helper.remote_app()
-# print('#################################################################################')
-# print(OAUTHCLIENT_KEYCLOAK_REMOTE_APP)
-
-OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP = helper.remote_rest_app()
-# print('#################################################################################')
-# print(OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP)
-
-USERPROFILES_EXTEND_SECURITY_FORMS = True
-OAUTHCLIENT_KEYCLOAK_REALM_URL = helper.realm_url
-OAUTHCLIENT_KEYCLOAK_USER_INFO_URL = helper.user_info_url
-OAUTHCLIENT_KEYCLOAK_VERIFY_AUD = True
-OAUTHCLIENT_KEYCLOAK_AUD = "invenio"
-OAUTHCLIENT_KEYCLOAK_VERIFY_EXP = True
-
-KEYCLOAK_APP_CREDENTIALS = dict(
-    consumer_key='sceiba-dev',
-    consumer_secret='d22812e0-38e7-43a8-9f57-08bccbbd98c3',
-    )
-OAUTHCLIENT_REMOTE_APPS = dict(
-    keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_APP,
-    # sceiba=SCEIBA_APP,
-    )
-
-# OAUTHCLIENT_REST_REMOTE_APPS = dict(
-#     keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP
-# )
-
-SECURITY_CONFIRMABLE = False
+#
+# helper = k.KeycloakSettingsHelper(
+#     title="Sceiba SSO",
+#     description="Sceiba SSO",
+#     base_url="https://sso.sceiba.cu/",
+#     realm="sceiba"
+#     )
+#
+# OAUTHCLIENT_KEYCLOAK_REMOTE_APP = helper.remote_app()
+# # print('#################################################################################')
+# # print(OAUTHCLIENT_KEYCLOAK_REMOTE_APP)
+#
+# OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP = helper.remote_rest_app()
+# # print('#################################################################################')
+# # print(OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP)
+#
+# USERPROFILES_EXTEND_SECURITY_FORMS = True
+# OAUTHCLIENT_KEYCLOAK_REALM_URL = helper.realm_url
+# OAUTHCLIENT_KEYCLOAK_USER_INFO_URL = helper.user_info_url
+# OAUTHCLIENT_KEYCLOAK_VERIFY_AUD = True
+# OAUTHCLIENT_KEYCLOAK_AUD = "invenio"
+# OAUTHCLIENT_KEYCLOAK_VERIFY_EXP = True
+#
+# KEYCLOAK_APP_CREDENTIALS = dict(
+#     consumer_key='sceiba-dev',
+#     consumer_secret='d22812e0-38e7-43a8-9f57-08bccbbd98c3',
+#     )
+# OAUTHCLIENT_REMOTE_APPS = dict(
+#     keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_APP,
+#     # sceiba=SCEIBA_APP,
+#     )
+#
+# # OAUTHCLIENT_REST_REMOTE_APPS = dict(
+# #     keycloak=OAUTHCLIENT_KEYCLOAK_REMOTE_REST_APP
+# # )
+#
+# SECURITY_CONFIRMABLE = False
 
 # from iroko.auth import sceiba_openid
 

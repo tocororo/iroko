@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
-
-#  Copyright (c) 2022. Universidad de Pinar del Rio
-#  This file is part of SCEIBA (sceiba.cu).
-#  SCEIBA is free software; you can redistribute it and/or modify it
-#  under the terms of the MIT License; see LICENSE file for more details.
-
 #
+# Copyright (C) 2022 UPR.
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
 """Sphinx configuration."""
-
-from __future__ import print_function
 
 import os
 
@@ -53,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'iroko'
-copyright = u'2019, UPR'
+copyright = u'2022, UPR'
 author = u'UPR'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -122,14 +115,15 @@ todo_include_todos = False
 html_theme = 'alabaster'
 
 html_theme_options = {
-    'description': 'sceiba project, iroko software, invenio repository software',
-    'github_user': 'malayibiri',
+    'description': 'sceiba.cu backend source code',
+    'github_user': 'inveniosoftware',
     'github_repo': 'iroko',
     'github_button': False,
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'iroko@GitHub': 'https://github.com/tocororo/iroko'
+        'iroko@GitHub': 'https://github.com/tocororo/iroko',
+        'iroko@PyPI': 'https://pypi.python.org/pypi/iroko/',
     }
 }
 
@@ -301,7 +295,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'iroko', u'iroko Documentation',
-     author, 'iroko', 'sceiba project, iroko software, invenio repository softwar',
+     author, 'iroko', 'sceiba.cu backend source code',
      'Miscellaneous'),
 ]
 

@@ -33,14 +33,23 @@ class IrokoUUIDProvider(BaseProvider):
     Default: :attr:`invenio_pidstore.models.PIDStatus.REGISTERED`
     """
 
+    object_type = pids.IROKO_OBJECT_TYPE,
+
     @classmethod
-    def create(cls, object_type=None, object_uuid=None, **kwargs):
+    def create(cls,  pid_type=None, pid_value=None, object_type=None,
+               object_uuid=None, **kwargs):
         """Create a new record identifier from the depoist PID value."""
-        if 'pid_value' not in kwargs:
-            kwargs.setdefault('pid_value', str(uuid.uuid4()))
+        pid_type = pid_type or cls.pid_type
+        pid_value = pid_value or uuid.uuid4()
+        object_type = object_type or cls.object_type
+        object_uuid = object_uuid or uuid.uuid4()
         kwargs.setdefault('status', cls.default_status)
         return super(IrokoUUIDProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs
+            pid_type=pid_type,
+            pid_value=pid_value,
+            object_type=object_type,
+            object_uuid=object_uuid,
+            **kwargs
             )
 
 
@@ -98,11 +107,11 @@ class IrokoRecordsIdentifiersProvider(BaseProvider):
         # print('@@@@@@@@', data)
         assert pids.IDENTIFIERS_FIELD in data
         # print('@@@@@@@@')
-        # assert pids.SOURCE_UUID_FIELD in data
+        # assert pids.IROKO_UUID_FIELD in data
         pIDs = []
         # provider = super(IrokoRecordsIdentifiersProvider, cls).create(
         #             pid_type=pids.SOURCE_UUID_PID_TYPE,
-        #             pid_value=data[pids.SOURCE_UUID_FIELD],
+        #             pid_value=data[pids.IROKO_UUID_FIELD],
         #             object_type=object_type,
         #             object_uuid=object_uuid,
         #             status=cls.default_status,
@@ -167,36 +176,19 @@ class IrokoSourceUUIDProvider(BaseProvider):
     @classmethod
     def create(cls, object_type=None, object_uuid=None, data=None, **kwargs):
         assert data, "no data"
-        assert pids.SOURCE_UUID_FIELD in data
+        assert pids.IROKO_UUID_FIELD in data
 
         # kwargs.setdefault('pid_type', pids.SOURCE_UUID_PID_TYPE)
-        # kwargs.setdefault('pid_value', data[pids.SOURCE_UUID_FIELD])
+        # kwargs.setdefault('pid_value', data[pids.IROKO_UUID_FIELD])
         # kwargs.setdefault('status', cls.default_status)
 
         return super(IrokoSourceUUIDProvider, cls).create(
             object_type=object_type,
             object_uuid=object_uuid,
             pid_type=pids.SOURCE_UUID_PID_TYPE,
-            pid_value=data[pids.SOURCE_UUID_FIELD],
+            pid_value=data[pids.IROKO_UUID_FIELD],
             **kwargs
             )
-
-class OrganizationUUIDProvider(BaseProvider):
-
-    pid_type = pids.ORGANIZATION_PID_TYPE
-    pid_provider = None
-    default_status = PIDStatus.REGISTERED
-
-    @classmethod
-    def create(cls, object_type=None, object_uuid=None, **kwargs):
-        """Create a new record identifier from the depoist PID value."""
-        if 'pid_value' not in kwargs:
-            kwargs.setdefault('pid_value', str(uuid.uuid4()))
-        kwargs.setdefault('status', cls.default_status)
-        return super(OrganizationUUIDProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs)
-
-
 
 
 class IdentifiersProvider(BaseProvider):

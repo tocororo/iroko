@@ -181,7 +181,7 @@ def delete_all_sources():
     # TODO: delete persistentidentifiers and record metadata
     s = Source.query.all()
     for so in s:
-        SourceRecord.delete(data={pids.SOURCE_UUID_FIELD: so.uuid})
+        SourceRecord.delete(data={pids.IROKO_UUID_FIELD: so.uuid})
         SourceRecord.delete_all_pids_without_object(so.data[pids.IDENTIFIERS_FIELD])
         db.session.delete(so)
     db.session.commit()

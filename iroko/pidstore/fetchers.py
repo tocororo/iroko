@@ -52,18 +52,18 @@ def iroko_record_identifiers_fetcher(record_uuid, data, pid_type):
 
 def iroko_source_uuid_fetcher(source_uuid, data):
     assert data, "no data"
-    assert pids.SOURCE_UUID_FIELD in data, "no source uuid in data"
+    assert pids.IROKO_UUID_FIELD in data, "no source uuid in data"
     return FetchedPID(
         provider=providers.IrokoSourceUUIDProvider,
         pid_type=pids.SOURCE_UUID_PID_TYPE,
-        pid_value=str(data[pids.SOURCE_UUID_FIELD]),
+        pid_value=str(data[pids.IROKO_UUID_FIELD]),
         )
 
 def organization_uuid_fetcher(org_uuid, data):
     return FetchedPID(
         provider=providers.OrganizationUUIDProvider,
         pid_type=providers.OrganizationUUIDProvider.pid_type,
-        pid_value=str(data[pids.ORGANIZATION_PID_FIELD]),
+        pid_value=str(data[pids.IROKO_UUID_FIELD]),
     )
 
 

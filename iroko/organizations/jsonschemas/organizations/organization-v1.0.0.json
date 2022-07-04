@@ -115,6 +115,10 @@
       "type": "boolean",
       "description": "If true means it's ready for be exported for other systems"
     },
+    "research_activity": {
+      "type": "boolean",
+      "description": "If true means the org perform some research activity"
+    },
     "links": {
       "type": "array",
       "description": "An array of URLs linking to things like the homepage for the institute",
@@ -163,7 +167,7 @@
                     "ror",
                     "isni",
                     "orgref",
-                    "fundref",
+                    "fudref",
                     "reup",
                     "orgaid",
                     "uniid"
