@@ -14,14 +14,14 @@ theme = WebpackThemeBundle(
     'assets',
     default='semantic-ui',
     themes={
-        'bootstrap3': dict(
-            entry={
-                'iroko-theme': './scss/iroko/theme.scss',
-                'iroko-preview': './js/iroko/previewer.js',
-            },
-            dependencies={},
-            aliases={},
-        ),
+        # 'bootstrap3': dict(
+        #     entry={
+        #         'iroko-theme': './scss/iroko/theme.scss',
+        #         'iroko-preview': './js/iroko/previewer.js',
+        #     },
+        #     dependencies={},
+        #     aliases={},
+        # ),
         'semantic-ui': dict(
             entry={
                 'iroko-preview': './js/iroko/previewer.js',

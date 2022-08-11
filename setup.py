@@ -150,7 +150,6 @@ setup(
         ],
         'invenio_assets.webpack': [
             'iroko_theme = iroko.theme.webpack:theme',
-            'iroko_search_app = iroko.records.webpack:search_app',
         ],
         'invenio_config.module': [
             'iroko = iroko.config',
