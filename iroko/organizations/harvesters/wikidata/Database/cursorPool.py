@@ -4,7 +4,7 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 
 from iroko.organizations.harvesters.wikidata.Database.connection import Connection
-from iroko.organizations.harvesters.wikidata.logger_base import logger
+# from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 
 class CursorPool:
@@ -14,21 +14,21 @@ class CursorPool:
 
     # inicio de with
     def __enter__(self):
-        logger.debug('Start method __enter__')
+        print('Start method __enter__')
         self.__conn = Connection.getConnection()
         self.__cursor = self.__conn.cursor()
         return self.__cursor
 
     # fin del bloque with
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        logger.debug('Execute method __exit__()')
+        print('Execute method __exit__()')
         # if exception_value is not None:
         if exception_value:
             self.__conn.rollback()
-            logger.debug(f'Error exception: {exception_value}')
+            print(f'Error exception: {exception_value}')
         else:
             self.__conn.commit()
-            logger.debug('Transaction commit')
+            print('Transaction commit')
             # Cerramos el cursor
         self.__cursor.close()
         # Regresar la conexión al pool
@@ -40,5 +40,5 @@ if __name__ == '__main__':
     # with se ejecuta __enter__ y termina con __exit__
     with CursorPool() as cursor:
         cursor.execute('SELECT * FROM "subClass"')
-        logger.debug('Listado de personas')
-        logger.debug(cursor.fetchall())
+        print('Listado de personas')
+        print(cursor.fetchall())

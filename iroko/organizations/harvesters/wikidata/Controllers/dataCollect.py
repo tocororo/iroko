@@ -10,7 +10,7 @@ from random import randint
 from iroko.organizations.harvesters.wikidata.Controllers.instance import Instance
 from iroko.organizations.harvesters.wikidata.Controllers.subclass import Subclass
 from iroko.organizations.harvesters.wikidata.Database.SPARQL import getSparqlSubclass, getSparqlInstance, getInstanceStatements, getInstanceDescription
-from iroko.organizations.harvesters.wikidata.logger_base import logger
+# from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 
 class States(Enum):
@@ -53,7 +53,7 @@ def collect(QID):
             if not any(_QID[len(_QID) - 1] == postgres.getQID() for postgres in postgresSubclass):
                 subclass = Subclass(_QID[len(_QID) - 1], sparqlS["itemLabel"]["value"])
                 subclass_inserted = Subclass.insert(subclass)
-                logger.debug(f'Subclass inserted: {subclass_inserted}')
+                print(f'Subclass inserted: {subclass_inserted}')
                 collect(_QID[len(_QID) - 1])
             else:
                 logger.info(f'Subclass exist: {sparqlS["itemLabel"]["value"]}')
@@ -65,7 +65,7 @@ def instanceCollect(sparql):
     if not any(_QID[len(_QID) - 1] == postgres.getQID() for postgres in postgresInstance):
         instance = Instance(_QID[len(_QID) - 1], sparql["itemLabel"]["value"])
         instance_inserted = Instance.insert(instance)
-        logger.debug(f'Subclass inserted: {instance_inserted}')
+        print(f'Subclass inserted: {instance_inserted}')
     else:
         logger.info(f'Instance exist: {sparql["itemLabel"]["value"]}')
 

@@ -9,7 +9,7 @@
 import sys
 
 from SPARQLWrapper import SPARQLWrapper, JSON
-from iroko.organizations.harvesters.wikidata.logger_base import logger
+# from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 endpoint_url = "https://query.wikidata.org/sparql"
 
@@ -37,7 +37,7 @@ def getSparqlInstance(QID):
         sparql.setReturnFormat(JSON)
         return sparql.query().convert()
     except Exception as e:
-        logger.debug(f'ERROR: {e}')
+        print(f'ERROR: {e}')
         return None
 
 
@@ -59,7 +59,7 @@ def getSparqlSubclass(QID):
         sparql.setReturnFormat(JSON)
         return sparql.query().convert()
     except Exception as e:
-        logger.debug(f'ERROR: {e}')
+        print(f'ERROR: {e}')
         return None
 
 
@@ -99,7 +99,7 @@ def getInstanceDescription(itemLabel):
         sparql.setReturnFormat(JSON)
         return sparql.query().convert()
     except Exception as e:
-        logger.debug(f'ERROR: {e}')
+        print(f'ERROR: {e}')
         return None
 
 

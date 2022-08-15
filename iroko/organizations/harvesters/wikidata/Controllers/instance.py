@@ -8,7 +8,7 @@ import json
 from iroko.organizations.harvesters.wikidata.Class.instance import Instance
 from iroko.organizations.harvesters.wikidata.Database.connection import DB_USERNAME
 from iroko.organizations.harvesters.wikidata.Database.cursorPool import CursorPool
-from iroko.organizations.harvesters.wikidata.logger_base import logger
+# from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 
 class Instance:
@@ -103,7 +103,7 @@ class Instance:
     @classmethod
     def createJson(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__GENERATE_JSON))
+            print(cursor.mogrify(cls.__GENERATE_JSON))
             cursor.execute(cls.__GENERATE_JSON)
             result = cursor.fetchone()
             result = str(result).replace("(", "")
@@ -126,42 +126,42 @@ class Instance:
     @classmethod
     def createTableSubclass(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__CREATE_SUBCLASS))
+            print(cursor.mogrify(cls.__CREATE_SUBCLASS))
             cursor.execute(cls.__CREATE_SUBCLASS)
             return cursor.rowcount
 
     @classmethod
     def createTableInstance(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__CREATE_INSTANCE))
+            print(cursor.mogrify(cls.__CREATE_INSTANCE))
             cursor.execute(cls.__CREATE_INSTANCE)
             return cursor.rowcount
 
     @classmethod
     def dropTables(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__DROP_TABLES))
+            print(cursor.mogrify(cls.__DROP_TABLES))
             cursor.execute(cls.__DROP_TABLES)
             return cursor.rowcount
 
     @classmethod
     def dropFunctions(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__DROP_FUNCTIONS))
+            print(cursor.mogrify(cls.__DROP_FUNCTIONS))
             cursor.execute(cls.__DROP_FUNCTIONS)
             return cursor.rowcount
 
     @classmethod
     def createInstanceCopy(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__CREATE_COPY_INSTANCEOF))
+            print(cursor.mogrify(cls.__CREATE_COPY_INSTANCEOF))
             cursor.execute(cls.__CREATE_COPY_INSTANCEOF)
             return cursor.rowcount
 
     @classmethod
     def select(cls):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__SELECT))
+            print(cursor.mogrify(cls.__SELECT))
             cursor.execute(cls.__SELECT)
             results = cursor.fetchall()
             instances = []
@@ -173,8 +173,8 @@ class Instance:
     @classmethod
     def insert(cls, instance):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__INSERT))
-            logger.debug(f'instance to insert: {instance}')
+            print(cursor.mogrify(cls.__INSERT))
+            print(f'instance to insert: {instance}')
             values = (instance.getQID(), instance.getItemLabel())
             cursor.execute(cls.__INSERT, values)
             return cursor.rowcount
@@ -182,8 +182,8 @@ class Instance:
     @classmethod
     def update(cls, instance):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__UPDATE))
-            logger.debug(f'instance to update: {instance.getQID()}')
+            print(cursor.mogrify(cls.__UPDATE))
+            print(f'instance to update: {instance.getQID()}')
             values = (
                 instance.getDescription(), instance.getAlias(), json.dumps(instance.getStatements()), instance.getQID())
             cursor.execute(cls.__UPDATE, values)
@@ -192,8 +192,8 @@ class Instance:
     @classmethod
     def updateCopy(cls, instance):
         with CursorPool() as cursor:
-            logger.debug(cursor.mogrify(cls.__UPDATE_COPY))
-            logger.debug(f'instance to update: {instance.getQID()}')
+            print(cursor.mogrify(cls.__UPDATE_COPY))
+            print(f'instance to update: {instance.getQID()}')
             values = (instance.getDescription(), instance.getAlias(), instance.getStatements(), instance.getQID())
             cursor.execute(cls.__UPDATE_COPY, values)
             return cursor.rowcount
@@ -202,5 +202,5 @@ class Instance:
 if __name__ == '__main__':
     instances = Instance.select()
     for instance in instances:
-        logger.debug(instance)
-        logger.debug(instance.getQID())
+        print(instance)
+        print(instance.getQID())

@@ -3,7 +3,7 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 
-from iroko.organizations.harvesters.wikidata.logger_base import logger
+# from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 
 class Subclass:
@@ -32,4 +32,4 @@ class Subclass:
 
 if __name__ == '__main__':
     subclass = Subclass(QID='Q4564', label='Gomez')
-    logger.debug(subclass)
+    print(subclass)
