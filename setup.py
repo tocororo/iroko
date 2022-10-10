@@ -212,15 +212,13 @@ setup(
             'recoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
             'orgid = iroko.pidstore.fetchers:organization_uuid_fetcher',
-            #para eliminar
-            'reids = iroko.pidstore.fetchers:identifiers_fetcher',
             ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
             'recids = iroko.pidstore.minters:iroko_record_identifiers_minter',
             'recoai = iroko.pidstore.minters:iroko_source_oai_minter',
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
-            'reids = iroko.pidstore.minters:identifiers_minter',
+            'orgid = iroko.pidstore.minters:organization_uuid_minter',
             ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',

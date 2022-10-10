@@ -121,7 +121,7 @@ _SOURCE_CONVERTER = (
     'pid(srcid, record_class="iroko.sources.api:SourceRecord")'
 )
 _ORG_CONVERTER = (
-    'pid(orgid, record_class="iroko..organizations.api.OrganizationRecord")'
+    'pid(orgid, record_class="iroko.organizations.api.OrganizationRecord")'
 )
 
 RECORDS_REST_ENDPOINTS = {
@@ -200,8 +200,6 @@ RECORDS_REST_ENDPOINTS = {
         'record_class': OrganizationRecord,
         'search_class': OrganizationSearch,
         'indexer_class': RecordIndexer,
-        'search_index': 'organizations',
-        'search_type': None,
         'record_serializers': {
             'application/json': ('iroko.organizations.serializers'
                                  ':json_v1_response'),
@@ -223,8 +221,7 @@ RECORDS_REST_ENDPOINTS = {
         'read_permission_factory_imp': check_elasticsearch,
         'update_permission_factory_imp': can_edit_organization_factory,
         'delete_permission_factory_imp': can_edit_organization_factory,
-        'list_permission_factory_imp': allow_all,
-        'links_factory_imp': 'invenio_records_files.links:default_record_files_links_factory'
+        'list_permission_factory_imp': allow_all
         }
     }
 
@@ -490,9 +487,9 @@ OAISERVER_ID_PREFIX = 'oai:sceiba.cu:'
 #: Switches off incept of redirects by Flask-DebugToolbar.
 DEBUG_TB_INTERCEPT_REDIRECTS = False
 
-FLASK_ADMIN_SWATCH = 'default'
-
-ADMIN_TEMPLATE_MODE = 'bootstrap3'
+# FLASK_ADMIN_SWATCH = 'default'
+#
+# ADMIN_TEMPLATE_MODE = 'bootstrap3'
 ###############################################################################
 # JSON Schemas
 ###############################################################################
