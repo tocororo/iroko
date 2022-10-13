@@ -14,20 +14,22 @@ theme = WebpackThemeBundle(
     'assets',
     default='semantic-ui',
     themes={
-        # 'bootstrap3': dict(
-        #     entry={
-        #         'iroko-theme': './scss/iroko/theme.scss',
-        #         'iroko-preview': './js/iroko/previewer.js',
-        #     },
-        #     dependencies={},
-        #     aliases={},
-        # ),
         'semantic-ui': dict(
             entry={
                 'iroko-preview': './js/iroko/previewer.js',
+                'invenio-app-rdm-landing-page':
+                    './js/invenio_app_rdm/landing_page/index.js',
+                'invenio-app-rdm-landing-page-theme':
+                    './js/invenio_app_rdm/landing_page/theme.js',
+                'invenio-app-rdm-deposit':
+                    './js/invenio_app_rdm/deposit/index.js',
+                'invenio-app-rdm-search':
+                    './js/invenio_app_rdm/search/index.js',
+                'invenio-app-rdm-user-dashboard':
+                './js/invenio_app_rdm/user_dashboard/index.js',
+                'base-theme-rdm': './js/invenio_app_rdm/theme.js',
             },
             dependencies={
-                # add any additional npm dependencies here...
                 '@babel/runtime': '^7.9.0',
                 '@ckeditor/ckeditor5-build-classic': '^16.0.0',
                 '@ckeditor/ckeditor5-react': '^2.1.0',
@@ -48,12 +50,18 @@ theme = WebpackThemeBundle(
                 'yup': '^0.32.0',
             },
             aliases={
+                # Define Semantic-UI theme configuration needed by
+                # Invenio-Theme in order to build Semantic UI (in theme.js
+                # entry point). theme.config itself is provided by
+                # cookiecutter-invenio-rdm.
                 '../../theme.config$': 'less/iroko/theme.config',
+                '../../less/site': 'less/site',
+                '../../less': 'less',
                 'themes/rdm': 'less/invenio_app_rdm/theme',
                 '@less/invenio_app_rdm': 'less/invenio_app_rdm',
                 '@translations/invenio_app_rdm':
                     'translations/invenio_app_rdm',
-            },
+            }
         ),
     }
 )

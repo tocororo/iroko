@@ -1,14 +1,14 @@
 /*
- *   Copyright (C) 2022 UPR.
+ *   Copyright (C) 2022 CERN.
  *
- * sceiba is free software; you can redistribute it and/or modify it under
+ * testinv is free software; you can redistribute it and/or modify it under
  * the terms of the MIT License; see LICENSE file for more details.
  */
 
 import React from "react";
 import { Item, List } from "semantic-ui-react";
 
-const sceibaResultsListItem = ({ result, index }) => {
+const testinvResultsListItem = ({ result, index }) => {
   const contributors = result.metadata.contributors || [];
   return (
     <Item key={index} href={`/records/${result.id}`}>
@@ -28,7 +28,7 @@ const sceibaResultsListItem = ({ result, index }) => {
   );
 };
 
-export default sceibaResultsListItem;
+export default testinvResultsListItem;
 
 
 
