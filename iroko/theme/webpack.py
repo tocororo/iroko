@@ -14,54 +14,24 @@ theme = WebpackThemeBundle(
     'assets',
     default='semantic-ui',
     themes={
+        'bootstrap3': dict(
+            entry={
+                'testinv-theme': './scss/testinv/theme.scss',
+                'testinv-preview': './js/testinv/previewer.js',
+            },
+            dependencies={},
+            aliases={},
+        ),
         'semantic-ui': dict(
             entry={
-                'iroko-preview': './js/iroko/previewer.js',
-                'invenio-app-rdm-landing-page':
-                    './js/invenio_app_rdm/landing_page/index.js',
-                'invenio-app-rdm-landing-page-theme':
-                    './js/invenio_app_rdm/landing_page/theme.js',
-                'invenio-app-rdm-deposit':
-                    './js/invenio_app_rdm/deposit/index.js',
-                'invenio-app-rdm-search':
-                    './js/invenio_app_rdm/search/index.js',
-                'invenio-app-rdm-user-dashboard':
-                './js/invenio_app_rdm/user_dashboard/index.js',
-                'base-theme-rdm': './js/invenio_app_rdm/theme.js',
+                'testinv-preview': './js/testinv/previewer.js',
             },
             dependencies={
-                '@babel/runtime': '^7.9.0',
-                '@ckeditor/ckeditor5-build-classic': '^16.0.0',
-                '@ckeditor/ckeditor5-react': '^2.1.0',
-                'formik': '^2.1.0',
-                "i18next": "^20.3.0",
-                "i18next-browser-languagedetector": "^6.1.0",
-                'luxon': '^1.23.0',
-                'path': '^0.12.7',
-                'prop-types': '^15.7.2',
-                'react-copy-to-clipboard': '^5.0.0',
-                'react-dnd': '^11.1.0',
-                'react-dnd-html5-backend': '^11.1.0',
-                'react-dropzone': "^11.0.0",
-                "react-i18next": "^11.11.0",
-                'react-invenio-deposit': '^0.19.0',
-                'react-invenio-forms': '^0.10.0',
-                'react-searchkit': '^2.0.0',
-                'yup': '^0.32.0',
+                # add any additional npm dependencies here...
             },
             aliases={
-                # Define Semantic-UI theme configuration needed by
-                # Invenio-Theme in order to build Semantic UI (in theme.js
-                # entry point). theme.config itself is provided by
-                # cookiecutter-invenio-rdm.
-                '../../theme.config$': 'less/iroko/theme.config',
-                '../../less/site': 'less/site',
-                '../../less': 'less',
-                'themes/rdm': 'less/invenio_app_rdm/theme',
-                '@less/invenio_app_rdm': 'less/invenio_app_rdm',
-                '@translations/invenio_app_rdm':
-                    'translations/invenio_app_rdm',
-            }
+                '../../theme.config$': 'less/testinv/theme.config',
+            },
         ),
     }
 )
