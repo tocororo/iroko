@@ -105,7 +105,7 @@ THEME_FRONTPAGE = True
 #: Froniroko_secret_keytpage title.
 THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
 #: Frontpage template.
-THEME_FRONTPAGE_TEMPLATE = 'iroko/frontpage.html'
+THEME_FRONTPAGE_TEMPLATE = 'invenio_theme/frontpage.html'
 
 
 #: Theme logo.
