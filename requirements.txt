@@ -130,7 +130,7 @@ jupyterlab-pygments==0.2.0
 kombu==5.2.4
 limits==1.6
 lxml==4.8.0
-Mako==1.2.0
+Mako==1.2.2
 MarkupSafe==2.1.1
 marshmallow==3.15.0
 marshmallow-enum==1.5.1
