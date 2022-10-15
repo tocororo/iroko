@@ -17,7 +17,7 @@ build==0.8.0
 cached-property==1.5.2
 cachelib==0.6.0
 cchardet==2.1.7
-celery==5.1.2
+celery==5.2.2
 certifi==2022.9.24
 cffi==1.15.1
 charset-normalizer==2.0.12
