@@ -129,7 +129,7 @@ jupyter-core==4.9.2
 jupyterlab-pygments==0.2.0
 kombu==5.2.4
 limits==1.6
-lxml==4.8.0
+lxml==4.9.1
 Mako==1.2.0
 MarkupSafe==2.1.1
 marshmallow==3.15.0
