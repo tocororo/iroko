@@ -3,8 +3,10 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 import json
+import os
 
 import click
+from flask import current_app
 from flask.cli import with_appcontext
 
 from iroko.organizations.harvesters.grid import load_grid
@@ -61,7 +63,8 @@ def import_from_cuor():
         getter=OrganizationRecord.get_record,
         )
 
-    with open('data/cuor/exportmin1.json') as cuor_file:
+    datadir = current_app.config['IROKO_DATA_DIRECTORY']
+    with open(os.path.join(datadir,'cuor', 'export_all_org_record.json')) as cuor_file:
         cuor = json.load(cuor_file, object_hook=remove_nulls)
         for org_input in cuor:
             _id = org_input['id']

@@ -21,6 +21,7 @@ from invenio_db import db
 from invenio_oauth2server import require_api_auth
 from invenio_pidstore.errors import PIDObjectAlreadyAssigned
 
+from iroko.organizations.api import OrganizationRecord
 from iroko.sources.api import (IrokoSourceVersions, SourceRecord)
 from iroko.sources.marshmallow.source import (
     source_version_schema, source_version_schema_many,
@@ -462,7 +463,8 @@ def get_current_user_sources(status):
             )
         orgs = []
         for org in sources_orgs:
-            orgs.append(CuorHelper.query_cuor_by_uuid(org))
+            pid_val, org_rec = OrganizationRecord.get_org_by_pid(org)
+            orgs.append(org_rec)
 
         response = iroko_json_response(
             IrokoResponseStatus.SUCCESS,
@@ -532,7 +534,7 @@ def _get_sources_stats(org_id, offset):
     org = dict()
 
     if org_id:
-        org = CuorHelper.query_cuor_by_uuid(org_id)
+        pid_val, org = OrganizationRecord.get_org_by_pid(org_id)
         # print('******************* ORG *******************',org)
         if not org or 'metadata' not in org:
             org_id = None
@@ -605,7 +607,7 @@ def _get_sources_stats(org_id, offset):
         org['metadata']['source_count'] = search.count()
         for item in response.aggregations.orgs.buckets:
             # print('****** org ******', item.doc_count, item.key)
-            CuorHelper.append_key_value_to_relationship(
+            OrganizationRecord.append_key_value_to_relationship(
                 org, item.key, 'child', 'source_count', item.doc_count
                 )
 
@@ -747,7 +749,7 @@ def get_users_organization(uuid):
     :return:
     """
     try:
-        org = CuorHelper.query_cuor_by_uuid(uuid)
+        pid_val, org = OrganizationRecord.get_org_by_pid(uuid)
         if not org:
             raise Exception('Organization not found')
 
@@ -943,10 +945,10 @@ def set_organization_manager(user, uuid, allow=False):
         userObj = User.query.filter_by(id=user).first()
         if not userObj:
             raise Exception('User not found')
-        org = CuorHelper.query_cuor_by_uuid(uuid)
+        pid_val, org = OrganizationRecord.get_org_by_pid(uuid)
         if not org:
             raise Exception('Organization not found')
-        parents = CuorHelper.get_relationships_parent(org)
+        parents = OrganizationRecord.get_relationships_parent(org)
         print(parents)
         allow_parent = False
         for p in parents:

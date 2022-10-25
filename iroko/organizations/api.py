@@ -27,8 +27,11 @@ from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from invenio_pidstore.resolver import Resolver
 from invenio_records_files.api import Record
 from sqlalchemy.orm.exc import NoResultFound
+from invenio_records_rest.views import lt_es7
+from elasticsearch_dsl.query import Bool, Q
 
 from iroko.api import IrokoBaseRecord
+from iroko.organizations.search import OrganizationSearch
 from iroko.pidstore import pids
 from iroko.pidstore.pids import (
     ORGANIZATION_PID_TYPE, IROKO_OBJECT_TYPE, IDENTIFIERS_FIELD,
@@ -398,4 +401,114 @@ class OrganizationRecord(IrokoBaseRecord):
                 org.commit()
                 # .update(data, dbcommit=dbcommit, reindex=reindex)
 
-#5148
+    @classmethod
+    def get_search(cls, text=None, country=None, state=None, types=None) -> OrganizationSearch:
+        """return a  SourceSearch object with the specified status, classifications and
+        organizations
+        """
+
+        search = OrganizationSearch()
+
+        if not lt_es7:
+            search = search.extra(track_total_hits=True)
+
+        or_filters = []
+        and_filters = []
+        if text is not None:
+            and_filters.append(Q('match', **{'labels.label': text}))
+        if country is not None:
+            and_filters.append(Q('match', **{'addresses.country': country}))
+        if state is not None:
+            and_filters.append(Q('match', **{'addresses.state': state}))
+        if types is not None:
+            and_filters.append(Q('match', **{'types': types}))
+
+        search.query = Bool(filter=Q('bool', should=or_filters, must=and_filters))
+        return search
+
+    @classmethod
+    def get_if_child(cls, org, uuid):
+        """
+        check if uuid is in relationships of org as child
+        :param org: Organization dict
+        :param uuid: uuid of the child to search
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if uuid == rel['id'] and rel['type'] == 'child':
+                        return rel
+        return None
+
+    @classmethod
+    def get_if_parent(cls, org, uuid):
+        """
+        check if uuid is in relationships of org as parent
+        :param org: Organization dict
+        :param uuid: uuid of the parent to search
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if uuid == rel['id'] and rel['type'] == 'parent':
+                        return rel
+        return None
+
+    @classmethod
+    def get_relationship(cls, org, uuid):
+        """
+        check if uuid is in relationships of org as child
+        :param org: Organization dict
+        :param uuid: uuid of the relationship to search
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if uuid == rel['id']:
+                        return rel
+        return None
+
+    @classmethod
+    def get_relationships(cls, org, rel_type):
+        """
+        return all relationships of a organization
+        :param org:
+        :param rel_type:
+        :return:
+        """
+        result = []
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if rel['type'] == rel_type:
+                        result.append(rel)
+        return result
+
+    @classmethod
+    def get_relationships_parent(cls, org):
+        return cls.get_relationships(org, 'parent')
+
+    @classmethod
+    def get_relationships_child(cls, org):
+        return cls.get_relationships(org, 'child')
+
+    @classmethod
+    def append_key_value_to_relationship(cls, org, child_id, relation_type, key, value):
+        """
+
+        :param org: organization
+        :param child_id: id of the relation
+        :param relation_type: type of relation
+        :param key: key to append
+        :param value: value to append
+        :return:
+        """
+        if 'metadata' in org and 'relationships' in org['metadata']:
+            for rel in org['metadata']['relationships']:
+                if 'id' in rel and 'type' in rel:
+                    if id == rel['id']:
+                        rel[key] = value
+

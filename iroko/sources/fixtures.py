@@ -20,6 +20,7 @@ from invenio_db import db
 
 import iroko.pidstore.pids as pids
 from iroko.harvester.models import HarvestType, Repository
+from iroko.organizations.api import OrganizationRecord
 from iroko.sources.api import SourceRecord
 from iroko.sources.harvesters.issn import IssnDataParser
 from iroko.sources.models import Source, SourceStatus, SourceType, SourceVersion, TermSources
@@ -156,7 +157,7 @@ def init_journals():
                             if orgaid in org_cache:
                                 org = org_cache[orgaid]
                             else:
-                                org = CuorHelper.query_cuor_by_pid(orgaid)
+                                pid_val, org =  OrganizationRecord.get_org_by_pid(orgaid)
                                 org_cache[orgaid] = org
                         else:
                             name = tax['institutions'][record['institution']]["name"]
@@ -180,7 +181,7 @@ def init_journals():
                                 if orgaid in org_cache:
                                     parent_org = org_cache[orgaid]
                                 else:
-                                    parent_org = CuorHelper.query_cuor_by_pid(orgaid)
+                                    pid_val, org =  OrganizationRecord.get_org_by_pid(orgaid)
                                     org_cache[orgaid] = parent_org
                             else:
                                 name = tax['institutions'][parent_id]["name"]

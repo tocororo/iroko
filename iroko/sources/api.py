@@ -949,7 +949,7 @@ class SourcesDeprecated:
             :returns: boolean, Source
         """
 
-        # TODO: Replace this function by Pidstore for sources.
+        # T`O`DO: Replace this function by Pidstore for sources.
         # esto cambiaria la filosofia un poco, hay que definir diferentes PIDs para los sources,
         # y eso depende del tipo de source, aqui nada mas se estan reflejando los de revistas y
         # lo hace mirando en el data, lo que no es la mejor manera.

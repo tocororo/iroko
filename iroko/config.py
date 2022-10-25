@@ -72,8 +72,8 @@ RATELIMIT_STORAGE_URL = 'redis://' + IP_REDIS + ':6379/3'
 #: Default language
 BABEL_DEFAULT_LANGUAGE = 'en'
 #: Default time zone
-BABEL_DEFAULT_TIMEZONE = 'Havana/Cuba'
-#: Other supported languages (do not include the default language in list).
+# BABEL_DEFAULT_TIMEZONE = 'Havana/Cuba'
+# Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
     # ('es', _('Spanish')),
     ]

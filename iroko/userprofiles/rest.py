@@ -35,7 +35,8 @@ def init_api(state):
 
 
 @api_blueprint.route('/me', methods=['GET'])
-@require_keycloak_auth(require_token=True, scopes_required=['openid'])
+# @require_keycloak_auth(require_token=True, scopes_required=['openid'])
+@require_api_auth()
 def get_user_info():
     try:
         biography = ""

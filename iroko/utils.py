@@ -29,6 +29,10 @@ from invenio_i18n.selectors import get_locale
 
 #     result[]
 #     for ts in termsources:
+from iroko.organizations.api import OrganizationRecord
+from iroko.organizations.search import OrganizationSearch
+
+
 class IrokoResponseStatus(enum.Enum):
     SUCCESS = "success"
     FAIL = "fail"
@@ -156,164 +160,29 @@ class CuorHelper:
     org_simple_cache = dict()
 
     @classmethod
-    def query_cuor_by_pid(cls, pid):
-        """Request an Organization by Persistent Identifier
-            not the CUOR UUID
-         """
-        try:
-            cache = current_cache.get("query_cuor_by_pid:{0}".format(pid)) or {}
-            if "date" not in cache:
-                cache["date"] = datetime.now()
-            if datetime.now() - cache["date"] < timedelta(days=1) and "org" in cache:
-                print("USING CACHE ORGANIZATION")
-                if 'status' in cache["org"] and cache["org"]['status'] == '404':
-                    cache["org"] = None
-                    return None
-                return cache["org"]
-
-            api_endpoint = current_app.config['CUOR_API_ENDPOINT']
-            session = requests.Session()
-            url = api_endpoint + '/pid?value=' + pid
-            response = session.get(url, verify=False)
-            result = json.loads(response.text)
-            if 'status' in result and result['status'] == '404':
-                return None
-            cache["org"] = result
-            cache["date"] = datetime.now()
-            current_cache.set("query_cuor_by_pid:{0}".format(pid), cache, timeout=-1)
-            return result
-        except Exception:
-            return None
-
-    @classmethod
-    def query_cuor_by_uuid(cls, uuid):
-        """"""
-        try:
-            cache = current_cache.get("query_cuor_by_pid:{0}".format(uuid)) or {}
-            if "date" not in cache:
-                cache["date"] = datetime.now()
-            if datetime.now() - cache["date"] < timedelta(days=1) and "org" in cache:
-                return cache["org"]
-
-            api_endpoint = current_app.config['CUOR_API_ENDPOINT']
-            session = requests.Session()
-            url = api_endpoint + '/' + uuid
-            response = session.get(url, verify=False)
-            result = json.loads(response.text)
-
-            cache["org"] = result
-            cache["date"] = datetime.now()
-            current_cache.set("query_cuor_by_pid:{0}".format(uuid), cache, timeout=-1)
-
-            return result
-        except Exception:
-            print(traceback.format_exc())
-            return None
-
-    @classmethod
     def query_cuor_by_label(cls, text, country='', state='', types=''):
         """get the fist name found in labels.label"""
         try:
-            api_endpoint = current_app.config['CUOR_API_ENDPOINT']
-            session = requests.Session()
-            url = api_endpoint + '?q=labels.label:' + text
-            if country != '':
-                url += '&country=' + country
-            if state != '':
-                url += '&state=' + state
-            if types != '':
-                url += '&types=' + types
-            response = session.get(url, verify=False)
-            result = json.loads(response.text)
-            if 'hits' in result and 'total' in result['hits'] and result['hits']['total'] > 0:
-                return result['hits']['hits'][0]
+            search = OrganizationRecord.get_search(text, country, state, types)
+            hit = search.scan()[0]
+            pid, org = OrganizationRecord.get_org_by_pid(hit.id)
+            return org
+
+            # api_endpoint = current_app.config['CUOR_API_ENDPOINT']
+            # session = requests.Session()
+            # url = api_endpoint + '?q=labels.label:' + text
+            # if country != '':
+            #     url += '&country=' + country
+            # if state != '':
+            #     url += '&state=' + state
+            # if types != '':
+            #     url += '&types=' + types
+            # response = session.get(url, verify=False)
+            # result = json.loads(response.text)
+            # if 'hits' in result and 'total' in result['hits'] and result['hits']['total'] > 0:
+            #     return result['hits']['hits'][0]
         except Exception:
             return None
 
-    @classmethod
-    def get_if_child(cls, org, uuid):
-        """
-        check if uuid is in relationships of org as child
-        :param org: Organization dict
-        :param uuid: uuid of the child to search
-        :return:
-        """
-        if 'metadata' in org and 'relationships' in org['metadata']:
-            for rel in org['metadata']['relationships']:
-                if 'id' in rel and 'type' in rel:
-                    if uuid == rel['id'] and rel['type'] == 'child':
-                        return rel
-        return None
-
-    @classmethod
-    def get_if_parent(cls, org, uuid):
-        """
-        check if uuid is in relationships of org as parent
-        :param org: Organization dict
-        :param uuid: uuid of the parent to search
-        :return:
-        """
-        if 'metadata' in org and 'relationships' in org['metadata']:
-            for rel in org['metadata']['relationships']:
-                if 'id' in rel and 'type' in rel:
-                    if uuid == rel['id'] and rel['type'] == 'parent':
-                        return rel
-        return None
-
-    @classmethod
-    def get_relationship(cls, org, uuid):
-        """
-        check if uuid is in relationships of org as child
-        :param org: Organization dict
-        :param uuid: uuid of the relationship to search
-        :return:
-        """
-        if 'metadata' in org and 'relationships' in org['metadata']:
-            for rel in org['metadata']['relationships']:
-                if 'id' in rel and 'type' in rel:
-                    if uuid == rel['id']:
-                        return rel
-        return None
-
-    @classmethod
-    def get_relationships(cls, org, rel_type):
-        """
-        return all relationships of a organization
-        :param org:
-        :param rel_type:
-        :return:
-        """
-        result = []
-        if 'metadata' in org and 'relationships' in org['metadata']:
-            for rel in org['metadata']['relationships']:
-                if 'id' in rel and 'type' in rel:
-                    if rel['type'] == rel_type:
-                        result.append(rel)
-        return result
-
-    @classmethod
-    def get_relationships_parent(cls, org):
-        return cls.get_relationships(org, 'parent')
-
-    @classmethod
-    def get_relationships_child(cls, org):
-        return cls.get_relationships(org, 'child')
-
-    @classmethod
-    def append_key_value_to_relationship(cls, org, child_id, relation_type, key, value):
-        """
-
-        :param org: organization
-        :param child_id: id of the relation
-        :param relation_type: type of relation
-        :param key: key to append
-        :param value: value to append
-        :return:
-        """
-        if 'metadata' in org and 'relationships' in org['metadata']:
-            for rel in org['metadata']['relationships']:
-                if 'id' in rel and 'type' in rel:
-                    if id == rel['id']:
-                        rel[key] = value
 
 
