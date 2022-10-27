@@ -62,6 +62,7 @@ def scan():
 @with_appcontext
 def scan_dir(d):
     """escanea el directorio d"""
+    print(d)
     OaiHarvester.scan_dir(src_dir=d)
 
 

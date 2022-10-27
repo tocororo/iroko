@@ -64,10 +64,13 @@ def import_from_cuor():
         )
 
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
-    with open(os.path.join(datadir,'cuor', 'export_all_org_record.json')) as cuor_file:
+    cuor_path = os.path.join(datadir,'cuor', 'export_all_org_record.json')
+    print(cuor_path)
+    with open(cuor_path) as cuor_file:
         cuor = json.load(cuor_file, object_hook=remove_nulls)
         for org_input in cuor:
             _id = org_input['id']
+            print('------',_id, '------')
             try:
                 persistent_identifier, org = resolver.resolve(str(_id))
                 if org:

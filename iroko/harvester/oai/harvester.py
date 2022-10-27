@@ -78,6 +78,7 @@ def get_source_from_zip(zip_file_path):
             identifier = xml.find(
                 ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
                 ).text
+            print('pid, source = SourceRecord.get_source_by_pid(oai_url)', oai_url)
             pid, source = SourceRecord.get_source_by_pid(oai_url)
             if not pid or not source:
                 return None
@@ -143,11 +144,12 @@ class OaiHarvester (SourceHarvester):
         :param dst_dir: directorio destino
         :return:
         """
+        print(src_dir)
         if not dst_dir:
             dst_dir = get_current_data_dir()
         if not src_dir:
             src_dir = get_current_data_dir()
-
+        print(src_dir)
         for item in os.listdir(src_dir):
             item_path = os.path.join(src_dir, item)
             if os.path.isfile(item_path):
