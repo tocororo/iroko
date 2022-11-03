@@ -144,8 +144,8 @@ RECORDS_REST_ENDPOINTS = {
             "application/json": ("iroko.records.serializers"
                                  ":json_v1_search"),
         },
-        'list_route': "/records/",
-        'item_route': "/records/<{0}:pid_value>".format(_RECORD_CONVERTER),
+        'list_route': "/search/records/",
+        'item_route': "/pid/record/<{0}:pid_value>".format(_RECORD_CONVERTER),
         'default_media_type': "application/json",
         'max_result_window': 10000,
         'error_handlers': {},
@@ -181,8 +181,8 @@ RECORDS_REST_ENDPOINTS = {
             "application/json": ("iroko.sources.marshmallow.source_v1"
                                  ":source_v1_search"),
         },
-        'list_route': "/sources/",
-        'item_route': "/sources/<pid(srcid):pid_value>",
+        'list_route': "/search/sources/",
+        'item_route': "/pid/source/<pid(srcid):pid_value>",
         'default_media_type': "application/json",
         'max_result_window': 10000,
         'error_handlers': {},
@@ -212,8 +212,8 @@ RECORDS_REST_ENDPOINTS = {
             'application/json': ('iroko.organizations.loaders'
                                  ':json_v1'),
         },
-        'list_route': '/organizations/',
-        'item_route': '/organizations/<{0}:pid_value>'.format(_ORG_CONVERTER),
+        'list_route': '/search/organizations/',
+        'item_route': '/pid/organization/<{0}:pid_value>'.format(_ORG_CONVERTER),
         'default_media_type': 'application/json',
         'max_result_window': 10000,
         'error_handlers': {},

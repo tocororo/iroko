@@ -363,7 +363,15 @@ def get_source_by_uuid_perm(uuid):
                         'allows': 'edit'
                         }
                     )
-
+        except PermissionDenied as err:
+            return iroko_json_response(
+                IrokoResponseStatus.SUCCESS, \
+                'ok', 'source', \
+                {
+                    'record': source_v1.transform_record(pid, source),
+                    'allows': 'none'
+                    }
+                )
     except Exception as e:
         print(traceback.format_exc())
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)

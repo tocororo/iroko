@@ -6,6 +6,7 @@
 
 import os
 import shutil
+import string
 import time
 import traceback
 import uuid
@@ -26,6 +27,8 @@ from iroko.harvester.oai import request_headers
 from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
 from iroko.records.api import IrokoRecord
 from iroko.sources.api import SourceRecord
+from iroko.sources.search import SourceSearch
+from elasticsearch_dsl.query import Bool, Q, QueryString
 # from iroko.sources.models import Source
 from iroko.utils import IrokoVocabularyIdentifiers
 from iroko.vocabularies.models import Term, Vocabulary
@@ -79,9 +82,28 @@ def get_source_from_zip(zip_file_path):
                 ".//{" + utils.xmlns.oai_identifier + "}repositoryIdentifier"
                 ).text
             print('pid, source = SourceRecord.get_source_by_pid(oai_url)', oai_url)
+            pid = None
+            source = None
             pid, source = SourceRecord.get_source_by_pid(oai_url)
+
             if not pid or not source:
-                return None
+                pid, source = SourceRecord.get_source_by_pid(identifier)
+            if not pid or not source:
+                search = SourceSearch()
+                search = search.extra(track_total_hits=True)
+                search.query = QueryString(query= name, default_field="name")
+                name = name.translate(str.maketrans('','',string.punctuation))\
+                                .lower().strip()
+                for hit in search.scan():
+                    hit_name = hit['name'].translate(
+                                str.maketrans('','',string.punctuation))\
+                                .lower().strip()
+                    if name == hit_name:
+                        _id = hit['id']
+                        pid, source = SourceRecord.get_source_by_pid(_id)
+                        source['oaiurl'] = oai_url
+                        source.add_identifier('oaiurl', oai_url)
+                        source.update()
 
             shutil.rmtree(
                 tmp_dir,
