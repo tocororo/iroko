@@ -543,11 +543,11 @@ def _get_sources_stats(org_id, offset):
 
     if org_id:
         pid_val, org = OrganizationRecord.get_org_by_pid(org_id)
-        # print('******************* ORG *******************',org)
-        if not org or 'metadata' not in org:
+        print('******************* ORG *******************',org)
+        if not org:
             org_id = None
             org = {}
-            # raise Exception('Organization with ID: {0} not found'.format(org_id))
+            raise Exception('Organization with ID: {0} not found'.format(org_id))
     if org_id:
         search = search.filter('term', organizations__id=org_id)
         bucket_org = A('terms', field='organizations.id', size=999999)
@@ -612,7 +612,7 @@ def _get_sources_stats(org_id, offset):
     # ).strftime("%H:%M:%S")))
 
     if org_id:
-        org['metadata']['source_count'] = search.count()
+        org['source_count'] = search.count()
         for item in response.aggregations.orgs.buckets:
             # print('****** org ******', item.doc_count, item.key)
             OrganizationRecord.append_key_value_to_relationship(
@@ -662,24 +662,24 @@ def get_sources_stats():
         org_id = request.args.get('org') if request.args.get('org') else None
 
         cache = current_cache.get("get_sources_stats:{0}{1}".format(org_id, offset)) or {}
-        if "date" not in cache:
-            cache["date"] = datetime.datetime.now()
-        if datetime.datetime.now() - cache["date"] < datetime.timedelta(
-            seconds=300
-            ) and "stats" in cache:
-            print(datetime.datetime.now())
-            print(cache["date"])
-            print(datetime.datetime.now() - cache["date"])
-            print(datetime.timedelta(seconds=300))
-            print("USING CACHE STATS")
-            result = cache["stats"]
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
-        else:
-            result = _get_sources_stats(org_id, offset)
-            cache["date"] = datetime.datetime.now()
-            cache["stats"] = result
-            current_cache.set("get_sources_stats:{0}{1}".format(org_id, offset), cache, timeout=-1)
-            return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
+        # if "date" not in cache:
+        #     cache["date"] = datetime.datetime.now()
+        # if datetime.datetime.now() - cache["date"] < datetime.timedelta(
+        #     seconds=300
+        #     ) and "stats" in cache:
+        #     print(datetime.datetime.now())
+        #     print(cache["date"])
+        #     print(datetime.datetime.now() - cache["date"])
+        #     print(datetime.timedelta(seconds=300))
+        #     print("USING CACHE STATS")
+        #     result = cache["stats"]
+        #     return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
+        # else:
+        result = _get_sources_stats(org_id, offset)
+        cache["date"] = datetime.datetime.now()
+        cache["stats"] = result
+        current_cache.set("get_sources_stats:{0}{1}".format(org_id, offset), cache, timeout=-1)
+        return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'aggr', result)
 
     except Exception as e:
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
