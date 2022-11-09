@@ -102,11 +102,11 @@ def _get_organization_relationships(uuid, rtype):
     children = []
     for rel in org['relationships']:
         pidvalue = rel['identifiers'][0]['value']
-        rel_type = rel['type']
         pid, rel_org = OrganizationRecord.get_org_by_pid(pidvalue)
+
         if pid and rel_org:
             if rtype:
-                if rtype == rel_type:
+                if 'type' in rel and rtype == rel['type']:
                     children.append(json_v1.transform_record(pid, rel_org))
             else:
                 children.append(json_v1.transform_record(pid, rel_org))
@@ -119,18 +119,20 @@ def get_organization_relationships(uuid):
     """Get a source by any PID received as a argument, including UUID"""
     try:
         rtype = request.args.get('type') if request.args.get('type') else None
-        cache = current_cache.get("get_organization_relationships:{0}{1}".format(uuid, rtype)) or {}
-        if "date" not in cache:
-            cache["date"] = datetime.datetime.now()
-        if datetime.datetime.now() - cache["date"] < datetime.timedelta(days=1) and "stats" in cache:
-            result = cache["stats"]
-            return jsonify(result)
-        else:
-            result = _get_organization_relationships(uuid, rtype)
-            cache["date"] = datetime.datetime.now()
-            cache["stats"] = result
-            current_cache.set("get_organization_relationships:{0}{1}".format(uuid, rtype), cache, timeout=-1)
-            return jsonify(result)
+        result = _get_organization_relationships(uuid, rtype)
+        return jsonify(result)
+        # cache = current_cache.get("get_organization_relationships:{0}{1}".format(uuid, rtype)) or {}
+        # if "date" not in cache:
+        #     cache["date"] = datetime.datetime.now()
+        # if datetime.datetime.now() - cache["date"] < datetime.timedelta(days=1) and "stats" in cache:
+        #     result = cache["stats"]
+        #     return jsonify(result)
+        # else:
+        #     result = _get_organization_relationships(uuid, rtype)
+        #     cache["date"] = datetime.datetime.now()
+        #     cache["stats"] = result
+        #     current_cache.set("get_organization_relationships:{0}{1}".format(uuid, rtype), cache, timeout=-1)
+        #     return jsonify(result)
 
     except Exception as e:
         return jsonify({

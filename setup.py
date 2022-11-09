@@ -145,6 +145,7 @@ setup(
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
             'iroko_organizations = iroko.organizations.views:blueprint',
+            'iroko_internal_apps = iroko.auth.internal_apps:blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
         ],
