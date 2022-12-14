@@ -287,9 +287,18 @@ def source_unpublish(uuid):
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/byissn/<issn>')
+@api_blueprint.route('/byissn/<issn>', methods=['GET'])
 def get_source_by_issn(issn):
-    """Get a source by any PID received as a argument, including UUID"""
+    """Get a source by any PID received as a argument, including UUID
+    ---
+    get:
+        parameters:
+      - in: path
+        name: issn
+        required: true
+        description: ISSN of the source that we want to match
+        type: string
+    """
 
     # print('eres la api correcta?')
     # print('eres la api correcta?')
@@ -311,7 +320,16 @@ def get_source_by_issn(issn):
 
 @api_blueprint.route('/pid', methods=['GET'])
 def get_source_by_pid():
-    """Get a source by any PID received as a argument, including UUID"""
+    """Get a source by any PID received as a argument, including UUID
+        ---
+    get:
+        parameters:
+      - in: query
+        name: value
+        required: true
+        description: PID, any PID, of the source we want to match
+        type: string
+    """
     try:
         pidvalue = request.args.get('value')
         pid, source = SourceRecord.get_source_by_pid(pidvalue)

@@ -148,6 +148,8 @@ setup(
             'iroko_internal_apps = iroko.auth.internal_apps:blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
+            'iroko_swagger = iroko.docs.views:swagger_blueprint',
+            'iroko_apispec = iroko.docs.views:apispec_blueprint',
         ],
         'invenio_assets.webpack': [
             'iroko_theme = iroko.theme.webpack:theme',

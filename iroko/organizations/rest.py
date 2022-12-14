@@ -11,7 +11,7 @@ from flask import Blueprint, request, jsonify, abort, current_app
 from invenio_cache import current_cache
 
 from iroko.organizations.api import OrganizationRecord
-from iroko.organizations.marshmallow import MetadataSchemaRelIDsV1
+from iroko.organizations.marshmallow import OrgMetadataSchemaRelIDsV1
 from iroko.organizations.serializers import json_v1_response, json_v1, org_json_v1
 
 
@@ -88,7 +88,7 @@ def get_real_org_by_pid(pid):
         })
 
 
-organizations_schema_many = MetadataSchemaRelIDsV1(many=True)
+organizations_schema_many = OrgMetadataSchemaRelIDsV1(many=True)
 
 
 def sortOrg(org):

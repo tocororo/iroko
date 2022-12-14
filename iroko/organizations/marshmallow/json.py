@@ -115,7 +115,7 @@ class AddressSchemaV1(StrictKeysMixin):
     municipality_dpa = SanitizedUnicode()
 
 
-class MetadataSchemaBaseV1(StrictKeysMixin):
+class OrgMetadataSchemaBaseV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
     id = PersistentIdentifier()
@@ -145,20 +145,20 @@ class MetadataSchemaBaseV1(StrictKeysMixin):
     )
 
 
-class MetadataSchemaV1(MetadataSchemaBaseV1):
+class OrgMetadataSchemaV1(OrgMetadataSchemaBaseV1):
     """Schema for the record metadata."""
     relationships = Nested(RelationSchemaV1, many=True)
 
 
-class MetadataSchemaRelIDsV1(MetadataSchemaBaseV1):
+class OrgMetadataSchemaRelIDsV1(OrgMetadataSchemaBaseV1):
     """Schema for the record metadata."""
     relationships = Nested(RelationSchemaWithIDsV1, many=True)
 
 
-class RecordSearchSchemaV1(StrictKeysMixin):
+class OrgRecordSearchSchemaV1(StrictKeysMixin):
     """Record schema."""
 
-    metadata = fields.Nested(MetadataSchemaV1)
+    metadata = fields.Nested(OrgMetadataSchemaV1)
     created = fields.Str(dump_only=True)
     revision = fields.Integer(dump_only=True)
     updated = fields.Str(dump_only=True)
@@ -171,7 +171,7 @@ class RecordSearchSchemaV1(StrictKeysMixin):
 class RecordSchemaV1(StrictKeysMixin):
     """Record schema."""
 
-    metadata = fields.Nested(MetadataSchemaRelIDsV1)
+    metadata = fields.Nested(OrgMetadataSchemaRelIDsV1)
     created = fields.Str(dump_only=True)
     revision = fields.Integer(dump_only=True)
     updated = fields.Str(dump_only=True)

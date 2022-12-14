@@ -28,7 +28,7 @@ from invenio_oauth2server.views.server import error_handler as oauth_error_handl
 from invenio_previewer.proxies import current_previewer
 
 from iroko.organizations.api import OrganizationRecord
-from iroko.organizations.marshmallow import MetadataSchemaRelIDsV1
+from iroko.organizations.marshmallow import OrgMetadataSchemaRelIDsV1
 from iroko.organizations.serializers import json_v1_response, json_v1, org_json_v1
 
 blueprint = Blueprint(
