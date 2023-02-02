@@ -7,7 +7,14 @@
 name: 'sceiba-journal'
 version: '0.0.1'
 description: 'metodologia de sceiba para la evaluacion de revistas cientificas'
-
+user: ''
+date: ''
+entity:
+  id: ''
+  name:
+  type: 'journal'
+  issn: ''
+  url: ''
 sections:
   - title: 'Visibilidad'
     description: 'Indicador de Visibilidad'
