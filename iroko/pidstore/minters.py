@@ -74,6 +74,15 @@ def organization_uuid_minter(org_uuid, data):
     return provider.pid
 
 
+def person_uuid_minter(org_uuid, data):
+    provider = providers.PersonUUIDProvider.create(
+        object_type=pids.IROKO_OBJECT_TYPE,
+        object_uuid=org_uuid,
+        data=data
+        )
+    return provider.pid
+
+
 def identifiers_minter(uuid, data, object_type):
     prsIDs = providers.IdentifiersProvider.create_identifiers(
         object_type=object_type,

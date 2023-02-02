@@ -31,13 +31,18 @@ ORGANIZATION_PID_TYPE = "orgid"
 ORGANIZATION_PID_MINTER = "orgid"
 ORGANIZATION_PID_FETCHER = "orgid"
 
+PERSON_PID_TYPE = "perid"
+PERSON_PID_MINTER = "perid"
+PERSON_PID_FETCHER = "perid"
+
 IROKO_OBJECT_TYPE = "rec"
 IROKO_UUID_FIELD = "id"
 
 IROKO_UUID_PID_TYPES = [
     'irouid',
     'srcid',
-    'orgid'
+    'orgid',
+    'perid'
     ]
 
 def get_pid_by_data(data):
@@ -105,6 +110,10 @@ identifiers_schemas = [
     "url",
     "urn",
     "orcid",
+    "dni",      #National identification number
+    "scopid",   #Person Scopus ID
+    "empid",    #employer ID, Id in human resources systems
+    "passp",    #Passport
     "gnd",
     "ads",
     "oai",
@@ -117,9 +126,9 @@ identifiers_schemas = [
     "isni",
     "fudref",
     "orgref",
-    "reup",
-    "orgaid",
-    "uniid",
+    "reup",     #ONEI
+    "orgaid",   #ONEI
+    "uniid",    #ONEI
     "sceibaid"
     ]
 

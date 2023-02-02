@@ -66,6 +66,13 @@ def organization_uuid_fetcher(org_uuid, data):
         pid_value=str(data[pids.IROKO_UUID_FIELD]),
     )
 
+def person_uuid_fetcher(per_uuid, data):
+    return FetchedPID(
+        provider=providers.PersonUUIDProvider,
+        pid_type=providers.PersonUUIDProvider.pid_type,
+        pid_value=str(data[pids.IROKO_UUID_FIELD]),
+    )
+
 
 def identifiers_fetcher(record_uuid, data, pid_type):
     assert data, "no data"

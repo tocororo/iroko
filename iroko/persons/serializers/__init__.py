@@ -20,26 +20,22 @@ from invenio_records_rest.serializers.response import (
     search_responsify,
 )
 
-from iroko.organizations.marshmallow import OrgRecordSearchSchemaV1, OrgMetadataSchemaBaseV1
-from ..marshmallow import OrganizationRecordSchemaV1
-
 # Serializers
 # ===========
 #: JSON serializer definition.
-json_v1 = JSONSerializer(OrganizationRecordSchemaV1, replace_refs=True)
-org_json_v1 = JSONSerializer(OrgMetadataSchemaBaseV1, replace_refs=True)
-json_v1_for_search = JSONSerializer(OrgRecordSearchSchemaV1, replace_refs=True)
+from iroko.persons.marshmallow.json import PersonRecordSchemaV1
+
+json_v1 = JSONSerializer(PersonRecordSchemaV1, replace_refs=True)
 
 # Records-REST serializers
 # ========================
 #: JSON record serializer for individual organizations.
 json_v1_response = record_responsify(json_v1, 'application/json')
 #: JSON record serializer for search results.
-json_v1_search = search_responsify(json_v1_for_search, 'application/json')
+json_v1_search = search_responsify(json_v1, 'application/json')
 
 __all__ = (
     'json_v1',
-    'json_v1_for_search',
     'json_v1_response',
     'json_v1_search',
 )

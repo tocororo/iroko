@@ -168,7 +168,7 @@ class OrgRecordSearchSchemaV1(StrictKeysMixin):
         serialize=files_from_context, deserialize=files_from_context)
 
 
-class RecordSchemaV1(StrictKeysMixin):
+class OrganizationRecordSchemaV1(StrictKeysMixin):
     """Record schema."""
 
     metadata = fields.Nested(OrgMetadataSchemaRelIDsV1)

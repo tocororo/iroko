@@ -6,14 +6,16 @@
 
 from lxml import etree
 
+from iroko.api import IrokoBaseRecord
 from iroko.records import ContributorRole
 
 
-class IrokoPerson:
+class PersonRecord (IrokoBaseRecord):
+    _schema = "persons/persons-v1.0.0.json"
 
     @staticmethod
     def get_people_from_nlm(metadata: etree._Element):
-        """get a IrokoPerson from {http://dtd.nlm.nih.gov/publishing/2.3}contrib
+        """get a PersonRecord from {http://dtd.nlm.nih.gov/publishing/2.3}contrib
         etree._Element
         return creators, contribs dics, """
 

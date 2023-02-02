@@ -24,60 +24,132 @@
         },
         "name": {
           "type": "text",
-          "analyzer": "english"
+          "analyzer": "keyword"
         },
-        "status": {
-          "type": "keyword"
-        },
-        "aliases": {
+        "last_name": {
           "type": "text",
-          "analyzer": "english"
+          "analyzer": "keyword"
         },
-        "acronyms": {
+        "public": {
           "type": "keyword"
         },
-        "types": {
+        "active": {
           "type": "keyword"
         },
-        "established": {
+        "gender": {
           "type": "keyword"
         },
-        "onei_registry": {
-          "type": "keyword"
-        },
-        "labels": {
+        "country": {
           "type": "object",
           "properties": {
-            "label": {
+            "code": {
               "type": "keyword"
             },
-            "iso639": {
+            "name": {
               "type": "keyword"
             }
           }
         },
-        "addresses": {
+        "email_address": {
+          "type": "keyword"
+        },
+        "aliases": {
+          "type": "keyword"
+        },
+        "research_interests": {
+          "type": "keyword"
+        },
+        "key_words": {
+          "type": "keyword"
+        },
+        "academic_titles": {
+          "type": "keyword"
+        },
+        "affiliations": {
           "type": "object",
           "properties": {
-            "city": {
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "start_date": {
+              "type": "date",
+              "format": "date"
+            },
+            "end_date": {
+              "type": "date",
+              "format": "date"
+            },
+            "label": {
               "type": "keyword"
             },
-            "country": {
+            "id": {
               "type": "keyword"
             },
-            "state": {
+            "roles": {
+              "type": "keyword"
+            }
+          }
+        },
+        "roles_sceiba": {
+          "type": "keyword"
+        },
+        "publications": {
+          "type": "object",
+          "properties": {
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "id": {
               "type": "keyword"
             },
-            "country_code": {
+            "title": {
+              "type": "string"
+            },
+            "roles": {
               "type": "keyword"
             },
-            "state_code": {
+            "status": {
+              "type": "keyword"
+            }
+          }
+        },
+        "sources": {
+          "type": "object",
+          "properties": {
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "id": {
               "type": "keyword"
             },
-            "municipality": {
-              "type": "keyword"
+            "name": {
+              "type": "string"
             },
-            "municipality_dpa": {
+            "roles": {
               "type": "keyword"
             }
           }

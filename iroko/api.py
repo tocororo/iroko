@@ -115,6 +115,29 @@ class IrokoBaseRecord(Record):
         return None, None
 
 
+
+    @classmethod
+    def get_record_by_pid(cls, record_pid_type, pid_value, with_deleted=False):
+        resolver = Resolver(
+            pid_type=record_pid_type,
+            object_type=IROKO_OBJECT_TYPE,
+            getter=cls.get_record,
+            )
+        try:
+            return resolver.resolve(str(pid_value))
+        except Exception:
+            pass
+
+        for pid_type in identifiers_schemas:
+            try:
+                resolver.pid_type = pid_type
+                schemapid, rec = resolver.resolve(pid_value)
+                pid = PersistentIdentifier.get(record_pid_type, rec['id'])
+                return pid, rec
+            except Exception as e:
+                pass
+        return None, None
+
     @classmethod
     def get_record_by_pid_value(cls, pid_value):
         """return the record based on any pid, in the id field or in identifiers field"""

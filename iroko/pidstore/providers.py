@@ -227,6 +227,45 @@ class OrganizationUUIDProvider(BaseProvider):
             **kwargs
             )
 
+
+class PersonUUIDProvider(BaseProvider):
+    """Document identifier provider."""
+
+    pid_type = pids.PERSON_PID_TYPE
+    """Type of persistent identifier."""
+
+    pid_provider = None
+    """Provider name.
+    The provider name is not recorded in the PID since the provider does not
+    provide any additional features besides creation of record ids.
+    """
+
+    default_status = PIDStatus.REGISTERED
+    """Record IDs are by default registered immediately.
+    Default: :attr:`invenio_pidstore.models.PIDStatus.REGISTERED`
+    """
+
+    object_type = pids.IROKO_OBJECT_TYPE,
+
+    @classmethod
+    def create(cls,  pid_type=None, pid_value=None, object_type=None,
+               object_uuid=None, **kwargs):
+        """Create a new record identifier from the depoist PID value."""
+        pid_type = pid_type or cls.pid_type
+        pid_value = pid_value or uuid.uuid4()
+        object_type = object_type or cls.object_type
+        object_uuid = object_uuid or uuid.uuid4()
+        kwargs.setdefault('status', cls.default_status)
+        return super(PersonUUIDProvider, cls).create(
+            pid_type=pid_type,
+            pid_value=pid_value,
+            object_type=object_type,
+            object_uuid=object_uuid,
+            **kwargs
+            )
+
+
+
 class IdentifiersProvider(BaseProvider):
     default_status = PIDStatus.REGISTERED
 

@@ -17,12 +17,12 @@ from __future__ import absolute_import, print_function
 from invenio_jsonschemas import current_jsonschemas
 from invenio_records_rest.schemas import Nested, StrictKeysMixin
 from invenio_records_rest.schemas.fields import (
-    GenFunction,
+    DateString, GenFunction,
     PersistentIdentifier, SanitizedUnicode,
-)
+    )
 from marshmallow import fields, missing, validate, post_dump
 
-from iroko.organizations.api import OrganizationRecord
+from iroko.persons.api import PersonRecord
 
 allow_empty = validate.Length(min=0)
 
@@ -44,15 +44,8 @@ def schema_from_context(_, context):
     record = (context or {}).get('record', {})
     return record.get(
         "_schema",
-        current_jsonschemas.path_to_url(OrganizationRecord._schema)
+        current_jsonschemas.path_to_url(PersonRecord._schema)
     )
-
-
-class PersonIdsSchemaV1(StrictKeysMixin):
-    """Ids schema."""
-
-    source = SanitizedUnicode()
-    value = SanitizedUnicode()
 
 
 class IdentifierSchemaV1(StrictKeysMixin):
@@ -62,82 +55,55 @@ class IdentifierSchemaV1(StrictKeysMixin):
     value = SanitizedUnicode()
 
 
-class LabelSchemaV1(StrictKeysMixin):
-    """Ids schema."""
-
-    label = SanitizedUnicode()
-    iso639 = SanitizedUnicode()
+class CountrySchemaV1(StrictKeysMixin):
+    name = SanitizedUnicode()
+    code = SanitizedUnicode()
 
 
-class RelationSchemaV1(StrictKeysMixin):
-    """Ids schema."""
-
-    identifiers = Nested(IdentifierSchemaV1, many=True, required=True)
-    type = SanitizedUnicode()
-    label = SanitizedUnicode()
-
-
-class RelationSchemaWithIDsV1(StrictKeysMixin):
-    """Ids schema."""
-
+class AffiliationSchemaV1(StrictKeysMixin):
     id = SanitizedUnicode()
     identifiers = Nested(IdentifierSchemaV1, many=True, required=True)
-    type = SanitizedUnicode()
+    start_date  = DateString()
+    end_date = DateString()
     label = SanitizedUnicode()
-
-    @post_dump
-    def dump_id(self, relationship, **kwargs):
-        if 'id' not in relationship:
-            pidvalue = relationship['identifiers'][0]['value']
-            # TODO: ver si hay que optimizar esto.
-            pid, org = OrganizationRecord.get_org_by_pid(pidvalue)
-            if pid and org:
-                relationship['id'] = str(pid.pid_value)
-        return relationship
+    roles = fields.List(SanitizedUnicode(), many=True)
 
 
-class AddressSchemaV1(StrictKeysMixin):
-    """Ids schema."""
-
-    city = SanitizedUnicode()
-    country = SanitizedUnicode()
-    country_code = SanitizedUnicode()
-    lat = fields.Float()
-    lng = fields.Float()
-    line_1 = SanitizedUnicode()
-    line_2 = SanitizedUnicode()
-    line_3 = SanitizedUnicode()
-    postcode = SanitizedUnicode()
-    primary = fields.Bool()
-    state = SanitizedUnicode()
-    state_code = SanitizedUnicode()
-    municipality = SanitizedUnicode()
-    municipality_dpa = SanitizedUnicode()
+class PublicationSchemaV1(StrictKeysMixin):
+    id = SanitizedUnicode()
+    identifiers = Nested(IdentifierSchemaV1, many=True, required=True)
+    title = SanitizedUnicode()
+    roles = fields.List(SanitizedUnicode(), many=True)
+    status = fields.List(SanitizedUnicode(), many=True)
 
 
-class OrgMetadataSchemaBaseV1(StrictKeysMixin):
+class SourceSchemaV1(StrictKeysMixin):
+    id = SanitizedUnicode()
+    identifiers = Nested(IdentifierSchemaV1, many=True, required=True)
+    name = SanitizedUnicode()
+    roles = fields.List(SanitizedUnicode(), many=True)
+
+
+class PersonMetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
     id = PersistentIdentifier()
     identifiers = Nested(IdentifierSchemaV1, many=True, required=True)
     name = SanitizedUnicode(required=True, validate=validate.Length(min=3))
-    status = SanitizedUnicode()
+    last_name = SanitizedUnicode(required=True, validate=validate.Length(min=3))
+    public = fields.Bool()
+    active = fields.Bool()
+    gender = SanitizedUnicode()
+    country = Nested(CountrySchemaV1, many=True)
+    email_address = SanitizedUnicode(required=True, validate=validate.Email())
     aliases = fields.List(SanitizedUnicode(), many=True)
-    acronyms = fields.List(SanitizedUnicode(), many=True)
-    types = fields.List(SanitizedUnicode(), many=True)
-    wikipedia_url = fields.Url()
-    email_address = fields.Email()
-    ip_addresses = fields.List(SanitizedUnicode(), many=True)
-    established = fields.Integer()
-    onei_registry = fields.Integer()
-    exportable = fields.Bool()
-    research_activity = fields.Bool()
-    links = fields.List(fields.Url(), many=True)
-    labels = Nested(LabelSchemaV1, many=True)
-    relationships = Nested(RelationSchemaV1, many=True)
-    addresses = Nested(AddressSchemaV1, many=True)
-    redirect = IdentifierSchemaV1()
-
+    research_interests = fields.List(SanitizedUnicode(), many=True)
+    key_words = fields.List(SanitizedUnicode(), many=True)
+    academic_titles = fields.List(SanitizedUnicode(), many=True)
+    affiliations = Nested(AffiliationSchemaV1, many=True)
+    roles_sceiba = fields.List(SanitizedUnicode(), many=True)
+    publications = Nested(PublicationSchemaV1, many=True)
+    sources = Nested(SourceSchemaV1, many=True)
     _schema = GenFunction(
         attribute="$schema",
         data_key="$schema",
@@ -145,33 +111,10 @@ class OrgMetadataSchemaBaseV1(StrictKeysMixin):
     )
 
 
-class OrgMetadataSchemaV1(OrgMetadataSchemaBaseV1):
-    """Schema for the record metadata."""
-    relationships = Nested(RelationSchemaV1, many=True)
-
-
-class OrgMetadataSchemaRelIDsV1(OrgMetadataSchemaBaseV1):
-    """Schema for the record metadata."""
-    relationships = Nested(RelationSchemaWithIDsV1, many=True)
-
-
-class OrgRecordSearchSchemaV1(StrictKeysMixin):
+class PersonRecordSchemaV1(StrictKeysMixin):
     """Record schema."""
 
-    metadata = fields.Nested(OrgMetadataSchemaV1)
-    created = fields.Str(dump_only=True)
-    revision = fields.Integer(dump_only=True)
-    updated = fields.Str(dump_only=True)
-    links = fields.Dict(dump_only=True)
-    id = PersistentIdentifier()
-    files = GenFunction(
-        serialize=files_from_context, deserialize=files_from_context)
-
-
-class RecordSchemaV1(StrictKeysMixin):
-    """Record schema."""
-
-    metadata = fields.Nested(OrgMetadataSchemaRelIDsV1)
+    metadata = fields.Nested(PersonMetadataSchemaV1)
     created = fields.Str(dump_only=True)
     revision = fields.Integer(dump_only=True)
     updated = fields.Str(dump_only=True)
