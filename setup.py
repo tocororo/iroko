@@ -4,6 +4,8 @@
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
+#flask-swagger-ui              4.11.1
+#ully installed apispec-5.1.1
 
 """sceiba.cu backend source code"""
 
@@ -138,8 +140,8 @@ setup(
             'iroko_vocabularies= iroko.vocabularies.ext:IrokoVocabularies',
             'iroko_harvester = iroko.harvester.ext:IrokoHarvester',
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
-            'iroko_organizations = iroko.organizations:IrokoOrganizations',
-            'iroko_persons = iroko.persons:IrokoPersons',
+            'iroko_organizations = iroko.organizations.ext:IrokoOrganizations',
+            'iroko_persons = iroko.persons.ext:IrokoPersons',
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
@@ -171,14 +173,14 @@ setup(
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas',
             'sources = iroko.sources.schemas',
-            'organizations = iroko.organizations.jsonschemas'
-            'persons = iroko.persons.jsonschemas'
+            'organizations = iroko.organizations.jsonschemas',
+            'persons = iroko.persons.jsonschemas',
         ],
         'invenio_search.mappings': [
             'records = iroko.records.mappings',
             'sources = iroko.sources.mappings',
-            'organizations = iroko.organizations.mappings'
-            'persons = iroko.persons.mappings'
+            'organizations = iroko.organizations.mappings',
+            'persons = iroko.persons.mappings',
         ],
         'invenio_admin.views': [
             'vocabulary_admin = iroko.vocabularies.admin:vocabularies_adminview',
@@ -221,7 +223,7 @@ setup(
             'recoai = iroko.pidstore.fetchers:iroko_source_oai_fetcher',
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
             'orgid = iroko.pidstore.fetchers:organization_uuid_fetcher',
-            'perid = iroko.pidstore.fetchers:persons_uuid_fetcher',
+            'perid = iroko.pidstore.fetchers:person_uuid_fetcher',
             ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
@@ -229,7 +231,7 @@ setup(
             'recoai = iroko.pidstore.minters:iroko_source_oai_minter',
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
             'orgid = iroko.pidstore.minters:organization_uuid_minter',
-            'perid = iroko.pidstore.fetchers:persons_uuid_minter',
+            'perid = iroko.pidstore.minters:person_uuid_minter',
             ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
