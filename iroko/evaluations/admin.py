@@ -20,7 +20,7 @@ class EvaluationModelView(ModelView):
     # can_view_details = True
 
 
-    list_all = ('state', 'datetime', 'notes', 'user')
+    list_all = ('id','uuid','state', 'datetime', 'notes', 'user', 'data')
 
     column_list = list_all
 
@@ -28,7 +28,7 @@ class EvaluationModelView(ModelView):
 
     column_filters = ('state', 'datetime', 'notes', 'user')
 
-    form_columns = ('state', 'datetime', 'notes', 'user')
+    form_columns = ('state', 'datetime', 'notes', 'user', 'data')
 
 
 evaluation_adminview = dict(

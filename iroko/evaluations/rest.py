@@ -6,7 +6,7 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 
-"""Iroko notifications api views."""
+"""Iroko evaluations api views."""
 
 from __future__ import absolute_import, print_function
 
@@ -14,25 +14,25 @@ from flask import Blueprint, request
 from flask_login import current_user
 from invenio_oauth2server import require_api_auth
 
-from iroko.notifications.api import Notifications
-from iroko.notifications.marshmallow import notification_schema, notification_schema_many
-from iroko.notifications.models import Notification
-from iroko.notifications.permissions import notification_viewed_permission_factory
+from iroko.evaluations.api import Evaluations
+from iroko.evaluations.marshmallow import evaluation_schema, evaluation_schema_many
+from iroko.evaluations.models import Evaluation
+from iroko.evaluations.permissions import evaluation_viewed_permission_factory
 from iroko.utils import IrokoResponseStatus, iroko_json_response
 
 api_blueprint = Blueprint(
-    'iroko_api_notifications',
+    'iroko_api_evaluations',
     __name__,
-    url_prefix='/notification'
+    url_prefix='/evaluation'
     )
 
 
 @api_blueprint.route('/list')
 @require_api_auth()
-def get_notifications():
+def get_evaluations():
     try:
         """
-        List all notifications
+        List all evaluations
         """
         count = int(request.args.get('size')) if request.args.get('size') else 10
         page = int(request.args.get('page')) if request.args.get('page') else 1
@@ -42,17 +42,17 @@ def get_notifications():
         offset = count * (page - 1)
         limit = offset + count
 
-        result = Notification.query.filter_by(receiver_id=current_user.id).order_by('viewed').all()
-        result1 = Notification.query.filter_by(receiver_id=current_user.id, viewed=False).all()
+        result = Evaluation.query.filter_by(receiver_id=current_user.id).order_by('viewed').all()
+        result1 = Evaluation.query.filter_by(receiver_id=current_user.id, viewed=False).all()
 
         count_not_viewed = len(result1)
         count_total = len(result)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            'ok', 'notifications', \
+            'ok', 'evaluations', \
             {
-                'data': notification_schema_many.dump(result[offset:limit]),
+                'data': evaluation_schema_many.dump(result[offset:limit]),
                 'total': count_total, 'total_not_view': count_not_viewed
                 }
             )
@@ -63,18 +63,18 @@ def get_notifications():
 
 @api_blueprint.route('/<id>', methods=['GET'])
 @require_api_auth()
-def notification_get(id):
+def evaluation_get(id):
     try:
         user = None
 
-        msg, notif = Notifications.get_notification(id)
+        msg, notif = Evaluations.get_evaluation(id)
         if not notif:
-            raise Exception('Notification not found')
+            raise Exception('Evaluation not found')
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            msg, 'notification', \
-            notification_schema.dump(notif)
+            msg, 'evaluation', \
+            evaluation_schema.dump(notif)
             )
     except Exception as e:
         msg = str(e)
@@ -83,18 +83,18 @@ def notification_get(id):
 
 @api_blueprint.route('/receiver/<id>', methods=['GET'])
 @require_api_auth()
-def notification_get_receiver(id):
+def evaluation_get_receiver(id):
     try:
         user = None
 
-        msg, notif = Notifications.get_notification_receiver(id)
+        msg, notif = Evaluations.get_evaluation_receiver(id)
         if not notif:
-            raise Exception('Notification not found')
+            raise Exception('Evaluation not found')
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            msg, 'notification', \
-            notification_schema_many.dump(notif)
+            msg, 'evaluation', \
+            evaluation_schema_many.dump(notif)
             )
     except Exception as e:
         msg = str(e)
@@ -104,7 +104,7 @@ def notification_get_receiver(id):
 # TODO: Need authentication
 @api_blueprint.route('/edit/<id>', methods=['POST'])
 @require_api_auth()
-def notification_edit(id):
+def evaluation_edit(id):
     # FIXME: get the user is trying to perform this action!!!!
     try:
         user = None
@@ -113,14 +113,14 @@ def notification_edit(id):
 
         input_data = request.json
 
-        msg, notif = Notifications.edit_notification(id, input_data)
+        msg, notif = Evaluations.edit_evaluation(id, input_data)
         if not notif:
             raise Exception(msg)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            msg, 'notification', \
-            notification_schema.dump(notif)
+            msg, 'evaluation', \
+            evaluation_schema.dump(notif)
             )
     except Exception as e:
         msg = str(e)
@@ -130,18 +130,18 @@ def notification_edit(id):
 # TODO: Need authentication
 @api_blueprint.route('/viewed/<id>')
 @require_api_auth()
-def notification_viewed(id):
+def evaluation_viewed(id):
     # FIXME: get the user is trying to perform this action!!!!
     try:
-        with notification_viewed_permission_factory({'id': id}).require():
-            msg, notif = Notifications.viewed_notification(id)
+        with evaluation_viewed_permission_factory({'id': id}).require():
+            msg, notif = Evaluations.viewed_evaluation(id)
             if not notif:
-                raise Exception('Notifications not found')
+                raise Exception('Evaluations not found')
 
             return iroko_json_response(
                 IrokoResponseStatus.SUCCESS, \
-                msg, 'notification', \
-                notification_schema.dump(notif)
+                msg, 'evaluation', \
+                evaluation_schema.dump(notif)
                 )
 
     except Exception as e:
@@ -152,7 +152,7 @@ def notification_viewed(id):
 # TODO: Need authentication
 @api_blueprint.route('/new', methods=['POST'])
 @require_api_auth()
-def notification_new():
+def evaluation_new():
     # FIXME: get the user is trying to perform this action!!!!
     try:
         user = None
@@ -162,14 +162,14 @@ def notification_new():
 
         input_data = request.json
 
-        msg, notif = Notifications.new_notification(input_data)
+        msg, notif = Evaluations.new_evaluation(input_data)
         if not notif:
             raise Exception(msg)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            msg, 'notification', \
-            notification_schema.dump(notif)
+            msg, 'evaluation', \
+            evaluation_schema.dump(notif)
             )
 
     except Exception as e:

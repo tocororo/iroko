@@ -28,17 +28,17 @@ class EvaluationState(Enum):
 class Evaluation(db.Model):
     """Define a Notification"""
 
-    __tablename__ = 'iroko_notification'
+    __tablename__ = 'iroko_evaluation'
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(UUIDType, default=uuid.uuid4)
     state = db.Column(db.Enum(EvaluationState))
-    datetime = db.Column(db.Datetime) #TODO: esto puede ser un error
+    datetime = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.String)
     user_id = db.Column(
         db.Integer,
         db.ForeignKey(
-            User.id, name='fk_iroko_notifications_user_id'
+            User.id, name='fk_iroko_evaluations_user_id'
             )
         )
     user = db.relationship(

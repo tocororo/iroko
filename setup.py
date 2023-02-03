@@ -195,6 +195,7 @@ setup(
             'iroko.harvester.admin:harvester_items_adminview',
             'invenio_userprofiles_view = '
             'iroko.userprofiles.admin:user_profile_adminview',
+            'evaluations_admin = iroko.evaluations.admin:evaluation_adminview',
             ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.vocabularies.models',
@@ -202,6 +203,7 @@ setup(
             'iroko_sources = iroko.sources.models',
             'iroko_harvester = iroko.harvester.models',
             'invenio_userprofiles = iroko.userprofiles.models',
+            'iroko_evaluations = iroko.evaluations.models',
             ],
         'invenio_base.api_blueprints': [
             'iroko_taxonomy = iroko.vocabularies.rest:api_blueprint',
@@ -213,6 +215,7 @@ setup(
             'iroko_records = iroko.records.rest:api_blueprint',
             'iroko_organizations = iroko.organizations.rest:api_blueprint',
             'iroko_persons = iroko.persons.rest:api_blueprint',
+            'iroko_evaluations = iroko.evaluations.rest:api_blueprint',
             ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -249,7 +252,11 @@ setup(
             'notification_admin_actions = '
             'iroko.notifications.permissions:notification_admin_actions',
             'notification_viewed_actions = '
-            'iroko.notifications.permissions:notification_viewed_actions'
+            'iroko.notifications.permissions:notification_viewed_actions',
+            'evaluation_admin_actions = '
+            'iroko.evaluations.permissions:evaluation_admin_actions',
+            'evaluation_viewed_actions = '
+            'iroko.evaluations.permissions:evaluation_viewed_actions',
             ]
     },
     classifiers=[
