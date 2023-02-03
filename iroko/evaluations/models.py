@@ -47,4 +47,4 @@ class Evaluation(db.Model):
             )
         )
     #instancia de la evaluacion
-    eval_instance = db.Column(JSONType)
+    data = db.Column(JSONType)

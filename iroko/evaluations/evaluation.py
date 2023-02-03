@@ -4,8 +4,16 @@ import json
 
 
 def get_question(id: str):
-    ### load 
-    ###
+    
+    '''
+        Obtain an specific methodology question.
+
+        param1: The id of the question.
+
+        return: A dictionary that contains the question info 
+
+    '''
+
     with open("methodologies/journal/questions.es.yml", 'r') as stream:
         questions = yaml.safe_load(stream)
         for question in questions:
@@ -13,8 +21,16 @@ def get_question(id: str):
                 return question
 
 def get_recomendation(id: str):
-    ### load 
-    ###
+    
+    '''
+        Obtain an specific methodology recomendation.
+
+        param1: The id of the recomendation.
+
+        return: A dictionary that contains the recomendation info 
+
+    '''
+
     with open("methodologies/journal/recomendations.es.yml", 'r') as stream:
         recomendations = yaml.safe_load(stream)
         for recomendation in recomendations:
@@ -23,6 +39,14 @@ def get_recomendation(id: str):
 
 
 def build_evaluation_object(journal_id: str, user_id: str):
+
+    '''
+        Create a formulary for an evaluation.
+
+        param1: The id of the journal to evaluate.
+        param2: The id of the user that makes the evaluation.
+    '''
+
     result = dict()
     with open("methodologies/journal/methodology.es.yml", 'r') as stream:
         result = yaml.safe_load(stream)
