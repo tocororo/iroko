@@ -14,8 +14,7 @@
 
 from __future__ import absolute_import, print_function
 
-from .json import OrgMetadataSchemaV1, OrgMetadataSchemaRelIDsV1, RecordSchemaV1, OrgRecordSearchSchemaV1, OrgMetadataSchemaBaseV1
+from .json import PersonRecordSchemaV1
 
 __all__ = (
-'OrgMetadataSchemaV1', 'OrgMetadataSchemaRelIDsV1', 'OrganizationRecordSchemaV1', 'OrgRecordSearchSchemaV1',
-'OrgMetadataSchemaBaseV1')
+'PersonRecordSchemaV1')
