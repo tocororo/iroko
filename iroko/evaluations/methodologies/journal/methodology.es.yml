@@ -1,0 +1,111 @@
+
+
+
+#Metodología de evaluación de revistas de Sceiba
+
+
+name: 'sceiba-journal'
+version: '0.0.1'
+description: 'metodologia de sceiba para la evaluacion de revistas cientificas'
+user: ''
+date: ''
+entity:
+  id: ''
+  name:
+  type: 'journal'
+  issn: ''
+  url: ''
+sections:
+
+  - title: 'Visibilidad'
+    description: 'Indicador de Visibilidad'
+    categories:
+
+      - title: 'Indización'
+        questions:
+          - id: 'c_001_q_001'
+            answer: ''
+          - id: 'c_001_q_002'
+            answer: ''
+          - id: 'c_001_q_003'
+            answer: ''
+          - id: 'c_001_q_004'
+            answer: ''
+
+      - title: 'Acceso'
+        questions:
+          - id: 'c_002_q_001'
+            answer: ''
+          - id: 'c_002_q_002'
+            answer: ''
+          - id: 'c_002_q_003'
+            answer': ''
+          - id: 'c_002_q_004'
+            answer: ''
+          - id: 'c_002_q_005'
+            answer: ''
+
+      - title: 'Interoperabilidad'
+        questions: 
+          - id: 'c_003_q_001'
+            answer: ''
+          - id: 'c_003_q_002'
+            answer: ''
+          - id: 'c_003_q_003'
+            answer: ''
+          - id: 'c_003_q_004'
+            answer: ''
+          - id: 'c_003_q_005'
+            answer: ''
+          - id: 'c_003_q_006'
+            answer: ''
+          - id: 'c_003_q_007'
+            answer: ''
+          - id: 'c_003_q_008'
+            answer: ''
+        
+      - title: 'Apertura'
+        questions:
+          - id: 'c_004_q_001'
+            answer: ''
+          - id: 'c_004_q_002'
+            answer: '' 
+          - id: 'c_004_q_003'
+            answer: '' 
+          - id: 'c_004_q_004'
+            answer: '' 
+          - id: 'c_004_q_005'
+            answer: ''
+
+      - title: 'Internacionalización'
+        questions:
+          - id: 'c_005_q_001'
+            answer: ''
+          - id: 'c_005_q_002'
+            answer: ''
+          - id: 'c_005_q_003' 
+            answer: ''
+          - id: 'c_005_q_004'
+            answer: ''
+          - id: 'c_005_q_005' 
+            answer: ''
+          - id: 'c_005_q_006'
+            answer: ''
+
+      - title: 'Redes sociales'
+        questions:
+          - id: 'c_006_q_001'
+            answer: ''
+          - id: 'c_006_q_002'
+            answer: ''
+          - id: 'c_006_q_003'
+            answer: ''
+  
+
+  
+  # - title: 'Impacto'
+  #   description: 'Indicador de Visibilidad'
+  #   categories:
+  #     - title: 'Impacto académico'
+  #       questions:
+  #         -
