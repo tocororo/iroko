@@ -14,8 +14,7 @@ import uuid
 
 from invenio_accounts.models import User
 from invenio_db import db
-from sqlalchemy_utils.types import JSONType
-
+from sqlalchemy_utils.types import JSONType, UUIDType
 
 # TODO: add data field to Notification and Term
 
