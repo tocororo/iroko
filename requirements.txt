@@ -140,7 +140,7 @@ maxminddb-geolite2==2018.703
 mistune==0.8.4
 msgpack==1.0.3
 nbclient==0.5.13
-nbconvert==6.5.0
+nbconvert==6.5.1
 nbformat==5.3.0
 nest-asyncio==1.5.5
 node-semver==0.1.1
