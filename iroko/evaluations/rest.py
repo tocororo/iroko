@@ -42,18 +42,15 @@ def get_evaluations():
         offset = count * (page - 1)
         limit = offset + count
 
-        result = Evaluation.query.filter_by(receiver_id=current_user.id).order_by('viewed').all()
-        result1 = Evaluation.query.filter_by(receiver_id=current_user.id, viewed=False).all()
-
-        count_not_viewed = len(result1)
-        count_total = len(result)
+        result = Evaluation.query.all()
+        total = len(result)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
             'ok', 'evaluations', \
             {
                 'data': evaluation_schema_many.dump(result[offset:limit]),
-                'total': count_total, 'total_not_view': count_not_viewed
+                'total': total
                 }
             )
     except Exception as e:
@@ -63,18 +60,18 @@ def get_evaluations():
 
 @api_blueprint.route('/<id>', methods=['GET'])
 @require_api_auth()
-def evaluation_get(id):
+def get_evaluation(id):
     try:
         user = None
 
-        msg, notif = Evaluations.get_evaluation(id)
-        if not notif:
+        msg, evaluation = Evaluations.get_evaluation(id)
+        if not evaluation:
             raise Exception('Evaluation not found')
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
             msg, 'evaluation', \
-            evaluation_schema.dump(notif)
+            evaluation_schema.dump(evaluation)
             )
     except Exception as e:
         msg = str(e)
@@ -83,18 +80,18 @@ def evaluation_get(id):
 
 @api_blueprint.route('/receiver/<id>', methods=['GET'])
 @require_api_auth()
-def evaluation_get_receiver(id):
+def get_user_evaluations(user_id):
     try:
         user = None
 
-        msg, notif = Evaluations.get_evaluation_receiver(id)
-        if not notif:
+        msg, evaluation = Evaluations.get_user_evaluations(user_id)
+        if not evaluation:
             raise Exception('Evaluation not found')
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
             msg, 'evaluation', \
-            evaluation_schema_many.dump(notif)
+            evaluation_schema_many.dump(evaluation)
             )
     except Exception as e:
         msg = str(e)
@@ -102,57 +99,57 @@ def evaluation_get_receiver(id):
 
 
 # TODO: Need authentication
-@api_blueprint.route('/edit/<id>', methods=['POST'])
-@require_api_auth()
-def evaluation_edit(id):
-    # FIXME: get the user is trying to perform this action!!!!
-    try:
-        user = None
-        if not request.is_json:
-            raise Exception('No JSON data provided')
+# @api_blueprint.route('/edit/<id>', methods=['POST'])
+# @require_api_auth()
+# def evaluation_edit(id):
+#     # FIXME: get the user is trying to perform this action!!!!
+#     try:
+#         user = None
+#         if not request.is_json:
+#             raise Exception('No JSON data provided')
 
-        input_data = request.json
+#         input_data = request.json
 
-        msg, notif = Evaluations.edit_evaluation(id, input_data)
-        if not notif:
-            raise Exception(msg)
+#         msg, evaluation = Evaluations.edit_evaluation(id, input_data)
+#         if not evaluation:
+#             raise Exception(msg)
 
-        return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
-            evaluation_schema.dump(notif)
-            )
-    except Exception as e:
-        msg = str(e)
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+#         return iroko_json_response(
+#             IrokoResponseStatus.SUCCESS, \
+#             msg, 'evaluation', \
+#             evaluation_schema.dump(evaluation)
+#             )
+#     except Exception as e:
+#         msg = str(e)
+#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 # TODO: Need authentication
-@api_blueprint.route('/viewed/<id>')
-@require_api_auth()
-def evaluation_viewed(id):
-    # FIXME: get the user is trying to perform this action!!!!
-    try:
-        with evaluation_viewed_permission_factory({'id': id}).require():
-            msg, notif = Evaluations.viewed_evaluation(id)
-            if not notif:
-                raise Exception('Evaluations not found')
+# @api_blueprint.route('/viewed/<id>')
+# @require_api_auth()
+# def evaluation_viewed(id):
+#     # FIXME: get the user is trying to perform this action!!!!
+#     try:
+#         with evaluation_viewed_permission_factory({'id': id}).require():
+#             msg, evaluation = Evaluations.viewed_evaluation(id)
+#             if not evaluation:
+#                 raise Exception('Evaluations not found')
 
-            return iroko_json_response(
-                IrokoResponseStatus.SUCCESS, \
-                msg, 'evaluation', \
-                evaluation_schema.dump(notif)
-                )
+#             return iroko_json_response(
+#                 IrokoResponseStatus.SUCCESS, \
+#                 msg, 'evaluation', \
+#                 evaluation_schema.dump(evaluation)
+#                 )
 
-    except Exception as e:
-        msg = str(e)
-        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+#     except Exception as e:
+#         msg = str(e)
+#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
 # TODO: Need authentication
 @api_blueprint.route('/new', methods=['POST'])
 @require_api_auth()
-def evaluation_new():
+def new_evaluation():
     # FIXME: get the user is trying to perform this action!!!!
     try:
         user = None
@@ -162,14 +159,14 @@ def evaluation_new():
 
         input_data = request.json
 
-        msg, notif = Evaluations.new_evaluation(input_data)
-        if not notif:
+        msg, evaluation = Evaluations.build_evaluation_object(input_data)
+        if not evaluation:
             raise Exception(msg)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
             msg, 'evaluation', \
-            evaluation_schema.dump(notif)
+            evaluation_schema.dump(evaluation)
             )
 
     except Exception as e:
