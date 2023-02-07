@@ -30,7 +30,7 @@ class Evaluations:
             return: The evaluation that matches with the given id
         '''
 
-        eval = Evaluation.query.filter_by(id=id).first()
+        eval = Evaluation.query.filter_by(uuid=id).first()
         if eval:
             return 'ok', eval
         else:
@@ -67,8 +67,7 @@ class Evaluations:
             return: A dictionary that contains the question info 
 
         '''
-
-        with open("methodologies/journal/questions.es.yml", 'r') as stream:
+        with open("iroko/evaluations/methodologies/journal/questions.es.yml", 'r') as stream:
             questions = yaml.safe_load(stream)
             for question in questions:
                 if id == question['id']:
@@ -92,60 +91,33 @@ class Evaluations:
                     return recomendation
 
     @classmethod
-    def build_evaluation_object(cls, journal_id: str, user_id: str):
+    def build_evaluation_object(cls):
+    #def build_evaluation_object(cls, json_data):
 
         '''
             Create a formulary for an evaluation.
 
-            param1: The id of the journal to evaluate.
-            param2: The id of the user that makes the evaluation.
+            param1: Json with the data needed: the journal_id, user_id (language?)
 
             return: the json that represent the formulary data
         '''
 
         result = dict()
-        with open("methodologies/journal/methodology.es.yml", 'r') as stream:
+        with open("iroko/evaluations/methodologies/journal/methodology.es.yml", 'r') as stream:
             result = yaml.safe_load(stream)
-            result['user'] = user_id
+            # result['user'] = json_data['user_id']
             # TODO: fill global fields 
             for section in result['sections']:
                 for category in section['categories']:
                     new_questions = []
                     for question in category['questions']:
-                        print(question['id'])
-                        q = cls.get_question(question['id'])
+                        q = cls.get_question(cls, question['id'])
                         q['answer'] = ''
                         new_questions.append(q)
                     category['questionsOrRecoms'] = new_questions
                     del category['questions']
-        json_object = json.dumps(result, indent = 4) 
-        print(json_object)
-
-
-    # @classmethod
-    # def edit_evaluation(cls, id, data) -> Dict[str, Evaluation]:
-
-    #     msg, notif = cls.get_evaluation(id)
-    #     if notif:
-    #         valid_data = evaluation_schema.load(data)
-    #         if valid_data:
-    #             notif.classification = valid_data['classification']
-    #             notif.description = valid_data['description']
-    #             notif.emiter = valid_data['emiter']
-    #             notif.data = valid_data['data']
-# 
-    #             if not notif.receiver_id == valid_data['receiver_id']:
-    #                 # deny al que estaba notif.receiver_id
-    #                 cls.deny_evaluation_viewed_permission(notif.receiver_id, notif.id)
-    #                 # grant al nuevo valid_data['receiver_id']
-    #                 cls.grant_evaluation_viewed_permission(valid_data['receiver_id'], notif.id)
-    #             notif.receiver_id = valid_data['receiver_id']
-    #             db.session.commit()
-    #             msg = 'New Evaluation UPDATED classification={0}'.format(notif.classification)
-    #         else:
-    #             msg = 'errors'
-    #             notif = None
-    #     return msg, notif
+        #json_object = json.dumps(result, indent = 4) 
+        return result
 
     @classmethod
     def new_evaluation(cls, data) -> Dict[str, Evaluation]:
@@ -176,29 +148,6 @@ class Evaluations:
             evaluation = None
 
         return msg, evaluation
-
-    # @classmethod
-    # def new_evaluation(cls, data) -> Dict[str, Evaluation]:
-
-    #     notif_data = evaluation_schema.load(data)
-    #     if notif_data:
-    #         notif = Evaluation()
-    #         notif.classification = notif_data['classification']
-    #         notif.description = notif_data['description']
-    #         notif.receiver_id = notif_data['receiver_id']
-    #         notif.emiter = notif_data['emiter']
-    #         notif.data = notif_data['data']
-    #         db.session.add(notif)
-
-    #         db.session.flush()
-    #         cls.grant_evaluation_viewed_permission(notif.receiver_id, notif.id)
-    #         db.session.commit()
-
-    #         msg = 'New Evaluation CREATED classification={0}'.format(notif.classification)
-    #     else:
-    #         msg = 'Invalid data'
-    #         notif = None
-    #     return msg, notif
 
     # @classmethod
     # def grant_evaluation_editor_permission(cls, user_id, evaluation_id) -> Dict[str, bool]:

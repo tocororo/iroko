@@ -28,11 +28,11 @@ api_blueprint = Blueprint(
 
 
 @api_blueprint.route('/list')
-@require_api_auth()
+# @require_api_auth()
 def get_evaluations():
     try:
         """
-        List all evaluations
+        List all evaluations.
         """
         count = int(request.args.get('size')) if request.args.get('size') else 10
         page = int(request.args.get('page')) if request.args.get('page') else 1
@@ -59,8 +59,15 @@ def get_evaluations():
 
 
 @api_blueprint.route('/<id>', methods=['GET'])
-@require_api_auth()
+# @require_api_auth()
 def get_evaluation(id):
+
+    '''
+        Get the evaluation with the given id.
+
+        param1: The id of the evaluation.
+    '''
+
     try:
         user = None
 
@@ -78,9 +85,16 @@ def get_evaluation(id):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 
-@api_blueprint.route('/receiver/<id>', methods=['GET'])
-@require_api_auth()
+@api_blueprint.route('/reciever/<user_id>', methods=['GET'])
+# @require_api_auth()
 def get_user_evaluations(user_id):
+
+    '''
+        Get the evaluations corresponding with a specific user.
+
+        param1: The id of the user.
+    '''
+
     try:
         user = None
 
@@ -99,74 +113,34 @@ def get_user_evaluations(user_id):
 
 
 # TODO: Need authentication
-# @api_blueprint.route('/edit/<id>', methods=['POST'])
-# @require_api_auth()
-# def evaluation_edit(id):
-#     # FIXME: get the user is trying to perform this action!!!!
-#     try:
-#         user = None
-#         if not request.is_json:
-#             raise Exception('No JSON data provided')
-
-#         input_data = request.json
-
-#         msg, evaluation = Evaluations.edit_evaluation(id, input_data)
-#         if not evaluation:
-#             raise Exception(msg)
-
-#         return iroko_json_response(
-#             IrokoResponseStatus.SUCCESS, \
-#             msg, 'evaluation', \
-#             evaluation_schema.dump(evaluation)
-#             )
-#     except Exception as e:
-#         msg = str(e)
-#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-
-# TODO: Need authentication
-# @api_blueprint.route('/viewed/<id>')
-# @require_api_auth()
-# def evaluation_viewed(id):
-#     # FIXME: get the user is trying to perform this action!!!!
-#     try:
-#         with evaluation_viewed_permission_factory({'id': id}).require():
-#             msg, evaluation = Evaluations.viewed_evaluation(id)
-#             if not evaluation:
-#                 raise Exception('Evaluations not found')
-
-#             return iroko_json_response(
-#                 IrokoResponseStatus.SUCCESS, \
-#                 msg, 'evaluation', \
-#                 evaluation_schema.dump(evaluation)
-#                 )
-
-#     except Exception as e:
-#         msg = str(e)
-#         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-
-# TODO: Need authentication
 @api_blueprint.route('/new', methods=['POST'])
-@require_api_auth()
+# @require_api_auth()
 def new_evaluation():
+
+    '''
+        Create a new template for make a evaluation.
+    '''
+
     # FIXME: get the user is trying to perform this action!!!!
     try:
         user = None
 
-        if not request.is_json:
-            raise Exception('No JSON data provided')
+        #if not request.is_json:
+        #    raise Exception('No JSON data provided')
 
-        input_data = request.json
+        #input_data = request.json
 
-        msg, evaluation = Evaluations.build_evaluation_object(input_data)
+        #msg, evaluation = Evaluations.build_evaluation_object(input_data)
+        #msg, evaluation = Evaluations.build_evaluation_object()
+        evaluation = Evaluations.build_evaluation_object()
         if not evaluation:
-            raise Exception(msg)
+            raise Exception("Error building the evaluation json")
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
-            evaluation_schema.dump(evaluation)
+            'ok', 'evaluation', \
+            #evaluation_schema.dump(evaluation)
+            evaluation
             )
 
     except Exception as e:
