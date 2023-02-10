@@ -4,7 +4,7 @@
 from __future__ import absolute_import, print_function
 
 from iroko.persons.fixtures import allowed_file
-from flask import Blueprint, request, jsonify, abort, current_app, Flask, flash, redirect, url_for, Response
+from flask import Blueprint, request, jsonify, abort, current_app, Flask, flash, redirect, url_for, make_response
 from werkzeug.utils import secure_filename
 from iroko.persons.api import PersonRecord
 from iroko.persons.serializers import json_v1_response
@@ -57,5 +57,6 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             #Logical algorithm here
-            return file.read()
+            response = make_response(jsonify({'msg': 'success'}))
+            return response, 201
     return "Not suppoted file"
