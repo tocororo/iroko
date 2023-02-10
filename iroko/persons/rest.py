@@ -42,7 +42,7 @@ def get_person_by_pid_canonical():
 
 
 
-@api_blueprint.route('/', methods=['GET', 'POST'])
+@api_blueprint.route('/', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
