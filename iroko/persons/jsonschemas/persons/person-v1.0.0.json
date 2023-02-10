@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost/schemas/persons/persons-v1.0.0.json",
+  "id": "http://localhost/schemas/persons/person-v1.0.0.json",
   "title": "Person Schema, using orcid as a base(...?)",
   "type": "object",
   "additionalProperties": true,

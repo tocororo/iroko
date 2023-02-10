@@ -346,18 +346,45 @@ RECORDS_REST_FACETS = {
             'types': {
                 'terms': {
                     'field': 'types',
-                    'size': 8
+                    'size': 5
                     }
                 },
             'country': {
                 'terms': {
                     'field': 'addresses.country',
-                    'size': 8
+                    'size': 5
                     }
                 },
             'state': {
                 'terms': {
                     'field': 'addresses.state',
+                    'size': 5
+                    }
+                }
+            }
+        },
+    'persons': {
+        'filters': {
+            'gender': terms_filter('gender'),
+            'academic_titles': terms_filter('academic_titles'),
+            'affiliations': terms_filter('affiliations.id')
+            },
+        'aggs': {
+            'gender': {
+                'terms': {
+                    'field': 'gender',
+                    'size': 5
+                    }
+                },
+            'academic_titles': {
+                'terms': {
+                    'field': 'academic_titles',
+                    'size': 5
+                    }
+                },
+            'affiliations': {
+                'terms': {
+                    'field': 'affiliations.id',
                     'size': 5
                     }
                 }
@@ -408,6 +435,20 @@ RECORDS_REST_SORT_OPTIONS = {
             'default_order': 'asc',
             'order': 2
             }
+        },
+    'persons': {
+        'bestmatch': {
+            'title': _('Best match'),
+            'fields': ['_score'],
+            'default_order': 'desc',
+            'order': 1
+            },
+        'mostrecent': {
+            'title': _('Most recent'),
+            'fields': ['-_created'],
+            'default_order': 'asc',
+            'order': 2
+            }
         }
     }
 """Setup sorting options."""
@@ -422,6 +463,10 @@ RECORDS_REST_DEFAULT_SORT: {
         'noquery': 'bestmatch',
         },
     'organizations': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
+        },
+    'persons': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
         }
