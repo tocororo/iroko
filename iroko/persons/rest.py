@@ -3,9 +3,9 @@
 
 from __future__ import absolute_import, print_function
 
-
-from flask import Blueprint, request, jsonify, abort, current_app
-
+from iroko.persons.fixtures import allowed_file
+from flask import Blueprint, request, jsonify, abort, current_app, Flask, flash, redirect, url_for, Response
+from werkzeug.utils import secure_filename
 from iroko.persons.api import PersonRecord
 from iroko.persons.serializers import json_v1_response
 from iroko.pidstore import pids
@@ -37,3 +37,25 @@ def get_person_by_pid_canonical():
             'ERROR': 'no pid found'.format(_id)
         })
 
+        
+
+
+
+
+@api_blueprint.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return 'Not file in request'
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return 'Not file in request'
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            #Logical algorithm here
+            return file.read()
+    return "Not suppoted file"

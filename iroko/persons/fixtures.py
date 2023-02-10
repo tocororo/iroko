@@ -84,3 +84,8 @@ def _tmp_func():
             print(record)
             print('---------------------')
             print('---------------------')
+#Helpers for file uploads
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'csv', 'json'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
