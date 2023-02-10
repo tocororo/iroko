@@ -237,15 +237,15 @@ RECORDS_REST_ENDPOINTS = {
         'search_class': PersonsSearch,
         'indexer_class': RecordIndexer,
         'record_serializers': {
-            'application/json': ('iroko.person.serializers'
+            'application/json': ('iroko.persons.serializers'
                                  ':json_v1_response'),
         },
         'search_serializers': {
-            'application/json': ('iroko.person.serializers'
+            'application/json': ('iroko.persons.serializers'
                                  ':json_v1_search'),
         },
         'record_loaders': {
-            'application/json': ('iroko.person.loaders'
+            'application/json': ('iroko.persons.loaders'
                                  ':json_v1'),
         },
         'list_route': '/search/persons/',

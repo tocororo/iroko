@@ -18,11 +18,7 @@ from invenio_access import Permission, any_user
 curator_permission = Permission(RoleNeed('curator'))
 
 def can_edit_person_factory(record, *args, **kwargs):
-    """Checks if logged user can update or delete its organisation items.
-
-    librarian must have librarian or system_librarian role.
-    librarian can only update, delete items of its affiliated library.
-    sys_librarian can update, delete any item of its org only.
+    """Checks if logged user can update or delete person items.
     """
     def can(self):
         if current_user.is_authenticated and curator_permission.can():

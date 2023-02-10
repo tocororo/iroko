@@ -26,18 +26,18 @@ def get_person_by_pid_canonical():
     try:
         _id = request.args.get('value')
         print("**********************", _id)
-        pid, org = PersonRecord.get_record_by_pid(pids.PERSON_PID_TYPE, _id)
-        if not pid or not org:
+        pid, person = PersonRecord.get_record_by_pid(pids.PERSON_PID_TYPE, _id)
+        if not pid or not person:
             raise Exception('')
 
-        return json_v1_response(pid, org)
+        return json_v1_response(pid, person)
 
     except Exception as e:
         return jsonify({
             'ERROR': 'no pid found'.format(_id)
         })
 
-        
+
 
 
 
