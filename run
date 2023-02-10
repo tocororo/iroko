@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2022. Universidad de Pinar del Rio
+# This file is part of SCEIBA (sceiba.cu).
+# SCEIBA is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+#
+
+set -e
+
+script_path=$(dirname "$0")
+
+export FLASK_ENV=development
+# Start Worker and Server
+#pipenv run celery -A invenio_app.celery worker -l INFO & pid_celery=$!
+
+
+invenio run \
+       --cert "$script_path"/docker/nginx/test.crt \
+       --key "$script_path"/docker/nginx/test.key\
+       --host "10.138.10.87" \
+       & pid_server=$!
+
+#trap 'kill $pid_celery $pid_server &>/dev/null' EXIT
+#
+#wait $pid_celery $pid_server
+
+trap 'kill $pid_server &>/dev/null' EXIT
+
+wait $pid_server
