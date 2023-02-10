@@ -128,18 +128,15 @@ def new_evaluation():
         #if not request.is_json:
         #    raise Exception('No JSON data provided')
 
-        #input_data = request.json
+        input_data = request.json
+        evaluation = Evaluations.build_evaluation_object(input_data)
 
-        #msg, evaluation = Evaluations.build_evaluation_object(input_data)
-        #msg, evaluation = Evaluations.build_evaluation_object()
-        evaluation = Evaluations.build_evaluation_object()
         if not evaluation:
             raise Exception("Error building the evaluation json")
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
             'ok', 'evaluation', \
-            #evaluation_schema.dump(evaluation)
             evaluation
             )
 

@@ -13,8 +13,6 @@ from invenio_db import db
 from iroko.evaluations.marshmallow import evaluation_schema
 from iroko.evaluations.models import Evaluation
 import yaml
-import json
-
 
 class Evaluations:
     '''Manage Evaluations'''
@@ -91,8 +89,7 @@ class Evaluations:
                     return recomendation
 
     @classmethod
-    def build_evaluation_object(cls):
-    #def build_evaluation_object(cls, json_data):
+    def build_evaluation_object(cls, json_data):
 
         '''
             Create a formulary for an evaluation.
@@ -101,18 +98,24 @@ class Evaluations:
 
             return: the json that represent the formulary data
         '''
-
         result = dict()
         with open("iroko/evaluations/methodologies/journal/methodology.es.yml", 'r') as stream:
             result = yaml.safe_load(stream)
             # result['user'] = json_data['user_id']
-            # TODO: fill global fields 
+            # TODO: fill global fields
+
+            result['entity']['name'] = json_data['name']
+            result['entity']['url'] = json_data['url']
+            result['entity']['issn'] = json_data['issn']
+            result['journalData'] = result['entity']
+            del result['entity']
+            
             for section in result['sections']:
                 for category in section['categories']:
                     new_questions = []
                     for question in category['questions']:
                         q = cls.get_question(cls, question['id'])
-                        q['answer'] = ''
+                        q['answer'] = True
                         new_questions.append(q)
                     category['questionsOrRecoms'] = new_questions
                     del category['questions']

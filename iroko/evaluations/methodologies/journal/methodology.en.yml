@@ -1,9 +1,9 @@
 
-#Metodología de evaluación de revistas de Sceiba en espannol
+#Metodología de evaluación de revistas de Sceiba en ingles
 
 name: 'sceiba-journal'
 version: '0.0.1'
-description: 'metodologia de sceiba para la evaluacion de revistas cientificas'
+description: 'sceiba methodology for the evaluation of scientific journals'
 user: ''
 date: ''
 entity:
@@ -15,11 +15,11 @@ entity:
 sections:
 
   #Visibility Section
-  - title: 'Visibilidad'
-    description: 'Indicador de Visibilidad'
-    categories:
+  - title: 'Visibility'
+    description: 'Visibility indicator'
+    categories: 
 
-      - title: 'Indización'
+      - title: 'Indexing'
         questions:
           - id: 'c_001_q_001'
             answer: ''
@@ -30,20 +30,20 @@ sections:
           - id: 'c_001_q_004'
             answer: ''
 
-      - title: 'Acceso'
+      - title: 'Access'
         questions:
           - id: 'c_002_q_001'
             answer: ''
           - id: 'c_002_q_002'
             answer: ''
           - id: 'c_002_q_003'
-            answer': ''
+            answer: ''
           - id: 'c_002_q_004'
             answer: ''
           - id: 'c_002_q_005'
             answer: ''
 
-      - title: 'Interoperabilidad'
+      - title: 'Interoperability'
         questions: 
           - id: 'c_003_q_001'
             answer: ''
@@ -61,36 +61,36 @@ sections:
             answer: ''
           - id: 'c_003_q_008'
             answer: ''
-        
-      - title: 'Apertura'
+
+      - title: 'Opening'
         questions:
           - id: 'c_004_q_001'
             answer: ''
           - id: 'c_004_q_002'
-            answer: '' 
+            answer: ''
           - id: 'c_004_q_003'
-            answer: '' 
+            answer: ''
           - id: 'c_004_q_004'
-            answer: '' 
+            answer: ''
           - id: 'c_004_q_005'
             answer: ''
 
-      - title: 'Internacionalización'
-        questions:
+      - title: 'Internationalization'
+        questions: 
           - id: 'c_005_q_001'
             answer: ''
           - id: 'c_005_q_002'
             answer: ''
-          - id: 'c_005_q_003' 
+          - id: 'c_005_q_003'
             answer: ''
           - id: 'c_005_q_004'
             answer: ''
-          - id: 'c_005_q_005' 
+          - id: 'c_005_q_005'
             answer: ''
           - id: 'c_005_q_006'
             answer: ''
 
-      - title: 'Redes sociales'
+      - title: 'Social networks'
         questions:
           - id: 'c_006_q_001'
             answer: ''
@@ -98,22 +98,22 @@ sections:
             answer: ''
           - id: 'c_006_q_003'
             answer: ''
-  
-  #Impact Section
-  #- title: 'Impacto'
-  #  description: 'Indicador de Visibilidad'
-  #  categories:
-#
-  #    - title: 'Impacto académico'
-  #      questions:
-  #        - id : 'c_007_q_001'
-  #          answer : ''
-  #        - id : 'c_007_q_002'
-  #          answer : ''
-  #        - id : 'c_007_q_003'
-  #          answer : ''
-#
-  #    - title: 'Posición en rankings de revistas'
-  #      questions: 
-  #        - id : 'c_008_q_001'
-  #          answer : ''
+
+  #Impact Section 
+  - title: 'Impact'
+    description: 'Impact indicator'
+    categories:
+
+      - title: 'Academic impact'
+        questions:
+          - id: 'c_007_q_001'
+            answer: ''
+          - id: 'c_007_q_002'
+            answer: ''
+          - id: 'c_007_q_003'
+            answer: ''
+
+      - title: 'Position in journal rankings'
+        questions: 
+        - id: 'c_008_q_001'
+          answer: ''
