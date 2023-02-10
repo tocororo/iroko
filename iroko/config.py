@@ -32,10 +32,13 @@ from iroko.deployment import *
 from iroko.organizations.api import OrganizationRecord
 from iroko.organizations.permissions import can_edit_organization_factory
 from iroko.organizations.search import OrganizationSearch
+from iroko.persons.api import PersonRecord
+from iroko.persons.permissions import can_edit_person_factory
+from iroko.persons.search import PersonsSearch
 from iroko.pidstore import pids as pids
 from iroko.pidstore.pids import (
     ORGANIZATION_PID_FETCHER, ORGANIZATION_PID_MINTER,
-    ORGANIZATION_PID_TYPE,
+    ORGANIZATION_PID_TYPE, PERSON_PID_FETCHER, PERSON_PID_MINTER, PERSON_PID_TYPE,
     )
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
@@ -123,7 +126,9 @@ _SOURCE_CONVERTER = (
 _ORG_CONVERTER = (
     'pid(orgid, record_class="iroko.organizations.api.OrganizationRecord")'
 )
-
+_PERSON_CONVERTER = (
+    'pid(orgid, record_class="iroko.person.api.PersonRecord")'
+)
 RECORDS_REST_ENDPOINTS = {
     'irouid': {
         'pid_type': pids.RECORD_PID_TYPE,
@@ -221,6 +226,37 @@ RECORDS_REST_ENDPOINTS = {
         'read_permission_factory_imp': check_elasticsearch,
         'update_permission_factory_imp': can_edit_organization_factory,
         'delete_permission_factory_imp': can_edit_organization_factory,
+        'list_permission_factory_imp': allow_all
+        },
+    'perid': {
+        'pid_type': PERSON_PID_TYPE,
+        'pid_minter': PERSON_PID_MINTER,
+        'pid_fetcher': PERSON_PID_FETCHER,
+        'default_endpoint_prefix': True,
+        'record_class': PersonRecord,
+        'search_class': PersonsSearch,
+        'indexer_class': RecordIndexer,
+        'record_serializers': {
+            'application/json': ('iroko.person.serializers'
+                                 ':json_v1_response'),
+        },
+        'search_serializers': {
+            'application/json': ('iroko.person.serializers'
+                                 ':json_v1_search'),
+        },
+        'record_loaders': {
+            'application/json': ('iroko.person.loaders'
+                                 ':json_v1'),
+        },
+        'list_route': '/search/persons/',
+        'item_route': '/pid/persons/<{0}:pid_value>'.format(_ORG_CONVERTER),
+        'default_media_type': 'application/json',
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': can_edit_person_factory,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': can_edit_person_factory,
+        'delete_permission_factory_imp': can_edit_person_factory,
         'list_permission_factory_imp': allow_all
         }
     }

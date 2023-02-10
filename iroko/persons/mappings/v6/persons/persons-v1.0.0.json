@@ -1,6 +1,6 @@
 {
   "mappings": {
-    "organization-v1.0.0": {
+    "persons-v1.0.0": {
       "date_detection": false,
       "numeric_detection": false,
       "properties": {
