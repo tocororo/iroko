@@ -42,8 +42,10 @@ def get_person_by_pid_canonical():
 
 
 
-@api_blueprint.route('/', methods=['POST'])
+@api_blueprint.route('/import', methods=['POST'])
 def upload_file():
+    # /tmp/iroko/person/<datetime>.[csv|json]
+
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
