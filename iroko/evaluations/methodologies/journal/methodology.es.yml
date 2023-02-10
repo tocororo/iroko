@@ -99,21 +99,21 @@ sections:
           - id: 'c_006_q_003'
             answer: ''
   
-  #Impact Section
-  #- title: 'Impacto'
-  #  description: 'Indicador de Visibilidad'
-  #  categories:
-#
-  #    - title: 'Impacto académico'
-  #      questions:
-  #        - id : 'c_007_q_001'
-  #          answer : ''
-  #        - id : 'c_007_q_002'
-  #          answer : ''
-  #        - id : 'c_007_q_003'
-  #          answer : ''
-#
-  #    - title: 'Posición en rankings de revistas'
-  #      questions: 
-  #        - id : 'c_008_q_001'
-  #          answer : ''
+  # Impact Section
+  - title: 'Impacto'
+   description: 'Indicador de Visibilidad'
+   categories:
+
+     - title: 'Impacto académico'
+       questions:
+         - id : 'c_007_q_001'
+           answer : ''
+         - id : 'c_007_q_002'
+           answer : ''
+         - id : 'c_007_q_003'
+           answer : ''
+
+     - title: 'Posición en rankings de revistas'
+       questions: 
+         - id : 'c_008_q_001'
+           answer : ''
