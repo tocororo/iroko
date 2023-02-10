@@ -124,6 +124,7 @@ class Evaluations:
 
     @classmethod
     def new_evaluation(cls, data) -> Dict[str, Evaluation]:
+        
 
         '''
             Create a new instace of Evaluation

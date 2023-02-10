@@ -11,7 +11,7 @@ from iroko.records import ContributorRole
 
 
 class PersonRecord (IrokoBaseRecord):
-    _schema = "persons/persons-v1.0.0.json"
+    _schema = "persons/person-v1.0.0.json"
 
     @staticmethod
     def get_people_from_nlm(metadata: etree._Element):

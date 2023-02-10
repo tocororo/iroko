@@ -31,15 +31,15 @@ class IrokoOrganizations(object):
         app.cli.add_command(organizations)
         # self.init_config(app)
         app.extensions['iroko-organizations'] = self
-        self._register_signals(app)
+        # self._register_signals(app)
 
 
-    def _register_signals(self, app):
-        """Register signals."""
-        before_record_index.dynamic_connect(
-            indexer.indexer_receiver,
-            sender=app,
-            index="organizations-organization-v1.0.0")
-
-        file_deleted.connect(update_record_files_async, weak=False)
-        file_uploaded.connect(update_record_files_async, weak=False)
+    # def _register_signals(self, app):
+    #     """Register signals."""
+    #     before_record_index.dynamic_connect(
+    #         indexer.indexer_receiver,
+    #         sender=app,
+    #         index="organizations-organization-v1.0.0")
+    #
+    #     file_deleted.connect(update_record_files_async, weak=False)
+    #     file_uploaded.connect(update_record_files_async, weak=False)

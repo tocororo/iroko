@@ -32,10 +32,13 @@ from iroko.deployment import *
 from iroko.organizations.api import OrganizationRecord
 from iroko.organizations.permissions import can_edit_organization_factory
 from iroko.organizations.search import OrganizationSearch
+from iroko.persons.api import PersonRecord
+from iroko.persons.permissions import can_edit_person_factory
+from iroko.persons.search import PersonsSearch
 from iroko.pidstore import pids as pids
 from iroko.pidstore.pids import (
     ORGANIZATION_PID_FETCHER, ORGANIZATION_PID_MINTER,
-    ORGANIZATION_PID_TYPE,
+    ORGANIZATION_PID_TYPE, PERSON_PID_FETCHER, PERSON_PID_MINTER, PERSON_PID_TYPE,
     )
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
@@ -123,7 +126,9 @@ _SOURCE_CONVERTER = (
 _ORG_CONVERTER = (
     'pid(orgid, record_class="iroko.organizations.api.OrganizationRecord")'
 )
-
+_PERSON_CONVERTER = (
+    'pid(orgid, record_class="iroko.person.api.PersonRecord")'
+)
 RECORDS_REST_ENDPOINTS = {
     'irouid': {
         'pid_type': pids.RECORD_PID_TYPE,
@@ -222,6 +227,37 @@ RECORDS_REST_ENDPOINTS = {
         'update_permission_factory_imp': can_edit_organization_factory,
         'delete_permission_factory_imp': can_edit_organization_factory,
         'list_permission_factory_imp': allow_all
+        },
+    'perid': {
+        'pid_type': PERSON_PID_TYPE,
+        'pid_minter': PERSON_PID_MINTER,
+        'pid_fetcher': PERSON_PID_FETCHER,
+        'default_endpoint_prefix': True,
+        'record_class': PersonRecord,
+        'search_class': PersonsSearch,
+        'indexer_class': RecordIndexer,
+        'record_serializers': {
+            'application/json': ('iroko.persons.serializers'
+                                 ':json_v1_response'),
+        },
+        'search_serializers': {
+            'application/json': ('iroko.persons.serializers'
+                                 ':json_v1_search'),
+        },
+        'record_loaders': {
+            'application/json': ('iroko.persons.loaders'
+                                 ':json_v1'),
+        },
+        'list_route': '/search/persons/',
+        'item_route': '/pid/persons/<{0}:pid_value>'.format(_ORG_CONVERTER),
+        'default_media_type': 'application/json',
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': can_edit_person_factory,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': can_edit_person_factory,
+        'delete_permission_factory_imp': can_edit_person_factory,
+        'list_permission_factory_imp': allow_all
         }
     }
 
@@ -310,18 +346,45 @@ RECORDS_REST_FACETS = {
             'types': {
                 'terms': {
                     'field': 'types',
-                    'size': 8
+                    'size': 5
                     }
                 },
             'country': {
                 'terms': {
                     'field': 'addresses.country',
-                    'size': 8
+                    'size': 5
                     }
                 },
             'state': {
                 'terms': {
                     'field': 'addresses.state',
+                    'size': 5
+                    }
+                }
+            }
+        },
+    'persons': {
+        'filters': {
+            'gender': terms_filter('gender'),
+            'academic_titles': terms_filter('academic_titles'),
+            'affiliations': terms_filter('affiliations.id')
+            },
+        'aggs': {
+            'gender': {
+                'terms': {
+                    'field': 'gender',
+                    'size': 5
+                    }
+                },
+            'academic_titles': {
+                'terms': {
+                    'field': 'academic_titles',
+                    'size': 5
+                    }
+                },
+            'affiliations': {
+                'terms': {
+                    'field': 'affiliations.id',
                     'size': 5
                     }
                 }
@@ -372,6 +435,20 @@ RECORDS_REST_SORT_OPTIONS = {
             'default_order': 'asc',
             'order': 2
             }
+        },
+    'persons': {
+        'bestmatch': {
+            'title': _('Best match'),
+            'fields': ['_score'],
+            'default_order': 'desc',
+            'order': 1
+            },
+        'mostrecent': {
+            'title': _('Most recent'),
+            'fields': ['-_created'],
+            'default_order': 'asc',
+            'order': 2
+            }
         }
     }
 """Setup sorting options."""
@@ -386,6 +463,10 @@ RECORDS_REST_DEFAULT_SORT: {
         'noquery': 'bestmatch',
         },
     'organizations': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
+        },
+    'persons': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
         }

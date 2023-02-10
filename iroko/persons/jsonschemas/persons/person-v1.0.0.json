@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost/schemas/organizations/organization-v1.0.0.json",
-  "title": "Organization Schema, use https://www.grid.ac/format as a base",
+  "id": "http://localhost/schemas/persons/person-v1.0.0.json",
+  "title": "Person Schema, using orcid as a base(...?)",
   "type": "object",
   "additionalProperties": true,
   "required": [
@@ -19,7 +19,7 @@
     },
     "identifiers": {
       "type": "array",
-      "description": "Organization Identifiers, different from GRID mapping",
+      "description": "Person Identifiers",
       "items": {
         "type": "object",
         "additionalProperties": false,

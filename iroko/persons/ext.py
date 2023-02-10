@@ -6,7 +6,7 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 
 
-"""Flask extension for Iroko Organizations."""
+"""Flask extension for Iroko Persons."""
 
 from __future__ import absolute_import, print_function
 
