@@ -1,3 +1,4 @@
+
 - type: 'bool'
   id: 'c_001_q_001'
   desc: 'Está incluida en DOAJ'
@@ -43,7 +44,6 @@
   id: 'c_002_q_003'
   desc: 'Están disponibles los artículos de manera individual en el sitio web de la revista'
   hint: 'Sitio oficial de la revista'
-  answer': ''
   selectOptions:
     - label: 'No están disponibles de manera individual ni puede descargarse el número completo'
       value: 'NO_DISPONIBLE_IND_NO_DESC_NUM'
@@ -111,8 +111,8 @@
   desc: 'Permite que se depositen los artículos en plataformas no comerciales (repositorios de acceso abierto) o comerciales (ej. Researchgate)'
   hint: 'Sitio oficial de la revista/Aura'
   selectOptions: 
-    - label': 'Varias versiones de los artículos (incluyendo la versión final del editor)'
-      value': 'VARIAS_VERSIONES_ART'
+    - label: 'Varias versiones de los artículos (incluyendo la versión final del editor)'
+      value: 'VARIAS_VERSIONES_ART'
     - label: 'Solamente la versión preprint'
       value: 'SOLAMENTE_VER_PREPRINT'
     - label: 'Solamente la versión post-print (versión final del editor)'
@@ -237,3 +237,48 @@
       value: 'SOLAMENTE_MENDELEY_RESEARCHGATE'
     - label: 'Tanto en Twitter-Facebook-Instagram (al menos una de ellas) como en Mendeley y/o Researchgate'
       value: 'TWITTER_FACEBOOK_INSTAGRAM_MENDELEY_RESEARCHGATE'
+
+# Impacto academico
+
+- type: 'bool'
+  id: 'c_007_q_001'
+  desc: 'Tiene citas registradas en Scopus/Scimago o Scielo Analytics o Google Académico'
+  hint: ''
+
+- type: 'select'
+  id: 'c_007_q_002'
+  desc: 'Citas recibidas en Scopus/Scimago o Web de la Ciencia/JCR o Google Académico/Scielo Analytics'
+  hint: 'Este elemento se considerará para una de las siguientes opciones: Scopus/Scimago o Web de la Ciencia/JCR o Google Académico/Scielo Analytics. Si se desea estimar en más de una opción, hay que hacerlo de manera diferenciada. Nunca deben sumarse los totales de citación provenientes de diferentes fuentes'
+  selectOptions: 
+    - label: 'Menos del 20% de los artículos publicados en los últimos tres años han recibido al menos una cita'
+      value: 'MENOS_DEL_20_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
+    - label: 'Entre el 20% y el 50% de los artículos publicados en los últimos tres años han recibido al menos una cita'  
+      value: 'ENTRE_EL_20_Y_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
+    - label: 'Más del 50% de los artículos publicados en los últimos tres años han recibido al menos una cita'
+      value: 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
+
+- type: 'select'
+  id: 'c_007_q_003'
+  desc: 'Según Google Académico el índice H5 de la revista'
+  hint: 'Google académico'
+  selectOptions: 
+    - label: 'N/A (no aplica)'
+      value: 'NO_APLICA'
+    - label: 'Es menor o igual al índice H5 de la revista en el período anterior'
+      value: 'MENOR_IGUAL_IND_H5_REV_PER_ANT'
+    - label: 'Es mayor al índice H5 de la revista en el período anterior'
+      value: 'MAYOR_IND_H5_REV_PER_ANT'
+
+- type: 'select'
+  id: 'c_008_q_001'
+  desc: 'Está en rankings de revistas'
+  hint: 'Scopus/Scimago, JCR, Redalyc, REDIB, CIRS'
+  selectOptions: 
+  - label: 'No'
+    value: 'NO'
+  - label: 'En Q3-Q4 de Journal Citation Report/Scimago'
+    value: 'Q3_Q4_JOURNAL_CITATION'
+  - label: 'En Q1-Q2 de Journal Citation Report/Scimago'
+    value: 'Q1_Q2_JOURNAL_CITATION'
+  - label: 'Solamente incluida en rankings de revistas regionales/temáticas como Redalyc-REDIB-CIRS-etc.'
+    value: 'SOLAMENTE_RANKINGS_REV_REG_TEMAT'

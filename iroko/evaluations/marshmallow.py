@@ -5,14 +5,18 @@
 #
 
 from marshmallow import Schema, fields, post_load
+from enum import Enum
+from marshmallow_enum import EnumField
+from iroko.evaluations.models import EvaluationState
 
 
 class EvaluationSchema(Schema):
 
-    id = fields.Int(dump_only=True)
-    uuid = fields.UUID(dump_only=True)
-    state = fields.Int(required = False)
-    datetime = fields.DateTime(required = True)
+    id = fields.Int()
+    uuid = fields.UUID()
+    #state = fields.Str(required = False)
+    state = EnumField(EvaluationState)
+    datetime = fields.DateTime()
     notes = fields.Str(required=False)
     user_id = fields.Int(required = True)
 
