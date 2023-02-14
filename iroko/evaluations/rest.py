@@ -48,9 +48,11 @@ from invenio_oauth2server import require_api_auth
 
 from iroko.evaluations.api import Evaluations
 from iroko.evaluations.marshmallow import evaluation_schema, evaluation_schema_many
-from iroko.evaluations.models import Evaluation
+from iroko.evaluations.models import Evaluation, EvaluationState
 from iroko.evaluations.permissions import evaluation_viewed_permission_factory
 from iroko.utils import IrokoResponseStatus, iroko_json_response
+from datetime import datetime, date
+import json
 
 api_blueprint = Blueprint(
     'iroko_api_evaluations',
@@ -153,25 +155,89 @@ def new_evaluation():
         Create a new template for make a evaluation.
     '''
 
-    # FIXME: get the user is trying to perform this action!!!!
     try:
-        user = None
+        #user_id = current_user.id
 
-        #if not request.is_json:
-        #    raise Exception('No JSON data provided')
+        if not request.is_json:
+            raise Exception('No JSON data provided')
 
         input_data = request.json
-        evaluation = Evaluations.build_evaluation_object(input_data)
+        form  = Evaluations.build_evaluation_object(input_data)
 
-        if not evaluation:
+        if not form:
             raise Exception("Error building the evaluation json")
+        
+        eval_data = {}
+        eval_data['data'] = form
+        eval_data['user_id'] = 1
+        #eval_data['user_id'] = user_id
+        #eval_data['user_id'] = input_data['user_id']
+
+        try: 
+            notes = eval_data['notes']
+            eval_data['notes'] = notes
+        except:
+            eval_data['notes'] = ""
+
+        # TODO ver lo del ususario (autenticacion)
+
+        msg, evaluation = Evaluations.new_evaluation(eval_data)
+        print(evaluation)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            'ok', 'evaluation', \
-            evaluation
+            msg, 'evaluation', \
+            evaluation_schema.dump(evaluation)
             )
 
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+@api_blueprint.route('/process', methods=['POST'])
+# @require_api_auth()
+def process_evaluation():
+
+    try:
+        #user_id = current_user.id
+        user_id = 1
+
+        if not request.is_json:
+            raise Exception('No JSON data provided')
+
+        input_data = request.json
+
+        msg, evaluation = Evaluations.process_evalaution(input_data, user_id)
+    
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+    return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'evaluation', \
+            evaluation_schema.dump(evaluation)
+        )
+
+@api_blueprint.route('/save/<uuid>', methods=['POST'])
+# @require_api_auth()
+def complete_evaluation(uuid):
+
+    try:
+        #user_id = current_user.id
+        user_id = 2
+
+        msg, evaluation = Evaluations.complete_evaluation(uuid, user_id)
+
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            msg, 'evaluation', \
+            evaluation_schema.dump(evaluation)
+        )
+
+    except Exception as e:
+
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+

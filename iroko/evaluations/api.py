@@ -11,14 +11,19 @@ from invenio_accounts.models import User
 from invenio_db import db
 
 from iroko.evaluations.marshmallow import evaluation_schema
-from iroko.evaluations.models import Evaluation
+from iroko.evaluations.models import Evaluation, EvaluationState
 import yaml
+from datetime import datetime
+import json
+
+from copy import deepcopy
+
 
 class Evaluations:
     '''Manage Evaluations'''
 
     @classmethod
-    def get_evaluation(cls, id) -> Dict[str, Evaluation]:
+    def get_evaluation(cls, id):
 
         '''
             Obtain an evaluation from an id
@@ -108,6 +113,9 @@ class Evaluations:
             result['entity']['url'] = json_data['url']
             result['entity']['issn'] = json_data['issn']
             result['journalData'] = result['entity']
+            
+            #result['resultAndRecoms'] = {}
+
             del result['entity']
             
             for section in result['sections']:
@@ -115,12 +123,15 @@ class Evaluations:
                     new_questions = []
                     for question in category['questions']:
                         q = cls.get_question(cls, question['id'])
-                        q['answer'] = True
+                        q['answer'] = ""
                         new_questions.append(q)
                     category['questionsOrRecoms'] = new_questions
                     del category['questions']
         #json_object = json.dumps(result, indent = 4) 
+            
         return result
+
+
 
     @classmethod
     def new_evaluation(cls, data) -> Dict[str, Evaluation]:
@@ -140,18 +151,98 @@ class Evaluations:
 
             evaluation = Evaluation()
             evaluation.data = eval_data['data']
-            evaluation.datetime = eval_data['datetime']
+            evaluation.datetime = datetime.now()
             evaluation.notes = eval_data['notes']
-            evaluation.state = eval_data['state']
-            evaluation.user_id = eval_data['user_id']
+            evaluation.state = EvaluationState.INITIAL
+            evaluation.user_id = eval_data['user_id']  
 
-            # TODO save the new evaluation instance
+            db.session.add(evaluation)
+            db.session.flush()
+            db.session.commit() 
+
+            msg = "New Evaluation Created"
         
         else:
             msg = 'Invalid data'
             evaluation = None
 
         return msg, evaluation
+
+    @classmethod
+    def make_recoms(cls):
+
+        result = dict()
+
+        with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
+            result = yaml.safe_load(stream)
+        
+        return result
+
+    @classmethod
+    def process_evalaution(cls, data, user_id):
+
+        eval_data = evaluation_schema.load(data)
+
+        if eval_data:
+
+            try:
+                msg, evaluation = cls.get_evaluation(eval_data['uuid'])
+
+                if evaluation is None:
+                    msg = "The evaluation does not exist"
+                    return msg, None
+
+                if evaluation.state != EvaluationState.INITIAL:
+
+                    msg = "Is not an Initial Evalaution"
+                    return msg, evaluation
+
+                if evaluation.user_id != user_id:
+
+                    msg = "The current user is not the author of the evaluation"
+                    return msg, evaluation
+
+                evaluation.state = EvaluationState.PROCESSING
+
+                # TODO aplicar las reglas
+
+                recom = cls.make_recoms()
+                temp = deepcopy(evaluation.data)
+                temp['resultAndRecoms']= recom
+
+                evaluation.data = temp
+                db.session.commit()
+
+            except Exception as e:
+                msg = str(e)
+
+        else:
+            msg = 'Invalid Data'
+            evaluation = None
+        
+        return msg, evaluation
+
+    @classmethod
+    def complete_evaluation(cls, uuid, user_id):
+
+        msg, evaluation = cls.get_evaluation(uuid)
+
+        if evaluation.user_id != user_id:
+
+            msg = "The current user is not the author of the evaluation"
+            return msg, evaluation
+        
+        if evaluation.state != EvaluationState.PROCESSING:
+
+            msg = "Is not a processing evaluation"
+            return msg, evaluation
+
+        evaluation.state = EvaluationState.FINISH
+
+        db.session.flush()
+        db.session.commit()
+
+        return "ok", evaluation
 
     # @classmethod
     # def grant_evaluation_editor_permission(cls, user_id, evaluation_id) -> Dict[str, bool]:
