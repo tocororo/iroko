@@ -86,6 +86,9 @@ def fixture_spi_fields(person: PersonRecord, org: OrganizationRecord):
     if 'institutional_email' in person:
         person.add_email_address(person['institutional_email'])
         del(person['institutional_email'])
+    if 'lastName' in person:
+        person['last_name'] = person['lastName']
+        del(person['lastName'])
 
     new_identifiers = []
     for identifier in person[pids.IDENTIFIERS_FIELD]:

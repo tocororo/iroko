@@ -127,7 +127,7 @@ _ORG_CONVERTER = (
     'pid(orgid, record_class="iroko.organizations.api.OrganizationRecord")'
 )
 _PERSON_CONVERTER = (
-    'pid(perid, record_class="iroko.person.api.PersonRecord")'
+    'pid(perid, record_class="iroko.persons.api.PersonRecord")'
 )
 RECORDS_REST_ENDPOINTS = {
     'irouid': {
@@ -249,7 +249,7 @@ RECORDS_REST_ENDPOINTS = {
                                  ':json_v1'),
         },
         'list_route': '/search/persons/',
-        'item_route': '/pid/persons/<{0}:pid_value>'.format(_ORG_CONVERTER),
+        'item_route': '/pid/persons/<{0}:pid_value>'.format(_PERSON_CONVERTER),
         'default_media_type': 'application/json',
         'max_result_window': 10000,
         'error_handlers': {},
