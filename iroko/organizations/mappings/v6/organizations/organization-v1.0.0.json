@@ -23,15 +23,13 @@
           }
         },
         "name": {
-          "type": "text",
-          "analyzer": "english"
+          "type": "keyword"
         },
         "status": {
           "type": "keyword"
         },
         "aliases": {
-          "type": "text",
-          "analyzer": "english"
+          "type": "keyword"
         },
         "acronyms": {
           "type": "keyword"

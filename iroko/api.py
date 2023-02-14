@@ -41,7 +41,8 @@ class IrokoBaseRecord(Record):
 
         identifiers_minter(object_uuid, data, IROKO_OBJECT_TYPE)
 
-        rec = super(IrokoBaseRecord, cls).create(data=data, id_=object_uuid, with_bucket=False, **kwargs)
+        rec = super(IrokoBaseRecord, cls).create(data=data, id_=str(object_uuid),
+            with_bucket=False, **kwargs)
 
         db.session.commit()
         RecordIndexer().index(rec)
@@ -49,7 +50,7 @@ class IrokoBaseRecord(Record):
         return rec
 
     @classmethod
-    def resolve_and_update(cls, iroko_uuid, data, **kwargs):
+    def resolve_and_update(cls, iroko_uuid= None, data={}, **kwargs):
         print("first in resolve and update ==============================")
         print(data)
         print("===========================================================")
@@ -58,17 +59,18 @@ class IrokoBaseRecord(Record):
             object_type=IROKO_OBJECT_TYPE,
             getter=cls.get_record,
             )
-        for pid_type in pids.IROKO_UUID_PID_TYPES:
-            resolver.pid_type = pid_type
-            try:
-                persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
-                if rec:
-                    print("{0}={1} found".format(pid_type, iroko_uuid))
-                    rec.update(data)
-                    # .update(data, dbcommit=dbcommit, reindex=reindex)
-                    return rec, 'updated'
-            except Exception:
-                pass
+        if iroko_uuid:
+            for pid_type in pids.IROKO_UUID_PID_TYPES:
+                resolver.pid_type = pid_type
+                try:
+                    persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
+                    if rec:
+                        print("{0}={1} found".format(pid_type, iroko_uuid))
+                        rec.update(data)
+                        # .update(data, dbcommit=dbcommit, reindex=reindex)
+                        return rec, 'updated'
+                except Exception:
+                    pass
         if IDENTIFIERS_FIELD in data:  # Si no lo encontro por el uuid, igual se intenta buscar
             # desde cualquier otri pid
             for schema in identifiers_schemas:
@@ -198,11 +200,22 @@ class IrokoBaseRecord(Record):
         else:
             RecordIndexer().index(self)
 
+    def add_identifier(self, idtype, value):
+        self.add_update_item_to_list_field(
+            pids.IDENTIFIERS_FIELD, 'idtype',
+            {
+                'idtype': idtype,
+                'value': value
+                }
+            )
+
     def add_update_item_to_list_field(self, list_key, list_item_id_key, item_to_add):
         """helper function to add or update an item to a list field of the record (dict).
         list_key: the name of the field list in the record
         list_item_id_key: the name of the identifier field in the list field
         item_to_add: item to add or update to the list.
+
+        example: rec.add_update_item_to_list_field
         """
         if list_key not in self:
             self[list_key] = []

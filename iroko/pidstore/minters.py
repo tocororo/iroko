@@ -34,7 +34,7 @@ def iroko_uuid_minter(pid_type=None, pid_value=None, object_type=None,
         )
     # pid_field = current_app.config['PIDSTORE_RECID_FIELD']
     # # print(str(data))
-    data[pids.IROKO_UUID_FIELD] = provider.pid.pid_value
+    data[pids.IROKO_UUID_FIELD] = str(provider.pid.pid_value)
     return provider.pid
 
 

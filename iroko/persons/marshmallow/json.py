@@ -20,9 +20,7 @@ from invenio_records_rest.schemas.fields import (
     DateString, GenFunction,
     PersistentIdentifier, SanitizedUnicode,
     )
-from marshmallow import fields, missing, validate, post_dump
-
-from iroko.persons.api import PersonRecord
+from marshmallow import fields, missing, validate, post_dump, INCLUDE
 
 allow_empty = validate.Length(min=0)
 
@@ -95,7 +93,7 @@ class PersonMetadataSchemaV1(StrictKeysMixin):
     active = fields.Bool()
     gender = SanitizedUnicode()
     country = Nested(CountrySchemaV1, many=True)
-    email_address = SanitizedUnicode(required=True, validate=validate.Email())
+    email_addresses = fields.List(SanitizedUnicode(), validate=validate.Email())
     aliases = fields.List(SanitizedUnicode(), many=True)
     research_interests = fields.List(SanitizedUnicode(), many=True)
     key_words = fields.List(SanitizedUnicode(), many=True)
@@ -122,3 +120,5 @@ class PersonRecordSchemaV1(StrictKeysMixin):
     id = PersistentIdentifier()
     files = GenFunction(
         serialize=files_from_context, deserialize=files_from_context)
+
+personMetadataSchema = PersonMetadataSchemaV1(many=False, unknown=INCLUDE)

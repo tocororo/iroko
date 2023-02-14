@@ -7,15 +7,12 @@
   "required": [
     "identifiers",
     "id",
-    "name",
-    "last_name",
-    "public",
-    "active"
+    "name"
   ],
   "properties": {
     "id": {
       "type": "string",
-      "description": "Iroko UUID, pid_type = orgid"
+      "description": "Iroko UUID, pid_type = perid"
     },
     "identifiers": {
       "type": "array",
@@ -52,12 +49,7 @@
     },
     "gender": {
       "type": "string",
-      "description": "For an active institute, this is always set to active",
-      "enum": [
-        "male",
-        "female",
-        "other"
-      ]
+      "description": "any string describing gender"
     },
     "country": {
       "type": "object",
@@ -73,9 +65,12 @@
         }
       }
     },
-    "email_address": {
-      "type":  "string",
-      "description": "A contact email address for the institute"
+    "email_addresses": {
+      "type": "array",
+      "description": "A list of email addresses",
+      "items": {
+        "type": "string"
+      }
     },
     "aliases": {
       "type": "array",

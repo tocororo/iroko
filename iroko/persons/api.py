@@ -3,72 +3,103 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
-
-from lxml import etree
-
+import json
 from iroko.api import IrokoBaseRecord
-from iroko.records import ContributorRole
+from iroko.organizations.api import OrganizationRecord
+from iroko.persons.marshmallow.json import personMetadataSchema
+from iroko.pidstore import pids
+from iroko.utils import remove_nulls
 
+from invenio_pidstore.resolver import Resolver
+
+from iroko.pidstore.pids import PERSON_PID_TYPE
 
 class PersonRecord (IrokoBaseRecord):
     _schema = "persons/person-v1.0.0.json"
 
-    @staticmethod
-    def get_people_from_nlm(metadata: etree._Element):
-        """get a PersonRecord from {http://dtd.nlm.nih.gov/publishing/2.3}contrib
-        etree._Element
-        return creators, contribs dics, """
 
-        xmlns = '{http://dtd.nlm.nih.gov/publishing/2.3}'
-        contribs_xml = metadata.findall('.//' + xmlns + 'contrib')
+    @classmethod
+    def load_from_json_file(cls, file_path, org_pid):
+        """bulk import of person from a json file asociated from specific organization
+        expect spi format
+        tries to create new persons profiles."""
 
-        contributors = {}
+        resolver = Resolver(
+            pid_type=pids.PERSON_PID_TYPE,
+            object_type=pids.IROKO_OBJECT_TYPE,
+            getter=PersonRecord.get_record,
+            )
+        org = OrganizationRecord.get_record_by_pid_value(org_pid)
+        if org:
+            with open(file_path) as _file:
+                persons = json.load(_file, object_hook=remove_nulls)
+                for data in persons:
+                    person = PersonRecord(data)
+                    person  = fixture_spi_fields(person, org)
+                    person.add_affiliation(org)
+                    del person['_id']
+                    print(person)
+                    personRecord, msg = cls.resolve_and_update(data=person)
+                    if not personRecord:
+                        print("no pids found, creating organization")
+                        personRecord = cls.create(person, iroko_pid_type=pids.PERSON_PID_TYPE)
+                        msg = 'created'
 
-        for contrib in contribs_xml:
-            person = dict()
 
-            surname = contrib.find(xmlns + 'name/' + xmlns + 'surname')
-            given_names = contrib.find(xmlns + 'name/' + xmlns + 'given-names')
-            aff = contrib.find(xmlns + 'aff')
-            email = contrib.find(xmlns + 'email')
-            if given_names is None and surname is None:
-                # FIXME if a person dont have surname or given name, then is not a person....
-                #  even if there is an email?
-                continue
-            else:
-                name = ""
-                if given_names is not None and given_names.text is not None:
-                    name += given_names.text
-                if surname is not None and surname.text is not None:
-                    name += ' ' + surname.text
-                person['name'] = name
-                if aff is not None:
-                    person['affiliations'] = []
-                    person['affiliations'].append(aff.text)
-                if email is not None:
-                    person['email'] = email.text
-                person['roles'] = []
-                if 'corresp' in contrib.attrib:
-                    if contrib.attrib['corresp'] == "yes":
-                        person['roles'].append(ContributorRole.ContactPerson.value)
-                if 'contrib-type' in contrib.attrib:
-                    ctype = contrib.attrib['contrib-type']
-                    if ctype == "author":
-                        person['roles'].append(ContributorRole.Author.value)
-                    if ctype == "editor":
-                        person['roles'].append(ContributorRole.Editor.value)
-                    if ctype == "jmanager":
-                        person['roles'].append(ContributorRole.JournalManager.value)
-                if person['name'] in contributors.keys():
-                    contributors[person['name']]['roles'].extend(person['roles'])
-                else:
-                    contributors[person['name']] = person
-        creators = []
-        contribs = []
-        for name in contributors:
-            person = contributors[name]
-            if ContributorRole.Author.value in person['roles']:
-                creators.append(person)
-            else:
-                contribs.append(person)
-        return creators, contribs
+    def add_affiliation(self, org: OrganizationRecord,
+                        start_date=None, end_date=None,
+                        role='member'):
+        self.add_update_item_to_list_field(
+            'affiliations', 'id',
+            {
+                'id': str(org.id),
+                'identifiers': org.identifiers,
+                'label':org['name'],
+                'roles': [role]
+                }
+            )
+    def add_email_address(self, email_address):
+        if not 'email_addresses' in self:
+            self['email_addresses'] = []
+        is_new = True
+        for address in self['email_addresses']:
+            if address == email_address:
+                is_new = False
+        if is_new:
+            self['email_addresses'].append(email_address)
+
+
+
+
+
+
+
+def fixture_spi_fields(person: PersonRecord, org: OrganizationRecord):
+    """hard code fixtures of spi data, coming from human resources of cuban institutions """
+    country_code = 'cu'
+    country = 'Cuba'
+    if 'addresses' in org and len(org['addresses']) > 0:
+        country_code = org['addresses'][0]['country_code']
+        country = org['addresses'][0]['country']
+        person['country'] = {'code': country_code, 'name': country}
+
+    if 'institutional_email' in person:
+        person.add_email_address(person['institutional_email'])
+        del(person['institutional_email'])
+
+    new_identifiers = []
+    for identifier in person[pids.IDENTIFIERS_FIELD]:
+        if identifier['idtype'] == 'noCi':
+            new_identifiers.append({
+                'idtype': 'dni',
+                'value': 'dni:' + country_code + '.' + identifier['idvalue'],
+                })
+        elif identifier['idtype'] == 'idExpediente':
+            new_identifiers.append({
+                'idtype': 'hrid',
+                'value': 'hrid:' + str(org.id) + '.' + identifier['idvalue'],
+                })
+        else:
+            new_identifiers.append(identifier)
+    person[pids.IDENTIFIERS_FIELD] = new_identifiers
+    return person

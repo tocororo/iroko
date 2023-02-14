@@ -112,7 +112,7 @@ identifiers_schemas = [
     "orcid",
     "dni",      #National identification number
     "scopid",   #Person Scopus ID
-    "empid",    #employer ID, Id in human resources systems
+    "hrid",    #employer ID, Id in human resources systems
     "passp",    #Passport
     "gnd",
     "ads",

@@ -185,4 +185,10 @@ class CuorHelper:
             return None
 
 
+def remove_nulls(d):
+    return {k: v for k, v in d.items() if v is not None}
 
+
+def _assing_if_exist(data, record, field):
+    if field in record:
+        data[field] = record[field]

@@ -23,12 +23,10 @@
           }
         },
         "name": {
-          "type": "text",
-          "analyzer": "keyword"
+          "type": "keyword"
         },
         "last_name": {
-          "type": "text",
-          "analyzer": "keyword"
+          "type": "keyword"
         },
         "public": {
           "type": "keyword"
@@ -50,7 +48,7 @@
             }
           }
         },
-        "email_address": {
+        "email_addresses": {
           "type": "keyword"
         },
         "aliases": {
@@ -119,7 +117,7 @@
               "type": "keyword"
             },
             "title": {
-              "type": "string"
+              "type": "text"
             },
             "roles": {
               "type": "keyword"
@@ -147,7 +145,7 @@
               "type": "keyword"
             },
             "name": {
-              "type": "string"
+              "type": "text"
             },
             "roles": {
               "type": "keyword"

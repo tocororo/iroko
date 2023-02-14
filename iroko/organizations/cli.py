@@ -15,9 +15,9 @@ from iroko.organizations.harvesters.wikidata.wikidata import startCollect
 
 from invenio_pidstore.resolver import Resolver
 from iroko.organizations.harvesters.general import (
-    remove_nulls, _assing_if_exist,
     insert_in_organizations,
     )
+from iroko.utils import _assing_if_exist, remove_nulls
 from iroko.organizations.api import OrganizationRecord
 from invenio_pidstore.errors import PIDAlreadyExists, PIDDoesNotExistError
 

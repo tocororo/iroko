@@ -5,6 +5,12 @@ from iroko.records.api import IrokoRecord
 from unicodedata import normalize
 
 from iroko.records.search import IrokoRecordSearch
+from iroko.organizations.api import OrganizationRecord
+from iroko.persons.api import PersonRecord
+from iroko.pidstore import pids
+
+
+
 
 
 def _is_cuban_affiliation(affiliation: str):

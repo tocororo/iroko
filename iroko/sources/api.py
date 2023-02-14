@@ -451,14 +451,6 @@ class SourceRecord(IrokoBaseRecord):
                 }
             )
 
-    def add_identifier(self, idtype, value):
-        self.add_update_item_to_list_field(
-            pids.IDENTIFIERS_FIELD, 'idtype',
-            {
-                'idtype': idtype,
-                'value': value
-                }
-            )
 
     # Permission methods
     #

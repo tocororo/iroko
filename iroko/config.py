@@ -127,7 +127,7 @@ _ORG_CONVERTER = (
     'pid(orgid, record_class="iroko.organizations.api.OrganizationRecord")'
 )
 _PERSON_CONVERTER = (
-    'pid(orgid, record_class="iroko.person.api.PersonRecord")'
+    'pid(perid, record_class="iroko.person.api.PersonRecord")'
 )
 RECORDS_REST_ENDPOINTS = {
     'irouid': {

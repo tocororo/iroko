@@ -6,7 +6,8 @@
 import json
 import os
 from flask import current_app
-from iroko.organizations.harvesters.general import remove_nulls,_assing_if_exist, insert_in_organizations
+from iroko.organizations.harvesters.general import insert_in_organizations
+from iroko.utils import _assing_if_exist, remove_nulls
 
 
 def _get_ids(inst, idname, idcode):

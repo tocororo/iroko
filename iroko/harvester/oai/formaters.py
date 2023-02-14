@@ -11,7 +11,8 @@ from lxml import etree
 from iroko.harvester.api import Formatter
 from iroko.harvester.oai import nsmap
 from iroko.harvester.utils import get_multiple_elements, get_sigle_element
-from iroko.persons.api import PersonRecord
+from iroko.persons.utils import  get_people_from_nlm
+
 from iroko.pidstore.pids import get_identifier_schema
 from iroko.records import ContributorRole
 
@@ -131,7 +132,7 @@ class JournalPublishing(Formatter):
         # article_meta = xml.find('.//{' + self.xmlns + '}article-meta')
         # contribs = metadata.findall('.//' + self.xmlns + 'contrib')
         # # print(contribs)
-        creators, contributors = PersonRecord.get_people_from_nlm(metadata)
+        creators, contributors = get_people_from_nlm(metadata)
         #  = []
         # for contrib in contribs:
         #     p, is_author = PersonRecord.get_people_from_nlm(contrib)
