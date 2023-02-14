@@ -2,11 +2,12 @@
 
 
 from __future__ import absolute_import, print_function
-
-from iroko.persons.fixtures import allowed_file
+import os
+import datetime
+from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
 from flask import Blueprint, request, jsonify, abort, current_app, Flask, flash, redirect, url_for, make_response
 from werkzeug.utils import secure_filename
-from iroko.persons.api import PersonRecord
+from iroko.persons.api import PersonRecord 
 from iroko.persons.serializers import json_v1_response
 from iroko.pidstore import pids
 
@@ -57,8 +58,19 @@ def upload_file():
             flash('No selected file')
             return 'Not file in request'
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            #Logical algorithm here
-            response = make_response(jsonify({'msg': 'success'}))
-            return response, 201
+            if 'csv'==get_ext(file.filename):
+             json_path=csv_to_json(file)
+             PersonRecord.load_from_json_file(json_path,'cd34b342-f608-4b48-b433-e3020c6140c7')
+             response = make_response(jsonify({'msg': 'success'}))
+             return response, 201
+            else:
+                filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
+                
+                file.save(os.path.join('./data', filename ))
+                PersonRecord.load_from_json_file(os.path.join('./data',filename),'cd34b342-f608-4b48-b433-e3020c6140c7' )
+                response = make_response(jsonify({'msg': 'success'}))
+                return response ,201
+                
+
+                
     return "Not suppoted file"
