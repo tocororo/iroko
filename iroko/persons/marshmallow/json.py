@@ -92,7 +92,7 @@ class PersonMetadataSchemaV1(StrictKeysMixin):
     public = fields.Bool()
     active = fields.Bool()
     gender = SanitizedUnicode()
-    country = Nested(CountrySchemaV1, many=True)
+    country = Nested(CountrySchemaV1, many=False)
     email_addresses = fields.List(SanitizedUnicode(), validate=validate.Email())
     aliases = fields.List(SanitizedUnicode(), many=True)
     research_interests = fields.List(SanitizedUnicode(), many=True)

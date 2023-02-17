@@ -18,7 +18,7 @@ export FLASK_ENV=development
 invenio run \
        --cert "$script_path"/docker/nginx/test.crt \
        --key "$script_path"/docker/nginx/test.key\
-       --host "10.138.10.87" \
+       --host "10.16.64.222" \
        & pid_server=$!
 
 #trap 'kill $pid_celery $pid_server &>/dev/null' EXIT

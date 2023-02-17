@@ -66,7 +66,7 @@ class IrokoBaseRecord(Record):
                     persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
                     if rec:
                         print("{0}={1} found".format(pid_type, iroko_uuid))
-                        rec.update(data)
+                        rec.update_record(data)
                         # .update(data, dbcommit=dbcommit, reindex=reindex)
                         return rec, 'updated'
                 except Exception:
@@ -92,7 +92,7 @@ class IrokoBaseRecord(Record):
                                             )
                                         )
                                     )
-                                rec.update(data)
+                                rec.update_record(data)
                                 print('>>>>>>>>>>>>>>>>>>>>')
                                 print('rec updated: ', rec)
                                 return rec, 'updated'

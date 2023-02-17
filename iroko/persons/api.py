@@ -33,17 +33,22 @@ class PersonRecord (IrokoBaseRecord):
         if org:
             with open(file_path) as _file:
                 persons = json.load(_file, object_hook=remove_nulls)
+                a = 0
                 for data in persons:
+                    a = a + 1
                     person = PersonRecord(data)
                     person  = fixture_spi_fields(person, org)
                     person.add_affiliation(org)
                     del person['_id']
                     print(person)
+                    personRecord = None
                     personRecord, msg = cls.resolve_and_update(data=person)
+                    print(personRecord)
                     if not personRecord:
                         print("no pids found, creating organization")
                         personRecord = cls.create(person, iroko_pid_type=pids.PERSON_PID_TYPE)
                         msg = 'created'
+                print('====================================', a)
 
 
     def add_affiliation(self, org: OrganizationRecord,
@@ -59,14 +64,19 @@ class PersonRecord (IrokoBaseRecord):
                 }
             )
     def add_email_address(self, email_address):
-        if not 'email_addresses' in self:
-            self['email_addresses'] = []
+        new_eas = []
+        if 'email_addresses' in self:
+            new_eas = self['email_addresses']
         is_new = True
-        for address in self['email_addresses']:
+        for address in new_eas:
             if address == email_address:
                 is_new = False
-        if is_new:
-            self['email_addresses'].append(email_address)
+            else:
+                if address != '':
+                    new_eas.append(address)
+        if is_new and email_address != '':
+            new_eas.append(email_address)
+        self['email_addresses'] = new_eas
 
 
 
@@ -81,14 +91,19 @@ def fixture_spi_fields(person: PersonRecord, org: OrganizationRecord):
     if 'addresses' in org and len(org['addresses']) > 0:
         country_code = org['addresses'][0]['country_code']
         country = org['addresses'][0]['country']
-        person['country'] = {'code': country_code, 'name': country}
+    person['country'] = {'code': country_code, 'name': country}
 
-    if 'institutional_email' in person:
+    if 'institutional_email' in person and len(person['institutional_email']) > 0:
         person.add_email_address(person['institutional_email'])
-        del(person['institutional_email'])
+    if 'emails' in person:
+        for ma in person['emails']:
+            person.add_email_address(person['institutional_email'])
     if 'lastName' in person:
         person['last_name'] = person['lastName']
-        del(person['lastName'])
+
+    person.pop('lastName')
+    person.pop('institutional_email')
+    person.pop('emails')
 
     new_identifiers = []
     for identifier in person[pids.IDENTIFIERS_FIELD]:

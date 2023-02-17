@@ -68,7 +68,10 @@ def import_from_cuor():
     print(cuor_path)
     with open(cuor_path) as cuor_file:
         cuor = json.load(cuor_file, object_hook=remove_nulls)
+        a = 0
         for org_input in cuor:
+            a = a + 1
+            print('=========================================', a)
             _id = org_input['id']
             print('------',_id, '------')
             try:
@@ -76,7 +79,7 @@ def import_from_cuor():
                 if org:
                     print("{0}={1} found".format(ORGANIZATION_PID_TYPE, _id))
                     org.update(org_input)
-                    return org, 'updated'
+                    org, 'updated'
             except Exception:
                 try:
                     _id = org_input['id']
@@ -85,6 +88,7 @@ def import_from_cuor():
                 except (PIDAlreadyExists) as ex:
                     org_input['id'] = _id
                     org, msg = OrganizationRecord.create_or_update(_id, org_input)
+        print('=========================================',a)
 
 
 @organizations.command()
