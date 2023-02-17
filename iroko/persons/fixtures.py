@@ -1,7 +1,7 @@
 from typing import Any, List
-
+import os, datetime
 from iroko.records.api import IrokoRecord
-
+from pandas import read_csv, DataFrame
 from unicodedata import normalize
 
 from iroko.records.search import IrokoRecordSearch
@@ -95,3 +95,13 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'csv', 'json'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_ext(filename):
+    return filename.rsplit('.', 1)[1].lower() 
+
+def csv_to_json(file):
+    filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    file.save(os.path.join('./data',filename+'.'+get_ext(file.filename)))
+    df= read_csv(os.path.join('./data')+'/'+filename+'.'+get_ext(file.filename))
+    DataFrame.to_json(df,path_or_buf=os.path.join('./data',filename+'.json'),orient='records')
+    return os.path.join('./data',filename+'.json')
