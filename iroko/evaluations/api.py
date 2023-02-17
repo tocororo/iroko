@@ -12,12 +12,15 @@ from invenio_db import db
 
 from iroko.evaluations.marshmallow import evaluation_schema
 from iroko.evaluations.models import Evaluation, EvaluationState
+from iroko.evaluations.rules import evaluate_category
 import yaml
 from datetime import datetime
 import json
 
 from copy import deepcopy
 
+
+# TODO comprobar que el usuario sea el autor de la evaluacion en cada operacion
 
 class Evaluations:
     '''Manage Evaluations'''
@@ -60,6 +63,29 @@ class Evaluations:
             msg = 'User {0} does not have any evaluation'
             return msg, None
 
+    @classmethod
+    def clone_evaluation(cls, uuid, user_id):
+
+        original_evaluation = Evaluation.query.filter_by(uuid=uuid).first()
+
+        if original_evaluation:
+
+            new_evaluation = Evaluation()
+            new_evaluation.data = original_evaluation.data
+            new_evaluation.datetime = datetime.now()
+            # TODO poner estado START
+            new_evaluation.state = EvaluationState.INITIAL
+            new_evaluation.user_id = user_id 
+
+            db.session.add(new_evaluation)
+            db.session.flush()
+            db.session.commit()
+
+            return 'ok', new_evaluation
+        else:
+            msg = 'Evaluation not exist id={0}'.format(id)
+            return msg, None
+
     def get_question(cls, id: str):
         
         '''
@@ -94,7 +120,7 @@ class Evaluations:
                     return recomendation
 
     @classmethod
-    def build_evaluation_object(cls, json_data):
+    def build_evaluation_object(cls, user_id):
 
         '''
             Create a formulary for an evaluation.
@@ -105,17 +131,11 @@ class Evaluations:
         '''
         result = dict()
         with open("iroko/evaluations/methodologies/journal/methodology.es.yml", 'r') as stream:
-            result = yaml.safe_load(stream)
-            # result['user'] = json_data['user_id']
-            # TODO: fill global fields
-
-            result['entity']['name'] = json_data['name']
-            result['entity']['url'] = json_data['url']
-            result['entity']['issn'] = json_data['issn']
-            result['journalData'] = result['entity']
             
-            #result['resultAndRecoms'] = {}
+            result = yaml.safe_load(stream)
+            result['user'] = user_id
 
+            result['journalData'] = result['entity']
             del result['entity']
             
             for section in result['sections']:
@@ -131,12 +151,9 @@ class Evaluations:
             
         return result
 
-
-
     @classmethod
-    def new_evaluation(cls, data) -> Dict[str, Evaluation]:
+    def new_evaluation(cls, data, user_id) -> Dict[str, Evaluation]:
         
-
         '''
             Create a new instace of Evaluation
 
@@ -145,16 +162,14 @@ class Evaluations:
             return The create instance and the status of the process
         '''
 
-        eval_data = evaluation_schema.load(data)
-
-        if eval_data:
+        if data:
 
             evaluation = Evaluation()
-            evaluation.data = eval_data['data']
+            evaluation.data = data
             evaluation.datetime = datetime.now()
-            evaluation.notes = eval_data['notes']
+            # TODO poner estado START
             evaluation.state = EvaluationState.INITIAL
-            evaluation.user_id = eval_data['user_id']  
+            evaluation.user_id = user_id 
 
             db.session.add(evaluation)
             db.session.flush()
@@ -179,6 +194,75 @@ class Evaluations:
         return result
 
     @classmethod
+    def build_recoms(cls, json_data):
+
+        result = dict()
+
+        with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
+            result = yaml.safe_load(stream)
+            # result['user'] = json_data['user_id']
+            # TODO: fill global fields
+
+            responses = json_data['data']
+            sec_index = 0
+            category_index = 0
+            for sec in responses['sections']:
+                for category in sec['categories']:
+
+                    category_results = []
+                    for question in category['questionsOrRecoms']:
+
+                        category_results.append(question['answer'])
+                    
+                    res, recoms = evaluate_category(category['title'], category_results)
+
+                    result['sections'][sec_index]['categories'][category_index]['titleEvaluationValue'] = res
+
+                    if len(recoms) > 0:
+                        result['sections'][sec_index]['categories'][category_index]['questionsOrRecoms'] = recoms
+                    else:
+                        result['sections'][sec_index]['categories'][category_index]['questionsOrRecoms'] = ''
+
+                    category_index += 1
+
+                category_index = 0
+                sec_index += 1
+            
+        #json_object = json.dumps(result, indent = 4) 
+            
+        return result
+
+    @classmethod
+    def fillInitialInfo(cls, data):
+
+        evaluation = None
+
+        if data:
+
+            try:
+                msg, evaluation = cls.get_evaluation(data['uuid'])
+
+                temp = deepcopy(evaluation.data)
+                temp['journalData']['issn'] = data['issn']
+                temp['journalData']['name'] = data['name']
+                temp['journalData']['url'] = data['url']
+                evaluation.state = EvaluationState.INITIAL
+                evaluation.data = temp
+
+                print(json.dumps(evaluation.data, indent=4))
+
+                db.session.commit()
+
+            except Exception as e:
+                msg = str(e)
+            
+        else:
+            msg = 'Invalid Data'
+            evaluation = None
+
+        return msg, evaluation
+
+    @classmethod
     def process_evalaution(cls, data, user_id):
 
         eval_data = evaluation_schema.load(data)
@@ -187,7 +271,7 @@ class Evaluations:
 
             try:
                 msg, evaluation = cls.get_evaluation(eval_data['uuid'])
-
+                evaluation.state = EvaluationState.INITIAL
                 if evaluation is None:
                     msg = "The evaluation does not exist"
                     return msg, None
@@ -206,8 +290,9 @@ class Evaluations:
 
                 # TODO aplicar las reglas
 
-                recom = cls.make_recoms()
-                temp = deepcopy(evaluation.data)
+                #recom = cls.make_recoms()
+                recom = cls.build_recoms(eval_data)
+                temp = deepcopy(eval_data['data'])
                 temp['resultAndRecoms']= recom
 
                 evaluation.data = temp
@@ -226,6 +311,8 @@ class Evaluations:
     def complete_evaluation(cls, uuid, user_id):
 
         msg, evaluation = cls.get_evaluation(uuid)
+        print(user_id)
+        print(evaluation.user_id)
 
         if evaluation.user_id != user_id:
 
