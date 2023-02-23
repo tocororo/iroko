@@ -203,33 +203,16 @@ class Evaluations:
             # result['user'] = json_data['user_id']
             # TODO: fill global fields
 
+            values = []
             responses = json_data['data']
-            sec_index = 0
-            category_index = 0
             for sec in responses['sections']:
                 for category in sec['categories']:
-
-                    category_results = []
                     for question in category['questionsOrRecoms']:
 
-                        category_results.append(question['answer'])
-                    
-                    res, recoms = evaluate_category(category['title'], category_results)
-
-                    result['sections'][sec_index]['categories'][category_index]['titleEvaluationValue'] = res
-
-                    if len(recoms) > 0:
-                        result['sections'][sec_index]['categories'][category_index]['questionsOrRecoms'] = recoms
-                    else:
-                        result['sections'][sec_index]['categories'][category_index]['questionsOrRecoms'] = ''
-
-                    category_index += 1
-
-                category_index = 0
-                sec_index += 1
+                        values.append(question['answer']) 
             
-        #json_object = json.dumps(result, indent = 4) 
-            
+            evaluate_category(result, values)
+
         return result
 
     @classmethod
