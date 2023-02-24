@@ -47,17 +47,11 @@
 - id: 'c_003_r_007'
   value: 'Explorar la posibilidad de incluir entre sus metadatos Identificador(es) Persistente(s) para organizaciones (ej.: GRID, ROR)'
 
-- id: 'c_003_r_008'
-  value: 'a) Orientar a los profesores que forman parte del consejo/comité editorial para el direccionamiento estratégico de la calidad de la revista, b) ofrecer pautas a los autores que les permitan mejorar el rigor y originalidad de los trabajos que envian a la revista indicándolas explícitamnete en las instrucciones a los autores y la política editorial así como en Editoriales, Cartas al editor o otros tipos de artículos publicados en la misma revista, c) mejorar la calidad de las revisiones a través de la mejora de los formularios de revisión, la elección de los revisores más adecuados para cada manuscrito, compartir las buenas prácticas de revisión, desarrollar competencias en los revisores novatos que les permitan reconocer las contribuciones potenciales de los manuscritos y cómo facilitar el desarrollo de ese potencial para elevar la calidad de los manuscritos aceptados y publicados'
-
 - id: 'c_004_r_001'
   value: 'Evaluar cómo alinear las buenas prácticas de acceso abierto con las políticas editoriales'
 
 - id: 'c_004_r_002'
   value: 'En caso de no cobrar costo por procesamiento de artículos (APC), declararlo explicitamente en las políticas editoriales'
-
-- id: 'c_004_r_003'
-  value: 'Declarar explicitamente cuál es la política de acceso abierto de la revista'
 
 - id: 'c_004_r_003'
   value: 'Declarar explicitamente cuál es la política de acceso abierto de la revista'
@@ -82,3 +76,6 @@
 
 - id: 'c_006_r_002'
   value: 'Crear y mantener activos perfiles tanto en redes sociales generales como en Mendeley y Researchgate para aumentar la difusión de sus publicaciones'
+
+- id: 'c_007_r_001'
+  value: 'a) Orientar a los profesores que forman parte del consejo/comité editorial para el direccionamiento estratégico de la calidad de la revista, b) ofrecer pautas a los autores que les permitan mejorar el rigor y originalidad de los trabajos que envian a la revista indicándolas explícitamnete en las instrucciones a los autores y la política editorial así como en Editoriales, Cartas al editor o otros tipos de artículos publicados en la misma revista, c) mejorar la calidad de las revisiones a través de la mejora de los formularios de revisión, la elección de los revisores más adecuados para cada manuscrito, compartir las buenas prácticas de revisión, desarrollar competencias en los revisores novatos que les permitan reconocer las contribuciones potenciales de los manuscritos y cómo facilitar el desarrollo de ese potencial para elevar la calidad de los manuscritos aceptados y publicados'
