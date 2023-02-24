@@ -12,7 +12,7 @@ from invenio_db import db
 
 from iroko.evaluations.marshmallow import evaluation_schema
 from iroko.evaluations.models import Evaluation, EvaluationState
-from iroko.evaluations.rules import evaluate_category
+from iroko.evaluations.rules import evaluate_journal
 import yaml
 from datetime import datetime
 import json
@@ -211,7 +211,7 @@ class Evaluations:
 
                         values.append(question['answer']) 
             
-            evaluate_category(result, values)
+            evaluate_journal(result, values)
 
         return result
 

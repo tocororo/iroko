@@ -1,7 +1,119 @@
 import yaml
 import json 
 
-def evaluate_category(template, responses):
+def evaluate_journal(template, responses):
+
+    evaluate_categories(template, responses)
+    evaluate_sections(template, responses)
+    final_evaluation(template, responses)
+
+def evaluate_sections(template, responses):
+
+    template['sections'][0]['titleEvaluationValue'] = eval_visibility(responses)
+    template['sections'][1]['titleEvaluationValue'] = eval_impact(template, responses)
+
+def eval_visibility(responses):
+
+    var1 = ((responses[0] == 'false') and 
+            (responses[1] == 'false') and 
+            (int(responses[2]) + int(responses[3]) == 0))
+    
+    var2 = ((responses[4] == 'true') and 
+            (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and 
+            (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and 
+            (responses[8] == 'true'))
+    
+    var3 = ((responses[9] == 'true') and 
+            (responses[10] == 'true') and
+            (responses[11] == 'true') and
+            (responses[13] == 'true') and
+            (responses[15] == 'true'))
+    
+    var4 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
+            (responses[18] == 'false') or
+            (responses[19] == 'false') or
+            (responses[21] == 'false'))
+    
+    var5 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
+            (responses[24] == 'MENOS_DEL_20') or
+            (responses[25] == 'MENOS_DEL_20') or 
+            (responses[26] == 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO') or
+            (responses[27] == 'MENOS_DEL_5_TOTAL_ART_ULT_DOS_AÑOS'))
+    
+    high = (not var1) and var2 and var3 and (not var4) and (not var5)
+
+    if high:
+        return 'ALTO'
+
+    var1 = (responses[19] == responses[0])
+
+    var2 = ((var1) and 
+            (responses[1] == 'true') and 
+            (int(responses[2]) + int(responses[3]) >= 1))
+    
+    var3 = ((responses[4] == 'false') or 
+            (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or 
+            (responses[6] == 'NO_DISPONIBLE_IND_NO_DESC_NUM') or
+            (responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or
+            (responses[5] == 'NO_APLICA') or
+            (responses[7] == 'false' and responses[8] == 'false'))
+    
+    var4 = ((responses[9] == 'false') or
+            (responses[10] == 'false') or
+            (responses[11] == 'false') or
+            (responses[13] == 'false'))
+    
+    var5 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
+            (responses[18] == 'false') or
+            (responses[19] == 'false') or
+            (responses[21] == 'false'))
+    
+    var6 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
+            (responses[24] == 'MENOS_DEL_20') or
+            (responses[25] == 'MENOS_DEL_20') or 
+            (responses[26] == 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO') or
+            (responses[27] == 'MENOS_DEL_5_TOTAL_ART_ULT_DOS_AÑOS'))
+    
+    low = (not var2) and var3 and var4 and var5 and var6
+    
+    if low: 
+        return 'BAJO'
+    
+    if (not high) and (not low):
+        return 'MEDIO'
+    
+    return 'ERROR'
+
+def eval_impact(template, responses):
+
+    var1 = template['sections'][1]['categories'][0]['titleEvaluationValue']
+    var2 = (var1 == 'ALTO') and (responses[34] != 'NO')
+
+    if var2:
+        return 'ALTO'
+    
+    if var1 == 'BAJO':
+        return 'BAJO'
+    
+    if (not var2) and (var1 != 'BAJO'):
+        return 'MEDIO'
+    
+    return 'ERROR'    
+
+def final_evaluation(template, responses):
+
+    visibility = template['sections'][0]['titleEvaluationValue']
+    impact = template['sections'][1]['titleEvaluationValue']
+
+    if visibility == 'ALTO' and impact != 'BAJO':
+        template['generalEvaluationValue'] = 'Nivel de calidad competitivo'
+
+    if visibility == 'BAJO' and impact != 'ALTO':
+        template['generalEvaluationValue'] = 'Nivel de calidad embrionario'
+
+    template['generalEvaluationValue'] = 'Nivel de calidad en desarrollo'
+
+def evaluate_categories(template, responses):
 
     eval, recoms = eval_indization(responses)
     template['sections'][0]['categories'][0]['titleEvaluationValue'] = eval
@@ -34,7 +146,6 @@ def evaluate_category(template, responses):
     eval, recoms = eval_positionJournalRankings(responses)
     template['sections'][1]['categories'][1]['titleEvaluationValue'] = eval
     template['sections'][1]['categories'][1]['questionsOrRecoms'] = recoms
-
 
 def eval_indization(responses):
 
