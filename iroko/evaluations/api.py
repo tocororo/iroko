@@ -35,7 +35,6 @@ class Evaluations:
 
             return: The evaluation that matches with the given id
         '''
-
         eval = Evaluation.query.filter_by(uuid=id).first()
         if eval:
             return 'ok', eval
@@ -208,8 +207,7 @@ class Evaluations:
             # TODO: fill global fields
 
             values = []
-            responses = json_data['data']
-            for sec in responses['sections']:
+            for sec in json_data['sections']:
                 for category in sec['categories']:
                     for question in category['questionsOrRecoms']:
 
@@ -250,20 +248,16 @@ class Evaluations:
     @classmethod
     def process_evalaution(cls, data, user_id):
 
-        eval_data = evaluation_schema.load(data)
-
-        if eval_data:
-
+        if data:
             try:
-                msg, evaluation = cls.get_evaluation(eval_data['uuid'])
-                evaluation.state = EvaluationState.INITIAL
+                msg, evaluation = cls.get_evaluation(data['uuid'])
                 if evaluation is None:
                     msg = "The evaluation does not exist"
                     return msg, None
 
-                if evaluation.state != EvaluationState.INITIAL:
+                if evaluation.state != EvaluationState.INITIAL or evaluation.state != EvaluationState.PROCESSING:
 
-                    msg = "Is not an Initial Evalaution"
+                    msg = "Is not an Initial or Processing Evalaution"
                     return msg, evaluation
 
                 if evaluation.user_id != user_id:
@@ -274,12 +268,17 @@ class Evaluations:
                 evaluation.state = EvaluationState.PROCESSING
 
                 # TODO aplicar las reglas
-
                 #recom = cls.make_recoms()
-                recom = cls.build_recoms(eval_data)
-                temp = deepcopy(eval_data['data'])
+                for sec in evaluation.data['sections']:
+                    for category in sec['categories']:
+                        for question in category['questionsOrRecoms']:
+                            question['answer'] = data['sections'][question['id']]
+                
+                recom = cls.build_recoms(evaluation.data)
+                temp = deepcopy(evaluation.data)
                 temp['resultAndRecoms']= recom
 
+                
                 evaluation.data = temp
                 db.session.commit()
 
