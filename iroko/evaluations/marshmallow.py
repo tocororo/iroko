@@ -17,7 +17,7 @@ class EvaluationSchema(Schema):
     #state = fields.Str(required = False)
     state = EnumField(EvaluationState)
     datetime = fields.DateTime()
-    notes = fields.Str(required=False)
+    notes = fields.Str(required=False, allow_none=True)
     user_id = fields.Int(required = True)
 
     # id = fields.Int(dump_only=True)

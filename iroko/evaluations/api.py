@@ -136,6 +136,10 @@ class Evaluations:
             result['user'] = user_id
 
             result['journalData'] = result['entity']
+            result['journalData']['id'] = None
+            result['journalData']['name'] = None
+            result['journalData']['issn'] = None
+            result['journalData']['url'] = None
             del result['entity']
             
             for section in result['sections']:
@@ -143,7 +147,7 @@ class Evaluations:
                     new_questions = []
                     for question in category['questions']:
                         q = cls.get_question(cls, question['id'])
-                        q['answer'] = ""
+                        q['answer'] = None
                         new_questions.append(q)
                     category['questionsOrRecoms'] = new_questions
                     del category['questions']
@@ -231,8 +235,6 @@ class Evaluations:
                 temp['journalData']['url'] = data['url']
                 evaluation.state = EvaluationState.INITIAL
                 evaluation.data = temp
-
-                print(json.dumps(evaluation.data, indent=4))
 
                 db.session.commit()
 
