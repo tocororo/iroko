@@ -93,7 +93,7 @@ def get_evaluations():
 
 
 @api_blueprint.route('/<id>', methods=['GET'])
-# @require_api_auth()
+@require_api_auth()
 def get_evaluation(id):
 
     '''
@@ -119,12 +119,12 @@ def get_evaluation(id):
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
 @api_blueprint.route('/clone/<id>', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def clone_evaluation(id):
 
     try:
-        #user_id = current_user.id
-        user_id = 1
+        user_id = current_user.id
+        #user_id = 1
 
         msg, evaluation = Evaluations.clone_evaluation(id, user_id)
         if not evaluation:
@@ -139,18 +139,16 @@ def clone_evaluation(id):
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-@api_blueprint.route('/reciever/<user_id>', methods=['GET'])
-# @require_api_auth()
-def get_user_evaluations(user_id):
+@api_blueprint.route('/user/list', methods=['GET'])
+@require_api_auth()
+def get_user_evaluations():
 
     '''
         Get the evaluations corresponding with a specific user.
-
-        param1: The id of the user.
     '''
 
     try:
-        user = None
+        user_id = current_user.id
 
         msg, evaluation = Evaluations.get_user_evaluations(user_id)
         if not evaluation:
@@ -167,7 +165,7 @@ def get_user_evaluations(user_id):
 
 
 @api_blueprint.route('/new', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def new_evaluation():
 
     '''
@@ -175,8 +173,8 @@ def new_evaluation():
     '''
 
     try:
-        #user_id = current_user.id
-        user_id = 1
+        user_id = current_user.id
+        #user_id = 1
 
         form  = Evaluations.build_evaluation_object(user_id)
         msg, evaluation = Evaluations.new_evaluation(form, user_id)
@@ -193,12 +191,12 @@ def new_evaluation():
 
 # TODO: Need authentication
 @api_blueprint.route('/init', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def init_evaluation():
 
         try:
-            #user_id = current_user.id
-            user_id = 1
+            user_id = current_user.id
+            #user_id = 1
 
             if not request.is_json:
                 raise Exception('No JSON data provided')
@@ -218,12 +216,12 @@ def init_evaluation():
         )
 
 @api_blueprint.route('/process', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def process_evaluation():
 
     try:
-        #user_id = current_user.id
-        user_id = 1
+        user_id = current_user.id
+        #user_id = 1
 
         if not request.is_json:
             raise Exception('No JSON data provided')
@@ -243,12 +241,12 @@ def process_evaluation():
         )
 
 @api_blueprint.route('/save/<uuid>', methods=['POST'])
-# @require_api_auth()
+@require_api_auth()
 def complete_evaluation(uuid):
 
     try:
-        #user_id = current_user.id
-        user_id = 1
+        user_id = current_user.id
+        #user_id = 1
 
         msg, evaluation = Evaluations.complete_evaluation(uuid, user_id)
 

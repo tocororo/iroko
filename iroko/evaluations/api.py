@@ -70,7 +70,8 @@ class Evaluations:
         if original_evaluation:
 
             new_evaluation = Evaluation()
-            new_evaluation.data = original_evaluation.data
+            temp = deepcopy(original_evaluation.data)
+            new_evaluation.data = temp
             new_evaluation.datetime = datetime.now()
             # TODO poner estado START
             new_evaluation.state = EvaluationState.INITIAL
@@ -255,7 +256,7 @@ class Evaluations:
                     msg = "The evaluation does not exist"
                     return msg, None
 
-                if evaluation.state != EvaluationState.INITIAL or evaluation.state != EvaluationState.PROCESSING:
+                if evaluation.state != EvaluationState.INITIAL and evaluation.state != EvaluationState.PROCESSING:
 
                     msg = "Is not an Initial or Processing Evalaution"
                     return msg, evaluation
