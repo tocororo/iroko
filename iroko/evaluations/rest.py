@@ -62,7 +62,7 @@ api_blueprint = Blueprint(
 
 
 @api_blueprint.route('/list')
-# @require_api_auth()
+@require_api_auth()
 def get_evaluations():
     try:
         """
@@ -103,6 +103,7 @@ def get_evaluation(id):
     '''
 
     try:
+        user = None
 
         msg, evaluation = Evaluations.get_evaluation(id)
         if not evaluation:
@@ -148,14 +149,14 @@ def get_user_evaluations():
 
     try:
         user_id = current_user.id
-
+        #user_id = 1
         msg, evaluation = Evaluations.get_user_evaluations(user_id)
         if not evaluation:
             raise Exception('Evaluation not found')
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
+            msg, 'evaluations', \
             evaluation_schema_many.dump(evaluation)
             )
     except Exception as e:

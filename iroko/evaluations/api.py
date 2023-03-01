@@ -73,8 +73,7 @@ class Evaluations:
             temp = deepcopy(original_evaluation.data)
             new_evaluation.data = temp
             new_evaluation.datetime = datetime.now()
-            # TODO poner estado START
-            new_evaluation.state = EvaluationState.INITIAL
+            new_evaluation.state = EvaluationState.START
             new_evaluation.user_id = user_id 
 
             db.session.add(new_evaluation)
@@ -171,9 +170,17 @@ class Evaluations:
             evaluation = Evaluation()
             evaluation.data = data
             evaluation.datetime = datetime.now()
-            # TODO poner estado START
-            evaluation.state = EvaluationState.INITIAL
-            evaluation.user_id = user_id 
+            evaluation.state = EvaluationState.START
+            evaluation.user_id = user_id
+
+            # TODO ver bien como llenar estos campos, de momento vacios
+            evaluation.entity_name = ""
+            evaluation.entity_type = ""
+            evaluation.entity_id_type = ""
+            evaluation.entity_id_value = ""
+
+            evaluation.methodology_name = ""
+            evaluation.methodology_schema = ""
 
             db.session.add(evaluation)
             db.session.flush()
@@ -205,7 +212,6 @@ class Evaluations:
         with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
             result = yaml.safe_load(stream)
             # result['user'] = json_data['user_id']
-            # TODO: fill global fields
 
             values = []
             for sec in json_data['sections']:
@@ -232,6 +238,10 @@ class Evaluations:
                 temp['journalData']['issn'] = data['issn']
                 temp['journalData']['name'] = data['name']
                 temp['journalData']['url'] = data['url']
+                evaluation.entity_name = data['name']
+                # TODO en un futuro esta info se obtendria de otra forma
+                evaluation.entity_id_value = data['issn']
+                evaluation.entity_type = "Journal"
                 evaluation.state = EvaluationState.INITIAL
                 evaluation.data = temp
 
@@ -268,8 +278,6 @@ class Evaluations:
 
                 evaluation.state = EvaluationState.PROCESSING
 
-                # TODO aplicar las reglas
-                #recom = cls.make_recoms()
                 for sec in evaluation.data['sections']:
                     for category in sec['categories']:
                         for question in category['questionsOrRecoms']:
@@ -278,6 +286,9 @@ class Evaluations:
                 recom = cls.build_recoms(evaluation.data)
                 temp = deepcopy(evaluation.data)
                 temp['resultAndRecoms']= recom
+
+                # TODO en un futuro esta info se obtendria de otra forma
+                evaluation.methodology_name = "sceiba-journal"
 
                 
                 evaluation.data = temp

@@ -20,7 +20,7 @@ class EvaluationModelView(ModelView):
     # can_view_details = True
 
 
-    list_all = ('id','uuid','state', 'datetime', 'notes', 'user', 'data')
+    list_all = ('id','uuid','state', 'datetime', 'notes', 'user', 'data', 'entity_name', 'entity_type', 'entity_id_type', 'entity_id_value', 'methodology_schema', 'methodology_name')
 
     column_list = list_all
 

@@ -3,9 +3,6 @@ import json
 
 def evaluate_journal(template, responses):
 
-    for x in responses:
-        print(type(x))
-
     evaluate_categories(template, responses)
     evaluate_sections(template, responses)
     final_evaluation(template, responses)
