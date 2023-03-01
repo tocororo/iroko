@@ -12,12 +12,15 @@ from invenio_db import db
 
 from iroko.evaluations.marshmallow import evaluation_schema
 from iroko.evaluations.models import Evaluation, EvaluationState
+from iroko.evaluations.rules import evaluate_journal
 import yaml
 from datetime import datetime
 import json
 
 from copy import deepcopy
 
+
+# TODO comprobar que el usuario sea el autor de la evaluacion en cada operacion
 
 class Evaluations:
     '''Manage Evaluations'''
@@ -32,7 +35,6 @@ class Evaluations:
 
             return: The evaluation that matches with the given id
         '''
-
         eval = Evaluation.query.filter_by(uuid=id).first()
         if eval:
             return 'ok', eval
@@ -58,6 +60,29 @@ class Evaluations:
 
         else:
             msg = 'User {0} does not have any evaluation'
+            return msg, None
+
+    @classmethod
+    def clone_evaluation(cls, uuid, user_id):
+
+        original_evaluation = Evaluation.query.filter_by(uuid=uuid).first()
+
+        if original_evaluation:
+
+            new_evaluation = Evaluation()
+            temp = deepcopy(original_evaluation.data)
+            new_evaluation.data = temp
+            new_evaluation.datetime = datetime.now()
+            new_evaluation.state = EvaluationState.START
+            new_evaluation.user_id = user_id 
+
+            db.session.add(new_evaluation)
+            db.session.flush()
+            db.session.commit()
+
+            return 'ok', new_evaluation
+        else:
+            msg = 'Evaluation not exist id={0}'.format(id)
             return msg, None
 
     def get_question(cls, id: str):
@@ -94,7 +119,7 @@ class Evaluations:
                     return recomendation
 
     @classmethod
-    def build_evaluation_object(cls, json_data):
+    def build_evaluation_object(cls, user_id):
 
         '''
             Create a formulary for an evaluation.
@@ -105,17 +130,15 @@ class Evaluations:
         '''
         result = dict()
         with open("iroko/evaluations/methodologies/journal/methodology.es.yml", 'r') as stream:
-            result = yaml.safe_load(stream)
-            # result['user'] = json_data['user_id']
-            # TODO: fill global fields
-
-            result['entity']['name'] = json_data['name']
-            result['entity']['url'] = json_data['url']
-            result['entity']['issn'] = json_data['issn']
-            result['journalData'] = result['entity']
             
-            #result['resultAndRecoms'] = {}
+            result = yaml.safe_load(stream)
+            result['user'] = user_id
 
+            result['journalData'] = result['entity']
+            result['journalData']['id'] = None
+            result['journalData']['name'] = None
+            result['journalData']['issn'] = None
+            result['journalData']['url'] = None
             del result['entity']
             
             for section in result['sections']:
@@ -123,7 +146,7 @@ class Evaluations:
                     new_questions = []
                     for question in category['questions']:
                         q = cls.get_question(cls, question['id'])
-                        q['answer'] = ""
+                        q['answer'] = None
                         new_questions.append(q)
                     category['questionsOrRecoms'] = new_questions
                     del category['questions']
@@ -131,12 +154,9 @@ class Evaluations:
             
         return result
 
-
-
     @classmethod
-    def new_evaluation(cls, data) -> Dict[str, Evaluation]:
+    def new_evaluation(cls, data, user_id) -> Dict[str, Evaluation]:
         
-
         '''
             Create a new instace of Evaluation
 
@@ -145,16 +165,22 @@ class Evaluations:
             return The create instance and the status of the process
         '''
 
-        eval_data = evaluation_schema.load(data)
-
-        if eval_data:
+        if data:
 
             evaluation = Evaluation()
-            evaluation.data = eval_data['data']
+            evaluation.data = data
             evaluation.datetime = datetime.now()
-            evaluation.notes = eval_data['notes']
-            evaluation.state = EvaluationState.INITIAL
-            evaluation.user_id = eval_data['user_id']  
+            evaluation.state = EvaluationState.START
+            evaluation.user_id = user_id
+
+            # TODO ver bien como llenar estos campos, de momento vacios
+            evaluation.entity_name = ""
+            evaluation.entity_type = ""
+            evaluation.entity_id_type = ""
+            evaluation.entity_id_value = ""
+
+            evaluation.methodology_name = ""
+            evaluation.methodology_schema = ""
 
             db.session.add(evaluation)
             db.session.flush()
@@ -179,22 +205,70 @@ class Evaluations:
         return result
 
     @classmethod
-    def process_evalaution(cls, data, user_id):
+    def build_recoms(cls, json_data):
 
-        eval_data = evaluation_schema.load(data)
+        result = dict()
 
-        if eval_data:
+        with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
+            result = yaml.safe_load(stream)
+            # result['user'] = json_data['user_id']
+
+            values = []
+            for sec in json_data['sections']:
+                for category in sec['categories']:
+                    for question in category['questionsOrRecoms']:
+
+                        values.append(question['answer']) 
+            
+            evaluate_journal(result, values)
+
+        return result
+
+    @classmethod
+    def fillInitialInfo(cls, data):
+
+        evaluation = None
+
+        if data:
 
             try:
-                msg, evaluation = cls.get_evaluation(eval_data['uuid'])
+                msg, evaluation = cls.get_evaluation(data['uuid'])
 
+                temp = deepcopy(evaluation.data)
+                temp['journalData']['issn'] = data['issn']
+                temp['journalData']['name'] = data['name']
+                temp['journalData']['url'] = data['url']
+                evaluation.entity_name = data['name']
+                # TODO en un futuro esta info se obtendria de otra forma
+                evaluation.entity_id_value = data['issn']
+                evaluation.entity_type = "Journal"
+                evaluation.state = EvaluationState.INITIAL
+                evaluation.data = temp
+
+                db.session.commit()
+
+            except Exception as e:
+                msg = str(e)
+            
+        else:
+            msg = 'Invalid Data'
+            evaluation = None
+
+        return msg, evaluation
+
+    @classmethod
+    def process_evalaution(cls, data, user_id):
+
+        if data:
+            try:
+                msg, evaluation = cls.get_evaluation(data['uuid'])
                 if evaluation is None:
                     msg = "The evaluation does not exist"
                     return msg, None
 
-                if evaluation.state != EvaluationState.INITIAL:
+                if evaluation.state != EvaluationState.INITIAL and evaluation.state != EvaluationState.PROCESSING:
 
-                    msg = "Is not an Initial Evalaution"
+                    msg = "Is not an Initial or Processing Evalaution"
                     return msg, evaluation
 
                 if evaluation.user_id != user_id:
@@ -204,12 +278,19 @@ class Evaluations:
 
                 evaluation.state = EvaluationState.PROCESSING
 
-                # TODO aplicar las reglas
-
-                recom = cls.make_recoms()
+                for sec in evaluation.data['sections']:
+                    for category in sec['categories']:
+                        for question in category['questionsOrRecoms']:
+                            question['answer'] = data['sections'][question['id']]
+                
+                recom = cls.build_recoms(evaluation.data)
                 temp = deepcopy(evaluation.data)
                 temp['resultAndRecoms']= recom
 
+                # TODO en un futuro esta info se obtendria de otra forma
+                evaluation.methodology_name = "sceiba-journal"
+
+                
                 evaluation.data = temp
                 db.session.commit()
 
@@ -226,6 +307,8 @@ class Evaluations:
     def complete_evaluation(cls, uuid, user_id):
 
         msg, evaluation = cls.get_evaluation(uuid)
+        print(user_id)
+        print(evaluation.user_id)
 
         if evaluation.user_id != user_id:
 

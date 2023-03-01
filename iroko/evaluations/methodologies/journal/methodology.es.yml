@@ -1,6 +1,7 @@
 
 #Metodología de evaluación de revistas de Sceiba en espannol
 
+schema: 'https://sceiba.cu/methodology/journal/001'
 name: 'sceiba-journal'
 version: '0.0.1'
 description: 'metodologia de sceiba para la evaluacion de revistas cientificas'

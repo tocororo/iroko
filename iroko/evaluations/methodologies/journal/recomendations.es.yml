@@ -1,35 +1,80 @@
 
+- id: 'c_001_r_001'
+  value: 'Postular revista a DOAJ'
+
+- id: 'c_001_r_002'
+  value: 'Considerar la posibilidad de postular la revista a SCOPUS/Web de la Ciencia'
+
+- id: 'c_001_r_003'
+  value: 'Postular revista a otras bases de datos de indización y resumen especializadas'
+
+- id: 'c_001_r_004'
+  value: 'Postular revista a otras bases de datos de indización y resumen multidisciplinares'
+
 - id: 'c_002_r_001'
+  value: 'Crear el sitio web propio de la revista y solicitar el E-ISSN'
+
+- id: 'c_002_r_002'
+  value: 'Actualizar el sitio web propio de la revista con todos los números publicados en los últimos dos años'
+
+- id: 'c_002_r_003'
+  value: 'Si crea un sitio web para la revista asegúrece de actualizarlo con todos los números publicados en los últimos dos años'
+
+- id: 'c_002_r_004'
   value: 'Evaluar cómo alinear las buenas prácticas de acceso abierto con las políticas editoriales'
 
+- id: 'c_002_r_005'
+  value: 'Promover el déposito de los artículos en repositorios internacionales, nacional, institucional, multidisciplinarios y tématicos'
+
 - id: 'c_003_r_001'
-  value: 'Implementar el protocolo OAI-PMH que permita la recopilación de metadatos por otros sistemas'
+  value: 'Emplear algún formato de metadatos (ej. Uso de OAI-DC , DC, Cerif, Mods, METS, etc.) para la descripción de sus publicaciones'
 
 - id: 'c_003_r_002'
-  value: 'Incluir como parte de su práctica editorial la solicitud del ORCID asociado al nombre de los autores y registrarlo como parte de sus metadatos'
+  value: 'Implementar el protocolo OAI-PMH que permita la recopilación de metadatos por otros sistemas'
 
 - id: 'c_003_r_003'
+  value: 'Completar en todos los artículos los metadatos definidos como obligatorios en el OpenAIRE Guidelines for Literature Repositories v3'
+
+- id: 'c_003_r_004'
+  value: 'Revisar que en todos los artículos estén los metadatos Field Language(Idioma), Field License Condition, Field Source, definidos como recomendables en el OpenAIRE Guidelines for Literature Repositories v3'
+
+- id: 'c_003_r_005'
+  value: 'Incluir entre sus metadatos Identificadores Persistentes de la publicación o relacionados a ella ( ej. ISSN-EISSN, DOI-Handle-URI-URN-Scopus ID-Wos ID-Scielo ID) en los campos Resource Identifier o Alternative Identifier según corresponda'
+
+- id: 'c_003_r_006'
+  value: 'Incluir como parte de su práctica editorial la solicitud del ORCID asociado al nombre de los autores y registrarlo como parte de sus metadatos'
+
+- id: 'c_003_r_007'
   value: 'Explorar la posibilidad de incluir entre sus metadatos Identificador(es) Persistente(s) para organizaciones (ej.: GRID, ROR)'
 
 - id: 'c_004_r_001'
   value: 'Evaluar cómo alinear las buenas prácticas de acceso abierto con las políticas editoriales'
 
-- id: 'c_005_r_001'
+- id: 'c_004_r_002'
+  value: 'En caso de no cobrar costo por procesamiento de artículos (APC), declararlo explicitamente en las políticas editoriales'
+
+- id: 'c_004_r_003'
+  value: 'Declarar explicitamente cuál es la política de acceso abierto de la revista'
+
+- id: 'c_004_r_004'
   value: 'Promover el depósito de los datos de investigación en repositorios de acceso abierto como parte de su política editorial'
 
-- id: 'c_005_r_002'
+- id: 'c_004_r_005'
   value: 'Ofrecer sus contenidos bajo algun tipo de licencia Creative Common'
 
-- id: 'c_005_r_003'
+- id: 'c_005_r_001'
   value: 'Aumentar la representación de expertos y especialistas externos a la institución editora, considerando mayor presencia de afiliados a instituciones extranjeras'
 
-- id: 'c_006_r_001'
+- id: 'c_005_r_002'
+  value: 'Desarrollar mecanismos rigurosos que garanticen la conducta ética, la integridad académica, la resolución de conflictos de intereses y la transparencia en el proceso editorial según las buenas prácticas internacionales de publicación (ej. COPE guidelines,"&" ICMJE Recommendations)'
+
+- id: 'c_005_r_003'
   value: 'Evaluar posibilidades para potenciar la revista como una vía para fortalecer la colaboración interinstitucional a nivel nacional e internacional'
 
-- id: 'c_006_r_002'
+- id: 'c_006_r_001'
   value: 'Implementar funcionalidad de compartir contenidos en redes sociales'
 
-- id: 'c_006_r_003'
+- id: 'c_006_r_002'
   value: 'Crear y mantener activos perfiles tanto en redes sociales generales como en Mendeley y Researchgate para aumentar la difusión de sus publicaciones'
 
 - id: 'c_007_r_001'

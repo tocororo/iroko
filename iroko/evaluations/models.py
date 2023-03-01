@@ -16,14 +16,14 @@ from invenio_accounts.models import User
 from invenio_db import db
 from sqlalchemy_utils.types import JSONType, UUIDType
 
-# TODO: add data field to Notification and Term
+# TODO: anndir estado START 
 
 class EvaluationState(Enum):
     INITIAL = "initial"
     PROCESSING = "processing"
     FINISH = "finished"
     ERROR = "error"
-
+    START = "start"
 
 class Evaluation(db.Model):
     """Define a Notification"""
@@ -35,6 +35,15 @@ class Evaluation(db.Model):
     state = db.Column(db.Enum(EvaluationState))
     datetime = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.String)
+
+    entity_name = db.Column(db.String)
+    entity_type = db.Column(db.String)
+    entity_id_type = db.Column(db.String)
+    entity_id_value = db.Column(db.String)
+
+    methodology_schema = db.Column(db.String)
+    methodology_name = db.Column(db.String)
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey(
