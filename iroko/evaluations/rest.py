@@ -103,7 +103,6 @@ def get_evaluation(id):
     '''
 
     try:
-        user = None
 
         msg, evaluation = Evaluations.get_evaluation(id)
         if not evaluation:

@@ -3,6 +3,9 @@ import json
 
 def evaluate_journal(template, responses):
 
+    for x in responses:
+        print(type(x))
+
     evaluate_categories(template, responses)
     evaluate_sections(template, responses)
     final_evaluation(template, responses)
@@ -14,25 +17,25 @@ def evaluate_sections(template, responses):
 
 def eval_visibility(responses):
 
-    var1 = ((responses[0] == 'false') and 
-            (responses[1] == 'false') and 
+    var1 = ((not responses[0]) and 
+            (not responses[1]) and 
             (int(responses[2]) + int(responses[3]) == 0))
     
-    var2 = ((responses[4] == 'true') and 
+    var2 = ((responses[4]) and 
             (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and 
             (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and 
-            (responses[8] == 'true'))
+            (responses[8]))
     
-    var3 = ((responses[9] == 'true') and 
-            (responses[10] == 'true') and
-            (responses[11] == 'true') and
-            (responses[13] == 'true') and
-            (responses[15] == 'true'))
+    var3 = ((responses[9]) and 
+            (responses[10]) and
+            (responses[11]) and
+            (responses[13]) and
+            (responses[15]))
     
     var4 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
-            (responses[18] == 'false') or
-            (responses[19] == 'false') or
-            (responses[21] == 'false'))
+            (not responses[18]) or
+            (not responses[19]) or
+            (not responses[21]))
     
     var5 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
             (responses[24] == 'MENOS_DEL_20') or
@@ -48,25 +51,25 @@ def eval_visibility(responses):
     var1 = (responses[19] == responses[0])
 
     var2 = ((var1) and 
-            (responses[1] == 'true') and 
+            (responses[1]) and 
             (int(responses[2]) + int(responses[3]) >= 1))
     
-    var3 = ((responses[4] == 'false') or 
+    var3 = ((not responses[4]) or 
             (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or 
             (responses[6] == 'NO_DISPONIBLE_IND_NO_DESC_NUM') or
             (responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or
             (responses[5] == 'NO_APLICA') or
-            (responses[7] == 'false' and responses[8] == 'false'))
+            (not responses[7] and not responses[8]))
     
-    var4 = ((responses[9] == 'false') or
-            (responses[10] == 'false') or
-            (responses[11] == 'false') or
-            (responses[13] == 'false'))
+    var4 = ((not responses[9]) or
+            (not responses[10]) or
+            (not responses[11]) or
+            (not responses[13]))
     
     var5 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
-            (responses[18] == 'false') or
-            (responses[19] == 'false') or
-            (responses[21] == 'false'))
+            (not responses[18]) or
+            (not responses[19]) or
+            (not responses[21]))
     
     var6 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
             (responses[24] == 'MENOS_DEL_20') or
@@ -151,15 +154,15 @@ def eval_indization(responses):
 
     recoms = []
     
-    if ((responses[0] == 'false') and 
-        (responses[19] == 'true')):
+    if ((not responses[0]) and 
+        (responses[19])):
 
         recoms.append({'id': 'c_001_r_001', 'value': 'Postular revista a DOAJ'})
 
-    if ((responses[31] == 'true') and 
+    if ((responses[31]) and 
         (responses[32] == 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA') and 
         (responses[33] == 'MAYOR_IND_H5_REV_PER_ANT') and 
-        (responses[1] == 'false')):
+        (not responses[1])):
 
         recoms.append({'id': 'c_001_r_002', 'value': 'Considerar la posibilidad de postular la revista a SCOPUS/Web de la Ciencia'})
 
@@ -172,11 +175,11 @@ def eval_indization(responses):
     var1 = (responses[19] == responses[0])
 
     var2 = ((var1) and 
-            (responses[1] == 'true') and 
+            (responses[1]) and 
             (int(responses[2]) + int(responses[3]) >= 1))
 
-    var3 = ((responses[0] == 'false') and 
-            (responses[1] == 'false') and 
+    var3 = ((not responses[0]) and 
+            (not responses[1]) and 
             (int(responses[2]) + int(responses[3]) == 0))
 
     var4 = (not var2) and (not var3)
@@ -197,7 +200,7 @@ def eval_access(responses):
 
     recoms = []
 
-    if responses[4] == 'false':
+    if not responses[4]:
         recoms.append({'id': 'c_002_r_001', 'value': 'Crear el sitio web propio de la revista y solicitar el E-ISSN'})
 
     if ((responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or 
@@ -210,22 +213,22 @@ def eval_access(responses):
     if responses[6] != 'SI_DISPONIBLE_IND_SI_DESC_NUM':
         recoms.append({'id': 'c_002_r_004', 'value': 'Evaluar cómo alinear las buenas prácticas de acceso abierto con las políticas editoriales'})
 
-    var1 = (responses[7] == 'true') or (responses[8] == 'true')
+    var1 = (responses[7]) or (responses[8])
 
     if var1:
         recoms.append({'id': 'c_002_r_005', 'value': 'Promover el déposito de los artículos en repositorios internacionales, nacional, institucional, multidisciplinarios y tématicos'})
 
-    var2 = ((responses[4] == 'true') and 
+    var2 = ((responses[4]) and 
             (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and 
             (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and 
-            (responses[8] == 'true'))
+            (responses[8]))
 
-    var3 = ((responses[4] == 'false') or 
+    var3 = ((not responses[4]) or 
             (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or 
             (responses[6] == 'NO_DISPONIBLE_IND_NO_DESC_NUM') or
             (responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or
             (responses[5] == 'NO_APLICA') or
-            (responses[7] == 'false' and responses[8] == 'false'))
+            (not responses[7] and not responses[8]))
 
     var4 = (not var2) and (not var3)
 
@@ -244,39 +247,39 @@ def eval_interoperability(responses):
 
     recoms = []
 
-    if responses[9] == 'false':
+    if not responses[9]:
         recoms.append({'id': 'c_003_r_001', 'value': 'Emplear algún formato de metadatos (ej. Uso de OAI-DC , DC, Cerif, Mods, METS, etc.) para la descripción de sus publicaciones'})
 
-    if responses[10] == 'false':
+    if not responses[10]:
         recoms.append({'id': 'c_003_r_002', 'value': 'Implementar el protocolo OAI-PMH que permita la recopilación de metadatos por otros sistemas'})
 
-    if responses[11] == 'false':
+    if not responses[11]:
         recoms.append({'id': 'c_003_r_003', 'value': 'Completar en todos los artículos los metadatos definidos como obligatorios en el OpenAIRE Guidelines for Literature Repositories v3'})
 
-    if responses[12] == 'false':
+    if not responses[12]:
         recoms.append({'id': 'c_003_r_004', 'value': 'Revisar que en todos los artículos estén los metadatos Field Language(Idioma), Field License Condition, Field Source, definidos como recomendables en el OpenAIRE Guidelines for Literature Repositories v3'})
 
-    if responses[13] == 'false':
+    if not responses[13]:
         recoms.append({'id': 'c_003_r_005', 'value': 'Incluir entre sus metadatos Identificadores Persistentes de la publicación o relacionados a ella ( ej. ISSN-EISSN, DOI-Handle-URI-URN-Scopus ID-Wos ID-Scielo ID) en los campos Resource Identifier o Alternative Identifier según corresponda'})
 
-    if responses[14] == 'false':
+    if not responses[14]:
         recoms.append({'id': 'c_003_r_006', 'value': 'Incluir como parte de su práctica editorial la solicitud del ORCID asociado al nombre de los autores y registrarlo como parte de sus metadatos'})
 
-    if responses[16] == 'false':
+    if not responses[16]:
         recoms.append({'id': 'c_003_r_007', 'value': 'Explorar la posibilidad de incluir entre sus metadatos Identificador(es) Persistente(s) para organizaciones (ej.: GRID, ROR)'})
 
-    var1 = ((responses[9] == 'true') and 
-            (responses[10] == 'true') and
-            (responses[11] == 'true') and
-            (responses[13] == 'true'))
+    var1 = ((responses[9]) and 
+            (responses[10]) and
+            (responses[11]) and
+            (responses[13]))
 
-    var2 = var1 and (responses[15] == 'true')
-    var3 = var1 and (responses[15] == 'false')
+    var2 = var1 and (responses[15])
+    var3 = var1 and (not responses[15])
 
-    var4 = ((responses[9] == 'false') or
-            (responses[10] == 'false') or
-            (responses[11] == 'false') or
-            (responses[13] == 'false'))
+    var4 = ((not responses[9]) or
+            (not responses[10]) or
+            (not responses[11]) or
+            (not responses[13]))
 
     if var2:
         return 'ALTO', recoms
@@ -296,28 +299,28 @@ def eval_opening(responses):
     if responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER':
         recoms.append({'id': 'c_004_r_001', 'value': 'Evaluar cómo alinear las buenas prácticas de acceso abierto con las políticas editoriales'})
 
-    if responses[18] == 'false':
+    if not responses[18]:
         recoms.append({'id': 'c_004_r_002', 'value': 'En caso de no cobrar costo por procesamiento de artículos (APC), declararlo explicitamente en las políticas editoriales'})
 
-    if responses[19] == 'false':
+    if not responses[19]:
         recoms.append({'id': 'c_004_r_003', 'value': 'Declarar explicitamente cuál es la política de acceso abierto de la revista'})
 
-    if responses[20] == 'false':
+    if not responses[20]:
         recoms.append({'id': 'c_004_r_004', 'value': 'Promover el depósito de los datos de investigación en repositorios de acceso abierto como parte de su política editorial'})
 
-    if responses[21] == 'false':
+    if not responses[21]:
         recoms.append({'id': 'c_004_r_005', 'value': 'Ofrecer sus contenidos bajo algun tipo de licencia Creative Common'})
 
     var1 = ((responses[17] != 'NO_PERMITE_AUTOARCHIVADO_VER') and
-            (responses[18] == 'true') and
-            (responses[19] == 'true') and
-            (responses[21] == 'true') and
+            (responses[18]) and
+            (responses[19]) and
+            (responses[21]) and
             (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM'))
 
     var2 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
-            (responses[18] == 'false') or
-            (responses[19] == 'false') or
-            (responses[21] == 'false'))
+            (not responses[18]) or
+            (not responses[19]) or
+            (not responses[21]))
 
     var3 = (not var1) and (not var2)
 
@@ -348,7 +351,7 @@ def eval_internationalization(responses):
         recoms.append({'id': 'c_005_r_003', 'value': 'Evaluar posibilidades para potenciar la revista como una vía para fortalecer la colaboración interinstitucional a nivel nacional e internacional'})
 
     var1 = ((responses[22] == 'EN_MAS_DE_UN_IDIOMA') and
-            (responses[23] == 'true') and
+            (responses[23]) and
             (responses[24] == 'MAS_DEL_50') and
             (responses[25] == 'MAS_DEL_70') and
             (responses[26] == 'MENOS_DEL_20_TOTAL_PUBLICADO_PERIODO') and
@@ -377,17 +380,17 @@ def eval_socialNetworks(responses):
 
     recoms = []
 
-    if responses[28] == 'false':
+    if not responses[28]:
         recoms.append({'id': 'c_006_r_001', 'value': 'Implementar funcionalidad de compartir contenidos en redes sociales'})
  
     if responses[29] == 'PERFIL_RED_SOC_SI_MENDELEY_RESEARCHGATE':
         recoms.append({'id': 'c_006_r_002', 'value': 'Crear y mantener activos perfiles tanto en redes sociales generales como en Mendeley y Researchgate para aumentar la difusión de sus publicaciones'})
 
-    var1 = ((responses[31] == 'true') and
+    var1 = ((responses[31]) and
             (responses[29] == 'PERFIL_RED_SOC_SI_MENDELEY_RESEARCHGATE') and
             (responses[30] == 'TWITTER_FACEBOOK_INSTAGRAM_MENDELEY_RESEARCHGATE'))
 
-    var2 = ((responses[31] == 'false') or
+    var2 = ((not responses[31]) or
             (responses[29] == 'NO') or
             (responses[30] == 'NO')) 
 
@@ -406,15 +409,15 @@ def eval_socialNetworks(responses):
 
 def eval_academicImpact(responses):
 
-    var1 = ((responses[31] == 'true') and
+    var1 = ((responses[31]) and
             (responses[32] == 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA') and
             (responses[33] == 'MAYOR_IND_H5_REV_PER_ANT') and
             (responses[34] == 'Q1_Q2_JOURNAL_CITATION') and
-            (responses[1] == 'true'))
+            (responses[1]))
 
     var2 = ((responses[33] == 'NO_APLICA') or
             (responses[32] == 'MENOS_DEL_20_ART_ULT_3_AÑOS_REC_ALGUNA_CITA') or
-            (responses[31] == 'false'))
+            (not responses[31]))
 
     var3 = (not var1) and (not var2)
 
