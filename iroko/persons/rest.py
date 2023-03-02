@@ -47,33 +47,40 @@ def get_person_by_pid_canonical():
 
 
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])
-@require_api_auth()
+# @require_api_auth()
 def upload_file(org_uuid):
     # /tmp/iroko/person/<datetime>.[csv|json]
-    try:
-        if request.method == 'POST':
-            if 'file' not in request.files:
-                flash('No file part')
-                raise Exception("Not file in request")
-            file = request.files['file']
-            # If the user does not select a file, the browser submits an
-            # empty file without a filename.
-            if file.filename == '':
-                flash('No selected file')
-                raise Exception("Not file in request")
-            if file and allowed_file(file.filename):
-                if 'csv'==get_ext(file.filename):
-                 json_path=csv_to_json(file)
-                 PersonRecord.load_from_json_file(json_path, org_uuid)
-                 response = make_response(jsonify({'msg': 'success'}))
-                 return response, 201
-                else:
-                    filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
+    # try:
+    if request.method == 'POST':
+        print(request.__dict__)
+        print('--------------------------------')
+        print(request.files)
+        print('--------------------------------')
+        if 'file' not in request.files:
+            flash('No file part')
+            raise Exception("No file part")
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            raise Exception("Not file in request")
+        if file and allowed_file(file.filename):
+            if 'csv'==get_ext(file.filename):
+                json_path=csv_to_json(file)
+                PersonRecord.load_from_json_file(json_path, org_uuid)
+                response = make_response(jsonify({'msg': 'success'}))
+                return response, 201
+            else:
+                filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
 
-                    file.save(os.path.join('./data', filename ))
-                    PersonRecord.load_from_json_file(os.path.join('./data',filename),org_uuid )
-                    response = make_response(jsonify({'msg': 'success'}))
-                    return response ,201
+                file.save(os.path.join('./data', filename ))
+                PersonRecord.load_from_json_file(os.path.join('./data',filename),org_uuid )
+                response = make_response(jsonify({'msg': 'success'}))
+                return response ,201
+        else:
+            raise Exception("no valid file extension")
 
-    except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+    # except Exception as e:
+    #     print(e)
+    #     return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
