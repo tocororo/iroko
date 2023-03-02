@@ -55,9 +55,6 @@ class Evaluation(db.Model):
             'evaluations', cascade='all, delete-orphan'
             )
         )
-   
-    # TODO: falta el campo metodologia, la metodologia de la evaluacion. 
-    # TODO: falta el campo objeto  evaluado, referenciado con un PID (que puede ser o no de Sceiba )
 
 
     #instancia de la evaluacion
