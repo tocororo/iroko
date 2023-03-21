@@ -99,8 +99,8 @@ class Evaluations:
         '''
 
         file_path = os.path.join(
-            current_app.config["HARVESTER_DATA_DIRECTORY"],\
-            "/journal/questions.es.yml")
+            current_app.config["IROKO_METHODOLOGIES_DIR"],\
+            "journal/questions.es.yml")
         with open(file_path, 'r') as stream:
             questions = yaml.safe_load(stream)
             for question in questions:
@@ -118,8 +118,8 @@ class Evaluations:
 
         '''
         file_path = os.path.join(
-            current_app.config["HARVESTER_DATA_DIRECTORY"],\
-            "/journal/recomendations.es.yml")
+            current_app.config["IROKO_METHODOLOGIES_DIR"],\
+            "journal/recomendations.es.yml")
         with open(file_path, 'r') as stream:
             recomendations = yaml.safe_load(stream)
             for recomendation in recomendations:
@@ -138,8 +138,9 @@ class Evaluations:
         '''
         result = dict()
         file_path = os.path.join(
-            current_app.config["HARVESTER_DATA_DIRECTORY"],\
-            "/journal/methodology.es.yml")
+            current_app.config["IROKO_METHODOLOGIES_DIR"],
+            "journal/methodology.es.yml")
+        print("------", file_path)
         with open(file_path, 'r') as stream:
 
             result = yaml.safe_load(stream)
@@ -211,8 +212,8 @@ class Evaluations:
         result = dict()
 
         file_path = os.path.join(
-            current_app.config["HARVESTER_DATA_DIRECTORY"], \
-            "/journal/results.es.yml")
+            current_app.config["IROKO_METHODOLOGIES_DIR"], \
+            "journal/results.es.yml")
         with open(file_path, 'r') as stream:
             result = yaml.safe_load(stream)
 
@@ -223,8 +224,8 @@ class Evaluations:
 
         result = dict()
         file_path = os.path.join(
-            current_app.config["HARVESTER_DATA_DIRECTORY"], \
-            "/journal/results.es.yml")
+            current_app.config["IROKO_METHODOLOGIES_DIR"], \
+            "journal/results.es.yml")
         with open(file_path, 'r') as stream:
             result = yaml.safe_load(stream)
             # result['user'] = json_data['user_id']
