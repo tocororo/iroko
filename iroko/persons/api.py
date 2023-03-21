@@ -45,7 +45,7 @@ class PersonRecord (IrokoBaseRecord):
                     personRecord, msg = cls.resolve_and_update(data=person)
                     print(personRecord)
                     if not personRecord:
-                        print("no pids found, creating organization")
+                        print("no pids found, creating person")
                         personRecord = cls.create(person, iroko_pid_type=pids.PERSON_PID_TYPE)
                         msg = 'created'
                 print('====================================', a)

@@ -4,12 +4,14 @@
   id: 'c_001_q_001'
   desc: 'Está incluida en DOAJ'
   hint: 'Datos oficiales de DOAJ/MIAR'
+  answer: false
 
 # 1
 - type: 'bool'
   id: 'c_001_q_002'
   desc: 'Está en Scopus y/o JCR de la Web de la Ciencia'
   hint: 'MIAR'
+  answer: false
 
 # 2
 - type: 'integer'
@@ -17,6 +19,7 @@
   desc: 'Está incluida en base de datos de indización y resumen especializada'
   hint: 'MIAR'
   min: 0
+  answer: 0
 
 # 3
 - type: 'integer'
@@ -24,18 +27,21 @@
   desc: 'Está incluida en base de datos de indización y resumen multidisciplinar'
   hint: 'MIAR'
   min: 0
+  answer: 0
 
 # 4
 - type: 'bool'
   id: 'c_002_q_001'
   desc: 'Existe un sitio web propio de la revista'
   hint: 'Google'
+  answer: false
 
 # 5
 - type: 'select'
   id: 'c_002_q_002'
   desc: 'Están disponibles los últimos números en el sitio web de la revista'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'N/A (no aplica)'
       value: 'NO_APLICA'
@@ -51,6 +57,7 @@
   id: 'c_002_q_003'
   desc: 'Están disponibles los artículos de manera individual en el sitio web de la revista'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'No están disponibles de manera individual ni puede descargarse el número completo'
       value: 'NO_DISPONIBLE_IND_NO_DESC_NUM'
@@ -66,69 +73,86 @@
   id: 'c_002_q_004'
   desc: 'Existen artículos de la revista en repositorios nacional y/o institucional de acceso abierto'
   hint: 'Google académico'
-  answer: ''
+  answer: false
+
 
 # 8
 - type: 'bool'
   id: 'c_002_q_005'
   desc: 'Existen artículos de la revista en repositorios de acceso abierto internacionales generales y/o temáticos (ej.: Zenodo, La Referencia, OceanDocs, Arxich, entre otros)'
   hint: 'Google académico'
-  answer: ''
+  answer: false
+
 
 # 9
 - type: 'bool'
   id: 'c_003_q_001'
   desc: 'Emplea algún formato de metadatos (ej. Uso de OAI-DC, DC, Cerif, Mods, METS, etc.)'
   hint: 'Validador OpenAIRE o https://validator.oaipmh.com/#ListMetadataFormats'
+  answer: false
+
 
 # 10
 - type: 'bool'
   id: 'c_003_q_002'
   desc: "Uso de OAI-PMH (puede existir o no el conjunto 'openaire' o 'ec_fundedresources' o 'driver')"
   hint: 'Validador OpenAIRE o https://validator.oaipmh.com'
+  answer: false
+
 
 # 11
 - type: 'bool'
   id: 'c_003_q_003'
   desc: 'Están presentes en todos los artículos los metadatos definidos como obligatorios en el OpenAIRE Guidelines for Literature Repositories v3'
   hint: 'Sitio oficial de la revista/validador OpenAIRE'
+  answer: false
+
 
 # 12
 - type: 'bool'
   id: 'c_003_q_004'
   desc: 'Están presentes en todos los artículos los metadatos Field Language, Field License Condition y Field Source, definidos como recomendables en el OpenAIRE Guidelines for Literature Repositories v3'
   hint: 'Validador OpenAIRE'
+  answer: false
+
 
 # 13
 - type: 'bool'
   id: 'c_003_q_005'
   desc: 'Incluye entre sus metadatos el Identificador Persistente - ISSN y/o ISSN-E'
   hint: 'Sitio oficial de la revista/validador OpenAIRE: revisar en los campos Resource Identifier y Alternative Identifiers'
+  answer: false
+
 
 # 14
 - type: 'bool'
   id: 'c_003_q_006'
   desc: 'Incluye entre sus metadatos Identificador(es) Persistente(s) de algún identificador de objetos digitales (ej. DOI-Handle-URI-Scopus ID-Wos ID-Scielo ID)'
   hint: 'Sitio oficial de la revista/validador OpenAIRE: revisar en los campos Resource Identifier y Alternative Identifiers'
+  answer: false
+
 
 # 15
 - type: 'bool'
   id: 'c_003_q_007'
   desc: 'Incluye entre sus metadatos Identificador(es) Persistente(s) para personas (ej. ORCID)'
   hint: 'Sitio oficial de la revista/validador OpenAIRE: revisar en los campos Resource Identifier y Alternative Identifiers'
+  answer: false
 
-# 16         
+# 16
 - type: 'bool'
   id: 'c_003_q_008'
   desc: 'Incluye entre sus metadatos Identificador(es) Persistente(s) para organizaciones (ej. GRID, ROR)'
   hint: 'Sitio oficial de la revista/validador OpenAIRE: revisar en los campos Resource Identifier y Alternative Identifiers'
+  answer: false
 
 # 17
 - type: 'select'
   id: 'c_004_q_001'
   desc: 'Permite que se depositen los artículos en plataformas no comerciales (repositorios de acceso abierto) o comerciales (ej. Researchgate)'
   hint: 'Sitio oficial de la revista/Aura'
-  selectOptions: 
+  answer: None
+  selectOptions:
     - label: 'Varias versiones de los artículos (incluyendo la versión final del editor)'
       value: 'VARIAS_VERSIONES_ART'
     - label: 'Solamente la versión preprint'
@@ -143,24 +167,29 @@
   id: 'c_004_q_002'
   desc: 'Declara que no tiene costo por procesamiento de artículos (APC)'
   hint: 'Sitio oficial de la revista'
+  answer: false
+
 
 # 19
 - type: 'bool'
   id: 'c_004_q_003'
   desc: 'Es una revista de acceso abierto y declara política de acceso abierto'
   hint: 'Sitio oficial de la revista'
+  answer: false
 
 # 20
 - type: 'bool'
   id: 'c_004_q_004'
   desc: 'Promueve el depósito de los datos de investigación en repositorios de acceso abierto como parte de su política editorial'
   hint: 'Sitio oficial de la revista'
+  answer: false
 
 # 21
 - type: 'bool'
   id: 'c_004_q_005'
   desc: 'Ofrece sus contenidos bajo algun tipo de licencia Creative Common'
   hint: 'Sitio oficial de la revista'
+  answer: false
 
 #Internacionalización
 # 22
@@ -168,6 +197,7 @@
   id: 'c_005_q_001'
   desc: 'Declara que acepta artículos en idioma'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'Solamente Español'
       value: 'SOLAMENTE_ESPAÑOL'
@@ -181,12 +211,14 @@
   id: 'c_005_q_002'
   desc: 'El porcentaje de artículos originales en Inglés publicados anualmente supera el %15'
   hint: 'Sitio oficial de la revista'
+  answer: false
 
 # 24
 - type: 'select'
   id: 'c_005_q_003'
   desc: 'Los miembros del comité editorial que pertenecen a instituciones extranjeras'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'Más del 50%'
       value: 'MAS_DEL_50'
@@ -200,6 +232,7 @@
   id: 'c_005_q_004'
   desc: 'Los miembros del comité editorial que son externos a la institución editora representan'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'Más del 70%'
       value: 'MAS_DEL_70'
@@ -212,11 +245,12 @@
   id: 'c_005_q_005'
   desc: 'En los últimos dos años los artículos firmados por miembros del consejo editorial o por miembros de la institución editora constituyen'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'Más del 50% del total publicado en el período'
       value: 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO'
     - label: 'Entre el 20 y el 50% del total publicado en el período'
-      value: 'ENTRE_EL_20_Y_50_TOTAL_PUBLICADO_PERIODO'                                  
+      value: 'ENTRE_EL_20_Y_50_TOTAL_PUBLICADO_PERIODO'
     - label: 'Menos del 20% del total publicado en el período'
       value: 'MENOS_DEL_20_TOTAL_PUBLICADO_PERIODO'
 
@@ -225,6 +259,7 @@
   id: 'c_005_q_006'
   desc: 'La firma de autores afiliados a instituciones extranjeras aparece en'
   hint: 'Sitio oficial de la revista'
+  answer: None
   selectOptions:
     - label: 'Más del 25% del total de artículos en los últimos dos años'
       value: 'MAS_DEL_25_TOTAL_ART_ULT_DOS_AÑOS'
@@ -239,12 +274,14 @@
   id: 'c_006_q_001'
   desc: 'Posee funcionalidad de compartir contenidos en redes sociales'
   hint: 'Sitio oficial de la revista/Aura'
+  answer: false
 
 # 29
 - type: 'select'
   id: 'c_006_q_002'
   desc: 'Posee perfiles en redes sociales'
   hint: 'Twitter, Facebook, Mendeley y/o Researchgate (Plum o Dimensions en caso de tener DOI)'
+  answer: None
   selectOptions:
     - label: 'No'
       value: 'NO'
@@ -258,6 +295,7 @@
   id: 'c_006_q_003'
   desc: 'Difunde sus artículos a través de redes sociales'
   hint: 'Twitter, Facebook, Mendeley y/o Researchgate (Plum o Dimensions en caso de tener DOI)'
+  answer: None
   selectOptions:
     - label: 'No'
       value: 'NO'
@@ -275,16 +313,18 @@
   id: 'c_007_q_001'
   desc: 'Tiene citas registradas en Scopus/Scimago o Scielo Analytics o Google Académico'
   hint: ''
+  answer: false
 
 # 32
 - type: 'select'
   id: 'c_007_q_002'
   desc: 'Citas recibidas en Scopus/Scimago o Web de la Ciencia/JCR o Google Académico/Scielo Analytics'
   hint: 'Este elemento se considerará para una de las siguientes opciones: Scopus/Scimago o Web de la Ciencia/JCR o Google Académico/Scielo Analytics. Si se desea estimar en más de una opción, hay que hacerlo de manera diferenciada. Nunca deben sumarse los totales de citación provenientes de diferentes fuentes'
-  selectOptions: 
+  answer: None
+  selectOptions:
     - label: 'Menos del 20% de los artículos publicados en los últimos tres años han recibido al menos una cita'
       value: 'MENOS_DEL_20_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
-    - label: 'Entre el 20% y el 50% de los artículos publicados en los últimos tres años han recibido al menos una cita'  
+    - label: 'Entre el 20% y el 50% de los artículos publicados en los últimos tres años han recibido al menos una cita'
       value: 'ENTRE_EL_20_Y_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
     - label: 'Más del 50% de los artículos publicados en los últimos tres años han recibido al menos una cita'
       value: 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
@@ -294,7 +334,8 @@
   id: 'c_007_q_003'
   desc: 'Según Google Académico el índice H5 de la revista'
   hint: 'Google académico'
-  selectOptions: 
+  answer: None
+  selectOptions:
     - label: 'N/A (no aplica)'
       value: 'NO_APLICA'
     - label: 'Es menor o igual al índice H5 de la revista en el período anterior'
@@ -307,7 +348,8 @@
   id: 'c_008_q_001'
   desc: 'Está en rankings de revistas'
   hint: 'Scopus/Scimago, JCR, Redalyc, REDIB, CIRS'
-  selectOptions: 
+  answer: 'No'
+  selectOptions:
   - label: 'No'
     value: 'NO'
   - label: 'En Q3-Q4 de Journal Citation Report/Scimago'

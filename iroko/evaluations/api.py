@@ -9,6 +9,7 @@ from typing import Dict
 from invenio_access.models import ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
+from sqlalchemy import and_, or_, not_
 
 from iroko.evaluations.marshmallow import evaluation_schema
 from iroko.evaluations.models import Evaluation, EvaluationState
@@ -53,7 +54,8 @@ class Evaluations:
             return: The evaluation from the given user
         '''
 
-        evaluations = Evaluation.query.filter_by(user_id = user_id).all()
+        evaluations = Evaluation.query.filter(Evaluation.user_id == user_id,
+                                              Evaluation.entity_id_value != '').all()
 
         if evaluations:
             return 'ok', evaluations
@@ -74,7 +76,7 @@ class Evaluations:
             new_evaluation.data = temp
             new_evaluation.datetime = datetime.now()
             new_evaluation.state = EvaluationState.START
-            new_evaluation.user_id = user_id 
+            new_evaluation.user_id = user_id
 
             db.session.add(new_evaluation)
             db.session.flush()
@@ -86,13 +88,13 @@ class Evaluations:
             return msg, None
 
     def get_question(cls, id: str):
-        
+
         '''
             Obtain an specific methodology question.
 
             param1: The id of the question.
 
-            return: A dictionary that contains the question info 
+            return: A dictionary that contains the question info
 
         '''
         with open("iroko/evaluations/methodologies/journal/questions.es.yml", 'r') as stream:
@@ -102,13 +104,13 @@ class Evaluations:
                     return question
 
     def get_recomendation(cls, id: str):
-        
+
         '''
             Obtain an specific methodology recomendation.
 
             param1: The id of the recomendation.
 
-            return: A dictionary that contains the recomendation info 
+            return: A dictionary that contains the recomendation info
 
         '''
 
@@ -130,7 +132,7 @@ class Evaluations:
         '''
         result = dict()
         with open("iroko/evaluations/methodologies/journal/methodology.es.yml", 'r') as stream:
-            
+
             result = yaml.safe_load(stream)
             result['user'] = user_id
 
@@ -140,23 +142,23 @@ class Evaluations:
             result['journalData']['issn'] = None
             result['journalData']['url'] = None
             del result['entity']
-            
+
             for section in result['sections']:
                 for category in section['categories']:
                     new_questions = []
                     for question in category['questions']:
                         q = cls.get_question(cls, question['id'])
-                        q['answer'] = None
+                        # q['answer'] = None
                         new_questions.append(q)
                     category['questionsOrRecoms'] = new_questions
                     del category['questions']
-        #json_object = json.dumps(result, indent = 4) 
-            
+        #json_object = json.dumps(result, indent = 4)
+
         return result
 
     @classmethod
     def new_evaluation(cls, data, user_id) -> Dict[str, Evaluation]:
-        
+
         '''
             Create a new instace of Evaluation
 
@@ -184,10 +186,10 @@ class Evaluations:
 
             db.session.add(evaluation)
             db.session.flush()
-            db.session.commit() 
+            db.session.commit()
 
             msg = "New Evaluation Created"
-        
+
         else:
             msg = 'Invalid data'
             evaluation = None
@@ -201,7 +203,7 @@ class Evaluations:
 
         with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
             result = yaml.safe_load(stream)
-        
+
         return result
 
     @classmethod
@@ -218,8 +220,8 @@ class Evaluations:
                 for category in sec['categories']:
                     for question in category['questionsOrRecoms']:
 
-                        values.append(question['answer']) 
-            
+                        values.append(question['answer'])
+
             evaluate_journal(result, values)
 
         return result
@@ -249,7 +251,7 @@ class Evaluations:
 
             except Exception as e:
                 msg = str(e)
-            
+
         else:
             msg = 'Invalid Data'
             evaluation = None
@@ -282,7 +284,7 @@ class Evaluations:
                     for category in sec['categories']:
                         for question in category['questionsOrRecoms']:
                             question['answer'] = data['sections'][question['id']]
-                
+
                 recom = cls.build_recoms(evaluation.data)
                 temp = deepcopy(evaluation.data)
                 temp['resultAndRecoms']= recom
@@ -290,7 +292,7 @@ class Evaluations:
                 # TODO en un futuro esta info se obtendria de otra forma
                 evaluation.methodology_name = "sceiba-journal"
 
-                
+
                 evaluation.data = temp
                 db.session.commit()
 
@@ -300,7 +302,7 @@ class Evaluations:
         else:
             msg = 'Invalid Data'
             evaluation = None
-        
+
         return msg, evaluation
 
     @classmethod
@@ -314,7 +316,7 @@ class Evaluations:
 
             msg = "The current user is not the author of the evaluation"
             return msg, evaluation
-        
+
         if evaluation.state != EvaluationState.PROCESSING:
 
             msg = "Is not a processing evaluation"
