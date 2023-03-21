@@ -5,7 +5,7 @@
 #
 
 from typing import Dict
-
+import os
 from invenio_access.models import ActionUsers
 from invenio_accounts.models import User
 from invenio_db import db
@@ -19,7 +19,7 @@ from datetime import datetime
 import json
 
 from copy import deepcopy
-
+from flask import current_app
 
 # TODO comprobar que el usuario sea el autor de la evaluacion en cada operacion
 
@@ -97,7 +97,11 @@ class Evaluations:
             return: A dictionary that contains the question info
 
         '''
-        with open("iroko/evaluations/methodologies/journal/questions.es.yml", 'r') as stream:
+
+        file_path = os.path.join(
+            current_app.config["HARVESTER_DATA_DIRECTORY"],\
+            "/journal/questions.es.yml")
+        with open(file_path, 'r') as stream:
             questions = yaml.safe_load(stream)
             for question in questions:
                 if id == question['id']:
@@ -113,8 +117,10 @@ class Evaluations:
             return: A dictionary that contains the recomendation info
 
         '''
-
-        with open("methodologies/journal/recomendations.es.yml", 'r') as stream:
+        file_path = os.path.join(
+            current_app.config["HARVESTER_DATA_DIRECTORY"],\
+            "/journal/recomendations.es.yml")
+        with open(file_path, 'r') as stream:
             recomendations = yaml.safe_load(stream)
             for recomendation in recomendations:
                 if id == recomendation['id']:
@@ -131,7 +137,10 @@ class Evaluations:
             return: the json that represent the formulary data
         '''
         result = dict()
-        with open("iroko/evaluations/methodologies/journal/methodology.es.yml", 'r') as stream:
+        file_path = os.path.join(
+            current_app.config["HARVESTER_DATA_DIRECTORY"],\
+            "/journal/methodology.es.yml")
+        with open(file_path, 'r') as stream:
 
             result = yaml.safe_load(stream)
             result['user'] = user_id
@@ -201,7 +210,10 @@ class Evaluations:
 
         result = dict()
 
-        with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
+        file_path = os.path.join(
+            current_app.config["HARVESTER_DATA_DIRECTORY"], \
+            "/journal/results.es.yml")
+        with open(file_path, 'r') as stream:
             result = yaml.safe_load(stream)
 
         return result
@@ -210,8 +222,10 @@ class Evaluations:
     def build_recoms(cls, json_data):
 
         result = dict()
-
-        with open("iroko/evaluations/methodologies/journal/results.es.yml", 'r') as stream:
+        file_path = os.path.join(
+            current_app.config["HARVESTER_DATA_DIRECTORY"], \
+            "/journal/results.es.yml")
+        with open(file_path, 'r') as stream:
             result = yaml.safe_load(stream)
             # result['user'] = json_data['user_id']
 
