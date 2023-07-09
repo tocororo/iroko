@@ -8,7 +8,6 @@
 
 from time import sleep
 
-
 from iroko.sources.api import SourceRecord
 
 

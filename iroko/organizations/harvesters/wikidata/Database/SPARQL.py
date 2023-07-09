@@ -8,7 +8,8 @@
 
 import sys
 
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import JSON, SPARQLWrapper
+
 # from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 endpoint_url = "https://query.wikidata.org/sparql"

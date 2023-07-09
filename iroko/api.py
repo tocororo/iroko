@@ -3,9 +3,11 @@ from uuid import uuid4
 
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
+from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
+from invenio_records.api import Record
 from invenio_records_files.api import Record
 from sqlalchemy.exc import NoResultFound
 
@@ -13,11 +15,9 @@ from iroko.pidstore import pids
 from iroko.pidstore.minters import identifiers_minter, iroko_uuid_minter
 from iroko.pidstore.pids import (
     IDENTIFIERS_FIELD, IDENTIFIERS_FIELD_TYPE, IDENTIFIERS_FIELD_VALUE, IROKO_OBJECT_TYPE,
-    identifiers_schemas,
-    IROKO_UUID_PID_TYPES,
+    IROKO_UUID_PID_TYPES, identifiers_schemas,
     )
 
-from invenio_jsonschemas import current_jsonschemas
 
 class IrokoBaseRecord(Record):
     """Class with common functions to Iroko Records"""

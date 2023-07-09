@@ -1,13 +1,8 @@
-import string
-
-from flask import jsonify, current_app
-
-from flask_swagger_ui import get_swaggerui_blueprint
-
-from flask import Blueprint
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
+from flask import Blueprint, current_app, jsonify
+from flask_swagger_ui import get_swaggerui_blueprint
 from sqlalchemy import true
 
 from iroko.organizations.marshmallow import OrgRecordSearchSchemaV1

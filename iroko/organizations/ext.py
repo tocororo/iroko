@@ -10,12 +10,7 @@
 
 from __future__ import absolute_import, print_function
 
-from invenio_files_rest.signals import file_deleted, file_uploaded
-from invenio_indexer.signals import before_record_index
-
-from . import indexer
 from .cli import organizations
-from .tasks import update_record_files_async
 
 
 class IrokoOrganizations(object):

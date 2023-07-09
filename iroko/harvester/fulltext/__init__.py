@@ -3,8 +3,7 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
-from iroko.harvester.fulltext import ojs
-from iroko.harvester.fulltext import dspace
+from iroko.harvester.fulltext import dspace, ojs
 
 OJS = "ojs"
 DSPACE = "dspace"

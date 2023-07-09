@@ -4,22 +4,18 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 
-from typing import Dict
 import os
-from invenio_access.models import ActionUsers
-from invenio_accounts.models import User
-from invenio_db import db
-from sqlalchemy import and_, or_, not_
+from copy import deepcopy
+from datetime import datetime
+from typing import Dict
 
-from iroko.evaluations.marshmallow import evaluation_schema
+import yaml
+from flask import current_app
+from invenio_db import db
+
 from iroko.evaluations.models import Evaluation, EvaluationState
 from iroko.evaluations.rules import evaluate_journal
-import yaml
-from datetime import datetime
-import json
 
-from copy import deepcopy
-from flask import current_app
 
 # TODO comprobar que el usuario sea el autor de la evaluacion en cada operacion
 

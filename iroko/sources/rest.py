@@ -38,7 +38,7 @@ from iroko.sources.search import SourceSearch
 from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import user_schema_many
 from iroko.utils import (
-    CuorHelper, IrokoResponseStatus, IrokoVocabularyIdentifiers, iroko_json_response,
+    IrokoResponseStatus, IrokoVocabularyIdentifiers, iroko_json_response,
     )
 from iroko.vocabularies.marshmallow import term_schema_many
 from iroko.vocabularies.models import Term

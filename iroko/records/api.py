@@ -4,7 +4,6 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 import traceback
-from uuid import uuid4
 
 from elasticsearch.exceptions import NotFoundError
 from elasticsearch_dsl import Search
@@ -12,18 +11,16 @@ from elasticsearch_dsl.connections import connections
 from flask import current_app
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
-from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
-# from invenio_records.api import Record
-from invenio_records_files.api import Record
 
-import iroko.pidstore.fetchers as iroko_fetchers
 import iroko.pidstore.minters as iroko_minters
-import iroko.pidstore.providers as iroko_providers
 from iroko.api import IrokoBaseRecord
 from iroko.pidstore import pids
+
+
+# from invenio_records.api import Record
 
 
 class IrokoAggs:

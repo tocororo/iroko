@@ -14,8 +14,8 @@ from flask import current_app
 from invenio_db import db
 from invenio_pidstore.resolver import Resolver
 
-from iroko.organizations.harvesters.general import insert_in_organizations
 from iroko.organizations.api import OrganizationRecord
+from iroko.organizations.harvesters.general import insert_in_organizations
 from iroko.pidstore.pids import IROKO_OBJECT_TYPE
 
 logger = logging.getLogger('iroko-onei-harvester')

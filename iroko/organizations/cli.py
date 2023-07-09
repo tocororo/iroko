@@ -8,21 +8,15 @@ import os
 import click
 from flask import current_app
 from flask.cli import with_appcontext
-
-from iroko.organizations.harvesters.grid import load_grid
-from iroko.organizations.harvesters.onei import get_top_organizations, get_lower_organizations
-from iroko.organizations.harvesters.wikidata.wikidata import startCollect
-
+from invenio_pidstore.errors import PIDAlreadyExists
 from invenio_pidstore.resolver import Resolver
-from iroko.organizations.harvesters.general import (
-    insert_in_organizations,
-    )
-from iroko.utils import _assing_if_exist, remove_nulls
-from iroko.organizations.api import OrganizationRecord
-from invenio_pidstore.errors import PIDAlreadyExists, PIDDoesNotExistError
 
-from invenio_pidstore.models import  PersistentIdentifier
-from iroko.pidstore.pids import ORGANIZATION_PID_TYPE, IROKO_OBJECT_TYPE
+from iroko.organizations.api import OrganizationRecord
+from iroko.organizations.harvesters.grid import load_grid
+from iroko.organizations.harvesters.onei import get_lower_organizations, get_top_organizations
+from iroko.organizations.harvesters.wikidata.wikidata import startCollect
+from iroko.pidstore.pids import IROKO_OBJECT_TYPE, ORGANIZATION_PID_TYPE
+from iroko.utils import remove_nulls
 
 # classification fixtures:
 # buscar reeup de mes, minsap, biocubafarma

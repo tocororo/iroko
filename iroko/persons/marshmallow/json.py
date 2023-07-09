@@ -20,7 +20,7 @@ from invenio_records_rest.schemas.fields import (
     DateString, GenFunction,
     PersistentIdentifier, SanitizedUnicode,
     )
-from marshmallow import fields, missing, validate, post_dump, INCLUDE
+from marshmallow import INCLUDE, fields, missing, validate
 
 allow_empty = validate.Length(min=0)
 

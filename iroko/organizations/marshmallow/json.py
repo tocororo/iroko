@@ -19,8 +19,8 @@ from invenio_records_rest.schemas import Nested, StrictKeysMixin
 from invenio_records_rest.schemas.fields import (
     GenFunction,
     PersistentIdentifier, SanitizedUnicode,
-)
-from marshmallow import fields, missing, validate, post_dump
+    )
+from marshmallow import fields, missing, post_dump, validate
 
 from iroko.organizations.api import OrganizationRecord
 

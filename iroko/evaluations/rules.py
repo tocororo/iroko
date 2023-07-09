@@ -1,6 +1,3 @@
-import yaml
-import json 
-
 def evaluate_journal(template, responses):
 
     evaluate_categories(template, responses)
@@ -14,32 +11,32 @@ def evaluate_sections(template, responses):
 
 def eval_visibility(responses):
 
-    var1 = ((not responses[0]) and 
-            (not responses[1]) and 
+    var1 = ((not responses[0]) and
+            (not responses[1]) and
             (int(responses[2]) + int(responses[3]) == 0))
-    
-    var2 = ((responses[4]) and 
-            (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and 
-            (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and 
+
+    var2 = ((responses[4]) and
+            (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and
+            (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and
             (responses[8]))
-    
-    var3 = ((responses[9]) and 
+
+    var3 = ((responses[9]) and
             (responses[10]) and
             (responses[11]) and
             (responses[13]) and
             (responses[15]))
-    
+
     var4 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
             (not responses[18]) or
             (not responses[19]) or
             (not responses[21]))
-    
+
     var5 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
             (responses[24] == 'MENOS_DEL_20') or
-            (responses[25] == 'MENOS_DEL_20') or 
+            (responses[25] == 'MENOS_DEL_20') or
             (responses[26] == 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO') or
             (responses[27] == 'MENOS_DEL_5_TOTAL_ART_ULT_DOS_AÑOS'))
-    
+
     high = (not var1) and var2 and var3 and (not var4) and (not var5)
 
     if high:
@@ -47,41 +44,41 @@ def eval_visibility(responses):
 
     var1 = (responses[19] == responses[0])
 
-    var2 = ((var1) and 
-            (responses[1]) and 
+    var2 = ((var1) and
+            (responses[1]) and
             (int(responses[2]) + int(responses[3]) >= 1))
-    
-    var3 = ((not responses[4]) or 
-            (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or 
+
+    var3 = ((not responses[4]) or
+            (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or
             (responses[6] == 'NO_DISPONIBLE_IND_NO_DESC_NUM') or
             (responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or
             (responses[5] == 'NO_APLICA') or
             (not responses[7] and not responses[8]))
-    
+
     var4 = ((not responses[9]) or
             (not responses[10]) or
             (not responses[11]) or
             (not responses[13]))
-    
+
     var5 = ((responses[17] == 'NO_PERMITE_AUTOARCHIVADO_VER') or
             (not responses[18]) or
             (not responses[19]) or
             (not responses[21]))
-    
+
     var6 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
             (responses[24] == 'MENOS_DEL_20') or
-            (responses[25] == 'MENOS_DEL_20') or 
+            (responses[25] == 'MENOS_DEL_20') or
             (responses[26] == 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO') or
             (responses[27] == 'MENOS_DEL_5_TOTAL_ART_ULT_DOS_AÑOS'))
-    
+
     low = (not var2) and var3 and var4 and var5 and var6
-    
-    if low: 
+
+    if low:
         return 'BAJO'
-    
+
     if (not high) and (not low):
         return 'MEDIO'
-    
+
     return 'ERROR'
 
 def eval_impact(template, responses):
@@ -91,14 +88,14 @@ def eval_impact(template, responses):
 
     if var2:
         return 'ALTO'
-    
+
     if var1 == 'BAJO':
         return 'BAJO'
-    
+
     if (not var2) and (var1 != 'BAJO'):
         return 'MEDIO'
-    
-    return 'ERROR'    
+
+    return 'ERROR'
 
 def final_evaluation(template, responses):
 
@@ -150,15 +147,15 @@ def evaluate_categories(template, responses):
 def eval_indization(responses):
 
     recoms = []
-    
-    if ((not responses[0]) and 
+
+    if ((not responses[0]) and
         (responses[19])):
 
         recoms.append({'id': 'c_001_r_001', 'value': 'Postular revista a DOAJ'})
 
-    if ((responses[31]) and 
-        (responses[32] == 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA') and 
-        (responses[33] == 'MAYOR_IND_H5_REV_PER_ANT') and 
+    if ((responses[31]) and
+        (responses[32] == 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA') and
+        (responses[33] == 'MAYOR_IND_H5_REV_PER_ANT') and
         (not responses[1])):
 
         recoms.append({'id': 'c_001_r_002', 'value': 'Considerar la posibilidad de postular la revista a SCOPUS/Web de la Ciencia'})
@@ -171,19 +168,19 @@ def eval_indization(responses):
 
     var1 = (responses[19] == responses[0])
 
-    var2 = ((var1) and 
-            (responses[1]) and 
+    var2 = ((var1) and
+            (responses[1]) and
             (int(responses[2]) + int(responses[3]) >= 1))
 
-    var3 = ((not responses[0]) and 
-            (not responses[1]) and 
+    var3 = ((not responses[0]) and
+            (not responses[1]) and
             (int(responses[2]) + int(responses[3]) == 0))
 
     var4 = (not var2) and (not var3)
 
     if var2:
         return "ALTO", recoms
-    
+
     if var4:
         return "MEDIO", recoms
 
@@ -191,7 +188,7 @@ def eval_indization(responses):
         return "BAJO", recoms
 
     return "ERROR", recoms
-         
+
 
 def eval_access(responses):
 
@@ -200,7 +197,7 @@ def eval_access(responses):
     if not responses[4]:
         recoms.append({'id': 'c_002_r_001', 'value': 'Crear el sitio web propio de la revista y solicitar el E-ISSN'})
 
-    if ((responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or 
+    if ((responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or
         (responses[5] == 'SOLAMENTE_DISPONIBLE_ULTIMO_NUM')):
         recoms.append({'id': 'c_002_r_002', 'value': 'Actualizar el sitio web propio de la revista con todos los números publicados en los últimos dos años'})
 
@@ -215,13 +212,13 @@ def eval_access(responses):
     if var1:
         recoms.append({'id': 'c_002_r_005', 'value': 'Promover el déposito de los artículos en repositorios internacionales, nacional, institucional, multidisciplinarios y tématicos'})
 
-    var2 = ((responses[4]) and 
-            (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and 
-            (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and 
+    var2 = ((responses[4]) and
+            (responses[5] == 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS') and
+            (responses[6] == 'SI_DISPONIBLE_IND_SI_DESC_NUM') and
             (responses[8]))
 
-    var3 = ((not responses[4]) or 
-            (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or 
+    var3 = ((not responses[4]) or
+            (responses[6] == 'SI_DISPONIBLE_IND_NO_DESC_NUM') or
             (responses[6] == 'NO_DISPONIBLE_IND_NO_DESC_NUM') or
             (responses[5] == 'NO_DISPONIBLE_ULTIMO_NUM') or
             (responses[5] == 'NO_APLICA') or
@@ -265,7 +262,7 @@ def eval_interoperability(responses):
     if not responses[16]:
         recoms.append({'id': 'c_003_r_007', 'value': 'Explorar la posibilidad de incluir entre sus metadatos Identificador(es) Persistente(s) para organizaciones (ej.: GRID, ROR)'})
 
-    var1 = ((responses[9]) and 
+    var1 = ((responses[9]) and
             (responses[10]) and
             (responses[11]) and
             (responses[13]))
@@ -356,7 +353,7 @@ def eval_internationalization(responses):
 
     var2 = ((responses[22] != 'EN_MAS_DE_UN_IDIOMA') or
             (responses[24] == 'MENOS_DEL_20') or
-            (responses[25] == 'MENOS_DEL_20') or 
+            (responses[25] == 'MENOS_DEL_20') or
             (responses[26] == 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO') or
             (responses[27] == 'MENOS_DEL_5_TOTAL_ART_ULT_DOS_AÑOS'))
 
@@ -379,7 +376,7 @@ def eval_socialNetworks(responses):
 
     if not responses[28]:
         recoms.append({'id': 'c_006_r_001', 'value': 'Implementar funcionalidad de compartir contenidos en redes sociales'})
- 
+
     if responses[29] == 'PERFIL_RED_SOC_SI_MENDELEY_RESEARCHGATE':
         recoms.append({'id': 'c_006_r_002', 'value': 'Crear y mantener activos perfiles tanto en redes sociales generales como en Mendeley y Researchgate para aumentar la difusión de sus publicaciones'})
 
@@ -389,7 +386,7 @@ def eval_socialNetworks(responses):
 
     var2 = ((not responses[31]) or
             (responses[29] == 'NO') or
-            (responses[30] == 'NO')) 
+            (responses[30] == 'NO'))
 
     var3 = (not var1) and (not var2)
 
@@ -436,7 +433,7 @@ def eval_positionJournalRankings(responses):
 
     if (responses[34] != 'Q1_Q2_JOURNAL_CITATION') and (responses[34] != 'NO'):
         return 'MEDIO', []
-    
+
     if responses[34] == 'NO':
         return 'BAJO', []
     return 'ERROR', []

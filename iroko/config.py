@@ -21,12 +21,8 @@ from __future__ import absolute_import, print_function
 from datetime import timedelta
 
 from invenio_indexer.api import RecordIndexer
-from invenio_oauthclient.contrib import keycloak as k
 from invenio_records_rest.facets import terms_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch, deny_all
-
-import os
-
 
 from iroko.deployment import *
 from iroko.organizations.api import OrganizationRecord

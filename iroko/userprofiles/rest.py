@@ -16,7 +16,6 @@ from flask_login import current_user
 from invenio_accounts.models import User
 from invenio_oauth2server import require_api_auth
 
-from iroko.auth import require_keycloak_auth
 from iroko.userprofiles import UserProfile
 from iroko.userprofiles.marshmallow import user_schema_many, userprofile_schema
 from iroko.utils import IrokoResponseStatus, iroko_json_response

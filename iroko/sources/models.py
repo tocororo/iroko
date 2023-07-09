@@ -13,7 +13,7 @@ import uuid
 from invenio_accounts.models import User
 from invenio_db import db
 from sqlalchemy_utils.types import JSONType, UUIDType
-
+from iroko.vocabularies.models import  Term
 
 class SourceInstitutionRole(enum.Enum):
     MAIN = "MAIN"
@@ -91,7 +91,7 @@ class TermSources(db.Model):
     data = db.Column(JSONType)
 
     source = db.relationship("Source", backref=db.backref("term_sources"))
-    term = db.relationship("Term", backref=db.backref("term_sources"))
+    term = db.relationship(Term, backref=db.backref("term_sources"))
 
 
 class SourceVersion(db.Model):

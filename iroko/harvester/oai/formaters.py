@@ -11,8 +11,7 @@ from lxml import etree
 from iroko.harvester.api import Formatter
 from iroko.harvester.oai import nsmap
 from iroko.harvester.utils import get_multiple_elements, get_sigle_element
-from iroko.persons.utils import  get_people_from_nlm
-
+from iroko.persons.utils import get_people_from_nlm
 from iroko.pidstore.pids import get_identifier_schema
 from iroko.records import ContributorRole
 

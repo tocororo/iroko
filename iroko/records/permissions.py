@@ -7,8 +7,6 @@
 
 
 """Permissions for Iroko Records."""
-from flask_login import current_user
-from flask_principal import RoleNeed
 from invenio_access import Permission, any_user
 
 def files_permission_factory(obj, action=None):

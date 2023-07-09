@@ -1,0 +1,215 @@
+[tool.poetry]
+name = "iroko"
+version = "0.3.4"
+description = ""
+authors = ["Rafael Martinez Estevez <malayibiri@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.9.16"
+lxml = ">=4.9.1"
+marshmallow = ">=3.0.0,<4.0.0"
+uwsgi = ">=2.0"
+uwsgi-tools = ">=1.1.1"
+uwsgitop = ">=0.11"
+sickle = "^0.7.0"
+rdflib = "^6.3.2"
+marshmallow-enum = "^1.5.1"
+flask-swagger-ui = "^4.11.1"
+
+## Invenio 3.4 base modules used by RERO ILS
+# same as invenio metadata extras without invenio-search-ui
+invenio-indexer = ">=1.2.0,<1.3.0"
+invenio-jsonschemas = ">=1.1.1,<1.2.0"
+invenio-oaiserver = ">=1.2.0,<1.3.0"
+invenio-pidstore = ">=1.2.1,<1.3.0"
+invenio-records-rest = ">=1.8.0,<1.9.0"
+invenio-records-ui = ">=1.2.0,<1.3.0"
+invenio-records = ">=1.4.0,<1.7.0"
+
+
+## invenio auth without userprofiles
+invenio-access = ">=1.4.1,<1.5.0"
+invenio-accounts = ">=1.4.3,<1.5.0"
+invenio-oauth2server = ">=1.3.2,<1.4.0"
+invenio-oauthclient = ">=1.4.0,<1.5.0"
+
+##
+## invenio files
+invenio-records-files = "^1.2.1"
+
+## Default from Invenio
+invenio = {version = ">=3.4.0,<3.5.0", extras = ["base", "postgresql", "elasticsearch6", "docs", "tests"]}
+
+
+
+# TODO: jsonschema 4.0.0 is not working with invenio because there is a new parameter type!
+jsonschema = "<4.0.0"
+
+
+## Deployment
+# sentry
+invenio-logging = { version = ">=1.3.0,<1.4.0", extras = ["sentry-sdk", "sentry"] }
+python-dotenv = ">=0.13.0"
+
+## Third party optional modules used by RERO ILS
+## invenio-sip2 = ">=0.6.16"
+flask-cors = ">3.0.8"
+celery = ">=5.0.0"
+cryptography = ">38.0.2,<40.0"
+## freezegun = "^1.1.0"
+## lazyreader = ">1.0.0"
+jinja2 = ">2.11.2"
+## jsonmerge = "^1.8.0"
+## num2words = "^0.5.10"
+Flask = "<2.0.0"
+## iso639 = "^0.1.4"
+## dcxml = "^0.1.2"
+## DeepDiff = "^5.5.0"
+docutils = "<0.18.0"
+wtforms = "<3.0.0"
+flask-wtf = "<1.0.0"
+# TODO: ImportError: cannot import name 'soft_unicode' from 'markupsafe'
+markupsafe = "<2.1.0"
+## poethepoet = "^0.12.3"
+## flask-wiki = "^0.2.2"
+pytest-invenio = ">=1.4.0,<1.4.12"
+# to avoid conflict for urllib3
+## sentry-sdk = "<1.6.1"
+## dparse = ">=0.5.2"
+Mako = ">=1.2.2"
+jsonref = "<1.0.0"
+dojson = "^1.4.0"
+jsonresolver = "<0.3.2"
+pydocstyle = ">=6.1.1,<6.2"
+# to solve: pytz 67
+setuptools = "<67.0.0"
+
+invenio-records-permissions = "^0.13.0"
+pandas = "^2.0.3"
+sparqlwrapper = "^2.0.0"
+apispec = "^6.3.0"
+apispec-webframeworks = "^0.5.2"
+flask-restful = "^0.3.10"
+
+
+[tool.poetry.plugins."console_scripts"]
+iroko = "invenio_app.cli:cli"
+
+[tool.poetry.plugins."invenio_base.apps"]
+iroko_records = "iroko.records:iroko"
+iroko_sources = "iroko.sources.ext:IrokoSources"
+iroko_vocabularies= "iroko.vocabularies.ext:IrokoVocabularies"
+iroko_harvester = "iroko.harvester.ext:IrokoHarvester"
+invenio_userprofiles = "iroko.userprofiles:InvenioUserProfiles"
+iroko_organizations = "iroko.organizations.ext:IrokoOrganizations"
+iroko_persons = "iroko.persons.ext:IrokoPersons"
+
+[tool.poetry.plugins."invenio_base.blueprints"]
+iroko = "iroko.theme.views:blueprint"
+iroko_records = "iroko.records.views:blueprint"
+iroko_curator = "iroko.curator.views:blueprint"
+iroko_internal_apps = "iroko.auth.internal_apps:blueprint"
+invenio_userprofiles = "iroko.userprofiles.views:blueprint_ui_init"
+iroko_swagger = "iroko.docs.views:swagger_blueprint"
+iroko_apispec = "iroko.docs.views:apispec_blueprint"
+
+[tool.poetry.plugins."invenio_assets.webpack"]
+iroko_theme = "iroko.theme.webpack:theme"
+
+[tool.poetry.plugins."invenio_config.module"]
+iroko = "iroko.config"
+
+[tool.poetry.plugins."invenio_i18n.translations"]
+messages = "iroko"
+messages_userprofiles = "iroko.userprofiles"
+
+[tool.poetry.plugins."invenio_base.api_apps"]
+iroko = "iroko.records:iroko"
+invenio_userprofiles = "iroko.userprofiles:InvenioUserProfiles"
+iroko_organizations = "iroko.organizations:IrokoOrganizations"
+iroko_persons = "iroko.persons:IrokoPersons"
+
+[tool.poetry.plugins."invenio_jsonschemas.schemas"]
+iroko = "iroko.records.jsonschemas"
+sources = "iroko.sources.schemas"
+organizations = "iroko.organizations.jsonschemas"
+persons = "iroko.persons.jsonschemas"
+
+[tool.poetry.plugins."invenio_search.mappings"]
+records = "iroko.records.mappings"
+sources = "iroko.sources.mappings"
+organizations = "iroko.organizations.mappings"
+persons = "iroko.persons.mappings"
+
+[tool.poetry.plugins."invenio_admin.views"]
+vocabulary_admin = "iroko.vocabularies.admin:vocabularies_adminview"
+term_admin = "iroko.vocabularies.admin:terms_adminview"
+notification_admin = "iroko.notifications.admin:notifications_adminview"
+source_admin = "iroko.sources.admin:sources_adminview"
+source_version_admin = "iroko.sources.admin:sources_version_adminview"
+term_source_admin = "iroko.sources.admin:term_sources_adminview"
+harvester_repositories_adminview = "iroko.harvester.admin:harvester_repositories_adminview"
+harvester_items_adminview = "iroko.harvester.admin:harvester_items_adminview"
+invenio_userprofiles_view = "iroko.userprofiles.admin:user_profile_adminview"
+evaluations_admin = "iroko.evaluations.admin:evaluation_adminview"
+
+[tool.poetry.plugins."invenio_db.models"]
+iroko_taxonomy = "iroko.vocabularies.models"
+iroko_notification = "iroko.notifications.models"
+iroko_sources = "iroko.sources.models"
+iroko_harvester = "iroko.harvester.models"
+invenio_userprofiles = "iroko.userprofiles.models"
+iroko_evaluations = "iroko.evaluations.models"
+
+[tool.poetry.plugins."invenio_base.api_blueprints"]
+iroko_taxonomy = "iroko.vocabularies.rest:api_blueprint"
+iroko_notification = "iroko.notifications.rest:api_blueprint"
+iroko_sources = "iroko.sources.rest:api_blueprint"
+iroko_sources_journals = "iroko.sources.journals.rest:api_blueprint"
+iroko_harvester = "iroko.harvester.rest:api_blueprint"
+invenio_userprofiles = "iroko.userprofiles.rest:api_blueprint"
+iroko_records = "iroko.records.rest:api_blueprint"
+iroko_organizations = "iroko.organizations.rest:api_blueprint"
+iroko_persons = "iroko.persons.rest:api_blueprint"
+iroko_evaluations = "iroko.evaluations.rest:api_blueprint"
+
+[tool.poetry.plugins."invenio_celery.tasks"]
+iroko_harvester = "iroko.harvester.tasks"
+
+[tool.poetry.plugins."invenio_pidstore.fetchers"]
+irouid = "iroko.pidstore.fetchers:iroko_uuid_fetcher"
+recids = "iroko.pidstore.fetchers:iroko_record_identifiers_fetcher"
+recoai = "iroko.pidstore.fetchers:iroko_source_oai_fetcher"
+srcid = "iroko.pidstore.fetchers:iroko_source_uuid_fetcher"
+orgid = "iroko.pidstore.fetchers:organization_uuid_fetcher"
+perid = "iroko.pidstore.fetchers:person_uuid_fetcher"
+
+[tool.poetry.plugins."invenio_pidstore.minters"]
+irouid = "iroko.pidstore.minters:iroko_uuid_minter"
+recids = "iroko.pidstore.minters:iroko_record_identifiers_minter"
+recoai = "iroko.pidstore.minters:iroko_source_oai_minter"
+srcid = "iroko.pidstore.minters:iroko_source_uuid_minter"
+orgid = "iroko.pidstore.minters:organization_uuid_minter"
+perid = "iroko.pidstore.minters:person_uuid_minter"
+
+[tool.poetry.plugins."invenio_db.alembic"]
+invenio_userprofiles = "iroko.userprofiles:alembic"
+
+[tool.poetry.plugins."invenio_access.actions"]
+source_editor_actions = "iroko.sources.permissions:source_editor_actions"
+sourceactions = "iroko.sources.permissions:source_manager_actions"
+source_full_manager_actions = "iroko.sources.permissions:source_full_manager_actions"
+source_term_manager_actions = "iroko.sources.permissions:source_term_manager_actions"
+source_organization_manager_actions = "iroko.sources.permissions:source_organization_manager_actions"
+vocabulary_editor_actions = "iroko.vocabularies.permissions:vocabulary_editor_actions"
+vocabularies_full_editor_actions = "iroko.vocabularies.permissions:vocabularies_full_editor_actions"
+notification_admin_actions = "iroko.notifications.permissions:notification_admin_actions"
+notification_viewed_actions = "iroko.notifications.permissions:notification_viewed_actions"
+evaluation_admin_actions = "iroko.evaluations.permissions:evaluation_admin_actions"
+evaluation_viewed_actions = "iroko.evaluations.permissions:evaluation_viewed_actions"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

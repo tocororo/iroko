@@ -1,9 +1,11 @@
-from flask import Blueprint
+from flask import Blueprint, abort, current_app, request
 from flask_login import login_required
-from invenio_oauth2server.views.server import error_handler as oauth_error_handler, authorize as oauth_authorized
-from invenio_oauth2server.provider import oauth2
-from flask import Blueprint, request, abort, current_app
 from invenio_oauth2server.models import Client
+from invenio_oauth2server.provider import oauth2
+from invenio_oauth2server.views.server import (
+    authorize as oauth_authorized,
+    error_handler as oauth_error_handler,
+    )
 
 blueprint = Blueprint(
     'internal_apps',

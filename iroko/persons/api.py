@@ -4,15 +4,14 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 import json
-from iroko.api import IrokoBaseRecord
-from iroko.organizations.api import OrganizationRecord
-from iroko.persons.marshmallow.json import personMetadataSchema
-from iroko.pidstore import pids
-from iroko.utils import remove_nulls
 
 from invenio_pidstore.resolver import Resolver
 
-from iroko.pidstore.pids import PERSON_PID_TYPE
+from iroko.api import IrokoBaseRecord
+from iroko.organizations.api import OrganizationRecord
+from iroko.pidstore import pids
+from iroko.utils import remove_nulls
+
 
 class PersonRecord (IrokoBaseRecord):
     _schema = "persons/person-v1.0.0.json"

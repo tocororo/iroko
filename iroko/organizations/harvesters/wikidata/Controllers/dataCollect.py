@@ -9,7 +9,12 @@ from random import randint
 
 from iroko.organizations.harvesters.wikidata.Controllers.instance import Instance
 from iroko.organizations.harvesters.wikidata.Controllers.subclass import Subclass
-from iroko.organizations.harvesters.wikidata.Database.SPARQL import getSparqlSubclass, getSparqlInstance, getInstanceStatements, getInstanceDescription
+from iroko.organizations.harvesters.wikidata.Database.SPARQL import (
+    getInstanceDescription,
+    getInstanceStatements, getSparqlInstance, getSparqlSubclass,
+    )
+
+
 # from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 

@@ -8,6 +8,8 @@ import json
 from iroko.organizations.harvesters.wikidata.Class.instance import Instance
 from iroko.organizations.harvesters.wikidata.Database.connection import DB_USERNAME
 from iroko.organizations.harvesters.wikidata.Database.cursorPool import CursorPool
+
+
 # from iroko.organizations.harvesters.wikidata.logger_base import logger
 
 

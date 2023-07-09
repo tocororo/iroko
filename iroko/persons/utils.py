@@ -4,6 +4,7 @@ from lxml import etree
 
 from iroko.records import ContributorRole
 
+
 def get_people_from_nlm(metadata: etree._Element):
     """get a PersonRecord from {http://dtd.nlm.nih.gov/publishing/2.3}contrib
     etree._Element

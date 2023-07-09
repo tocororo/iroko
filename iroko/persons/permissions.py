@@ -13,7 +13,7 @@
 """Permissions for Iroko."""
 from flask_login import current_user
 from flask_principal import RoleNeed
-from invenio_access import Permission, any_user
+from invenio_access import Permission
 
 curator_permission = Permission(RoleNeed('curator'))
 

@@ -13,6 +13,7 @@ import uuid
 from enum import Enum
 from zipfile import BadZipFile, ZipFile
 
+from elasticsearch_dsl.query import QueryString
 from flask import current_app
 from invenio_db import db
 from lxml import etree
@@ -28,11 +29,9 @@ from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
 from iroko.records.api import IrokoRecord
 from iroko.sources.api import SourceRecord
 from iroko.sources.search import SourceSearch
-from elasticsearch_dsl.query import Bool, Q, QueryString
 # from iroko.sources.models import Source
 from iroko.utils import IrokoVocabularyIdentifiers
 from iroko.vocabularies.models import Term, Vocabulary
-from iroko.harvester import fulltext
 
 XMLParser = etree.XMLParser(
     remove_blank_text=True, recover=True, resolve_entities=False

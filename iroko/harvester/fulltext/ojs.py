@@ -3,9 +3,11 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 
-from lxml import html
-import requests
 import os
+
+import requests
+from lxml import html
+
 
 def get_agent():
     return {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}

@@ -7,10 +7,10 @@
 
 """Iroko minters."""
 
+import uuid
+
 import iroko.pidstore.pids as pids
 import iroko.pidstore.providers as providers
-
-import uuid
 
 
 def iroko_uuid_minter(pid_type=None, pid_value=None, object_type=None,

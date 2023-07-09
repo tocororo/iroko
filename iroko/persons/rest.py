@@ -2,17 +2,16 @@
 
 
 from __future__ import absolute_import, print_function
-import os
+
 import datetime
-from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
-from flask import Blueprint, request, jsonify, abort, current_app, Flask, flash, redirect, url_for, make_response
-from werkzeug.utils import secure_filename
+import os
+
+from flask import Blueprint, flash, jsonify, make_response, request
+
 from iroko.persons.api import PersonRecord
+from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
 from iroko.persons.serializers import json_v1_response
 from iroko.pidstore import pids
-from invenio_oauth2server import require_api_auth
-
-from iroko.utils import IrokoResponseStatus, iroko_json_response
 
 api_blueprint = Blueprint(
     'iroko_api_persons',

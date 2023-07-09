@@ -10,8 +10,10 @@ import click
 from flask.cli import with_appcontext
 from invenio_db import db
 from invenio_records_files.models import RecordsBuckets
-from iroko.records.search import IrokoRecordSearch
+
 from iroko.records.api import IrokoRecord
+from iroko.records.search import IrokoRecordSearch
+
 
 @click.group()
 def records():

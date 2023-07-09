@@ -11,7 +11,6 @@
 
 from __future__ import absolute_import, print_function
 
-
 from .ext import IrokoPersons
 
 __all__ = ('IrokoPersons', )

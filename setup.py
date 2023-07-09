@@ -129,7 +129,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    install_requires=install_requires,
+    # install_requires=install_requires,
     entry_points={
         'console_scripts': [
             'iroko = invenio_app.cli:cli',
@@ -147,7 +147,6 @@ setup(
             'iroko = iroko.theme.views:blueprint',
             'iroko_records = iroko.records.views:blueprint',
             'iroko_curator = iroko.curator.views:blueprint',
-            'iroko_organizations = iroko.organizations.views:blueprint',
             'iroko_internal_apps = iroko.auth.internal_apps:blueprint',
             'invenio_userprofiles'
             ' = iroko.userprofiles.views:blueprint_ui_init',
@@ -267,7 +266,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.9',
         'Development Status :: 3 - Alpha',
     ],
 )

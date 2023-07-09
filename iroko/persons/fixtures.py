@@ -1,16 +1,12 @@
-from typing import Any, List
-import os, datetime
-from iroko.records.api import IrokoRecord
-from pandas import read_csv, DataFrame
+import datetime
+import os
+from typing import List
 from unicodedata import normalize
 
+from pandas import DataFrame, read_csv
+
+from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
-from iroko.organizations.api import OrganizationRecord
-from iroko.persons.api import PersonRecord
-from iroko.pidstore import pids
-
-
-
 
 
 def _is_cuban_affiliation(affiliation: str):
@@ -97,7 +93,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_ext(filename):
-    return filename.rsplit('.', 1)[1].lower() 
+    return filename.rsplit('.', 1)[1].lower()
 
 def csv_to_json(file):
     filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")

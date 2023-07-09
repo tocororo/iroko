@@ -20,9 +20,6 @@ from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
-
-from invenio_records_files.api import Record
-
 from invenio_records_rest.views import lt_es7
 from invenio_rest.serializer import result_wrapper
 from sqlalchemy import desc, func

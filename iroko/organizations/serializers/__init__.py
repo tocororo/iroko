@@ -18,9 +18,9 @@ from invenio_records_rest.serializers.json import JSONSerializer
 from invenio_records_rest.serializers.response import (
     record_responsify,
     search_responsify,
-)
+    )
 
-from iroko.organizations.marshmallow import OrgRecordSearchSchemaV1, OrgMetadataSchemaBaseV1
+from iroko.organizations.marshmallow import OrgMetadataSchemaBaseV1, OrgRecordSearchSchemaV1
 from ..marshmallow import OrganizationRecordSchemaV1
 
 # Serializers

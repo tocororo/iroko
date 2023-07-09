@@ -3,9 +3,10 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 
+import sys
+
 # from iroko.organizations.harvesters.wikidata.logger_base import logger
 from psycopg2 import pool
-import sys
 
 DB_USERNAME = 'wdorgs'
 DB_PASSWORD = 'wdorgs'

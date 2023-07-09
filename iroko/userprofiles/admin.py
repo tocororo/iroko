@@ -17,12 +17,8 @@ from __future__ import absolute_import, print_function
 
 import json
 
-import jinja2
-
 from flask_admin.contrib.sqla import ModelView
-
-from jinja2.utils import markupsafe
-
+from markupsafe import Markup
 from .models import UserProfile
 
 
@@ -34,7 +30,7 @@ def _(x):
 def json_formatter(view, context, model, name):
     value = getattr(model, name)
     json_value = json.dumps(value, ensure_ascii=False, indent=2)
-    return markupsafe.Markup('<pre>{}</pre>'.format(json_value))
+    return Markup('<pre>{}</pre>'.format(json_value))
 
 
 class UserProfileView(ModelView):

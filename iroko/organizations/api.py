@@ -15,28 +15,20 @@
 from __future__ import absolute_import, print_function
 
 import enum
-import traceback
-from copy import deepcopy
-from uuid import uuid4
 
-from invenio_db import db
-from invenio_indexer.api import RecordIndexer
-from invenio_jsonschemas import current_jsonschemas
-from invenio_pidstore.errors import PIDDoesNotExistError, PIDDeletedError
-from invenio_pidstore.models import PersistentIdentifier, PIDStatus
-from invenio_pidstore.resolver import Resolver
-from invenio_records_files.api import Record
-from sqlalchemy.orm.exc import NoResultFound
-from invenio_records_rest.views import lt_es7
 from elasticsearch_dsl.query import Bool, Q
+from invenio_pidstore.models import PersistentIdentifier
+from invenio_pidstore.resolver import Resolver
+from invenio_records_rest.views import lt_es7
 
 from iroko.api import IrokoBaseRecord
 from iroko.organizations.search import OrganizationSearch
 from iroko.pidstore import pids
 from iroko.pidstore.pids import (
-    ORGANIZATION_PID_TYPE, IROKO_OBJECT_TYPE, IDENTIFIERS_FIELD,
-    identifiers_schemas, IDENTIFIERS_FIELD_TYPE, IDENTIFIERS_FIELD_VALUE,
+    IDENTIFIERS_FIELD_TYPE, IROKO_OBJECT_TYPE, ORGANIZATION_PID_TYPE, identifiers_schemas,
     )
+
+
 # TODO: cuando se actualiza una organizacion y se pone status: "redirected"
 #  no aparece la informacion de a cual redirecciona.... incluir esto...
 

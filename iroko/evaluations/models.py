@@ -9,14 +9,15 @@
 
 """Iroko Notification Admin models."""
 
-from enum import Enum
 import uuid
+from enum import Enum
 
 from invenio_accounts.models import User
 from invenio_db import db
 from sqlalchemy_utils.types import JSONType, UUIDType
 
-# TODO: anndir estado START 
+
+# TODO: anndir estado START
 
 class EvaluationState(Enum):
     INITIAL = "initial"

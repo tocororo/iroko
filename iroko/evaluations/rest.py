@@ -48,11 +48,8 @@ from invenio_oauth2server import require_api_auth
 
 from iroko.evaluations.api import Evaluations
 from iroko.evaluations.marshmallow import evaluation_schema, evaluation_schema_many
-from iroko.evaluations.models import Evaluation, EvaluationState
-from iroko.evaluations.permissions import evaluation_viewed_permission_factory
+from iroko.evaluations.models import Evaluation
 from iroko.utils import IrokoResponseStatus, iroko_json_response
-from datetime import datetime, date
-import json
 
 api_blueprint = Blueprint(
     'iroko_api_evaluations',

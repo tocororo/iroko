@@ -7,30 +7,24 @@
 from __future__ import absolute_import, print_function
 
 import enum
-import json
 import re
-import traceback
-from datetime import datetime, timedelta
 from threading import Thread
 from uuid import UUID
 
-import requests
 from flask import current_app, jsonify, render_template, request
 from flask_mail import Message
 from invenio_accounts.models import User
-from invenio_cache import current_cache
 from invenio_i18n.selectors import get_locale
+
+#     result[]
+#     for ts in termsources:
+# from iroko.organizations.api import OrganizationRecord
 
 
 # def get_sources_by_terms(tids):
 #     """sources by a list of terms"""
 #     termsources = TermSources.query.filter(TermSources.term_id in tids).group_by(
 #     TermSources.sources_id).all()
-
-#     result[]
-#     for ts in termsources:
-from iroko.organizations.api import OrganizationRecord
-from iroko.organizations.search import OrganizationSearch
 
 
 class IrokoResponseStatus(enum.Enum):
@@ -163,10 +157,10 @@ class CuorHelper:
     def query_cuor_by_label(cls, text, country='', state='', types=''):
         """get the fist name found in labels.label"""
         try:
-            search = OrganizationRecord.get_search(text, country, state, types)
-            hit = search.scan()[0]
-            pid, org = OrganizationRecord.get_org_by_pid(hit.id)
-            return org
+            # search = OrganizationRecord.get_search(text, country, state, types)
+            # hit = search.scan()[0]
+            # pid, org = OrganizationRecord.get_org_by_pid(hit.id)
+            return None
 
             # api_endpoint = current_app.config['CUOR_API_ENDPOINT']
             # session = requests.Session()
