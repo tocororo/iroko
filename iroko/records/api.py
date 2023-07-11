@@ -79,7 +79,7 @@ class IrokoRecord(IrokoBaseRecord):
             record = cls.get_record_by_pid_value(record_uuid)
             if record:
                 # merged_data = cls._merge_uri(data, record)
-                record.update_record(data, dbcommit=dbcommit, reindex=reindex)
+                record.update(data, dbcommit=dbcommit, reindex=reindex)
                 return record, 'updated'
         else:
             record = cls.get_record_by_data(data)

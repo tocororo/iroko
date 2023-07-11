@@ -27,7 +27,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import iroko.pidstore.minters as iroko_minters
 import iroko.pidstore.pids as pids
-import iroko.pidstore.providers as iroko_providers
+
 from iroko.api import IrokoBaseRecord
 from iroko.harvester.models import HarvestType, Repository
 from iroko.pidstore.pids import identifiers_schemas
@@ -304,47 +304,9 @@ class SourceRecord(IrokoBaseRecord):
 
     def update(self, data=None, dbcommit=True, reindex=True):
         """Update data for record."""
-        print('begin update')
-        old = dict(self)
 
-        if data and type(data) == dict:
-            # print('super(SourceRecord, self).update(data)')
-            super(SourceRecord, self).update(data)
-
-            # if 'organizations' in old:
-            #     for org in old['organizations']:
-            #         self.add_update_item_to_list_field('organizations', 'id', org)
-            # if 'organizations' in data:
-            #     for org in data['organizations']:
-            #         self.add_update_item_to_list_field('organizations', 'id', org)
-            #
-            # if 'classifications' in old:
-            #     for term in old['classifications']:
-            #         self.add_update_item_to_list_field('classifications', 'id', term)
-            # if 'classifications' in data:
-            #     for term in data['classifications']:
-            #         self.add_update_item_to_list_field('classifications', 'id', term)
-            #
-            # if pids.IDENTIFIERS_FIELD in old:
-            #     for _id in old[pids.IDENTIFIERS_FIELD]:
-            #         self.add_update_item_to_list_field(pids.IDENTIFIERS_FIELD, 'idtype', _id)
-            # if pids.IDENTIFIERS_FIELD in data:
-            #     for _id in data[pids.IDENTIFIERS_FIELD]:
-            #         self.add_update_item_to_list_field(pids.IDENTIFIERS_FIELD, 'idtype', _id)
-
-        print('update pids ')
-        self._update_pids()
-
-        self['_save_info_updated'] = str(date.today())
-
+        super(SourceRecord, self).update(data)
         self._update_repo_info()
-
-        super(SourceRecord, self).commit()
-
-        if dbcommit:
-            self.dbcommit(reindex)
-
-        print('UPDATED', self.model.json)
         return self
 
     def _update_repo_info(self):
@@ -368,41 +330,6 @@ class SourceRecord(IrokoBaseRecord):
                     #     'status':  re.status.value
                     # }
 
-    def _update_pids(self):
-        newPids = []
-        # TODO: que pasa si se eliminan PIDS? !!!!!
-        if pids.IDENTIFIERS_FIELD in self:
-            for ids in self[pids.IDENTIFIERS_FIELD]:
-                if ids['idtype'] in identifiers_schemas:
-                    if ids['value'] != '':
-                        try:
-                            pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
-                            obj_uuid = pid.get_assigned_object(pids.IROKO_OBJECT_TYPE)
-                            print('!!!!!!!')
-                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
-                            print('!!!!!!!')
-                            if obj_uuid != self.id:
-                                print('!!!!!!!******')
-                                print(
-                                    'PIDObjectAlreadyAssigned{0}-{1}'.format(
-                                        ids['idtype'], ids['value']
-                                        )
-                                    )
-                                # TODO: pensar esto, lo borro, pero no aviso...
-                                self[pids.IDENTIFIERS_FIELD].remove(ids)
-                        # except PIDObjectAlreadyAssigned as e:
-                        #     print('!!!!!!! what?')
-                        #     raise e
-                        except PIDDoesNotExistError:
-                            iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(
-                                ids['idtype'], ids['value'],
-                                object_type=pids.IROKO_OBJECT_TYPE,
-                                object_uuid=self.id, data=self
-                                )
-                    else:
-                        self[pids.IDENTIFIERS_FIELD].remove(ids)
-                else:
-                    self[pids.IDENTIFIERS_FIELD].remove(ids)
 
     # def _add_update_item_to_list(self, list_key, list_item_id_key, item_to_add):
     #     """add or update an item to a list field of the record.

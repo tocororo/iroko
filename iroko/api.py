@@ -1,4 +1,5 @@
 import traceback
+from datetime import date
 from uuid import uuid4
 
 from invenio_db import db
@@ -17,6 +18,7 @@ from iroko.pidstore.pids import (
     IDENTIFIERS_FIELD, IDENTIFIERS_FIELD_TYPE, IDENTIFIERS_FIELD_VALUE, IROKO_OBJECT_TYPE,
     IROKO_UUID_PID_TYPES, identifiers_schemas,
     )
+import iroko.pidstore.providers as iroko_providers
 
 
 class IrokoBaseRecord(Record):
@@ -35,14 +37,14 @@ class IrokoBaseRecord(Record):
         if not object_uuid:
             object_uuid = uuid4()
 
-
-        pid = iroko_uuid_minter(pid_type=iroko_pid_type, pid_value=iroko_pid_value, object_type=pids.IROKO_OBJECT_TYPE,
-               object_uuid=object_uuid, data=data)
+        pid = iroko_uuid_minter(pid_type=iroko_pid_type, pid_value=iroko_pid_value,
+                                object_type=pids.IROKO_OBJECT_TYPE,
+                                object_uuid=object_uuid, data=data)
 
         identifiers_minter(object_uuid, data, IROKO_OBJECT_TYPE)
 
         rec = super(IrokoBaseRecord, cls).create(data=data, id_=str(object_uuid),
-            with_bucket=False, **kwargs)
+                                                 with_bucket=False, **kwargs)
 
         db.session.commit()
         RecordIndexer().index(rec)
@@ -50,7 +52,7 @@ class IrokoBaseRecord(Record):
         return rec
 
     @classmethod
-    def resolve_and_update(cls, iroko_uuid= None, data={}, **kwargs):
+    def resolve_and_update(cls, iroko_uuid=None, data={}, **kwargs):
         print("first in resolve and update ==============================")
         print(data)
         print("===========================================================")
@@ -66,7 +68,7 @@ class IrokoBaseRecord(Record):
                     persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
                     if rec:
                         print("{0}={1} found".format(pid_type, iroko_uuid))
-                        rec.update_record(data)
+                        rec.update(data)
                         # .update(data, dbcommit=dbcommit, reindex=reindex)
                         return rec, 'updated'
                 except Exception:
@@ -92,7 +94,7 @@ class IrokoBaseRecord(Record):
                                             )
                                         )
                                     )
-                                rec.update_record(data)
+                                rec.update(data)
                                 print('>>>>>>>>>>>>>>>>>>>>')
                                 print('rec updated: ', rec)
                                 return rec, 'updated'
@@ -115,8 +117,6 @@ class IrokoBaseRecord(Record):
                             print('-------------------------------')
                             pass
         return None, None
-
-
 
     @classmethod
     def get_record_by_pid(cls, record_pid_type, pid_value, with_deleted=False):
@@ -178,13 +178,29 @@ class IrokoBaseRecord(Record):
             return self.model.json[field_name]
         return ''
 
-    def update_record(self, data=None, dbcommit=True, reindex=True):
-        """Update data for record."""
-        if data is not None:
+    def update(self, data=None, dbcommit=True, reindex=True, override_pids=True):
+        """ Update data for record.
+        override_pids, if True
+        """
+        print('begin update')
+
+        self['_save_info_updated'] = str(date.today())
+
+        if data and type(data) == dict:
             super(IrokoBaseRecord, self).update(data)
+        else:
+            data = dict(self)
+            super(IrokoBaseRecord, self).update(data)
+
+
+        print('update pids ')
+        self._update_pids(override_pids)
+
+        print(self)
         super(IrokoBaseRecord, self).commit()
         if dbcommit:
             self.dbcommit(reindex)
+        print('UPDATED', self.model.json)
         return self
 
     def dbcommit(self, reindex=False, forceindex=False):
@@ -228,6 +244,44 @@ class IrokoBaseRecord(Record):
                     return
             self[list_key].append(item_to_add)
 
+    def _update_pids(self, override_pids=True):
+        newPids = []
+        # TODO: que pasa si se eliminan PIDS? !!!!!
+        if pids.IDENTIFIERS_FIELD in self:
+            for ids in self[pids.IDENTIFIERS_FIELD]:
+                if ids['idtype'] in identifiers_schemas:
+                    if ids['value'] != '':
+                        try:
+                            pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
+                            obj_uuid = pid.get_assigned_object(pids.IROKO_OBJECT_TYPE)
+                            print('!!!!!!!')
+                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
+                            print('!!!!!!!')
+                            if obj_uuid != self.id:
+                                print('!!!!!!!******')
+                                print(
+                                    'PIDObjectAlreadyAssigned{0}-{1}'.format(
+                                        ids['idtype'], ids['value']
+                                        )
+                                    )
+                                # override_pids
+                                if override_pids:
+                                    print("assign pid to self")
+                                    pid.assign(pids.IROKO_OBJECT_TYPE, self.id, override_pids)
+
+                        # except PIDObjectAlreadyAssigned as e:
+                        #     print('!!!!!!! what?')
+                        #     raise e
+                        except PIDDoesNotExistError:
+                            iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(
+                                ids['idtype'], ids['value'],
+                                object_type=pids.IROKO_OBJECT_TYPE,
+                                object_uuid=self.id, data=self
+                                )
+                    else:
+                        self[pids.IDENTIFIERS_FIELD].remove(ids)
+                else:
+                    self[pids.IDENTIFIERS_FIELD].remove(ids)
 
     @classmethod
     def __delete_pids_without_object(cls, pid_list):

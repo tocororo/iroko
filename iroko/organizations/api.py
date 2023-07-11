@@ -55,20 +55,23 @@ class OrganizationRecord(IrokoBaseRecord):
         if not org:
             print("no pids found, creating organization")
             created_org = cls.create(data, iroko_pid_type=pids.ORGANIZATION_PID_TYPE,
-                          iroko_pid_value=org_uuid)
+                                     iroko_pid_value=org_uuid)
             org = created_org
             msg = 'created'
 
         return org, msg
 
-
-    def update(self, data):
+    def update(self, data=None, update_relationships=True):
         """Update data for record."""
-        self.update_relationships(data)
-        super(OrganizationRecord, self).update_record(data)
+        if not (data and type(data)):
+            data = dict(self)
+
+        if update_relationships:
+            self.update_relationships(data)
+
+        super(OrganizationRecord, self).update(data)
 
         return self
-
 
     @classmethod
     def get_org_by_pid(cls, pid_value, with_deleted=False):
@@ -203,8 +206,10 @@ class OrganizationRecord(IrokoBaseRecord):
                 if old_aux and new_aux and old_aux == new_aux and old_item["type"] == new_item[
                     "type"]:
                     exist = True
-                    new_relationships.remove(new_item)
-                    old_relationships.remove(old_item)
+                    if new_item in new_relationships:
+                        new_relationships.remove(new_item)
+                    if old_item in old_relationships:
+                        old_relationships.remove(old_item)
                     # si existe en las relaciones que ya tenia, no interesa si la nueva viene
                     # con mas pids
                     # el final esta y por el uuid se recupera, pero si cambia el tipo de
@@ -212,6 +217,7 @@ class OrganizationRecord(IrokoBaseRecord):
                     # se agrega como una nueva, eliminando la anterior que es la misma org
                     # pero con diferente tipo
                     break
+        print("bug relationships", data)
         actual = {
             "id": data["id"],
             "identifiers": data["identifiers"],
@@ -240,6 +246,12 @@ class OrganizationRecord(IrokoBaseRecord):
             if pid_value:
                 org = OrganizationRecord.get_record_by_pid_value(pid_value)
                 if org:
+                    if "type" in relation:
+                        if relation["type"] == "child":
+                            self_rel["type"] = "parent"
+                        if relation["type"] == "parent":
+                            self_rel["type"] = "child"
+                    self_rel["type"] = "other"
                     org.add_relation(self_rel)
 
     def delete_relationships_in_related(self, relationships):
@@ -255,15 +267,15 @@ class OrganizationRecord(IrokoBaseRecord):
                 if org:
                     org.remove_relation(self.iroko_uuid)
 
-    def add_relation(self, relation, update_record=True):
+    def add_relation(self, relation, update_record=True, update_relationships=False):
         """add a relation, if relation['id'] already exists, then update
-        if update_record==True, then call base update record.
+        if update==True, then call base update record.
         """
         self.add_update_item_to_list_field('relationships', 'id', relation)
         if update_record:
-            self.update_record()
+            self.update(update_relationships)
 
-    def remove_relation(self, pid, update_record=True):
+    def remove_relation(self, pid, update_record=True, update_relationships=False):
         """Remove a relation. Search for pid in id field or identifiers field"""
         new_relationships = []
         remove = False
@@ -276,9 +288,9 @@ class OrganizationRecord(IrokoBaseRecord):
                         remove = True
             if not remove:
                 new_relationships.append(rel)
-        self.relationships =  new_relationships
+        self.relationships = new_relationships
         if update_record:
-            self.update_record()
+            self.update(update_relationships)
 
     def is_from(self, country_name='Cuba', country_code='cu'):
         """
@@ -503,4 +515,3 @@ class OrganizationRecord(IrokoBaseRecord):
                 if 'id' in rel and 'type' in rel:
                     if id == rel['id']:
                         rel[key] = value
-

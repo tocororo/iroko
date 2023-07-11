@@ -134,7 +134,7 @@ class OrgMetadataSchemaBaseV1(StrictKeysMixin):
     research_activity = fields.Bool()
     links = fields.List(fields.Url(), many=True)
     labels = Nested(LabelSchemaV1, many=True)
-    relationships = Nested(RelationSchemaV1, many=True)
+    relationships = Nested(RelationSchemaWithIDsV1, many=True)
     addresses = Nested(AddressSchemaV1, many=True)
     redirect = IdentifierSchemaV1()
 

@@ -6,8 +6,8 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, jsonify, request
 
 from iroko.organizations.api import OrganizationRecord
-from iroko.organizations.marshmallow import OrgMetadataSchemaRelIDsV1
-from iroko.organizations.serializers import json_v1, json_v1_response
+from iroko.organizations.marshmallow import OrgMetadataSchemaBaseV1, OrgMetadataSchemaRelIDsV1
+from iroko.organizations.serializers import json_v1, json_v1_response, org_json_v1
 
 api_blueprint = Blueprint(
     'iroko_api_organizations',
@@ -163,11 +163,15 @@ def edit_organization(uuid):
         print("//////////////////////////////////////////////////////")
         print(input_data)
         print("///////////////////////////////////////////////////////")
-        #org = org_json_v1.transform_record(input_data["id"], input_data)
+        # org = org_json_v1.transform_record(input_data["id"], input_data)
         print("-------------------------------------------------------------")
-        #print(org)
+        # data = OrgMetadataSchemaBaseV1().load(input_data)
+        # print(data)
+
         print("------------------------------------------------------------")
+
         org, msg = OrganizationRecord.resolve_and_update(input_data["id"], input_data)
+
         if not org:
             raise Exception("No se encontro record de organizacion")
 
@@ -192,6 +196,7 @@ def edit_organization(uuid):
             'org':org
         })
     except Exception as e:
+        print(e)
         return jsonify({
             'ERROR': str(e),
         })
