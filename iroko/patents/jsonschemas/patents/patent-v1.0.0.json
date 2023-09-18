@@ -1,0 +1,226 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://localhost/schemas/patents/patent-v1.0.0.json",
+    "title": "Patent Schema",
+    "type": "object",
+    "additionalProperties": true,
+    "required": [
+      "id",
+      "title"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "Iroko UUID"
+      },
+      "identifiers": {
+        "type": "array",
+        "description": "Patent Identifiers",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "idtype": {
+              "description": "identifier type",
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "title": {
+        "type": "string",
+        "description": "The title of the patent."
+      },
+      "authors": {
+        "type": "array",
+        "description": "A list with the inventors of the patent",
+        "minItems": 0,
+        "items":{
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "The name of the author",
+              "type": "string"
+            },
+            "identifiers": {
+              "type": "array",
+              "description": "Person Identifiers",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "idtype": {
+                    "description": "identifier type",
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "affiliations": {
+        "type": "array",
+        "description": "A list with the affiliations of the patent",
+        "minItems": 0,
+        "items":{
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "The name of the affiliation",
+              "type": "string"
+            },
+            "identifiers": {
+              "type": "array",
+              "description": "Person Identifiers",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "idtype": {
+                    "description": "identifier type",
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "co_author": {
+        "type": "array",
+        "description": "A list of names of the co authors of the patent",
+        "minItems": 0,
+        "items": {
+          "type": "object",
+          "properties": {
+            "name":{
+              "type":"string",
+              "description": "The name of the coauthor"
+            },
+            "identifiers": {
+              "type": "array",
+              "description": "Person Identifiers",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "idtype": {
+                    "description": "identifier type",
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "summary": {
+        "type": "string",
+        "description": "A summary of the patent"
+      },
+      "classification": {
+        "type": "string",
+        "description": "The classification of the patent"
+      },
+      "claims": {
+        "type": "string",
+        "description": "An url to the file with the claims of the patent which define in technical terms why protection for the invention is requested"
+      },
+      "prior_art": {
+        "type": "string",
+        "description": "An url to the file with the background and description of the problem"
+      },
+      "drawing": {
+        "type": "string",
+        "description": "An url with a drawing with the design of what you want to patent "
+      },
+      "countries": {
+        "type": "array",
+        "description": "A list of the countries where the inventor wants to patent the product",
+        "items": {
+          "type": "string"
+        }
+      },
+      "country": {
+        "type": "object",
+        "description": "The country where originally the patent was presented",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The ISO 3166-1 alpha-2 code of the country"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the country"
+          }
+        }
+      },
+      "international":{
+        "type": "boolean",
+        "description": "If the patent was presented in all countries that belong to the PCT"
+      },
+      "expedient_number": {
+        "type": "string",
+        "description": "The number of the expedient of the patent"
+      },
+      "key_words": {
+        "type": "array",
+        "description": "A list of key words of the patent",
+        "items": {
+          "type": "string"
+        }
+      },
+      "presentation_date": {
+        "type": "string",
+        "description": "The date of the presentation of the patent",
+        "format": "date-time"
+      },
+      "register_number": {
+        "type": "string",
+        "description": "The number of the register of the patent"
+      },
+      "register_date": {
+        "type": "string",
+        "description": "The date the patent was registered",
+        "format": "date-time"
+      },
+      "publication_date": {
+        "type": "string",
+        "description": "The date the patent was published",
+        "format": "date-time"
+      },
+      "ipc_clases": {
+        "type": "string",
+        "description": " "
+      },
+      "subtype": {
+        "type": "string",
+        "description": "The patent application subtype"
+      },
+      "status": {
+        "type": "string",
+        "description": "The status of the open patent. It could be to review or aproved",
+        "enum": [
+          "APROVED",
+          "TO_REVIEW"
+        ]
+      },
+      "legal_status": {
+        "type": "string",
+        "description": "The legal status of the patent"
+      }
+    }
+  }
