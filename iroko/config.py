@@ -28,13 +28,17 @@ from iroko.deployment import *
 from iroko.organizations.api import OrganizationRecord
 from iroko.organizations.permissions import can_edit_organization_factory
 from iroko.organizations.search import OrganizationSearch
+from iroko.patents.api import PatentRecord
+from iroko.patents.search import PatentsSearch
+from iroko.patents.permissions import can_edit_patent_factory
 from iroko.persons.api import PersonRecord
 from iroko.persons.permissions import can_edit_person_factory
 from iroko.persons.search import PersonsSearch
 from iroko.pidstore import pids as pids
 from iroko.pidstore.pids import (
     ORGANIZATION_PID_FETCHER, ORGANIZATION_PID_MINTER,
-    ORGANIZATION_PID_TYPE, PERSON_PID_FETCHER, PERSON_PID_MINTER, PERSON_PID_TYPE,
+    ORGANIZATION_PID_TYPE, PATENT_PID_FETCHER, PATENT_PID_MINTER, PATENT_PID_TYPE,
+    PERSON_PID_FETCHER, PERSON_PID_MINTER, PERSON_PID_TYPE,
     )
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
@@ -122,6 +126,10 @@ _SOURCE_CONVERTER = (
 _ORG_CONVERTER = (
     'pid(orgid, record_class="iroko.organizations.api.OrganizationRecord")'
 )
+_PATENT_CONVERTER = (
+    'pid(patid, record_class="iroko.patents.api.PatentRecord")'
+)
+
 _PERSON_CONVERTER = (
     'pid(perid, record_class="iroko.persons.api.PersonRecord")'
 )
@@ -222,6 +230,37 @@ RECORDS_REST_ENDPOINTS = {
         'read_permission_factory_imp': check_elasticsearch,
         'update_permission_factory_imp': can_edit_organization_factory,
         'delete_permission_factory_imp': can_edit_organization_factory,
+        'list_permission_factory_imp': allow_all
+        },
+    'patid': {
+        'pid_type': PATENT_PID_TYPE,
+        'pid_minter': PATENT_PID_MINTER,
+        'pid_fetcher': PATENT_PID_FETCHER,
+        'default_endpoint_prefix': True,
+        'record_class': PatentRecord,
+        'search_class': PatentsSearch,
+        'indexer_class': RecordIndexer,
+        'record_serializers': {
+            'application/json': ('iroko.patents.serializers'
+                                 ':json_v1_response'),
+        },
+        'search_serializers': {
+            'application/json': ('iroko.patents.serializers'
+                                 ':json_v1_search'),
+        },
+        'record_loaders': {
+            'application/json': ('iroko.patents.loaders'
+                                 ':json_v1'),
+        },
+        'list_route': '/search/patents/',
+        'item_route': '/pid/patent/<{0}:pid_value>'.format(_PATENT_CONVERTER),
+        'default_media_type': 'application/json',
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': can_edit_patent_factory,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': can_edit_patent_factory,
+        'delete_permission_factory_imp': can_edit_patent_factory,
         'list_permission_factory_imp': allow_all
         },
     'perid': {
@@ -459,6 +498,10 @@ RECORDS_REST_DEFAULT_SORT: {
         'noquery': 'bestmatch',
         },
     'organizations': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
+        },
+    'patents': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
         },

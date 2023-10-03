@@ -94,7 +94,6 @@ class PatentMetadataSchemaV1(StrictKeysMixin):
     publication_date = DateString()
     ipc_clases = SanitizedUnicode()
     subtype = SanitizedUnicode()
-    status = SanitizedUnicode()
     legal_status = SanitizedUnicode()
     _schema = GenFunction(
         attribute="$schema",

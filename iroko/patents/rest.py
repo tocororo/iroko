@@ -29,7 +29,7 @@ def get_patent_by_pid_canonical():
     try:
         _id = request.args.get('value')
         print("**********************", _id)
-        pid, patent = PatentRecord.get_record_by_pid(pids.PATENT_PID_TYPE, _id)
+        pid, patent = PatentRecord.get_pat_by_pid(pids.PATENT_PID_TYPE, _id)
         if not pid or not patent:
             raise Exception('')
 

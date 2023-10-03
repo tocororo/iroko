@@ -17,11 +17,11 @@ def patents():
 
 
 @patents.command()
-@click.argument('perid')
+@click.argument('patid')
 @with_appcontext
-def import_from_file(perid):
+def import_from_file(patid):
     """Load from specific file en data/patents/patents.json"""
 
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
     file_path = os.path.join(datadir, 'patents', 'patents.json')
-    PatentRecord.load_from_json_file(file_path, perid)
+    PatentRecord.load_from_json_file(file_path, patid)

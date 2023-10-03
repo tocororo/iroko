@@ -135,9 +135,6 @@
         "subtype": {
           "type": "keyword"
         },
-        "status": {
-          "type": "keyword"
-        },
         "legal_status": {
           "type": "keyword"
         }

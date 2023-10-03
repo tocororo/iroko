@@ -54,11 +54,29 @@ class PatentRecord (IrokoBaseRecord):
 
     @classmethod
     def get_pat_by_pid(cls, pid_value, with_deleted=False):
-        return cls.get_record_by_pid_value(pid_value)
+        resolver = Resolver(
+            pid_type=PATENT_PID_TYPE,
+            object_type=IROKO_OBJECT_TYPE,
+            getter=cls.get_record,
+            )
+        try:
+            return resolver.resolve(str(pid_value))
+        except Exception:
+            pass
+
+        for pid_type in identifiers_schemas:
+            try:
+                resolver.pid_type = pid_type
+                schemapid, pat = resolver.resolve(pid_value)
+                pid = PersistentIdentifier.get(PATENT_PID_TYPE, pat['id'])
+                return pid, pat
+            except Exception as e:
+                pass
+        return None, None
 
     @classmethod
     def create_or_update(cls, pat_uuid, data, **kwargs):
-        """Create or update OrganizationRecord."""
+        """Create or update PatentRecord."""
 
         # assert pat_uuid
         pat, msg = cls.resolve_and_update(pat_uuid, data)
@@ -74,7 +92,7 @@ class PatentRecord (IrokoBaseRecord):
 
     @classmethod
     def delete(cls, data, vendor=None, delindex=True, force=False):
-        """Delete a IrokoRecord record."""
+        """Delete an IrokoRecord record."""
         assert data.get(cls.pid_uuid_field)
         pid = data.get(cls.pid_uuid_field)
         record = cls.get_record_by_pid_value(pid)
@@ -86,9 +104,6 @@ class PatentRecord (IrokoBaseRecord):
             except NotFoundError:
                 pass
         return result
-
-
-
 
 def fixture_spi_fields(person: PersonRecord, org: OrganizationRecord):
     """hard code fixtures of spi data, coming from human resources of cuban institutions """

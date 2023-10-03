@@ -6,7 +6,7 @@
     "additionalProperties": true,
     "required": [
       "id",
-      "title"
+      "identifiers"
     ],
     "properties": {
       "id": {
@@ -209,14 +209,6 @@
       "subtype": {
         "type": "string",
         "description": "The patent application subtype"
-      },
-      "status": {
-        "type": "string",
-        "description": "The status of the open patent. It could be to review or aproved",
-        "enum": [
-          "APROVED",
-          "TO_REVIEW"
-        ]
       },
       "legal_status": {
         "type": "string",
