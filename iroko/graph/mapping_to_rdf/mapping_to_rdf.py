@@ -9,8 +9,6 @@
 from rdflib import Graph, Namespace, URIRef, Literal, RDF, RDFS, BNode
 from rdflib.namespace import FOAF, XSD, OWL
 
-"""Iroko Graph."""
-
 
 class Create_Graph:
 
