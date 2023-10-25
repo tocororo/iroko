@@ -40,11 +40,6 @@ def get_patent_by_pid_canonical():
             'ERROR': 'no pid found'.format(_id)
         })
 
-
-
-
-
-
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])
 # @require_api_auth()
 def upload_file(per_uuid):

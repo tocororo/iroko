@@ -11,7 +11,7 @@
     "properties": {
       "id": {
         "type": "string",
-        "description": "Iroko UUID"
+        "description": "Iroko UUID, pid_type = patid"
       },
       "identifiers": {
         "type": "array",
@@ -96,37 +96,6 @@
           }
         }
       },
-      "co_author": {
-        "type": "array",
-        "description": "A list of names of the co authors of the patent",
-        "minItems": 0,
-        "items": {
-          "type": "object",
-          "properties": {
-            "name":{
-              "type":"string",
-              "description": "The name of the coauthor"
-            },
-            "identifiers": {
-              "type": "array",
-              "description": "Person Identifiers",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "idtype": {
-                    "description": "identifier type",
-                    "type": "string"
-                  },
-                  "value": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
       "summary": {
         "type": "string",
         "description": "A summary of the patent"
@@ -168,13 +137,9 @@
           }
         }
       },
-      "international":{
-        "type": "boolean",
-        "description": "If the patent was presented in all countries that belong to the PCT"
-      },
-      "expedient_number": {
+      "language": {
         "type": "string",
-        "description": "The number of the expedient of the patent"
+        "description": "The language of the patent"
       },
       "key_words": {
         "type": "array",
@@ -183,18 +148,14 @@
           "type": "string"
         }
       },
-      "presentation_date": {
+      "creation_date": {
         "type": "string",
-        "description": "The date of the presentation of the patent",
+        "description": "The date the patent was created",
         "format": "date-time"
       },
-      "register_number": {
+      "grant_date": {
         "type": "string",
-        "description": "The number of the register of the patent"
-      },
-      "register_date": {
-        "type": "string",
-        "description": "The date the patent was registered",
+        "description": "The date the patent was granted",
         "format": "date-time"
       },
       "publication_date": {
@@ -202,13 +163,10 @@
         "description": "The date the patent was published",
         "format": "date-time"
       },
-      "ipc_clases": {
+      "link": {
         "type": "string",
-        "description": " "
-      },
-      "subtype": {
-        "type": "string",
-        "description": "The patent application subtype"
+        "description": "The link of the patent in Google patents",
+        "format": "date-time"
       },
       "legal_status": {
         "type": "string",

@@ -39,7 +39,9 @@
                 }
               }
             },
-            "name": "keyword"
+            "name": {
+              "type": "keyword"
+            }
           }
         },
         "affiliations": {
@@ -56,24 +58,9 @@
                 }
               }
             },
-            "name": "keyword"
-          }
-        },
-        "co_author": {
-          "type": "object",
-          "properties": {
-            "identifiers": {
-              "type": "object",
-              "properties": {
-                "idtype": {
-                  "type": "keyword"
-                },
-                "value": {
-                  "type": "keyword"
-                }
-              }
-            },
-            "name":"keyword"
+            "name": {
+              "type": "keyword"
+            }
           }
         },
         "summary": {
@@ -105,23 +92,17 @@
             }
           }
         },
-        "international": {
-          "type": "keyword"
-        },
-        "expedient_number": {
+        "language": {
           "type": "keyword"
         },
         "key_words": {
           "type": "keyword"
         },
-        "presentation_date": {
+        "creation_date": {
           "type": "date",
           "format": "date"
         },
-        "register_number": {
-          "type": "keyword"
-        },
-        "register_date": {
+        "grant_date": {
           "type": "date",
           "format": "date"
         },
@@ -129,10 +110,7 @@
           "type": "date",
           "format": "date"
         },
-        "ipc_clases": {
-          "type": "keyword"
-        },
-        "subtype": {
+        "link": {
           "type": "keyword"
         },
         "legal_status": {

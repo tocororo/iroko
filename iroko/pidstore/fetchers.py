@@ -73,6 +73,13 @@ def person_uuid_fetcher(per_uuid, data):
         pid_value=str(data[pids.IROKO_UUID_FIELD]),
     )
 
+def patent_uuid_fetcher(per_uuid, data):
+    return FetchedPID(
+        provider=providers.PatentUUIDProvider,
+        pid_type=providers.PatentUUIDProvider.pid_type,
+        pid_value=str(data[pids.IROKO_UUID_FIELD]),
+    )
+
 
 def identifiers_fetcher(record_uuid, data, pid_type):
     assert data, "no data"
