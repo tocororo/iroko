@@ -7,7 +7,9 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from iroko.vocabularies.marshmallow import VocabularySchema, TermSchema
 from iroko.sources.marshmallow.source import SourceSchema
 from iroko.curator.views import blueprint as curator_bp
+from iroko.sources.rest import  api_blueprint as sources_bp
 import os
+from invenio_app.wsgi_rest import application as invenio_rest_app
 
 apispec_blueprint = Blueprint(
     'iroko_apispec',
@@ -30,20 +32,19 @@ def add_paths_for_blueprint(spec, blueprint, exclude=()):
 def get_apispec():
 
     spec = APISpec(
-        title="Vocabulary",
-        version="1.0.0",
+        title="Iroko",
+        version="-0.3.4",
         openapi_version="3.0.2",
-        info=dict(description="Documentation of the Vocabulary module"),
-        plugins=[MarshmallowPlugin(), FlaskPlugin()]
+        info=dict(description="Documentation Sceiba API (Iroko)"),
+        plugins=[ MarshmallowPlugin(), FlaskPlugin() ]
     )
 
-    # There is not needed add the schemas if there are in the views documentation
+    exclude = ['invenio_app_ping.ping', 'security.login']
 
-    # spec.components.schema("Vocabulary", schema=VocabularySchema)
-    # spec.components.schema("Term", schema=TermSchema)
-    # spec.components.schema("Source", schema=SourceSchema)
+    for url_str, view in invenio_rest_app.view_functions.items():
+        if url_str not in exclude:
+            spec.path(view=view, app=invenio_rest_app)
 
-    add_paths_for_blueprint(spec, curator_bp, exclude=())
 
     return jsonify(spec.to_dict())
 

@@ -120,6 +120,9 @@ def source_new():
 @api_blueprint.route('/<uuid>/edit', methods=['POST'])
 @require_api_auth()
 def source_new_version(uuid):
+    """
+
+    """
     # inserta un nuevo sourceVersion de un source que ya existe
     # input_data = request.json
     # source = Sources.get_source_by_id(uuid=uuid)
@@ -289,11 +292,12 @@ def source_unpublish(uuid):
 
 @api_blueprint.route('/byissn/<issn>', methods=['GET'])
 def get_source_by_issn(issn):
-    """Get a source by any PID received as a argument, including UUID
-    ---
+    """
+    Get a source by any PID received as an argument, including UUID
+
     get:
         parameters:
-      - in: path
+       in: path
         name: issn
         required: true
         description: ISSN of the source that we want to match
@@ -321,10 +325,10 @@ def get_source_by_issn(issn):
 @api_blueprint.route('/pid', methods=['GET'])
 def get_source_by_pid():
     """Get a source by any PID received as a argument, including UUID
-        ---
+
     get:
         parameters:
-      - in: query
+       in: query
         name: value
         required: true
         description: PID, any PID, of the source we want to match
