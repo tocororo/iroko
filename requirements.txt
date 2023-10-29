@@ -105,7 +105,6 @@ invenio-search==1.4.2
 invenio-theme==1.3.31
 ipaddress==1.0.23
 ipython==8.14.0
--e git+https://malayibiri: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@github.com/tocororo/iroko.git@7b80a05a61b5f39db2c9410565f50e5e257fc79a#egg=iroko
 isodate==0.6.1
 isort==5.12.0
 itsdangerous==1.1.0
