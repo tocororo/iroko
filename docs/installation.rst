@@ -25,5 +25,14 @@ poetry run iroko webpack buildall
 5- run server
 ./server-local
 
+Deployment
+============
+iroko 0.3.4
+
+python 3.9
+
+Debian 11 Bullseye
+
 
 .. include:: ../INSTALL.rst
+
