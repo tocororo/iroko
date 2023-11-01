@@ -84,7 +84,7 @@ class PatentRecord (IrokoBaseRecord):
         if not pat:
             print("no pids found, creating patent")
             created_pat = cls.create(data, iroko_pid_type=pids.PATENT_PID_TYPE,
-                                     iroko_pid_value=pat_uuid)
+                                    iroko_pid_value=pat_uuid)
             pat = created_pat
             msg = 'created'
 

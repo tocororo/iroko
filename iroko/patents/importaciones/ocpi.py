@@ -41,12 +41,13 @@ def getData(url):
         patent["publication_date"] = row.find_all('td')[6].get_text().rstrip()
         patent["legal_status"] = row.find_all('td')[11].get_text().rstrip()
         json_patent = json.dumps(patent)
-        print(json_patent)
+        # print(json_patent)
     return soup
 
 def nextPage(soup):
     a = soup.find(attrs= {'id': 'id14'})
     url = a['href']
+    print(url)
     return url
 
 def pagination(url):

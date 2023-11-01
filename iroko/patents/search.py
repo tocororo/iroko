@@ -13,7 +13,7 @@ class PatentsSearch(RecordsSearch):
     """RecordsSearch for sources."""
 
     class Meta:
-        """Search only on organizations index."""
+        """Search only on patents index."""
 
         index = "patents"
         doc_types = None

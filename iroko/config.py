@@ -398,6 +398,33 @@ RECORDS_REST_FACETS = {
                 }
             }
         },
+    'patents': {
+        'filters': {
+            'status': terms_filter('classification'),
+            'country': terms_filter('country'),
+            'language': terms_filter('language')
+            },
+        'aggs': {
+            'classification': {
+                'terms': {
+                    'field': 'classification',
+                    'size': 5
+                    }
+                },
+            'country': {
+                'terms': {
+                    'field': 'country',
+                    'size': 5
+                    }
+                },
+            'language': {
+                'terms': {
+                    'field': 'language',
+                    'size': 5
+                    }
+                }
+            }
+        },
     'persons': {
         'filters': {
             'gender': terms_filter('gender'),
@@ -471,6 +498,20 @@ RECORDS_REST_SORT_OPTIONS = {
             'order': 2
             }
         },
+    'patents': {
+        'bestmatch': {
+            'title': _('Best match'),
+            'fields': ['_score'],
+            'default_order': 'desc',
+            'order': 1
+            },
+        'mostrecent': {
+            'title': _('Most recent'),
+            'fields': ['-_created'],
+            'default_order': 'asc',
+            'order': 2
+            }
+        },
     'persons': {
         'bestmatch': {
             'title': _('Best match'),
@@ -486,6 +527,7 @@ RECORDS_REST_SORT_OPTIONS = {
             }
         }
     }
+
 """Setup sorting options."""
 
 RECORDS_REST_DEFAULT_SORT: {
