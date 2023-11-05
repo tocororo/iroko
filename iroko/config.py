@@ -24,6 +24,7 @@ from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch, deny_all
 
+import iroko.harvester.tasks
 from iroko.deployment import *
 from iroko.organizations.api import OrganizationRecord
 from iroko.organizations.permissions import can_edit_organization_factory
@@ -104,13 +105,14 @@ THEME_FRONTPAGE = True
 #: Froniroko_secret_keytpage title.
 THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
 #: Frontpage template.
-THEME_FRONTPAGE_TEMPLATE = 'invenio_theme/frontpage.html'
+THEME_FRONTPAGE_TEMPLATE = 'invenio_theme/frontpage2.html'
 
 
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo-white.png'
 
+ADMIN_BASE_TEMPLATE = "invenio_theme/page_admin1.html"
 
 
 _RECORD_CONVERTER = (
@@ -521,6 +523,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'invenio_accounts.tasks.clean_session_table',
         'schedule': timedelta(minutes=60),
         },
+    'harvester': {
+        'task': 'iroko.harvester.tasks.iroko_test_task',
+        'schedule': timedelta(seconds=10),
+        }
     }
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -562,11 +568,11 @@ OAISERVER_ID_PREFIX = 'oai:sceiba.cu:'
 # https://flask-debugtoolbar.readthedocs.io/en/latest/#configuration
 
 #: Switches off incept of redirects by Flask-DebugToolbar.
-DEBUG_TB_INTERCEPT_REDIRECTS = False
+DEBUG_TB_INTERCEPT_REDIRECTS = True
 
-# FLASK_ADMIN_SWATCH = 'default'
+FLASK_ADMIN_SWATCH = 'slate'
 #
-# ADMIN_TEMPLATE_MODE = 'bootstrap3'
+ADMIN_TEMPLATE_MODE = 'bootstrap3'
 ###############################################################################
 # JSON Schemas
 ###############################################################################
