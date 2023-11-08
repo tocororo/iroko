@@ -125,6 +125,9 @@ _ORG_CONVERTER = (
 _PERSON_CONVERTER = (
     'pid(perid, record_class="iroko.persons.api.PersonRecord")'
 )
+_PROJECT_CONVERTER = (
+    'pid(proid, record_class="iroko.project.api.ProjectRecord")'
+)
 RECORDS_REST_ENDPOINTS = {
     'irouid': {
         'pid_type': pids.RECORD_PID_TYPE,

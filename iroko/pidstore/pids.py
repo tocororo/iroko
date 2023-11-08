@@ -35,6 +35,10 @@ PERSON_PID_TYPE = "perid"
 PERSON_PID_MINTER = "perid"
 PERSON_PID_FETCHER = "perid"
 
+PROJECT_PID_TYPE = "proid"
+PROJECT_PID_MINTER = "proid"
+PROJECT_PID_FETCHER = "proid"
+
 IROKO_OBJECT_TYPE = "rec"
 IROKO_UUID_FIELD = "id"
 
@@ -43,6 +47,7 @@ IROKO_UUID_PID_TYPES = [
     'srcid',
     'orgid',
     'perid'
+    'proid'
     ]
 
 def get_pid_by_data(data):

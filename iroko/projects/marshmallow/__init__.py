@@ -14,7 +14,6 @@
 
 from __future__ import absolute_import, print_function
 
-from .json import PersonRecordSchemaV1
+from .json import ProjectRecordSchemaV1
 
-__all__ = (
-'PersonRecordSchemaV1')
+__all__ = ('ProjectRecordSchemaV1')

@@ -23,10 +23,10 @@ from __future__ import absolute_import, print_function
 
 from invenio_records_rest.loaders.marshmallow import marshmallow_loader
 
-from iroko.persons.marshmallow import PersonRecordSchemaV1
+from iroko.projects.marshmallow import ProjectRecordSchemaV1
 
 #: JSON loader using Marshmallow for data validation.
-json_v1 = marshmallow_loader(PersonRecordSchemaV1)
+json_v1 = marshmallow_loader(ProjectRecordSchemaV1)
 
 __all__ = (
     'json_v1',

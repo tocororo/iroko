@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "id": "http://localhost/schemas/proyects/proyect-v1.0.0.json",
-  "title": "Proyect Schema, ",
+  "id": "http://localhost/schemas/proyects/project-v1.0.0.json",
+  "title": "Project Schema",
   "type": "object",
   "additionalProperties": true,
   "required": [
@@ -28,9 +28,7 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "properties": {
           "title": {
             "type": "string"
@@ -41,12 +39,7 @@
           },
           "titleType": {
             "type": "string",
-            "enum": [
-              "AlternativeTitle ",
-              "Subtitle",
-              "TranslatedTitle",
-              "Other"
-            ]
+            "enum": ["AlternativeTitle", "Subtitle", "TranslatedTitle", "Other"]
           }
         }
       },
@@ -58,11 +51,7 @@
       "items": {
         "type": "object",
         "description": "Autor Schema",
-        "required": [
-          "creatorName",
-          "givenName",
-          "familyName"
-        ],
+        "required": ["creatorName", "givenName", "familyName"],
         "properties": {
           "creatorName": {
             "type": "string",
@@ -71,10 +60,7 @@
           "nameType": {
             "type": "string",
             "description": "Valores de la lista controlada (Organizacional | Personal)",
-            "enum": [
-              "Organizational",
-              "Personal"
-            ]
+            "enum": ["Organizational", "Personal"]
           },
           "givenName": {
             "type": "string",
@@ -86,13 +72,11 @@
           },
           "nameIdentifier": {
             "type": "array",
-            "required": [
-              "nameIdentifierScheme"
-            ],
+            "required": ["nameIdentifierScheme"],
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
-                "nameIdentifierScheme": {
+                "value": {
                   "type": "string",
                   "description": "Nombre del esquema de identificación de nombres. Es obligatorio si se usa nameIdentifier"
                 }
@@ -119,10 +103,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "contributorType",
-          "contributorName"
-        ],
+        "required": ["contributorType", "contributorName"],
         "properties": {
           "contributorType": {
             "type": "string",
@@ -150,55 +131,48 @@
               "Other"
             ]
           },
-            "contributorName": {
-              "type": "string",
-              "description": "Es obligatorio si se utiliza contributor."
-            },
-            "nameType": {
-              "type": "string",
-              "description": "Valores de la lista controlada (Organizacional | Personal)",
-              "enum": [
-                "Organizational",
-                "Personal"
-              ]
-            },
-            "givenName": {
-              "type": "string",
-              "description": "Nombre propio o de pila del autor."
-            },
-            "familyName": {
-              "type": "string",
-              "description": "Apellido del autor"
-            },
-            "nameIdentifier": {
-              "type": "array",
-              "required": [
-                "nameIdentifierScheme"
-              ],
-              "items": {
-                "type":"object",
-                "properties": {
-                  "nameIdentifierScheme": {
-                    "type": "string",
-                    "description": "Nombre del esquema de identificación de nombres. Es obligatorio si se usa nameIdentifier"
-                  }
-                },
-                "schemeURI": {
+          "contributorName": {
+            "type": "string",
+            "description": "Es obligatorio si se utiliza contributor."
+          },
+          "nameType": {
+            "type": "string",
+            "description": "Valores de la lista controlada (Organizacional | Personal)",
+            "enum": ["Organizational", "Personal"]
+          },
+          "givenName": {
+            "type": "string",
+            "description": "Nombre propio o de pila del autor."
+          },
+          "familyName": {
+            "type": "string",
+            "description": "Apellido del autor"
+          },
+          "nameIdentifier": {
+            "type": "array",
+            "required": ["nameIdentifierScheme"],
+            "items": {
+              "type": "object",
+              "properties": {
+                "nameIdentifierScheme": {
                   "type": "string",
-                  "description": "Identificador Uniforme de Recursos (URI) del esquema de identificación de nombres."
-                },
-                "affiliation": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "description": "Afiliación organizacional o institucional del autor."
+                  "description": "Nombre del esquema de identificación de nombres. Es obligatorio si se usa nameIdentifier"
                 }
               },
-              "description": "Identifica de forma única a una persona física o jurídica, según varios esquemas. El formato depende del esquema."
+              "schemeURI": {
+                "type": "string",
+                "description": "Identificador Uniforme de Recursos (URI) del esquema de identificación de nombres."
+              },
+              "affiliation": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Afiliación organizacional o institucional del autor."
+              }
             },
-            "description": "Institución o persona responsable de recolectar, administrar, distribuir o contribuir de alguna otra manera al desarrollo del recurso."
-          
+            "description": "Identifica de forma única a una persona física o jurídica, según varios esquemas. El formato depende del esquema."
+          }
         }
       }
     },
@@ -207,11 +181,7 @@
       "items": {
         "type": "object",
         "description": "Financiador Schema",
-        "required": [
-          "founderName",
-          "awardNumber",
-          "awardURI"
-        ],
+        "required": ["founderName", "awardNumber", "awardURI"],
         "properties": {
           "founderName": {
             "type": "string",
@@ -224,18 +194,14 @@
               "fundType": {
                 "type": "string",
                 "description": "Tipo de identificador único de la entidad financiadora. Valores de la lista controlada",
-                "enum": [
-                  "ISNI",
-                  "GRID",
-                  "Crossref Funder"
-                ]
+                "enum": ["ISNI", "GRID", "Crossref Funder"]
               },
-              "fundValue":{
-                "type":"string"
+              "fundValue": {
+                "type": "string"
               }
             }
           },
-          
+
           "fundingStream": {
             "type": "string",
             "description": "Nombre de la vía de financiamiento (opcional)"
@@ -400,8 +366,8 @@
     },
     "datesRights": {
       "type": "array",
-      "minItems":2,
-      "maxItems":2,
+      "minItems": 2,
+      "maxItems": 2,
       "items": {
         "type": "object",
         "properties": {
@@ -410,11 +376,7 @@
           },
           "dateType": {
             "type": "string",
-            "enum": [
-              "Accepted",
-              "Available",
-              "Issued"
-            ],
+            "enum": ["Accepted", "Available", "Issued"],
             "description": "Elija del vocabulario de tipo de fecha el término controlado Accepted para indicar el inicio y el término Available para indicar el final de un período de embargo. Valores de la lista controlada de tipo de fecha"
           }
         }
@@ -436,20 +398,16 @@
       "description": "Utilice el nombre de la editorial como valor."
     },
     "publishDate": {
-        "type": "object",
-        "properties": {
-          "dateValue": {
-            "type": "string"
-          },
-          "dateType": {
-            "type": "string",
-            "enum": [
-              "Accepted",
-              "Available",
-              "Issued"
-            ],
-            "description": "Elija del vocabulario de tipo de fecha el término controlado Accepted para indicar el inicio y el término Available para indicar el final de un período de embargo. Valores de la lista controlada de tipo de fecha"
-          }
+      "type": "object",
+      "properties": {
+        "dateValue": {
+          "type": "string"
+        },
+        "dateType": {
+          "type": "string",
+          "enum": ["Accepted", "Available", "Issued"],
+          "description": "Elija del vocabulario de tipo de fecha el término controlado Accepted para indicar el inicio y el término Available para indicar el final de un período de embargo. Valores de la lista controlada de tipo de fecha"
+        }
       },
       "description": "Use la fecha de inicio del embargo como valor en una instancia y la fecha de finalización en otra instancia."
     },
@@ -551,26 +509,16 @@
       "type": "array",
       "items": {
         "type": "string"
-        }
-      },
+      }
+    },
     "identifier": {
       "type": "object",
-      "required": [
-        "identifier",
-        "identifierType"
-      ],
+      "required": ["identifier", "identifierType"],
       "description": "El identificador es una cadena única que identifica un recurso",
       "properties": {
         "identifierType": {
           "type": "string",
-          "enum": [
-            "ARK",
-            "DOI",
-            "Handle",
-            "PURL",
-            "URL",
-            "URN"
-          ],
+          "enum": ["ARK", "DOI", "Handle", "PURL", "URL", "URN"],
           "description": "Tipo de identificador.Valores permitidos, ejemplos y otras restricciones,Valores de la lista controlada"
         },
         "value": {
@@ -625,10 +573,7 @@
     },
     "licenseCondition": {
       "type": "object",
-      "required": [
-        "uri",
-        "startDate"
-      ],
+      "required": ["uri", "startDate"],
       "properties": {
         "licenseValue": {
           "type": "string"
@@ -685,7 +630,7 @@
               },
               "eastBoundLongitude": {
                 "type": "number",
-                "description": "Dimensión longitudinal oridental del cuadro. Es obligatorio si se usa geoLocationBox."
+                "description": "Dimensión longitudinal occidental del cuadro. Es obligatorio si se usa geoLocationBox."
               },
               "southBoundLatitude": {
                 "type": "number",
@@ -784,12 +729,7 @@
           },
           " objectType": {
             "type": "string",
-            "enum": [
-              "fulltext",
-              "dataset",
-              "software",
-              "other"
-            ]
+            "enum": ["fulltext", "dataset", "software", "other"]
           }
         }
       }
