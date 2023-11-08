@@ -1,6 +1,6 @@
 {
   "mappings": {
-    "person-v1.0.0": {
+    "project-v1.0.0": {
       "date_detection": false,
       "numeric_detection": false,
       "properties": {
@@ -11,10 +11,195 @@
         "id": {
           "type": "keyword"
         },
-        "identifiers": {
+        "title": {
           "type": "object",
           "properties": {
-            "idtype": {
+            "title": {
+              "type": "keyword"
+            },
+            "lang": {
+              "type": "keyword"
+            },
+            "titleType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "creator": {
+          "type": "object",
+          "properties": {
+            "creatorName": {
+              "type": "keyword"
+            },
+            "nameType": {
+              "type": "keyword"
+            },
+            "givenName": {
+              "type": "keyword"
+            },
+            "familyName": {
+              "type": "keyword"
+            },
+            "nameIdentifier": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "keyword"
+                },
+                "schemeURI": {
+                  "type": "keyword"
+                },
+                "affiliation": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "contributor": {
+          "type": "object",
+          "properties": {
+            "contributorType": {
+              "type": "keyword"
+            },
+            "contributorName": {
+              "type": "keyword"
+            },
+            "nameType": {
+              "type": "keyword"
+            },
+            "givenName": {
+              "type": "keyword"
+            },
+            "familyName": {
+              "type": "keyword"
+            },
+            "nameIdentifier": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "keyword"
+                },
+                "schemeURI": {
+                  "type": "keyword"
+                },
+                "affiliation": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "fundingReference": {
+          "type": "object",
+          "properties": {
+            "founderName": {
+              "type": "keyword"
+            },
+            "founderIdentifier": {
+              "type": "object",
+              "properties": {
+                "fundType": {
+                  "type": "keyword"
+                },
+                "fundValue": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "fundingStream": {
+              "type": "keyword"
+            },
+            "awardNumber": {
+              "type": "keyword"
+            },
+            "awardURI": {
+              "type": "keyword"
+            },
+            "awardTitle": {
+              "type": "keyword"
+            }
+          }
+        },
+        "alternateIdentifier": {
+          "type": "object",
+          "properties": {
+            "idValue": {
+              "type": "keyword"
+            },
+            "idType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "relatedIdentifier": {
+          "type": "object",
+          "properties": {
+            "idValue": {
+              "type": "keyword"
+            },
+            "idType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "dateRights": {
+          "type": "object",
+          "properties": {
+            "dateValue": {
+              "type": "keyword"
+            },
+            "dateType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "lenguaje": {
+          "type": "keyword"
+        },
+        "publisher": {
+          "type": "keyword"
+        },
+        "publishDate": {
+          "type": "object",
+          "properties": {
+            "dateValue": {
+              "type": "keyword"
+            },
+            "dateType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "resourceType": {
+          "type": "object",
+          "properties": {
+            "resourceTypeGeneral": {
+              "type": "keyword"
+            },
+            "uri": {
+              "type": "keyword"
+            }
+          }
+        },
+        "description": {
+          "type": "object",
+          "properties": {
+            "descValue": {
+              "type": "keyword"
+            },
+            "lang": {
+              "type": "keyword"
+            }
+          }
+        },
+        "format": {
+          "type": "keyword"
+        },
+        "identifier": {
+          "type": "object",
+          "properties": {
+            "identifierType": {
               "type": "keyword"
             },
             "value": {
@@ -22,135 +207,171 @@
             }
           }
         },
-        "name": {
-          "type": "keyword"
-        },
-        "last_name": {
-          "type": "keyword"
-        },
-        "public": {
-          "type": "keyword"
-        },
-        "active": {
-          "type": "keyword"
-        },
-        "gender": {
-          "type": "keyword"
-        },
-        "country": {
+        "rights": {
           "type": "object",
           "properties": {
-            "code": {
+            "rightsValue": {
               "type": "keyword"
             },
-            "name": {
+            "rightsURI": {
               "type": "keyword"
             }
           }
         },
-        "email_addresses": {
+        "source": {
           "type": "keyword"
         },
-        "aliases": {
-          "type": "keyword"
-        },
-        "research_interests": {
-          "type": "keyword"
-        },
-        "key_words": {
-          "type": "keyword"
-        },
-        "academic_titles": {
-          "type": "keyword"
-        },
-        "affiliations": {
+        "subject": {
           "type": "object",
           "properties": {
-            "identifiers": {
+            "subjectValue": {
+              "type": "keyword"
+            },
+            "subjectScheme": {
+              "type": "keyword"
+            },
+            "schemeURI": {
+              "type": "keyword"
+            },
+            "valueURI": {
+              "type": "keyword"
+            }
+          }
+        },
+        "licenseCondition": {
+          "type": "object",
+          "properties": {
+            "licenseValue": {
+              "type": "keyword"
+            },
+            "uri": {
+              "type": "keyword"
+            },
+            "startDate": {
+              "type": "keyword"
+            }
+          }
+        },
+        "coverage": {
+          "type": "keyword"
+        },
+        "size": {
+          "type": "keyword"
+        },
+        "geoLocation": {
+          "type": "object",
+          "properties": {
+            "geoLocationPoint": {
               "type": "object",
               "properties": {
-                "idtype": {
+                "pointLongitude": {
                   "type": "keyword"
                 },
-                "value": {
+                "pointLatitude": {
                   "type": "keyword"
                 }
               }
             },
-            "start_date": {
-              "type": "date",
-              "format": "date"
+            "geoLocationBox": {
+              "type": "object",
+              "properties": {
+                "westBoundLongitude": {
+                  "type": "keyword"
+                },
+                "eastBoundLongitude": {
+                  "type": "keyword"
+                },
+                "southBoundLatitude": {
+                  "type": "keyword"
+                },
+                "northBoundLatitude": {
+                  "type": "keyword"
+                }
+              }
             },
-            "end_date": {
-              "type": "date",
-              "format": "date"
-            },
-            "label": {
+            "geoLoationPlace": {
               "type": "keyword"
             },
-            "id": {
+            "geoLocationPolygon": {
+              "type": "object",
+              "properties": {
+                "polygonPoint": {
+                  "type": "object",
+                  "properties": {
+                    "pointLongitude": {
+                      "type": "keyword"
+                    },
+                    "pointLatitude": {
+                      "type": "keyword"
+                    }
+                  },
+                  "inPolygonPoint": {
+                    "type": "object",
+                    "properties": {
+                      "pointLongitude": {
+                        "type": "keyword"
+                      },
+                      "pointLatitude": {
+                        "type": "keyword"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "version": {
+          "type": "object",
+          "properties": {
+            "versionValue": {
               "type": "keyword"
             },
-            "roles": {
+            "uri": {
               "type": "keyword"
             }
           }
         },
-        "roles_sceiba": {
+        "file": {
+          "type": "object",
+          "properties": {
+            "fileValue": {
+              "type": "keyword"
+            },
+            "accessRightsURI": {
+              "type": "keyword"
+            },
+            "mimeType": {
+              "type": "keyword"
+            },
+            "objectType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "citationVolume": {
           "type": "keyword"
         },
-        "publications": {
-          "type": "object",
-          "properties": {
-            "identifiers": {
-              "type": "object",
-              "properties": {
-                "idtype": {
-                  "type": "keyword"
-                },
-                "value": {
-                  "type": "keyword"
-                }
-              }
-            },
-            "id": {
-              "type": "keyword"
-            },
-            "title": {
-              "type": "text"
-            },
-            "roles": {
-              "type": "keyword"
-            },
-            "status": {
-              "type": "keyword"
-            }
-          }
+        "citationIssue": {
+          "type": "keyword"
         },
-        "sources": {
-          "type": "object",
-          "properties": {
-            "identifiers": {
-              "type": "object",
-              "properties": {
-                "idtype": {
-                  "type": "keyword"
-                },
-                "value": {
-                  "type": "keyword"
-                }
-              }
-            },
-            "id": {
-              "type": "keyword"
-            },
-            "name": {
-              "type": "text"
-            },
-            "roles": {
-              "type": "keyword"
-            }
-          }
+        "citationStartPage": {
+          "type": "keyword"
+        },
+        "citationEndPage": {
+          "type": "keyword"
+        },
+        "citationEdition": {
+          "type": "keyword"
+        },
+        "citationConferencePlace": {
+          "type": "keyword"
+        },
+        "citationConferenceDate": {
+          "type": "keyword"
+        },
+        "audience": {
+          "type": "keyword"
         }
       }
     }
