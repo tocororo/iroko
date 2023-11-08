@@ -11,12 +11,17 @@ from elasticsearch.exceptions import NotFoundError
 from invenio_pidstore.resolver import Resolver
 from invenio_pidstore.models import PersistentIdentifier
 from invenio_indexer.api import RecordIndexer
+from flask_login import current_user
+from invenio_oauth2server import require_api_auth
 
 from iroko.patents.api import PatentRecord
 from iroko.patents.fixtures import allowed_file, csv_to_json, get_ext
 from iroko.patents.serializers import json_v1_response
 from iroko.pidstore import pids
 from iroko.utils import IrokoResponseStatus, iroko_json_response
+from iroko.pidstore.pids import (
+    IDENTIFIERS_FIELD_TYPE, IROKO_OBJECT_TYPE, PATENT_PID_TYPE, identifiers_schemas,
+    )
 
 api_blueprint = Blueprint(
     'iroko_api_patents',
@@ -45,6 +50,7 @@ def get_patent_by_pid_canonical():
             'ERROR': 'no pid found'.format(_id)
         })
 
+
 @api_blueprint.route('/import', methods=['POST'])
 # @require_api_auth()
 def upload_file():
@@ -54,10 +60,10 @@ def upload_file():
         print(request.__dict__)
         print('--------------------------------')
         print(request.files)
-        print('--------------------------------')
-        if 'file' not in request.files:
-            flash('No file part')
-            raise Exception("No file part")
+        # print('--------------------------------')
+        # if 'file' not in request.files:
+        #     flash('No file part')
+        #     raise Exception("No file part")
         file = request.files['file']
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
@@ -126,7 +132,8 @@ def create_patent():
             raise Exception("No JSON data provided")
 
         input_data = request.json
-        pat, msg = PatentRecord.create(input_data, iroko_pid_type = pids.PATENT_PID_TYPE)
+        pat= PatentRecord.create(input_data, iroko_pid_type=pids.PATENT_PID_TYPE)
+        msg = 'ok'
 
 
         return jsonify({
@@ -137,7 +144,7 @@ def create_patent():
 
     except Exception as e:
         return jsonify({
-            'ERROR': str(e),
+            'ERROR HOLA': str(e),
         })
 
 @api_blueprint.route('/delete/<uuid>', methods=['DELETE'])
@@ -148,7 +155,12 @@ def delete_patent(uuid):
     if not record:
         raise Exception("No se encontro record de patente")
 
-    uuid.delete()
-    result = record.delete(force=False)
+    result = super(PatentRecord, record).delete(force=False)
+    # if delindex:
+    try:
+        RecordIndexer().delete(record)
+    except NotFoundError:
+        pass
+
 
     return result

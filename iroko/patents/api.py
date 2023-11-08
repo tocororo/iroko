@@ -91,12 +91,10 @@ class PatentRecord (IrokoBaseRecord):
         return pat, msg
 
     @classmethod
-    def delete(cls, data, vendor=None, delindex=True, force=False):
+    def delete(cls, pid, vendor=None, delindex=True, force=False):
         """Delete an IrokoRecord record."""
-        assert data.get(cls.pid_uuid_field)
-        pid = data.get(cls.pid_uuid_field)
         record = cls.get_record_by_pid_value(pid)
-        pid.delete()
+        pid.replace(pid, '')
         result = record.delete(force=force)
         if delindex:
             try:
