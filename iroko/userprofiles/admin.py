@@ -44,13 +44,14 @@ class UserProfileView(ModelView):
         'user_id',
         '_displayname',
         'full_name',
+        'json_metadata'
         )
 
-    column_searchable_list = \
-        column_filters = \
-        column_details_list = \
-        columns_sortable_list = \
-        column_list
+    # column_searchable_list = \
+    #     column_filters = \
+    #     column_details_list = \
+    #     columns_sortable_list = \
+    #     column_list
 
     form_columns = ('username', 'full_name')
 

@@ -7,9 +7,18 @@
 from marshmallow import Schema, fields
 
 
+class UserRolesSchema(Schema):
+    id = fields.Int()
+    name = fields.Str()
+    description = fields.Str()
+
+
 class UserSchema(Schema):
     id = fields.Int()
     email = fields.Str()
+    confirmed_at = fields.Str()
+    last_login_at = fields.Str()
+    roles = fields.Nested(UserRolesSchema, many=True)
 
 
 class SourcesRoles(Schema):

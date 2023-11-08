@@ -14,7 +14,8 @@ from elasticsearch_dsl import A
 from flask import Blueprint, request
 from flask_login import current_user
 from flask_principal import PermissionDenied
-from invenio_access import ActionUsers
+from invenio_access import ActionUsers, Permission
+from invenio_access.utils import get_identity
 from invenio_accounts.models import User
 from invenio_cache import current_cache
 from invenio_db import db
@@ -61,60 +62,68 @@ def source_new():
         role: user role in the source.
     :return:
     """
-    try:
-        if not request.is_json:
-            raise Exception("No JSON data provided")
+    # try:
 
-        input_data = request.json
+    print('++++++++++++++source_new+++++++++++++++++', request)
+    print(vars(request))
+    if not request.is_json:
+        raise Exception("No JSON data provided")
 
-        user_id = current_user.id
+    input_data = request.json
 
-        pidvalue = request.args.get('pid')
-        role = request.args.get('role')
+    user_id = current_user.id
 
-        comment = 'New Inclusion'
-        if 'comment' in input_data:
-            comment = input_data['comment']
+    pidvalue = request.args.get('pid')
+    role = request.args.get('role')
 
-        data = dict(input_data['data'])
-        # TODO: Si ya esta publicado o si tiene mas de una version entoces se crea una version,
-        data['source_status'] = SourceStatus.TO_REVIEW.value
-        source = SourceRecord.new_source_revision(data, user_id, comment)
+    comment = 'New Inclusion'
+    if 'comment' in input_data:
+        comment = input_data['comment']
 
-        # print(data)
-        # pid, source = SourceRecord.get_source_by_pid(pidvalue)
-        # if not source or not pid:
-        #     pid, source = SourceRecord.get_source_by_pid_in_data(data)
-        if source:
-            with db.session.begin_nested():
+    data = dict(input_data['data'])
+    print("-----------------------------")
+    print(data)
+    print("-----------------------------")
+    # TODO: Si ya esta publicado o si tiene mas de una version entoces se crea una version,
+    data['source_status'] = SourceStatus.TO_REVIEW.value
+    msg, source = SourceRecord.new_source_revision(data, user_id, comment)
+
+    # print(data)
+    # pid, source = SourceRecord.get_source_by_pid(pidvalue)
+    # if not source or not pid:
+    #     pid, source = SourceRecord.get_source_by_pid_in_data(data)
+    if source:
+        with db.session.begin_nested():
+            current_identity = get_identity(current_user)
+            permission = Permission(ObjectSourceEditor(source.id))
+            if not permission.allows(current_identity):
                 db.session.add(ActionUsers.allow(ObjectSourceEditor(source.id), user=current_user))
-            UserProfile.add_source_to_user_profile(user_id, source['id'], role)
-            # if done:
-            #     source_version = IrokoSourceVersions.new_version(source.id,
-            #                                                  data,
-            #                                                  user_id=user_id,
-            #                                                  comment=comment,
-            #                                                  is_current=False)
+                UserProfile.add_source_to_user_profile(user_id, source['id'], role)
+        # if done:
+        #     source_version = IrokoSourceVersions.new_version(source.id,
+        #                                                  data,
+        #                                                  user_id=user_id,
+        #                                                  comment=comment,
+        #                                                  is_current=False)
 
-            # notification = NotificationSchema()
-            # notification.classification = NotificationType.INFO
-            # notification.description = _(
-            #     'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(
-            #     source, source.id))
-            # notification.emiter = _('Sistema')
-            #
-            # for user_id in source.get_managers:
-            #     notification.receiver_id = user_id
-            #     Notifications.new_notification(notification)
+        # notification = NotificationSchema()
+        # notification.classification = NotificationType.INFO
+        # notification.description = _(
+        #     'Nueva fuente ingresada, requiere revisión de un gestor {0} ({1})'.format(
+        #     source, source.id))
+        # notification.emiter = _('Sistema')
+        #
+        # for user_id in source.get_managers:
+        #     notification.receiver_id = user_id
+        #     Notifications.new_notification(notification)
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS,
+            'ok', 'source',
+            source
+            )
 
-            return iroko_json_response(
-                IrokoResponseStatus.SUCCESS, \
-                'ok', 'source', \
-                {'data': source, 'count': 1}
-                )
-
-    except Exception as e:
-        return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+    # except Exception as e:
+    #     return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
 @api_blueprint.route('/<uuid>/edit', methods=['POST'])
@@ -324,7 +333,7 @@ def get_source_by_issn(issn):
 
 @api_blueprint.route('/pid', methods=['GET'])
 def get_source_by_pid():
-    """Get a source by any PID received as a argument, including UUID
+    """Get a source by any PID received as an argument, including UUID
 
     get:
         parameters:
@@ -565,7 +574,7 @@ def _get_sources_stats(org_id, offset):
 
     if org_id:
         pid_val, org = OrganizationRecord.get_org_by_pid(org_id)
-        print('******************* ORG *******************',org)
+        print('******************* ORG *******************', org)
         if not org:
             org_id = None
             org = {}

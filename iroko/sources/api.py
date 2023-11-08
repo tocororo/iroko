@@ -54,8 +54,7 @@ class SourceRecord(IrokoBaseRecord):
         return self['title']
 
     @classmethod
-    def new_source_revision(cls, data, user_id=None, comment='no comment'):
-
+    def new_source_revision(cls, data, user_id=None, comment='no comment') -> [str, Source]:
         if data and \
             (data['source_status'] == SourceStatus.UNOFFICIAL.value or
              data['source_status'] == SourceStatus.TO_REVIEW.value):
@@ -79,7 +78,7 @@ class SourceRecord(IrokoBaseRecord):
             #     repo.harvest_type = HarvestType.OAI
             #     db.session.add(repo)
 
-            IrokoSourceVersions.new_version(
+            version  = IrokoSourceVersions.new_version(
                 new_source.id, data, user_id=user_id, comment=comment,
                 is_current=True
                 )
@@ -209,16 +208,20 @@ class SourceRecord(IrokoBaseRecord):
 
         data['_save_info_updated'] = str(date.today())
 
+        # # print('%%%%%%%%%')
+        # iroko_minters.iroko_source_uuid_minter(id_, data)
+        # # print('%%%%%%%%%')
+        # iroko_minters.iroko_record_identifiers_minter(id_, data, pids.IROKO_OBJECT_TYPE)
+        # # print('%%%%%%%%%')
+        # # jj = json.dumps(data, ensure_ascii=False)
+        source = (super(SourceRecord, cls).create(data=data,
+                                                 iroko_pid_type=pids.SOURCE_UUID_PID_TYPE,
+                                                  iroko_pid_value=id_,
+                                                  object_uuid= id_,
+                                                 **kwargs))
         # print('%%%%%%%%%')
-        iroko_minters.iroko_source_uuid_minter(id_, data)
-        # print('%%%%%%%%%')
-        iroko_minters.iroko_record_identifiers_minter(id_, data, pids.IROKO_OBJECT_TYPE)
-        # print('%%%%%%%%%')
-        # jj = json.dumps(data, ensure_ascii=False)
-        source = super(SourceRecord, cls).create(data=data, id_=id_, **kwargs)
-        # print('%%%%%%%%%')
-        if dbcommit:
-            source.dbcommit(reindex)
+        # if dbcommit:
+        #     source.dbcommit(reindex)
         return source
 
     @classmethod
@@ -545,7 +548,8 @@ class IrokoSourceVersions:
             ).all()
 
     @classmethod
-    def new_version(cls, source_uuid, data, user_id=None, comment='no comment', is_current=False):
+    def new_version(cls, source_uuid, data, user_id=None, comment='no comment',
+                    is_current=False) -> SourceVersion:
 
         if not user_id:
             if not current_user:
