@@ -9,11 +9,11 @@
 from invenio_search import RecordsSearch
 
 
-class PersonsSearch(RecordsSearch):
+class ProjectsSearch(RecordsSearch):
     """RecordsSearch for sources."""
 
     class Meta:
         """Search only on organizations index."""
 
-        index = "persons"
+        index = "projects"
         doc_types = None

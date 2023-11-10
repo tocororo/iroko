@@ -13,9 +13,8 @@ from iroko.pidstore import pids
 from iroko.utils import remove_nulls
 
 
-class PersonRecord (IrokoBaseRecord):
-    _schema = "persons/person-v1.0.0.json"
-
+class ProjectRecord (IrokoBaseRecord):
+    _schema = "project/project-v1.0.0.json"
 
     @classmethod
     def load_from_json_file(cls, file_path, org_pid):
@@ -24,31 +23,31 @@ class PersonRecord (IrokoBaseRecord):
         tries to create new persons profiles."""
 
         resolver = Resolver(
-            pid_type=pids.PERSON_PID_TYPE,
+            pid_type=pids.PROJECT_PID_TYPE,
             object_type=pids.IROKO_OBJECT_TYPE,
-            getter=PersonRecord.get_record,
-            )
+            getter=ProjectRecord.get_record,
+        )
         org = OrganizationRecord.get_record_by_pid_value(org_pid)
         if org:
             with open(file_path) as _file:
-                persons = json.load(_file, object_hook=remove_nulls)
+                projects = json.load(_file, object_hook=remove_nulls)
                 a = 0
-                for data in persons:
+                for data in projects:
                     a = a + 1
-                    person = PersonRecord(data)
-                    person  = fixture_spi_fields(person, org)
-                    person.add_affiliation(org)
-                    del person['_id']
-                    print(person)
-                    personRecord = None
-                    personRecord, msg = cls.resolve_and_update(data=person)
-                    print(personRecord)
-                    if not personRecord:
-                        print("no pids found, creating person")
-                        personRecord = cls.create(person, iroko_pid_type=pids.PERSON_PID_TYPE)
+                    project = ProjectRecord(data)
+                    project = fixture_spi_fields(project, org)
+                    project.add_affiliation(org)
+                    del project['_id']
+                    print(project)
+                    projectRecord = None
+                    projectRecord, msg = cls.resolve_and_update(data=project)
+                    print(projectRecord)
+                    if not projectRecord:
+                        print("no pids found, creating project")
+                        projectRecord = cls.create(
+                            project, iroko_pid_type=pids.PROJECT_PID_TYPE)
                         msg = 'created'
                 print('====================================', a)
-
 
     def add_affiliation(self, org: OrganizationRecord,
                         start_date=None, end_date=None,
@@ -58,10 +57,11 @@ class PersonRecord (IrokoBaseRecord):
             {
                 'id': str(org.id),
                 'identifiers': org.identifiers,
-                'label':org['name'],
+                'label': org['name'],
                 'roles': [role]
-                }
-            )
+            }
+        )
+
     def add_email_address(self, email_address):
         new_eas = []
         if 'email_addresses' in self:
@@ -78,12 +78,7 @@ class PersonRecord (IrokoBaseRecord):
         self['email_addresses'] = new_eas
 
 
-
-
-
-
-
-def fixture_spi_fields(person: PersonRecord, org: OrganizationRecord):
+def fixture_spi_fields(person: ProjectRecord, org: OrganizationRecord):
     """hard code fixtures of spi data, coming from human resources of cuban institutions """
     country_code = 'cu'
     country = 'Cuba'
@@ -110,12 +105,12 @@ def fixture_spi_fields(person: PersonRecord, org: OrganizationRecord):
             new_identifiers.append({
                 'idtype': 'dni',
                 'value': 'dni:' + country_code + '.' + identifier['idvalue'],
-                })
+            })
         elif identifier['idtype'] == 'idExpediente':
             new_identifiers.append({
                 'idtype': 'hrid',
                 'value': 'hrid:' + str(org.id) + '.' + identifier['idvalue'],
-                })
+            })
         else:
             new_identifiers.append(identifier)
     person[pids.IDENTIFIERS_FIELD] = new_identifiers

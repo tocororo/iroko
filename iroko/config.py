@@ -31,11 +31,15 @@ from iroko.organizations.search import OrganizationSearch
 from iroko.persons.api import PersonRecord
 from iroko.persons.permissions import can_edit_person_factory
 from iroko.persons.search import PersonsSearch
+from iroko.projects.api import ProjectRecord
+from iroko.projects.permissions import can_edit_project_factory
+from iroko.projects.search import ProjectsSearch
 from iroko.pidstore import pids as pids
 from iroko.pidstore.pids import (
     ORGANIZATION_PID_FETCHER, ORGANIZATION_PID_MINTER,
     ORGANIZATION_PID_TYPE, PERSON_PID_FETCHER, PERSON_PID_MINTER, PERSON_PID_TYPE,
-    )
+    PROJECT_PID_TYPE, PROJECT_PID_MINTER, PROJECT_PID_FETCHER
+)
 from iroko.records.api import IrokoRecord
 from iroko.records.search import IrokoRecordSearch
 from iroko.sources.api import SourceRecord
@@ -56,10 +60,10 @@ CACHE_TYPE = 'redis'
 # SEARCH_ELASTIC_HOSTS='["http://"]'
 params = dict(
     #    http_auth=('user', 'uRTbYRZH268G'),
-    )
+)
 SEARCH_ELASTIC_HOSTS = [
     dict(host=IP_ELASTIC, **params)
-    ]
+]
 
 # Rate limiting
 # =============
@@ -75,7 +79,7 @@ BABEL_DEFAULT_LANGUAGE = 'en'
 # Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
     # ('es', _('Spanish')),
-    ]
+]
 
 
 #: Global base template.
@@ -110,7 +114,6 @@ THEME_FRONTPAGE_TEMPLATE = 'invenio_theme/frontpage.html'
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo-white.png'
-
 
 
 _RECORD_CONVERTER = (
@@ -162,10 +165,10 @@ RECORDS_REST_ENDPOINTS = {
             'title': {
                 'completion': {
                     'field': 'suggest_title'
-                    }
                 }
-            }, 'search_index': 'records'
-        },
+            }
+        }, 'search_index': 'records'
+    },
     'srcid': {
         'pid_type': pids.SOURCE_UUID_PID_TYPE,
         'pid_minter': pids.SOURCE_UUID_PID_MINTER,
@@ -195,7 +198,7 @@ RECORDS_REST_ENDPOINTS = {
         'update_permission_factory_imp': deny_all,
         'delete_permission_factory_imp': deny_all,
         'list_permission_factory_imp': allow_all
-        },
+    },
     'orgid': {
         'pid_type': ORGANIZATION_PID_TYPE,
         'pid_minter': ORGANIZATION_PID_MINTER,
@@ -226,7 +229,7 @@ RECORDS_REST_ENDPOINTS = {
         'update_permission_factory_imp': can_edit_organization_factory,
         'delete_permission_factory_imp': can_edit_organization_factory,
         'list_permission_factory_imp': allow_all
-        },
+    },
     'perid': {
         'pid_type': PERSON_PID_TYPE,
         'pid_minter': PERSON_PID_MINTER,
@@ -257,8 +260,39 @@ RECORDS_REST_ENDPOINTS = {
         'update_permission_factory_imp': can_edit_person_factory,
         'delete_permission_factory_imp': can_edit_person_factory,
         'list_permission_factory_imp': allow_all
-        }
+    },
+    'proid': {
+        'pid_type': PROJECT_PID_TYPE,
+        'pid_minter': PROJECT_PID_MINTER,
+        'pid_fetcher': PROJECT_PID_FETCHER,
+        'default_endpoint_prefix': True,
+        'record_class': ProjectRecord,
+        'search_class': ProjectsSearch,
+        'indexer_class': RecordIndexer,
+        'record_serializers': {
+            'application/json': ('iroko.projects.serializers'
+                                 ':json_v1_response'),
+        },
+        'search_serializers': {
+            'application/json': ('iroko.projects.serializers'
+                                 ':json_v1_search'),
+        },
+        'record_loaders': {
+            'application/json': ('iroko.projects.loaders'
+                                 ':json_v1'),
+        },
+        'list_route': '/search/projects/',
+        'item_route': '/pid/projects/<{0}:pid_value>'.format(_PROJECT_CONVERTER),
+        'default_media_type': 'application/json',
+        'max_result_window': 10000,
+        'error_handlers': {},
+        'create_permission_factory_imp': can_edit_project_factory,
+        'read_permission_factory_imp': check_elasticsearch,
+        'update_permission_factory_imp': can_edit_project_factory,
+        'delete_permission_factory_imp': can_edit_project_factory,
+        'list_permission_factory_imp': allow_all
     }
+}
 
 """REST API for iroko."""
 
@@ -275,121 +309,121 @@ RECORDS_REST_FACETS = {
             'sources': terms_filter('source_repo.name'),
             'status': terms_filter('status'),
             'terms': terms_filter('terms')
-            },
+        },
         'aggs': {
             'keywords': {
                 'terms': {
                     'field': 'keywords',
                     'size': 5
-                    },
+                },
                 'meta': {
                     'title': _("Keywords"),
                     'order': 3
-                    }
-                },
+                }
+            },
             'creators': {
                 'terms': {
                     'field': 'creators.name',
                     'size': 5
-                    },
+                },
                 'meta': {
                     'title': _("Creators"),
                     'order': 2
-                    }
-                },
+                }
+            },
             'terms': {
                 'terms':
                     {
                         'field': 'terms'
-                        }
-                },
+                    }
+            },
             'sources': {
                 'terms': {
                     'field': 'source_repo.name',
                     'size': 5
-                    },
+                },
                 'meta': {
                     'title': _("Sources"),
                     'order': 1
-                    }
                 }
             }
-        },
+        }
+    },
     'sources': {
         'filters': {
             'source_type': terms_filter('source_type')
-            },
+        },
         'aggs': {
             'source_type': {
                 'terms': {
                     'field': 'source_type',
                     'size': 5
-                    }
                 }
             }
-        },
+        }
+    },
     'organizations': {
         'filters': {
             'status': terms_filter('status'),
             'types': terms_filter('types'),
             'country': terms_filter('addresses.country'),
             'state': terms_filter('addresses.state')
-            },
+        },
         'aggs': {
             'status': {
                 'terms': {
                     'field': 'status',
                     'size': 5
-                    }
-                },
+                }
+            },
             'types': {
                 'terms': {
                     'field': 'types',
                     'size': 5
-                    }
-                },
+                }
+            },
             'country': {
                 'terms': {
                     'field': 'addresses.country',
                     'size': 5
-                    }
-                },
+                }
+            },
             'state': {
                 'terms': {
                     'field': 'addresses.state',
                     'size': 5
-                    }
                 }
             }
-        },
+        }
+    },
     'persons': {
         'filters': {
             'gender': terms_filter('gender'),
             'academic_titles': terms_filter('academic_titles'),
             'affiliations': terms_filter('affiliations.id')
-            },
+        },
         'aggs': {
             'gender': {
                 'terms': {
                     'field': 'gender',
                     'size': 5
-                    }
-                },
+                }
+            },
             'academic_titles': {
                 'terms': {
                     'field': 'academic_titles',
                     'size': 5
-                    }
-                },
+                }
+            },
             'affiliations': {
                 'terms': {
                     'field': 'affiliations.id',
                     'size': 5
-                    }
                 }
             }
         }
     }
+}
 """Introduce searching facets."""
 
 RECORDS_REST_SORT_OPTIONS = {
@@ -399,84 +433,84 @@ RECORDS_REST_SORT_OPTIONS = {
             'fields': ['-publication_date'],
             'default_order': 'asc',
             'order': 1
-            },
+        },
         'bestmatch': {
             'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
             'order': 2
-            }
-        },
+        }
+    },
     'sources': {
         'mostrecent': {
             'title': 'Most recent',
             'fields': ['-_save_info_updated'],
             'default_order': 'asc',
             'order': 1
-            },
+        },
         'bestmatch': {
             'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
             'order': 2
-            }
-        },
+        }
+    },
     'organizations': {
         'bestmatch': {
             'title': _('Best match'),
             'fields': ['_score'],
             'default_order': 'desc',
             'order': 1
-            },
+        },
         'mostrecent': {
             'title': _('Most recent'),
             'fields': ['-_created'],
             'default_order': 'asc',
             'order': 2
-            }
-        },
+        }
+    },
     'persons': {
         'bestmatch': {
             'title': _('Best match'),
             'fields': ['_score'],
             'default_order': 'desc',
             'order': 1
-            },
+        },
         'mostrecent': {
             'title': _('Most recent'),
             'fields': ['-_created'],
             'default_order': 'asc',
             'order': 2
-            }
         }
     }
+}
 """Setup sorting options."""
 
 RECORDS_REST_DEFAULT_SORT: {
     'records': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-        },
+    },
     'sources': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-        },
+    },
     'organizations': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-        },
+    },
     'persons': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-        }
     }
+}
 """Set default sorting options."""
 
 RECORDS_FILES_REST_ENDPOINTS = {
     'RECORDS_REST_ENDPOINTS': {
         'irouid': '/files'
-        },
-    }
+    },
+}
 """Records files integration."""
 
 FILES_REST_PERMISSION_FACTORY = \
@@ -497,7 +531,7 @@ SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
 SECURITY_EMAIL_SUBJECT_REGISTER = _(
     "Welcome to iroko!"
-    )
+)
 #: Redis session storage URL.
 ACCOUNTS_SESSION_REDIS_URL = 'redis://' + IP_REDIS + ':6379/1'
 #: Enable session/user id request tracing. This feature will add X-Session-ID
@@ -519,12 +553,12 @@ CELERY_BEAT_SCHEDULE = {
     'indexer': {
         'task': 'invenio_indexer.tasks.process_bulk_queue',
         'schedule': timedelta(minutes=5),
-        },
+    },
     'accounts': {
         'task': 'invenio_accounts.tasks.clean_session_table',
         'schedule': timedelta(minutes=60),
-        },
-    }
+    },
+}
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 # Database
@@ -604,12 +638,12 @@ APP_DEFAULT_SECURE_HEADERS = {
         'style-src': ["'self'", "'unsafe-inline'"],
         'font-src': ["'self'", "data:"],
         'img-src': ["'self'", "data:"]
-        },
+    },
     'content_security_policy_report_uri': None,
     'content_security_policy_report_only': False,
     'session_cookie_secure': True,
     'session_cookie_http_only': True
-    }
+}
 
 #
 # Variables para OAIServer
@@ -618,7 +652,7 @@ APP_DEFAULT_SECURE_HEADERS = {
 OAISERVER_ADMIN_EMAILS = [
     'rafael.martinez@upr.edu.cu',
     'eduardo.arencibia@upr.edu.cu'
-    ]
+]
 
 OAISERVER_RECORD_INDEX = '_all'
 OAISERVER_ID_PREFIX = 'oai:sceiba.cu:records/'

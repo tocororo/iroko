@@ -18,14 +18,14 @@ from invenio_records_rest.serializers.json import JSONSerializer
 from invenio_records_rest.serializers.response import (
     record_responsify,
     search_responsify,
-    )
+)
 
 # Serializers
 # ===========
 #: JSON serializer definition.
-from iroko.persons.marshmallow.json import PersonRecordSchemaV1
+from iroko.projects.marshmallow import ProjectRecordSchemaV1
 
-json_v1 = JSONSerializer(PersonRecordSchemaV1, replace_refs=True)
+json_v1 = JSONSerializer(ProjectRecordSchemaV1, replace_refs=True)
 
 # Records-REST serializers
 # ========================
