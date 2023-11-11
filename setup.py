@@ -215,6 +215,7 @@ setup(
             'iroko_organizations = iroko.organizations.rest:api_blueprint',
             'iroko_persons = iroko.persons.rest:api_blueprint',
             'iroko_evaluations = iroko.evaluations.rest:api_blueprint',
+            'iroko_utils = iroko.rest:api_blueprint'
             ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'

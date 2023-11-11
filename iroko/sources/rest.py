@@ -64,8 +64,7 @@ def source_new():
     """
     # try:
 
-    print('++++++++++++++source_new+++++++++++++++++', request)
-    print(vars(request))
+
     if not request.is_json:
         raise Exception("No JSON data provided")
 

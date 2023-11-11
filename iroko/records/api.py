@@ -23,42 +23,6 @@ from iroko.pidstore import pids
 # from invenio_records.api import Record
 
 
-class IrokoAggs:
-
-    @staticmethod
-    def getAggrs(field, size=100):
-        # Define a default Elasticsearch client
-        client = connections.create_connection(hosts=current_app.config["SEARCH_ELASTIC_HOSTS"])
-        query_body = {
-            "size": 0,
-            "aggs": {
-                "sources": {
-                    "terms": {
-                        "field": field,
-                        "size": size
-                        }
-                    }
-                }
-            }
-        s = Search(using=client, index="records").update_from_dict(query_body)
-        t = s.execute()
-        # # print(t.aggregations.sources.buckets)
-        # return t.aggregations.sources.buckets
-        result = []
-        for item in t.aggregations.sources.buckets:
-            # item.key will the house number
-            result.append(
-                {
-                    'key': item.key,
-                    'doc_count': item.doc_count
-                    }
-                )
-        # s = Search(using=client, index="records")
-
-        # s.aggs.bucket('sources', 'terms', field='source.name', size=0)
-        # s = s.execute()
-        return result
-
 
 class IrokoRecord(IrokoBaseRecord):
     """IrokoRecord class

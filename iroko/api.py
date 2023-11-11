@@ -2,23 +2,25 @@ import traceback
 from datetime import date
 from uuid import uuid4
 
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.connections import connections
+from flask import current_app
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
 from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
-from invenio_records.api import Record
 from invenio_records_files.api import Record
 from sqlalchemy.exc import NoResultFound
 
+import iroko.pidstore.providers as iroko_providers
 from iroko.pidstore import pids
 from iroko.pidstore.minters import identifiers_minter, iroko_uuid_minter
 from iroko.pidstore.pids import (
     IDENTIFIERS_FIELD, IDENTIFIERS_FIELD_TYPE, IDENTIFIERS_FIELD_VALUE, IROKO_OBJECT_TYPE,
     IROKO_UUID_PID_TYPES, identifiers_schemas,
     )
-import iroko.pidstore.providers as iroko_providers
 
 
 class IrokoBaseRecord(Record):
@@ -192,7 +194,6 @@ class IrokoBaseRecord(Record):
             data = dict(self)
             super(IrokoBaseRecord, self).update(data)
 
-
         print('update pids ')
         self._update_pids(override_pids)
 
@@ -305,3 +306,95 @@ class IrokoBaseRecord(Record):
         except Exception as e:
             print("-------- DELETING PID ERROR ------------")
             print(traceback.format_exc())
+
+
+class IrokoAggs:
+
+    @staticmethod
+    def getAgg(query: dict):
+        """
+        devuelve los terminos de una agregacion.
+        """
+        # "query":{"query_string":{"query":"mayor"}
+        # {"bool": {"filter": [{"terms": {"keywords": ["Cuba"]}}]}}}
+        example_query = {
+            "index": "records",
+            "filters": [
+                {"key": "keywords", "value": ["Cuba", "Covid"]},
+                {"key": "creators", "value": ["Rafael Pila Peláez"]}
+                ],
+            "agg": {
+                "filter": "creators",
+                "size": 10000,
+                }
+            }
+        assert query
+        assert query["index"]
+        assert query["agg"]
+        query_size = query["agg"]["size"]
+        query_index = query["index"]
+        query_filter = query["agg"]["filter"]
+        print("-------------------------------------")
+        print(query_index,query_filter)
+        print("-------------------------------------")
+        filters = query["filters"]
+        facets = current_app.config["RECORDS_REST_FACETS"]
+
+        query_filters = []
+        if query["filters"] and len(query["filters"]) > 0:
+            for f in filters:
+                field = facets[query_index]['aggs'][f['key']]['terms']['field']
+
+                query_filters.append(
+                    {"terms": {field: f['value']}}
+                    )
+        query_field = facets[query_index]['aggs'][query['agg']['filter']]['terms']['field']
+        client = connections.create_connection(hosts=current_app.config["SEARCH_ELASTIC_HOSTS"])
+        if len(query_filters) > 0:
+            query_body = {
+            "size": 0,
+            "query": {
+                "bool": {
+                    "filter": query_filters
+                    }
+                },
+            "aggs": {
+                query_filter: {
+                    "terms": {
+                        "field": query_field,
+                        "size": query_size
+                        }
+                    }
+                }
+            }
+        else:
+            query_body = {
+                "size": 0,
+                "aggs": {
+                    query_filter: {
+                        "terms": {
+                            "field": query_field,
+                            "size": query_size
+                            }
+                        }
+                    }
+                }
+        print(query_body)
+
+        s = Search(using=client, index=query_index).update_from_dict(query_body)
+        # search[0:offset].execute()
+        t = s.execute()
+        # # print(t.aggregations.sources.buckets)
+        # return t.aggregations.sources.buckets
+        result = []
+
+        for item in t.aggregations[query_filter].buckets:
+            # item.key will the house number
+            result.append(
+                {
+                    'key': item.key,
+                    'doc_count': item.doc_count
+                    }
+                )
+
+        return result
