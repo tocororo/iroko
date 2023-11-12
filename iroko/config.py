@@ -19,6 +19,7 @@ You overwrite and set instance-specific configuration by either:
 from __future__ import absolute_import, print_function
 
 from datetime import timedelta
+from attr import field
 
 from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter
@@ -129,7 +130,7 @@ _PERSON_CONVERTER = (
     'pid(perid, record_class="iroko.persons.api.PersonRecord")'
 )
 _PROJECT_CONVERTER = (
-    'pid(proid, record_class="iroko.project.api.ProjectRecord")'
+    'pid(proid, record_class="iroko.projects.api.ProjectRecord")'
 )
 RECORDS_REST_ENDPOINTS = {
     'irouid': {
@@ -422,6 +423,26 @@ RECORDS_REST_FACETS = {
                 }
             }
         }
+    },
+    'projects': {
+        'filters': {
+            'title': terms_filter('title.tile'),
+            'creator': terms_filter('creator.creatorName')
+        },
+        'aggs': {
+            'title': {
+                'terms': {
+                    'field': 'title.title',
+                    '    size': 5
+                }
+            },
+            'creator': {
+                'terms': {
+                    'field': 'creator.creatorName',
+                    'size': 5
+                }
+            }
+        }
     }
 }
 """Introduce searching facets."""
@@ -482,6 +503,20 @@ RECORDS_REST_SORT_OPTIONS = {
             'default_order': 'asc',
             'order': 2
         }
+    },
+    'projects': {
+        'bestmatch': {
+            'title': _('Best match'),
+            'fields': ['_score'],
+            'default_order': 'desc',
+            'order': 1
+        },
+        'mostrecent': {
+            'title': _('Most recent'),
+            'fields': ['-_created'],
+            'default_order': 'asc',
+            'order': 2
+        }
     }
 }
 """Setup sorting options."""
@@ -500,6 +535,10 @@ RECORDS_REST_DEFAULT_SORT: {
         'noquery': 'bestmatch',
     },
     'persons': {
+        'query': 'bestmatch',
+        'noquery': 'bestmatch',
+    },
+    'projects': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
     }

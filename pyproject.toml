@@ -105,6 +105,7 @@ iroko_harvester = "iroko.harvester.ext:IrokoHarvester"
 invenio_userprofiles = "iroko.userprofiles:InvenioUserProfiles"
 iroko_organizations = "iroko.organizations.ext:IrokoOrganizations"
 iroko_persons = "iroko.persons.ext:IrokoPersons"
+iroko_projects = "iroko.projects.ext:IrokoProjects"
 
 [tool.poetry.plugins."invenio_base.blueprints"]
 iroko = "iroko.theme.views:blueprint"
@@ -130,18 +131,21 @@ iroko = "iroko.records:iroko"
 invenio_userprofiles = "iroko.userprofiles:InvenioUserProfiles"
 iroko_organizations = "iroko.organizations:IrokoOrganizations"
 iroko_persons = "iroko.persons:IrokoPersons"
+iroko_projects = "iroko.projects:IrokoProjects"
 
 [tool.poetry.plugins."invenio_jsonschemas.schemas"]
 iroko = "iroko.records.jsonschemas"
 sources = "iroko.sources.schemas"
 organizations = "iroko.organizations.jsonschemas"
 persons = "iroko.persons.jsonschemas"
+projects = "iroko.projects.jsonschemas"
 
 [tool.poetry.plugins."invenio_search.mappings"]
 records = "iroko.records.mappings"
 sources = "iroko.sources.mappings"
 organizations = "iroko.organizations.mappings"
 persons = "iroko.persons.mappings"
+projects = "iroko.projects.mappings"
 
 [tool.poetry.plugins."invenio_admin.views"]
 vocabulary_admin = "iroko.vocabularies.admin:vocabularies_adminview"
@@ -174,6 +178,7 @@ iroko_records = "iroko.records.rest:api_blueprint"
 iroko_organizations = "iroko.organizations.rest:api_blueprint"
 iroko_persons = "iroko.persons.rest:api_blueprint"
 iroko_evaluations = "iroko.evaluations.rest:api_blueprint"
+iroko_projects = "iroko.projects.rest:api_blueprint"
 
 [tool.poetry.plugins."invenio_celery.tasks"]
 iroko_harvester = "iroko.harvester.tasks"
@@ -185,6 +190,7 @@ recoai = "iroko.pidstore.fetchers:iroko_source_oai_fetcher"
 srcid = "iroko.pidstore.fetchers:iroko_source_uuid_fetcher"
 orgid = "iroko.pidstore.fetchers:organization_uuid_fetcher"
 perid = "iroko.pidstore.fetchers:person_uuid_fetcher"
+proid = "iroko.pidstore.fetchers:project_uuid_fetcher"
 
 [tool.poetry.plugins."invenio_pidstore.minters"]
 irouid = "iroko.pidstore.minters:iroko_uuid_minter"
@@ -193,6 +199,7 @@ recoai = "iroko.pidstore.minters:iroko_source_oai_minter"
 srcid = "iroko.pidstore.minters:iroko_source_uuid_minter"
 orgid = "iroko.pidstore.minters:organization_uuid_minter"
 perid = "iroko.pidstore.minters:person_uuid_minter"
+proid = "iroko.pidstore.minters:project_uuid_minter"
 
 [tool.poetry.plugins."invenio_db.alembic"]
 invenio_userprofiles = "iroko.userprofiles:alembic"

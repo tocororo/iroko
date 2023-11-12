@@ -6,14 +6,14 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 
 
-"""Flask extension for Iroko Persons."""
+"""Flask extension for Iroko Projects."""
 
 from __future__ import absolute_import, print_function
 
-from iroko.persons.cli import persons
+from iroko.projects.cli import projects
 
 
-class IrokoPersons(object):
+class IrokoProjects(object):
     """Iroko extension."""
 
     def __init__(self, app=None):
@@ -23,6 +23,6 @@ class IrokoPersons(object):
 
     def init_app(self, app):
         """Flask application initialization."""
-        app.cli.add_command(persons)
+        app.cli.add_command(projects)
         # self.init_config(app)
-        app.extensions['iroko-persons'] = self
+        app.extensions['iroko-projects'] = self

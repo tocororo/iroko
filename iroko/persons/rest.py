@@ -1,12 +1,13 @@
 
 
-
 from __future__ import absolute_import, print_function
+from crypt import methods
 
 import datetime
 import os
 
 from flask import Blueprint, flash, jsonify, make_response, request
+from iroko import api
 
 from iroko.persons.api import PersonRecord
 from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
@@ -17,7 +18,7 @@ api_blueprint = Blueprint(
     'iroko_api_persons',
     __name__,
     url_prefix='/persons'
-    )
+)
 
 
 @api_blueprint.route('/pid', methods=['GET'])
@@ -41,8 +42,9 @@ def get_person_by_pid_canonical():
         })
 
 
-
-
+@api_blueprint.route('/', methods=['GET'])
+def get_hello_world():
+    return "Hello World"
 
 
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])
@@ -65,18 +67,19 @@ def upload_file(org_uuid):
             flash('No selected file')
             raise Exception("Not file in request")
         if file and allowed_file(file.filename):
-            if 'csv'==get_ext(file.filename):
-                json_path=csv_to_json(file)
+            if 'csv' == get_ext(file.filename):
+                json_path = csv_to_json(file)
                 PersonRecord.load_from_json_file(json_path, org_uuid)
                 response = make_response(jsonify({'msg': 'success'}))
                 return response, 201
             else:
-                filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
+                filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
 
-                file.save(os.path.join('./data', filename ))
-                PersonRecord.load_from_json_file(os.path.join('./data',filename),org_uuid )
+                file.save(os.path.join('./data', filename))
+                PersonRecord.load_from_json_file(
+                    os.path.join('./data', filename), org_uuid)
                 response = make_response(jsonify({'msg': 'success'}))
-                return response ,201
+                return response, 201
         else:
             raise Exception("no valid file extension")
 

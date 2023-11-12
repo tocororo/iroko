@@ -4,8 +4,8 @@
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
-#flask-swagger-ui              4.11.1
-#ully installed apispec-5.1.1
+# flask-swagger-ui              4.11.1
+# ully installed apispec-5.1.1
 
 """sceiba.cu backend source code"""
 
@@ -142,6 +142,7 @@ setup(
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
             'iroko_organizations = iroko.organizations.ext:IrokoOrganizations',
             'iroko_persons = iroko.persons.ext:IrokoPersons',
+            'iroko_projects= iroko.projects.ext:IrokoProjects'
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
@@ -168,18 +169,21 @@ setup(
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
             'iroko_organizations = iroko.organizations:IrokoOrganizations',
             'iroko_persons = iroko.persons:IrokoPersons',
-         ],
+            'iroko_projects = iroko.projects:IrokoProjects'
+        ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas',
             'sources = iroko.sources.schemas',
             'organizations = iroko.organizations.jsonschemas',
             'persons = iroko.persons.jsonschemas',
+            'projects = iroko.projects.jsonschemas'
         ],
         'invenio_search.mappings': [
             'records = iroko.records.mappings',
             'sources = iroko.sources.mappings',
             'organizations = iroko.organizations.mappings',
             'persons = iroko.persons.mappings',
+            'projects = iroko.projects.mappings'
         ],
         'invenio_admin.views': [
             'vocabulary_admin = iroko.vocabularies.admin:vocabularies_adminview',
@@ -195,7 +199,7 @@ setup(
             'invenio_userprofiles_view = '
             'iroko.userprofiles.admin:user_profile_adminview',
             'evaluations_admin = iroko.evaluations.admin:evaluation_adminview',
-            ],
+        ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.vocabularies.models',
             'iroko_notification = iroko.notifications.models',
@@ -203,7 +207,7 @@ setup(
             'iroko_harvester = iroko.harvester.models',
             'invenio_userprofiles = iroko.userprofiles.models',
             'iroko_evaluations = iroko.evaluations.models',
-            ],
+        ],
         'invenio_base.api_blueprints': [
             'iroko_taxonomy = iroko.vocabularies.rest:api_blueprint',
             'iroko_notification = iroko.notifications.rest:api_blueprint',
@@ -215,10 +219,11 @@ setup(
             'iroko_organizations = iroko.organizations.rest:api_blueprint',
             'iroko_persons = iroko.persons.rest:api_blueprint',
             'iroko_evaluations = iroko.evaluations.rest:api_blueprint',
-            ],
+            'iroko_projects = iroko.projects.rest:api_blueprint'
+        ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
-            ],
+        ],
         'invenio_pidstore.fetchers': [
             'irouid = iroko.pidstore.fetchers:iroko_uuid_fetcher',
             'recids = iroko.pidstore.fetchers:iroko_record_identifiers_fetcher',
@@ -226,7 +231,8 @@ setup(
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
             'orgid = iroko.pidstore.fetchers:organization_uuid_fetcher',
             'perid = iroko.pidstore.fetchers:person_uuid_fetcher',
-            ],
+            'proid = iroko.pidstore.fetchers:project_uuid_fetcher'
+        ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
             'recids = iroko.pidstore.minters:iroko_record_identifiers_minter',
@@ -234,10 +240,11 @@ setup(
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
             'orgid = iroko.pidstore.minters:organization_uuid_minter',
             'perid = iroko.pidstore.minters:person_uuid_minter',
-            ],
+            'proid = iroko.pidstore.minters:project_uuid_minter'
+        ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
-            ],
+        ],
         'invenio_access.actions': [
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'sourceactions = iroko.sources.permissions:source_manager_actions',
@@ -256,7 +263,7 @@ setup(
             'iroko.evaluations.permissions:evaluation_admin_actions',
             'evaluation_viewed_actions = '
             'iroko.evaluations.permissions:evaluation_viewed_actions',
-            ]
+        ]
     },
     classifiers=[
         'Environment :: Web Environment',

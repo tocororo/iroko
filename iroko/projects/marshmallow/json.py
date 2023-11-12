@@ -25,6 +25,8 @@ from invenio_records_rest.schemas.fields import (
 )
 from marshmallow import INCLUDE, fields, missing, validate
 
+from iroko.projects.api import ProjectRecord
+
 allow_empty = validate.Length(min=0)
 
 
@@ -45,7 +47,7 @@ def schema_from_context(_, context):
     record = (context or {}).get('record', {})
     return record.get(
         "_schema",
-        current_jsonschemas.path_to_url(ProjectRecord._schema)  # type: ignore
+        current_jsonschemas.path_to_url(ProjectRecord._schema)
     )
 
 
@@ -162,12 +164,24 @@ class TitleSchemaV1(StrictKeysMixin):
     titleType = fields.Enum(TitleTypeEnum, by_value=True)
 
 
+class IdentifierSchemaV1(StrictKeysMixin):
+    idType = fields.Enum(IdentifierTypeEnum, by_value=True)
+    value = SanitizedUnicode()
+
+
+class AfiliationsSchemaV1(StrictKeysMixin):
+    id = SanitizedUnicode()
+    identifiers = Nested(IdentifierSchemaV1, many=True)
+
+
 class CreatorSchemaV1(StrictKeysMixin):
     creatorName = SanitizedUnicode(required=True)
     nameType = fields.Enum(NameTypeEnum, by_value=True)
     givenName = SanitizedUnicode(required=True)
     familyName = SanitizedUnicode(required=True)
-    nameIdentifier = Nested(NameIdentifierSchemaV1, many=True)
+    id = SanitizedUnicode(required=True)
+    identifiers = Nested(IdentifierSchemaV1, many=True)
+    affiliations = Nested(AfiliationsSchemaV1, many=True)
 
 
 class ContributorSchemaV1(StrictKeysMixin):
@@ -177,7 +191,9 @@ class ContributorSchemaV1(StrictKeysMixin):
     nameType = fields.Enum(NameTypeEnum, by_value=True)
     givenName = SanitizedUnicode()
     familyName = SanitizedUnicode()
-    nameIdentifier = Nested(NameIdentifierSchemaV1, many=True)
+    id = SanitizedUnicode(required=True)
+    identifiers = Nested(IdentifierSchemaV1, many=True)
+    affiliations = Nested(AfiliationsSchemaV1, many=True)
 
 
 class FunderIdentifierSchemeV1(StrictKeysMixin):
@@ -222,11 +238,6 @@ class ResourceTypeSchemaV1(StrictKeysMixin):
 class DescriptionSchemaV1(StrictKeysMixin):
     descValue = SanitizedUnicode()
     lang = SanitizedUnicode()
-
-
-class IdentifierSchemaV1(StrictKeysMixin):
-    identifierType = fields.Enum(IdentifierTypeEnum, by_value=True)
-    value = SanitizedUnicode()
 
 
 class RightsSchemeV1(StrictKeysMixin):

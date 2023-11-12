@@ -8,20 +8,20 @@ import click
 from flask import current_app
 from flask.cli import with_appcontext
 
-from iroko.persons.api import PersonRecord
+from iroko.projects.api import ProjectRecord
 
 
 @click.group()
-def persons():
-    """Command related to persons iroko data."""
+def projects():
+    """Command related to project iroko data."""
 
 
-@persons.command()
-@click.argument('orgid')
+@projects.command()
+@click.argument('proid')
 @with_appcontext
-def import_from_file(orgid):
-    """Load from specific file en data/persons/persons.json"""
+def import_from_file(proid):
+    """Load from specific file en data/projects/project.json"""
 
     datadir = current_app.config['IROKO_DATA_DIRECTORY']
-    file_path = os.path.join(datadir, 'persons', 'persons.json')
-    PersonRecord.load_from_json_file(file_path, orgid)
+    file_path = os.path.join(datadir, 'projects', 'project.json')
+    ProjectRecord.load_from_json_file(file_path, proid)

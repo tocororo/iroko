@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "id": "http://localhost/schemas/projects/project-v1.0.0.json",
+  "id": "http://localhost/schemas/projects/project-v2.0.0.json",
   "title": "Project Schema",
   "type": "object",
   "additionalProperties": true,

@@ -11,6 +11,17 @@
         "id": {
           "type": "keyword"
         },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
         "title": {
           "type": "object",
           "properties": {
@@ -50,6 +61,53 @@
                   "type": "keyword"
                 },
                 "affiliation": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "id": {
+              "type": "keyword"
+            },
+            "affiliations": {
+              "type": "object",
+              "properties": {
+                "identifiers": {
+                  "type": "object",
+                  "properties": {
+                    "idtype": {
+                      "type": "keyword"
+                    },
+                    "value": {
+                      "type": "keyword"
+                    }
+                  }
+                },
+                "start_date": {
+                  "type": "date",
+                  "format": "date"
+                },
+                "end_date": {
+                  "type": "date",
+                  "format": "date"
+                },
+                "label": {
+                  "type": "keyword"
+                },
+                "id": {
+                  "type": "keyword"
+                },
+                "roles": {
                   "type": "keyword"
                 }
               }

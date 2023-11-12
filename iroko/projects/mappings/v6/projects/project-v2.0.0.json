@@ -1,0 +1,154 @@
+{
+  "mappings": {
+    "project-v2.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "text",
+          "index": false
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
+        "title": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "keyword"
+            },
+            "lang": {
+              "type": "keyword"
+            },
+            "titleType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "creator": {
+          "type": "object",
+          "properties": {
+            "creatorName": {
+              "type": "keyword"
+            },
+            "nameType": {
+              "type": "keyword"
+            },
+            "givenName": {
+              "type": "keyword"
+            },
+            "familyName": {
+              "type": "keyword"
+            },
+            "nameIdentifier": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "keyword"
+                },
+                "schemeURI": {
+                  "type": "keyword"
+                },
+                "affiliation": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "id": {
+              "type": "keyword"
+            },
+            "affiliations": {
+              "type": "object",
+              "properties": {
+                "identifiers": {
+                  "type": "object",
+                  "properties": {
+                    "idtype": {
+                      "type": "keyword"
+                    },
+                    "value": {
+                      "type": "keyword"
+                    }
+                  }
+                },
+                "start_date": {
+                  "type": "date",
+                  "format": "date"
+                },
+                "end_date": {
+                  "type": "date",
+                  "format": "date"
+                },
+                "label": {
+                  "type": "keyword"
+                },
+                "id": {
+                  "type": "keyword"
+                },
+                "roles": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "contributor": {
+          "type": "object",
+          "properties": {
+            "contributorType": {
+              "type": "keyword"
+            },
+            "contributorName": {
+              "type": "keyword"
+            },
+            "nameType": {
+              "type": "keyword"
+            },
+            "givenName": {
+              "type": "keyword"
+            },
+            "familyName": {
+              "type": "keyword"
+            },
+            "nameIdentifier": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "keyword"
+                },
+                "schemeURI": {
+                  "type": "keyword"
+                },
+                "affiliation": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

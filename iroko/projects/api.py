@@ -4,6 +4,7 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 import json
+from uuid import uuid4
 
 from invenio_pidstore.resolver import Resolver
 
@@ -14,7 +15,7 @@ from iroko.utils import remove_nulls
 
 
 class ProjectRecord (IrokoBaseRecord):
-    _schema = "project/project-v1.0.0.json"
+    _schema = "projects/project-v2.0.0.json"
 
     @classmethod
     def load_from_json_file(cls, file_path, org_pid):
@@ -48,6 +49,22 @@ class ProjectRecord (IrokoBaseRecord):
                             project, iroko_pid_type=pids.PROJECT_PID_TYPE)
                         msg = 'created'
                 print('====================================', a)
+
+    @classmethod
+    def create_project(cls, org_uuid, data, **kwargs):
+        """Create or update OrganizationRecord."""
+
+        # assert org_uuid
+        org, msg = cls.resolve_and_update(org_uuid, data)
+        # if resolve_and_update do no return, then is not existed org, so trying to create one
+        if not org:
+            print("no pids found, creating organization")
+            created_org = cls.create(data, iroko_pid_type=pids.ORGANIZATION_PID_TYPE,
+                                     iroko_pid_value=org_uuid)
+            org = created_org
+            msg = 'created'
+
+        return org, msg
 
     def add_affiliation(self, org: OrganizationRecord,
                         start_date=None, end_date=None,

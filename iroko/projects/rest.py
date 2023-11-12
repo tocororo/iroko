@@ -1,23 +1,25 @@
 
 
-
 from __future__ import absolute_import, print_function
 
 import datetime
 import os
+from urllib import response
+from uuid import UUID, uuid4
 
 from flask import Blueprint, flash, jsonify, make_response, request
 
-from iroko.persons.api import PersonRecord
+from iroko.projects.api import ProjectRecord
 from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
 from iroko.persons.serializers import json_v1_response
 from iroko.pidstore import pids
+from iroko.projects.marshmallow.json import projectMetadataSchema
 
 api_blueprint = Blueprint(
-    'iroko_api_persons',
+    'iroko_api_projects',
     __name__,
-    url_prefix='/persons'
-    )
+    url_prefix='/projects'
+)
 
 
 @api_blueprint.route('/pid', methods=['GET'])
@@ -29,20 +31,27 @@ def get_person_by_pid_canonical():
     try:
         _id = request.args.get('value')
         print("**********************", _id)
-        pid, person = PersonRecord.get_record_by_pid(pids.PERSON_PID_TYPE, _id)
-        if not pid or not person:
+        pid, project = ProjectRecord.get_record_by_pid(
+            pids.PROJECT_PID_TYPE, _id)
+        if not pid or not project:
             raise Exception('')
 
-        return json_v1_response(pid, person)
+        return json_v1_response(pid, project)
 
     except Exception as e:
         return jsonify({
             'ERROR': 'no pid found'.format(_id)
         })
 
+# FIXME  Error 500 Assertion error when post any data pids.IDENTIFIERS_FIELD in data .
 
 
-
+@api_blueprint.route('/new', methods=['POST'])
+def get_hello_world():
+    data = request.get_json()
+    res = ProjectRecord.create_project(data=data, org_uuid=uuid4())
+    print(res)
+    return "hola"
 
 
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])
@@ -65,18 +74,19 @@ def upload_file(org_uuid):
             flash('No selected file')
             raise Exception("Not file in request")
         if file and allowed_file(file.filename):
-            if 'csv'==get_ext(file.filename):
-                json_path=csv_to_json(file)
-                PersonRecord.load_from_json_file(json_path, org_uuid)
+            if 'csv' == get_ext(file.filename):
+                json_path = csv_to_json(file)
+                ProjectRecord.load_from_json_file(json_path, org_uuid)
                 response = make_response(jsonify({'msg': 'success'}))
                 return response, 201
             else:
-                filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
+                filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
 
-                file.save(os.path.join('./data', filename ))
-                PersonRecord.load_from_json_file(os.path.join('./data',filename),org_uuid )
+                file.save(os.path.join('./data', filename))
+                ProjectRecord.load_from_json_file(
+                    os.path.join('./data', filename), org_uuid)
                 response = make_response(jsonify({'msg': 'success'}))
-                return response ,201
+                return response, 201
         else:
             raise Exception("no valid file extension")
 

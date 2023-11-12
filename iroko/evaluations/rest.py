@@ -55,7 +55,7 @@ api_blueprint = Blueprint(
     'iroko_api_evaluations',
     __name__,
     url_prefix='/evaluation'
-    )
+)
 
 
 @api_blueprint.route('/list')
@@ -65,7 +65,8 @@ def get_evaluations():
         """
         List all evaluations.
         """
-        count = int(request.args.get('size')) if request.args.get('size') else 10
+        count = int(request.args.get('size')
+                    ) if request.args.get('size') else 10
         page = int(request.args.get('page')) if request.args.get('page') else 1
 
         if page < 1:
@@ -77,13 +78,13 @@ def get_evaluations():
         total = len(result)
 
         return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            'ok', 'evaluations', \
+            IrokoResponseStatus.SUCCESS,
+            'ok', 'evaluations',
             {
                 'data': evaluation_schema_many.dump(result[offset:limit]),
                 'total': total
-                }
-            )
+            }
+        )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -92,7 +93,6 @@ def get_evaluations():
 @api_blueprint.route('/<id>', methods=['GET'])
 @require_api_auth()
 def get_evaluation(id):
-
     '''
         Get the evaluation with the given id.
 
@@ -107,10 +107,10 @@ def get_evaluation(id):
             raise Exception('Evaluation not found')
 
         return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
+            IrokoResponseStatus.SUCCESS,
+            msg, 'evaluation',
             evaluation_schema.dump(evaluation)
-            )
+        )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -122,17 +122,17 @@ def clone_evaluation(id):
 
     try:
         user_id = current_user.id
-        #user_id = 1
+        # user_id = 1
 
         msg, evaluation = Evaluations.clone_evaluation(id, user_id)
         if not evaluation:
             raise Exception('Evaluation not found')
 
         return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
+            IrokoResponseStatus.SUCCESS,
+            msg, 'evaluation',
             evaluation_schema.dump(evaluation)
-            )
+        )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -141,23 +141,22 @@ def clone_evaluation(id):
 @api_blueprint.route('/user/list', methods=['GET'])
 @require_api_auth()
 def get_user_evaluations():
-
     '''
         Get the evaluations corresponding with a specific user.
     '''
 
     try:
         user_id = current_user.id
-        #user_id = 1
+        # user_id = 1
         msg, evaluation = Evaluations.get_user_evaluations(user_id)
         if not evaluation:
             raise Exception('Evaluation not found')
 
         return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluations', \
+            IrokoResponseStatus.SUCCESS,
+            msg, 'evaluations',
             evaluation_schema_many.dump(evaluation)
-            )
+        )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
@@ -166,7 +165,6 @@ def get_user_evaluations():
 @api_blueprint.route('/new', methods=['POST'])
 @require_api_auth()
 def new_evaluation():
-
     '''
         Create a new template for make a evaluation.
     '''
@@ -176,7 +174,7 @@ def new_evaluation():
         # user_id = 1
         # print("===================", current_user )
 
-        form  = Evaluations.build_evaluation_object(user_id)
+        form = Evaluations.build_evaluation_object(user_id)
         # print("===================", form )
         msg, evaluation = Evaluations.new_evaluation(form, user_id)
         # print("===================", evaluation)
@@ -186,36 +184,36 @@ def new_evaluation():
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
     return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
-            evaluation_schema.dump(evaluation)
-            )
+        IrokoResponseStatus.SUCCESS,
+        msg, 'evaluation',
+        evaluation_schema.dump(evaluation)
+    )
 
 
 @api_blueprint.route('/init', methods=['POST'])
 @require_api_auth()
 def init_evaluation():
 
-        try:
-            user_id = current_user.id
-            #user_id = 1
+    try:
+        user_id = current_user.id
+        # user_id = 1
 
-            if not request.is_json:
-                raise Exception('No JSON data provided')
+        if not request.is_json:
+            raise Exception('No JSON data provided')
 
-            input_data = request.json
+        input_data = request.json
 
-            msg, evaluation = Evaluations.fillInitialInfo(input_data)
+        msg, evaluation = Evaluations.fillInitialInfo(input_data)
 
-        except Exception as e:
-            msg = str(e)
-            return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
-        return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
-            evaluation_schema.dump(evaluation)
-        )
+    return iroko_json_response(
+        IrokoResponseStatus.SUCCESS,
+        msg, 'evaluation',
+        evaluation_schema.dump(evaluation)
+    )
 
 
 @api_blueprint.route('/process', methods=['POST'])
@@ -224,7 +222,7 @@ def process_evaluation():
 
     try:
         user_id = current_user.id
-        #user_id = 1
+        # user_id = 1
 
         if not request.is_json:
             raise Exception('No JSON data provided')
@@ -238,10 +236,10 @@ def process_evaluation():
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 
     return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
-            evaluation_schema.dump(evaluation)
-        )
+        IrokoResponseStatus.SUCCESS,
+        msg, 'evaluation',
+        evaluation_schema.dump(evaluation)
+    )
 
 
 @api_blueprint.route('/save/<uuid>', methods=['POST'])
@@ -250,13 +248,13 @@ def complete_evaluation(uuid):
 
     try:
         user_id = current_user.id
-        #user_id = 1
+        # user_id = 1
 
         msg, evaluation = Evaluations.complete_evaluation(uuid, user_id)
 
         return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            msg, 'evaluation', \
+            IrokoResponseStatus.SUCCESS,
+            msg, 'evaluation',
             evaluation_schema.dump(evaluation)
         )
 
@@ -264,5 +262,3 @@ def complete_evaluation(uuid):
 
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-

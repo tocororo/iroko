@@ -31,7 +31,7 @@ def iroko_uuid_minter(pid_type=None, pid_value=None, object_type=None,
         pid_value=pid_value,
         object_type=object_type,
         object_uuid=object_uuid
-        )
+    )
     # pid_field = current_app.config['PIDSTORE_RECID_FIELD']
     # # print(str(data))
     data[pids.IROKO_UUID_FIELD] = str(provider.pid.pid_value)
@@ -43,7 +43,7 @@ def iroko_source_oai_minter(record_uuid, data):
         object_type='rec',
         object_uuid=record_uuid,
         data=data
-        )
+    )
     return provider.pid
 
 
@@ -52,7 +52,7 @@ def iroko_record_identifiers_minter(uuid, data, object_type):
         object_type=object_type,
         object_uuid=uuid,
         data=data
-        )
+    )
     return prsIDs
 
 
@@ -61,7 +61,7 @@ def iroko_source_uuid_minter(source_uuid, data):
         object_type=pids.IROKO_OBJECT_TYPE,
         object_uuid=source_uuid,
         data=data
-        )
+    )
     return provider.pid
 
 
@@ -70,7 +70,7 @@ def organization_uuid_minter(org_uuid, data):
         object_type=pids.IROKO_OBJECT_TYPE,
         object_uuid=org_uuid,
         data=data
-        )
+    )
     return provider.pid
 
 
@@ -79,7 +79,16 @@ def person_uuid_minter(org_uuid, data):
         object_type=pids.IROKO_OBJECT_TYPE,
         object_uuid=org_uuid,
         data=data
-        )
+    )
+    return provider.pid
+
+
+def project_uuid_minter(pro_uuid, data):
+    provider = providers.ProjectUUIDProvider.create(
+        object_type=pids.IROKO_OBJECT_TYPE,
+        object_uuid=pro_uuid,
+        data=data
+    )
     return provider.pid
 
 
@@ -88,7 +97,7 @@ def identifiers_minter(uuid, data, object_type):
         object_type=object_type,
         object_uuid=uuid,
         data=data
-        )
+    )
     return prsIDs
 
 # # TODO: esto debia ser eliminado quitando la tabla Sources, pero es muy complejo en marzo del 2020
