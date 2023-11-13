@@ -142,6 +142,8 @@ setup(
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
             'iroko_organizations = iroko.organizations.ext:IrokoOrganizations',
             'iroko_persons = iroko.persons.ext:IrokoPersons',
+            'iroko_patents = iroko.patents.ext:IrokoPatents',
+
         ],
         'invenio_base.blueprints': [
             'iroko = iroko.theme.views:blueprint',
@@ -168,18 +170,21 @@ setup(
             'invenio_userprofiles = iroko.userprofiles:InvenioUserProfiles',
             'iroko_organizations = iroko.organizations:IrokoOrganizations',
             'iroko_persons = iroko.persons:IrokoPersons',
+            'iroko_patents = iroko.patents:IrokoPatents',
          ],
         'invenio_jsonschemas.schemas': [
             'iroko = iroko.records.jsonschemas',
             'sources = iroko.sources.schemas',
             'organizations = iroko.organizations.jsonschemas',
             'persons = iroko.persons.jsonschemas',
+            'patents = iroko.patents.jsonschemas',
         ],
         'invenio_search.mappings': [
             'records = iroko.records.mappings',
             'sources = iroko.sources.mappings',
             'organizations = iroko.organizations.mappings',
             'persons = iroko.persons.mappings',
+            'patents = iroko.patents.mappings',
         ],
         'invenio_admin.views': [
             'vocabulary_admin = iroko.vocabularies.admin:vocabularies_adminview',
@@ -203,6 +208,7 @@ setup(
             'iroko_harvester = iroko.harvester.models',
             'invenio_userprofiles = iroko.userprofiles.models',
             'iroko_evaluations = iroko.evaluations.models',
+            'iroko_register = iroko.patents.register.model',
             ],
         'invenio_base.api_blueprints': [
             'iroko_taxonomy = iroko.vocabularies.rest:api_blueprint',
@@ -214,7 +220,9 @@ setup(
             'iroko_records = iroko.records.rest:api_blueprint',
             'iroko_organizations = iroko.organizations.rest:api_blueprint',
             'iroko_persons = iroko.persons.rest:api_blueprint',
+            'iroko_patents = iroko.patents.rest:api_blueprint',
             'iroko_evaluations = iroko.evaluations.rest:api_blueprint',
+            'iroko_register = iroko.patents.rest:api_blueprint',
             ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
@@ -226,6 +234,7 @@ setup(
             'srcid = iroko.pidstore.fetchers:iroko_source_uuid_fetcher',
             'orgid = iroko.pidstore.fetchers:organization_uuid_fetcher',
             'perid = iroko.pidstore.fetchers:person_uuid_fetcher',
+            'patid = iroko.pidstore.fetchers:patents_uuid_fetcher',
             ],
         'invenio_pidstore.minters': [
             'irouid = iroko.pidstore.minters:iroko_uuid_minter',
@@ -234,6 +243,7 @@ setup(
             'srcid = iroko.pidstore.minters:iroko_source_uuid_minter',
             'orgid = iroko.pidstore.minters:organization_uuid_minter',
             'perid = iroko.pidstore.minters:person_uuid_minter',
+            'patid = iroko.pidstore.minters:patents_uuid_minter',
             ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',

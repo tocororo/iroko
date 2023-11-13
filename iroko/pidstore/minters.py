@@ -74,14 +74,21 @@ def organization_uuid_minter(org_uuid, data):
     return provider.pid
 
 
-def person_uuid_minter(org_uuid, data):
+def person_uuid_minter(person_uuid, data):
     provider = providers.PersonUUIDProvider.create(
         object_type=pids.IROKO_OBJECT_TYPE,
-        object_uuid=org_uuid,
+        object_uuid=person_uuid,
         data=data
         )
     return provider.pid
 
+def patent_uuid_minter(patent_uuid, data):
+    provider = providers.PatentUUIDProvider.create(
+        object_type=pids.IROKO_OBJECT_TYPE,
+        object_uuid=patent_uuid,
+        data=data
+        )
+    return provider.pid
 
 def identifiers_minter(uuid, data, object_type):
     prsIDs = providers.IdentifiersProvider.create_identifiers(

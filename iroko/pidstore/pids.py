@@ -35,6 +35,10 @@ PERSON_PID_TYPE = "perid"
 PERSON_PID_MINTER = "perid"
 PERSON_PID_FETCHER = "perid"
 
+PATENT_PID_TYPE = "patid"
+PATENT_PID_MINTER = "patid"
+PATENT_PID_FETCHER = "patid"
+
 IROKO_OBJECT_TYPE = "rec"
 IROKO_UUID_FIELD = "id"
 
@@ -42,7 +46,8 @@ IROKO_UUID_PID_TYPES = [
     'irouid',
     'srcid',
     'orgid',
-    'perid'
+    'perid',
+    'patid'
     ]
 
 def get_pid_by_data(data):

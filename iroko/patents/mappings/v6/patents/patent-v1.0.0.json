@@ -1,0 +1,122 @@
+{
+  "mappings":{
+    "patent-v1.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "text",
+          "index": false
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
+        "title": {
+          "type": "keyword"
+        },
+        "authors": {
+          "type": "object",
+          "properties":{
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "affiliations": {
+          "type": "object",
+          "properties":{
+            "identifiers": {
+              "type": "object",
+              "properties": {
+                "idtype": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "summary": {
+          "type": "keyword"
+        },
+        "classification": {
+          "type": "keyword"
+        },
+        "claims": {
+          "type": "keyword"
+        },
+        "prior_art": {
+          "type": "keyword"
+        },
+        "drawing": {
+          "type": "keyword"
+        },
+        "countries": {
+          "type": "keyword"
+        },
+        "country": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "language": {
+          "type": "keyword"
+        },
+        "key_words": {
+          "type": "keyword"
+        },
+        "creation_date": {
+          "type": "date",
+          "format": "date"
+        },
+        "grant_date": {
+          "type": "date",
+          "format": "date"
+        },
+        "publication_date": {
+          "type": "date",
+          "format": "date"
+        },
+        "link": {
+          "type": "keyword"
+        },
+        "legal_status": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
