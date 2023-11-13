@@ -400,13 +400,13 @@ RECORDS_REST_FACETS = {
         },
     'patents': {
         'filters': {
-            'country': terms_filter('country'),
+            'country': terms_filter('country.name'),
             'language': terms_filter('language')
             },
         'aggs': {
             'country': {
                 'terms': {
-                    'field': 'country',
+                    'field': 'country.name',
                     'size': 5
                     }
                 },

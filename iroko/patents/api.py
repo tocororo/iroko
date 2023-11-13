@@ -35,23 +35,22 @@ class PatentRecord (IrokoBaseRecord):
             )
         # per = PersonRecord.get_record_by_pid_value(per_pid)
         with open(file_path) as _file:
-                patents = json.load(_file, object_hook=remove_nulls)
-                a = 0
-                for data in patents:
-                    a = a + 1
-                    patent = PatentRecord(data)
-                    del patent['_id']
-                    print(patent)
-                    patentRecord = None
-                    patentRecord, msg = cls.resolve_and_update(data=patent)
-                    print(patentRecord)
-                    if not patentRecord:
-                        print("no pids found, creating patent")
-                        patentRecord = cls.create(patent, iroko_pid_type=pids.PATENT_PID_TYPE)
-                        msg = 'created'
-                print('====================================', a)
-
-
+            patents = json.load(_file, object_hook=remove_nulls)
+            a = 0
+            for data in patents:
+                a = a + 1
+                patent = PatentRecord(data)
+                del patent['_id']
+                print(patent)
+                patentRecord = None
+                patentRecord, msg = cls.resolve_and_update(data=patent)
+                print(patentRecord)
+                if not patentRecord:
+                    print("no pids found, creating patent")
+                    patentRecord = cls.create(patent, iroko_pid_type=pids.PATENT_PID_TYPE)
+                    msg = 'created'
+            print('====================================', a)
+        
     @classmethod
     def get_pat_by_pid(cls, pid_value, with_deleted=False):
         resolver = Resolver(

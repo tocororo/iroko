@@ -208,6 +208,7 @@ setup(
             'iroko_harvester = iroko.harvester.models',
             'invenio_userprofiles = iroko.userprofiles.models',
             'iroko_evaluations = iroko.evaluations.models',
+            'iroko_register = iroko.patents.register.model',
             ],
         'invenio_base.api_blueprints': [
             'iroko_taxonomy = iroko.vocabularies.rest:api_blueprint',
@@ -221,6 +222,7 @@ setup(
             'iroko_persons = iroko.persons.rest:api_blueprint',
             'iroko_patents = iroko.patents.rest:api_blueprint',
             'iroko_evaluations = iroko.evaluations.rest:api_blueprint',
+            'iroko_register = iroko.patents.rest:api_blueprint',
             ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'

@@ -3,7 +3,8 @@
 
 from __future__ import absolute_import, print_function
 
-import datetime
+from datetime import datetime
+import json
 import os
 
 from flask import Blueprint, flash, jsonify, make_response, request
@@ -13,7 +14,11 @@ from invenio_pidstore.models import PersistentIdentifier
 from invenio_indexer.api import RecordIndexer
 from flask_login import current_user
 from invenio_oauth2server import require_api_auth
+from invenio_db import db
+from iroko.utils import remove_nulls
 
+from iroko.patents.register.model import Register
+from iroko.patents.register.marshmallow import register_schema, register_schema_many
 from iroko.patents.api import PatentRecord
 from iroko.patents.fixtures import allowed_file, csv_to_json, get_ext
 from iroko.patents.serializers import json_v1_response
@@ -52,43 +57,39 @@ def get_patent_by_pid_canonical():
 
 
 @api_blueprint.route('/import', methods=['POST'])
-# @require_api_auth()
 def upload_file():
-    # /tmp/iroko/person/<datetime>.[csv|json]
-    # try:
-    if request.method == 'POST':
-        print(request.__dict__)
-        print('--------------------------------')
-        print(request.files)
-        # print('--------------------------------')
-        # if 'file' not in request.files:
-        #     flash('No file part')
-        #     raise Exception("No file part")
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            raise Exception("Not file in request")
-        if file and allowed_file(file.filename):
-            if 'csv'==get_ext(file.filename):
-                json_path=csv_to_json(file)
-                PatentRecord.load_from_json_file(json_path)
-                response = make_response(jsonify({'msg': 'success'}))
-                return response, 201
-            else:
-                filename=datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
+    try:
+        if not request.is_json:
+            raise Exception("No JSON data provided")
 
-                file.save(os.path.join('./data', filename ))
-                PatentRecord.load_from_json_file(os.path.join('./data',filename))
-                response = make_response(jsonify({'msg': 'success'}))
-                return response ,201
-        else:
-            raise Exception("no valid file extension")
 
-    # except Exception as e:
-    #     print(e)
-    #     return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
+        input_data = request.json
+        # patents = json.load(input_data, object_hook=remove_nulls)
+        # print('patents',patents)
+        a = 0
+        for data in input_data:
+            print(data)
+            a = a + 1
+            patent = PatentRecord(data)
+            print(patent)
+            patentRecord = None
+            patentRecord, msg = PatentRecord.resolve_and_update(data=patent)
+            print(patentRecord)
+            if not patentRecord:
+                print("no pids found, creating patent")
+                patentRecord = PatentRecord.create(patent, iroko_pid_type=pids.PATENT_PID_TYPE)
+                msg = 'created'
+
+            return jsonify({
+            'SUCCES':"Patentes creadas",
+            'message':msg,
+            })
+
+    except Exception as e:
+        return jsonify({
+            'ERROR': str(e),
+        })
+
 
 @api_blueprint.route('/<uuid>/edit', methods=['POST'])
 def edit_patent(uuid):
@@ -164,3 +165,65 @@ def delete_patent(uuid):
 
 
     return result
+
+@api_blueprint.route('/register', methods=['GET'])
+def get_register():
+    try:
+        count = int(request.args.get('size')) if request.args.get('size') else 10
+        page = int(request.args.get('page')) if request.args.get('page') else 1
+
+        if page < 1:
+            page = 1
+        offset = count * (page - 1)
+        limit = offset + count
+
+        result = Register.query.all()
+        total = len(result)
+
+        return iroko_json_response(
+            IrokoResponseStatus.SUCCESS, \
+            'ok', 'register', \
+            {
+                'data': register_schema_many.dump(result[offset:limit]),
+                'total': total
+                }
+            )
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+@api_blueprint.route('/register/new', methods=['POST'])
+def create_register():
+    try:
+        input_data = request.json
+        register = Register()
+        register.data = input_data
+        register.userEmail = input_data.get("userEmail")
+        register.date = datetime.now()
+        register.patents = input_data.get("patents")
+
+        db.session.add(register)
+        db.session.commit()
+
+        msg = "New Register Created"
+
+    except Exception as e:
+        msg = str(e)
+        return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
+
+    return iroko_json_response(
+        IrokoResponseStatus.SUCCESS, \
+        msg, 'register', \
+        register_schema.dump(register)
+    )
+
+@api_blueprint.route('/register/delete/<id>', methods=['DELETE'])
+def delete_register(id):
+    register = Register.query.filter_by(id = id).delete()
+    db.session.commit()
+
+    return make_response("Eliminado", 204)
+
+
+
