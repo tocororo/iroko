@@ -328,6 +328,8 @@ class IrokoAggs:
                 "size": 10000,
                 }
             }
+
+        Record.get_records()
         assert query
         assert query["index"]
         assert query["agg"]

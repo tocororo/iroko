@@ -24,6 +24,7 @@ from .views import init_common
 api_blueprint = Blueprint(
     'iroko_api_userprofiles',
     __name__,
+    url_prefix='/profile'
     )
 
 
@@ -44,7 +45,7 @@ def get_user_info():
         institution_rol = ""
 
         profile = UserProfile.get_or_create_by_userid(current_user.get_id())
-
+        print("------------------user profile-----------------",vars(profile))
         # print("en me", profile)
         # if current_userprofile_json_metadata:
         #     biography = current_userprofile_json_metadata["biography"]
@@ -75,7 +76,7 @@ def get_user_info():
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
 
 
-@api_blueprint.route('/users/search', methods=['GET'])
+@api_blueprint.route('/search', methods=['GET'])
 @require_api_auth()
 def get_users_by_email():
     try:
