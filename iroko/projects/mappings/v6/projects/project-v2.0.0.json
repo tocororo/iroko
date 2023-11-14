@@ -28,9 +28,6 @@
             "title": {
               "type": "keyword"
             },
-            "lang": {
-              "type": "keyword"
-            },
             "titleType": {
               "type": "keyword"
             }

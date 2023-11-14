@@ -3,6 +3,7 @@
 from __future__ import absolute_import, print_function
 
 import datetime
+from math import e
 import os
 from urllib import response
 from uuid import UUID, uuid4
@@ -43,15 +44,18 @@ def get_person_by_pid_canonical():
             'ERROR': 'no pid found'.format(_id)
         })
 
-# FIXME  Error 500 Assertion error when post any data pids.IDENTIFIERS_FIELD in data .
+
+@api_blueprint.route('/', methods=['GET'])
+def get_projects():
+    list = ProjectRecord.get_records(['*'])
+    return list
 
 
 @api_blueprint.route('/new', methods=['POST'])
 def get_hello_world():
     data = request.get_json()
     res = ProjectRecord.create_project(data=data, org_uuid=uuid4())
-    print(res)
-    return "hola"
+    return res
 
 
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])

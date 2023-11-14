@@ -24,7 +24,7 @@ from .views import init_common
 api_blueprint = Blueprint(
     'iroko_api_userprofiles',
     __name__,
-    )
+)
 
 
 @api_blueprint.record_once
@@ -56,8 +56,8 @@ def get_user_info():
         #     institution_rol = current_userprofile_json_metadata["institution_rol"]
 
         return iroko_json_response(
-            IrokoResponseStatus.SUCCESS, \
-            'ok', 'userprofile', \
+            IrokoResponseStatus.SUCCESS,
+            'ok', 'userprofile',
             userprofile_schema.dump(profile)
             # {
             #     'email': current_user.email,
@@ -69,7 +69,7 @@ def get_user_info():
             #     'institution':institution_name,
             #     'institution_rol':institution_rol,
             # }
-            )
+        )
     except Exception as e:
         raise e
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)
@@ -79,9 +79,11 @@ def get_user_info():
 @require_api_auth()
 def get_users_by_email():
     try:
-        count = int(request.args.get('size')) if request.args.get('size') else 10
+        count = int(request.args.get('size')
+                    ) if request.args.get('size') else 10
         page = int(request.args.get('page')) if request.args.get('page') else 1
-        query = str(request.args.get('query')) if request.args.get('query') else ''
+        query = str(request.args.get('query')
+                    ) if request.args.get('query') else ''
         if page < 1:
             page = 1
         offset = count * (page - 1)
@@ -94,9 +96,7 @@ def get_users_by_email():
             'ok',
             'users',
             user_schema_many.dump(users[offset:limit])
-            )
+        )
     except Exception as e:
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
-
-

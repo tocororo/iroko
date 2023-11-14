@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "http://localhost/schemas/projects/project-v3.0.0.json",
+  "title": "Project Schema",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["creator", "id", "identifiers", "title"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Iroko UUID, pid_type = perid"
+    },
+    "identifiers": {
+      "type": "array",
+      "description": "Project Identifiers",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "idtype": {
+            "description": "identifier type",
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "title": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Use el atributo xml:lang para indicar el idioma del título. El valor del atributo debe elegirse de IETF BCP 47, Registro de Subetiquetas de Idiomas de IANA."
+          },
+          "titleType": {
+            "type": "string",
+            "enum": ["AlternativeTitle", "Subtitle", "TranslatedTitle", "Other"]
+          }
+        }
+      },
+      "description": "Utilice el nombre del título como valor. Repita esta propiedad para los diferentes tipos o idiomas de los títulos."
+    },
+    "creator": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "description": "Autor Schema",
+        "properties": {
+          "creatorName": {
+            "type": "string",
+            "description": "Escribir en el formato: Apellido(s), Nombre(s) Los nombres en alfabetos latinos pueden transliterarse siguiendo las normas de la ALA-LC."
+          },
+          "nameType": {
+            "type": "string",
+            "description": "Valores de la lista controlada (Organizacional | Personal)",
+            "enum": ["Organizational", "Personal"]
+          },
+          "givenName": {
+            "type": "string",
+            "description": "Nombre propio o de pila del autor."
+          },
+          "familyName": {
+            "type": "string",
+            "description": "Apellido del autor"
+          },
+          "id": {
+            "type": "string"
+          },
+          "identifiers": {
+            "type": "array",
+            "description": "Projects Identifiers",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "idtype": {
+                  "description": "identifier type",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "Autores de la publicación en orden de prioridad. Puede ser un nombre corporativo/institucional o personal."
+    }
+  }
+}

@@ -4,19 +4,7 @@
   "title": "Project Schema",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "autor",
-    "id",
-    "identifiers",
-    "title",
-    "contributor",
-    "language",
-    "publisher",
-    "resourceType",
-    "description",
-    "identifier",
-    "subject"
-  ],
+  "required": ["creator", "id", "identifiers", "title"],
   "properties": {
     "id": {
       "type": "string",
@@ -168,7 +156,6 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["contributorType", "contributorName"],
         "properties": {
           "contributorType": {
             "type": "string",
@@ -295,7 +282,6 @@
       "items": {
         "type": "object",
         "description": "Financiador Schema",
-        "required": ["founderName", "awardNumber", "awardURI"],
         "properties": {
           "founderName": {
             "type": "string",
@@ -627,7 +613,6 @@
     },
     "identifier": {
       "type": "object",
-      "required": ["identifier", "identifierType"],
       "description": "El identificador es una cadena única que identifica un recurso",
       "properties": {
         "identifierType": {
@@ -687,7 +672,6 @@
     },
     "licenseCondition": {
       "type": "object",
-      "required": ["uri", "startDate"],
       "properties": {
         "licenseValue": {
           "type": "string"

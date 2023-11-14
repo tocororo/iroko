@@ -1,6 +1,6 @@
 {
   "mappings": {
-    "project-v1.0.0": {
+    "project-v3.0.0": {
       "date_detection": false,
       "numeric_detection": false,
       "properties": {
@@ -142,59 +142,6 @@
                   "type": "keyword"
                 }
               }
-            }
-          }
-        },
-        "fundingReference": {
-          "type": "object",
-          "properties": {
-            "founderName": {
-              "type": "keyword"
-            },
-            "founderIdentifier": {
-              "type": "object",
-              "properties": {
-                "fundType": {
-                  "type": "keyword"
-                },
-                "fundValue": {
-                  "type": "keyword"
-                }
-              }
-            },
-            "fundingStream": {
-              "type": "keyword"
-            },
-            "awardNumber": {
-              "type": "keyword"
-            },
-            "awardURI": {
-              "type": "keyword"
-            },
-            "awardTitle": {
-              "type": "keyword"
-            }
-          }
-        },
-        "alternateIdentifier": {
-          "type": "object",
-          "properties": {
-            "idValue": {
-              "type": "keyword"
-            },
-            "idType": {
-              "type": "keyword"
-            }
-          }
-        },
-        "relatedIdentifier": {
-          "type": "object",
-          "properties": {
-            "idValue": {
-              "type": "keyword"
-            },
-            "idType": {
-              "type": "keyword"
             }
           }
         }

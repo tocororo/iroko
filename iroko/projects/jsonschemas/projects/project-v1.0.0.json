@@ -4,19 +4,7 @@
   "title": "Project Schema",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "autor",
-    "id",
-    "identifiers",
-    "title",
-    "contributor",
-    "language",
-    "publisher",
-    "resourceType",
-    "description",
-    "identifier",
-    "subject"
-  ],
+  "required": ["autor", "id", "identifiers", "title"],
   "properties": {
     "id": {
       "type": "string",

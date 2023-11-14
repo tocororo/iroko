@@ -15,7 +15,7 @@ from iroko.utils import remove_nulls
 
 
 class ProjectRecord (IrokoBaseRecord):
-    _schema = "projects/project-v2.0.0.json"
+    _schema = "projects/project-v3.0.0.json"
 
     @classmethod
     def load_from_json_file(cls, file_path, org_pid):
@@ -53,18 +53,11 @@ class ProjectRecord (IrokoBaseRecord):
     @classmethod
     def create_project(cls, org_uuid, data, **kwargs):
         """Create or update OrganizationRecord."""
-
-        # assert org_uuid
-        org, msg = cls.resolve_and_update(org_uuid, data)
-        # if resolve_and_update do no return, then is not existed org, so trying to create one
-        if not org:
-            print("no pids found, creating organization")
-            created_org = cls.create(data, iroko_pid_type=pids.ORGANIZATION_PID_TYPE,
-                                     iroko_pid_value=org_uuid)
-            org = created_org
-            msg = 'created'
-
-        return org, msg
+        ent = ProjectRecord(data["project"])
+        print(ent)
+        project = fixture_spi_fields(ent)
+        cls.create(project)
+        return project
 
     def add_affiliation(self, org: OrganizationRecord,
                         start_date=None, end_date=None,
@@ -95,27 +88,7 @@ class ProjectRecord (IrokoBaseRecord):
         self['email_addresses'] = new_eas
 
 
-def fixture_spi_fields(person: ProjectRecord, org: OrganizationRecord):
-    """hard code fixtures of spi data, coming from human resources of cuban institutions """
-    country_code = 'cu'
-    country = 'Cuba'
-    if 'addresses' in org and len(org['addresses']) > 0:
-        country_code = org['addresses'][0]['country_code']
-        country = org['addresses'][0]['country']
-    person['country'] = {'code': country_code, 'name': country}
-
-    if 'institutional_email' in person and len(person['institutional_email']) > 0:
-        person.add_email_address(person['institutional_email'])
-    if 'emails' in person:
-        for ma in person['emails']:
-            person.add_email_address(person['institutional_email'])
-    if 'lastName' in person:
-        person['last_name'] = person['lastName']
-
-    person.pop('lastName')
-    person.pop('institutional_email')
-    person.pop('emails')
-
+def fixture_spi_fields(person: ProjectRecord,):
     new_identifiers = []
     for identifier in person[pids.IDENTIFIERS_FIELD]:
         if identifier['idtype'] == 'noCi':
