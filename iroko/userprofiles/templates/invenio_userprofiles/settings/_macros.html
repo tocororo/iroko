@@ -1,0 +1,59 @@
+{# -*- coding: utf-8 -*-
+
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
+#}
+
+{% macro render_field(field, icon="", placeholder='', autofocus=False) %}
+
+
+<!--
+  ~ Copyright (c) 2022. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
+
+<div
+  class="form-group {% if icon %} has-feedback{% endif %}{% if field.errors %} has-error{% endif %}">
+  {{ field.label }}
+  {%- set extras = dict(autofocus="") if autofocus else dict() %}
+  {{field(class_="form-control", placeholder=placeholder, **extras)}}
+  {%- if icon %}
+  <i aria-hidden="true" class="{{icon}} form-control-feedback"></i>
+  {%- endif %}
+  {%- if field.description %}
+  <span class="help-block"><small>{{ field.description }}</small></span>
+  {%- endif %}
+  {%- if field.errors %}
+  <div class="alert alert-danger alert-dismissible text-left" role="alert">
+    <button aria-label="Close" class="close" data-dismiss="alert" type="button"><span
+      aria-hidden="true">&times;</span></button>
+    {%- for error in field.errors %}
+    <p>{{error}}</p>
+    {% endfor %}
+  </div>
+  {%- endif %}
+</div>
+{% endmacro %}
+
+
+{% macro render_select_field(field, icon="", autofocus=False, placeholder='Select...') %}
+<div class="form-group">
+  {{ field.label }}
+  {%- set extras = dict(autofocus="") if autofocus else dict() %}
+  <select class="select-size-xs" data-placeholder="{{ placeholder }}" name="{{ field.name }}">
+    <option></option>
+    {% for choice in field.choices %}
+    <option value="{{ choice[0] }}">{{ choice[1] }}</option>
+    {% endfor %}
+  </select>
+  {% if field.errors %}
+  {% for error in field.errors %}
+  <p>{{error}}</p>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endmacro %}

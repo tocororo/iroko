@@ -1,0 +1,119 @@
+{
+  "mappings": {
+    "source-v1.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "text",
+          "index": false
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
+        "name": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "title": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "aliases": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "source_status": {
+          "type": "keyword"
+        },
+        "repository_status": {
+          "type": "keyword"
+        },
+        "source_type": {
+          "type": "keyword"
+        },
+        "source_system": {
+          "type": "keyword"
+        },
+        "organizations": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "classifications": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "keyword"
+            }
+          }
+        },
+        "url": {
+          "type": "keyword"
+        },
+        "email": {
+          "type": "keyword"
+        },
+        "start_year": {
+          "type": "keyword"
+        },
+        "end_year": {
+          "type": "keyword"
+        },
+        "subtitle": {
+          "type": "keyword"
+        },
+        "shortname": {
+          "type": "keyword"
+        },
+        "purpose": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "frequency": {
+          "type": "keyword"
+        },
+        "description": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "_save_info": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "keyword"
+            },
+            "updated": {
+              "type": "date",
+              "format": "date"
+            }
+          }
+        },
+        "_save_info_updated": {
+          "type": "date",
+          "format": "date"
+        }
+      }
+    }
+  }
+}

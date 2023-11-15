@@ -1,0 +1,140 @@
+{
+  "mappings": {
+    "record-v1.0.0": {
+      "date_detection": false,
+      "numeric_detection": false,
+      "properties": {
+        "$schema": {
+          "type": "text",
+          "index": false
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "identifiers": {
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
+        "source_repo": {
+          "type": "object",
+          "properties": {
+            "uuid": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "title": {
+          "type": "text",
+          "copy_to": "suggest_title",
+          "analyzer": "spanish"
+        },
+        "suggest_title": {
+          "type": "completion"
+        },
+        "creators": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "keyword"
+                },
+                "value": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "keywords": {
+          "type": "keyword"
+        },
+        "description": {
+          "type": "text",
+          "analyzer": "spanish"
+        },
+        "publisher": {
+          "type": "keyword"
+        },
+        "sources": {
+          "type": "keyword"
+        },
+        "rights": {
+          "type": "keyword"
+        },
+        "types": {
+          "type": "keyword"
+        },
+        "formats": {
+          "type": "keyword"
+        },
+        "language": {
+          "type": "keyword"
+        },
+        "publication_date": {
+          "type": "date",
+          "format": "date"
+        },
+        "terms": {
+          "type": "keyword"
+        },
+        "organizations": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "classifications": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "keyword"
+            }
+          }
+        },
+        "status": {
+          "type": "keyword"
+        },
+        "_created": {
+          "type": "date"
+        },
+        "_updated": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}

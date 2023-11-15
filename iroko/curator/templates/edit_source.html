@@ -1,0 +1,74 @@
+{# -*- coding: utf-8 -*-
+
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
+#}
+
+{%- extends config.BASE_TEMPLATE %}
+
+{% macro errors(field) %}
+{% if field.errors %}
+
+
+<!--
+  ~ Copyright (c) 2022. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
+
+<span class="help-block">
+    <ul class=errors>
+    {% for error in field.errors %}
+    <li><span style="color: red;">{{ error }}</span></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </span>
+{% endmacro %}
+
+{% block page_body %}
+<br/>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>{{ _('Editing Source') }}</h2>
+    </div>
+    <div class="col-md-offset-3 col-md-6 well">
+      <form action="{{ url_for('iroko_curator.edit_source', id=id) }}" method="POST">
+        <div class="form-group {{ 'has-error' if form.name.errors }}">
+          <label for="name">{{ form.name.label }}</label>
+          {{ form.name(class_="form-control")|safe }}
+          {{ errors(form.name) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.source_type.errors }}">
+          <label for="source_type">{{ form.source_type.label }}</label>
+          {{ form.source_type(class_="form-control")|safe }}
+          {{ errors(form.source_type) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.repo_harvest_type.errors }}">
+          <label for="repo_harvest_type">{{ form.repo_harvest_type.label }}</label>
+          {{ form.repo_harvest_type(class_="form-control")|safe }}
+          {{ errors(form.repo_harvest_type) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.repo_harvest_endpoint.errors }}">
+          <label for="repo_harvest_endpoint">{{ form.repo_harvest_endpoint.label }}</label>
+          {{ form.repo_harvest_endpoint(class_="form-control")|safe }}
+          {{ errors(form.repo_harvest_endpoint) }}
+        </div>
+        <!-- <div class="form-group {{ 'has-error' if form.terms.errors }}">
+            <label for="terms">{{ form.terms.label }}</label>
+            {{ form.terms()|safe }}
+            {{ errors(form.terms) }}
+        </div> -->
+
+        {{ form.csrf_token }}
+        {{ errors(form.csrf_token) }}
+        <button class="btn btn-default" type="submit">{{ _('Edit Source') }}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock page_body %}

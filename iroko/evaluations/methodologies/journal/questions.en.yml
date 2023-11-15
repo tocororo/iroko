@@ -1,0 +1,312 @@
+
+- type: 'bool'
+  id: 'c_001_q_001'
+  desc: 'It is included in DOAJ'
+  hint: 'Official DOAJ/MIAR data'
+  answer: false
+- type: 'bool'
+  id: 'c_001_q_002'
+  desc: 'It is in Scopus and/or JCR of the Web of Science'
+  hint: 'MIAR'
+  answer: false
+
+- type: 'integer'
+  id: 'c_001_q_003'
+  desc: 'It is included in an indexing database and specialized summary'
+  hint: 'MIAR'
+  min: 0
+  answer: 0
+
+- type: 'integer'
+  id: 'c_001_q_004'
+  desc: 'It is included in an indexing database and multidisciplinary summary'
+  hint: 'MIAR'
+  min: 0
+  answer: 0
+
+- type: 'bool'
+  id: 'c_002_q_001'
+  desc: 'There is a website of the journal itself'
+  hint: 'Google'
+  answer: false
+
+- type: 'select'
+  id: 'c_002_q_002'
+  desc: "The latest numbers are available on the journal's website"
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+    - label: 'N/A (not applicable)'
+      value: 'NO_APLICA'
+    - label: 'The latest issue of the journal is not available'
+      value: 'NO_DISPONIBLE_ULTIMO_NUM'
+    - label: 'Only the latest issue of the journal can be found'
+      value: 'SOLAMENTE_DISPONIBLE_ULTIMO_NUM'
+    - label: 'You will find all the numbers published by the journal in the last two years'
+      value: 'TODOS_NUM_PUBLICADOS_ULTIMOS_DOS_AÑOS'
+
+- type: CategoryQuestionType.select,
+  id: 'c_002_q_003'
+  desc: "Articles are available individually on the journal's website"
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+    - label: 'They are not available individually and the full number cannot be downloaded'
+      value: 'NO_DISPONIBLE_IND_NO_DESC_NUM'
+    - label: 'They are not available individually but the full number can be downloaded without restrictions'
+      value: 'NO_DISPONIBLE_IND_SI_DESC_NUM'
+    - label: 'They are available individually with access and/or download restrictions'
+      value: 'SI_DISPONIBLE_IND_NO_DESC_NUM'
+    - label: 'They are freely accessed and downloaded individually'
+      value: 'SI_DISPONIBLE_IND_SI_DESC_NUM'
+
+- type: 'bool'
+  id: 'c_002_q_004'
+  desc: 'There are journal articles in national and/or institutional open access repositories'
+  hint: 'Academic Google'
+  answer: false
+
+- type: 'bool'
+  id: 'c_002_q_005'
+  desc: 'There are journal articles in general and/or thematic international open access repositories (e.g.: Zenodo, La Referencia, OceanDocs, Arxich, among others)'
+  hint: 'Academic Google'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_001'
+  desc: 'Use some metadata format (e.g.: Use of OAI-DC, DC, Cerif, Mods, METS, etc.)'
+  hint: 'OpenAIRE validator or https://validator.oaipmh.com/#ListMetadataFormats'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_002'
+  desc: "Use of OAI-PMH (the set 'openaire' or 'ec_fundedresources' or 'driver' may or may not exist)"
+  hint: 'OpenAIRE validator or https://validator.oaipmh.com'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_003'
+  desc: 'The metadata defined as mandatory in the OpenAIRE Guidelines for Literature Repositories v3 are present in all articles'
+  hint: 'Journal official website/OpenAIRE validator'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_004'
+  desc: 'The metadata Field Language, Field License Condition, and Field Source, defined as recommended in the OpenAIRE Guidelines for Literature Repositories v3, are present in all articles'
+  hint: 'OpenAIRE validator'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_005'
+  desc: 'It includes among its metadata the Persistent Identifier - ISSN and/or ISSN-E'
+  hint: 'Journal official website/OpenAIRE validator: check in Resource Identifier and Alternative Identifiers fields'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_006'
+  desc: 'It includes among its metadata Persistent Identifier(s) of some digital object identifier (e.g.: DOI-Handle-URI-Scopus ID-Wos ID-Scielo ID)'
+  hint: 'Journal official website/OpenAIRE validator: check in Resource Identifier and Alternative Identifiers fields'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_007'
+  desc: 'It includes among its metadata Persistent Identifier(s) for people (e.g.: ORCID)'
+  hint: 'Journal official website/OpenAIRE validator: check in Resource Identifier and Alternative Identifiers fields'
+  answer: false
+
+- type: 'bool'
+  id: 'c_003_q_008'
+  desc: 'It includes among its metadata Persistent Identifier(s) for organizations (e.g.: GRID, ROR)'
+  hint: 'Journal official website/OpenAIRE validator: check in Resource Identifier and Alternative Identifiers fields'
+  answer: false
+
+- type: 'select'
+  id: 'c_004_q_001'
+  desc: 'Allows articles to be deposited on non-commercial (open access repositories) or commercial (e.g.: Researchgate) platforms'
+  hint: 'Journal official website/Aura'
+  answer: None
+  selectOptions:
+  - label: "Multiple versions of articles (including the editor's final version)"
+    value: 'VARIAS_VERSIONES_ART'
+  - label: 'Only the preprint version'
+    value: 'SOLAMENTE_VER_PREPRINT'
+  - label: "Only the post-print version (editor's final version)"
+    value: 'SOLAMENTE_VER_POST_PRINT'
+  - label: 'Does not allow self-archiving of any version'
+    value: 'NO_PERMITE_AUTOARCHIVADO_VER'
+
+- type: 'bool'
+  id: 'c_004_q_002'
+  desc: 'Declares that there is no cost for article processing (APC)'
+  hint: 'Journal official website'
+  answer: false
+
+- type: 'bool'
+  id: 'c_004_q_003'
+  desc: 'It is an open access journal and declares an open access policy'
+  hint: 'Journal official website'
+  answer: false
+
+- type: 'bool'
+  id: 'c_004_q_004'
+  desc: 'Promotes the deposit of research data in open access repositories as part of its editorial policy'
+  hint: 'Journal official website'
+  answer: false
+
+- type: 'bool'
+  id: 'c_004_q_005'
+  desc: 'Offers its contents under some type of Creative Common license'
+  hint: 'Journal official website'
+  answer: false
+
+- type: 'select'
+  id: 'c_005_q_001'
+  desc: 'Declares that you accept articles in language'
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+    - label: 'Only Spanish'
+      value: 'SOLAMENTE_ESPAÑOL'
+    - label: 'In more than one language'
+      value: 'EN_MAS_DE_UN_IDIOMA'
+    - label: 'Only one language (other than Spanish)'
+      value: 'SOLAMENTE_UN_IDIOMA'
+
+- type: 'bool'
+  id: 'c_005_q_002'
+  desc: 'The percentage of original articles in English published annually exceeds %15'
+  hint: 'Journal official website'
+  answer: false
+
+- type: 'select'
+  id: 'c_005_q_003'
+  desc: 'Members of the editorial committee who belong to foreign institutions'
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+    - label: 'More than 50%'
+      value: 'MAS_DEL_50'
+    - label: 'Between 20% and 50%'
+      value: 'ENTRE_EL_20_Y_50'
+    - label: 'Less than 20%'
+      value: 'MENOS_DEL_20'
+
+- type: CategoryQuestionType.select
+  id: 'c_005_q_004'
+  desc: 'The members of the editorial committee who are external to the publishing institution represent'
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+    - label: 'More than 70%'
+      value: 'MAS_DEL_70'
+    - label: 'Between 20% and 70%'
+      value: 'ENTRE_EL_20_Y_70'
+    - label: 'Less than 20%'
+      value: 'MENOS_DEL_20'
+
+- type: 'select'
+  id: 'c_005_q_005'
+  desc: 'In the last two years, articles signed by members of the editorial board or by members of the publishing institution constitute'
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+  - label: 'More than 50% of the total published in the period'
+    value: 'MAS_DEL_50_TOTAL_PUBLICADO_PERIODO'
+  - label: 'Between 20% and 50% of the total published in the period'
+    value: 'ENTRE_EL_20_Y_50_TOTAL_PUBLICADO_PERIODO'
+  - label: 'Less than 20% of the total published in the period'
+    value: 'MENOS_DEL_20_TOTAL_PUBLICADO_PERIODO'
+
+- type: 'select'
+  id: 'c_005_q_006'
+  desc: 'The signature of authors affiliated with foreign institutions appears in'
+  hint: 'Journal official website'
+  answer: None
+  selectOptions:
+    - label: 'More than 25% of the total articles in the last two years'
+      value: 'MAS_DEL_25_TOTAL_ART_ULT_DOS_AÑOS'
+    - label: 'Between 5% and 25% of the total articles in the last two years'
+      value: 'ENTRE_EL_5_Y_25_TOTAL_ART_ULT_DOS_AÑOS'
+    - label: 'Less than 5% of the total articles in the last two years'
+      value: 'MENOS_DEL_5_TOTAL_ART_ULT_DOS_AÑOS'
+
+- type: 'bool'
+  id: 'c_006_q_001'
+  desc: 'It has functionality to share content on social networks'
+  hint: 'Journal official website/Aura'
+  answer: false
+
+- type: 'select'
+  id: 'c_006_q_002'
+  desc: 'Has profiles on social networks'
+  hint: 'Twitter, Facebook, Mendeley and/or Researchgate (Plum or Dimensions in case of DOI)'
+  answer: None
+  selectOptions:
+    - label: 'No'
+      value: 'NO'
+    - label: 'Has a profile on at least one social network (Twitter-Facebook-Instagram) but not on Mendeley and/or Researchgate'
+      value: 'PERFIL_RED_SOC_NO_MENDELEY_RESEARCHGATE'
+    - label: 'Has a profile on at least one social network (Twitter-Facebook-Instagram) on Mendeley and/or Researchgate'
+      value: 'PERFIL_RED_SOC_SI_MENDELEY_RESEARCHGATE'
+
+- type: 'select'
+  id: 'c_006_q_003'
+  desc: 'Spread your articles through social networks'
+  hint: 'Twitter, Facebook, Mendeley and/or Researchgate (Plum or Dimensions in case of DOI)'
+  answer: None
+  selectOptions:
+    - label: 'No'
+      value: 'NO'
+    - label: 'General such as Twitter-Facebook-Instagram (at least one of them)'
+      value: 'GENERALES_TWITTER_FACEBOOK_INSTAGRAM'
+    - label: 'Only on Mendeley and/or Researchgate'
+      value: 'SOLAMENTE_MENDELEY_RESEARCHGATE'
+    - label: 'Both on Twitter-Facebook-Instagram (at least one of them) and on Mendeley and/or Researchgate'
+      value: 'TWITTER_FACEBOOK_INSTAGRAM_MENDELEY_RESEARCHGATE'
+
+- type: 'bool'
+  id: 'c_007_q_001'
+  desc: 'You have citations registered in Scopus/Scimago or Scielo Analytics or Google Scholar'
+  hint: ''
+  answer: false
+
+- type: 'select'
+  id: 'c_007_q_002'
+  desc: 'Citations received in Scopus/Scimago or Science Web/JCR or Google Scholar/Scielo Analytics'
+  hint: 'This element will be considered for one of the following options: Scopus/Scimago or Science Web/JCR or Google Scholar/Scielo Analytics. If you want to estimate more than one option, you have to do it differently. Citation totals from different sources should never be added together'
+  answer: None
+  selectOptions:
+    - label: 'Less than 20% of the articles published in the last three years have received at least one citation'
+      value: 'MENOS_DEL_20_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
+    - label: 'Between 20% and 50% of the articles published in the last three years have received at least one citation'
+      value: 'ENTRE_EL_20_Y_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
+    - label: 'More than 50% of the articles published in the last three years have received at least one citation'
+      value: 'MAS_DEL_50_ART_ULT_3_AÑOS_REC_ALGUNA_CITA'
+
+- type: 'select'
+  id: 'c_007_q_003'
+  desc: "According to Google Scholar, the journal's H5 index"
+  hint: 'Academic Google'
+  answer: None
+  selectOptions:
+    - label: 'N/A (not applicable)'
+      value: 'NO_APLICA'
+    - label: 'It is less than or equal to the H5 index of the journal in the previous period'
+      value: 'MENOR_IGUAL_IND_H5_REV_PER_ANT'
+    - label: 'It is higher than the H5 index of the journal in the previous period'
+      value: 'MAYOR_IND_H5_REV_PER_ANT'
+
+- type: 'select'
+  id: 'c_008_q_001'
+  desc: 'It is in journal rankings'
+  hint: 'Scopus/Scimago, JCR, Redalyc, REDIB, CIRS'
+  answer: 'NO'
+  selectOptions:
+    - label: 'No'
+      value: 'NO'
+    - label: 'In Q3-Q4 of Journal Citation Report/Scimago'
+      value: 'Q3_Q4_JOURNAL_CITATION'
+    - label: 'In Q1-Q2 of Journal Citation Report/Scimago'
+      value: 'Q1_Q2_JOURNAL_CITATION'
+    - label: 'Only included in rankings of regional/thematic journals such as Redalyc-REDIB-CIRS-etc.'
+      value: 'SOLAMENTE_RANKINGS_REV_REG_TEMAT'

@@ -1,0 +1,44 @@
+{# -*- coding: utf-8 -*-
+
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
+#}
+
+{%- extends config.BASE_TEMPLATE %}
+
+{% macro errors(field) %}
+{% if field.errors %}
+
+
+<!--
+  ~ Copyright (c) 2022. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
+
+<span class="help-block">
+    <ul class=errors>
+    {% for error in field.errors %}
+    <li><span style="color: red;">{{ error }}</span></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </span>
+{% endmacro %}
+
+{% block page_body %}
+<br/>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>{{ _('Something wrong happend') }}</h2>
+    </div>
+    <div>
+      {{ message }}
+    </div>
+  </div>
+</div>
+{% endblock page_body %}

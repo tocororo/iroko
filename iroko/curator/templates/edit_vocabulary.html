@@ -1,0 +1,61 @@
+{# -*- coding: utf-8 -*-
+
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
+#}
+{%- extends config.BASE_TEMPLATE %}
+
+{% macro errors(field) %}
+{% if field.errors %}
+
+
+<!--
+  ~ Copyright (c) 2022. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
+
+<span class="help-block">
+    <ul class=errors>
+    {% for error in field.errors %}
+    <li><span style="color: red;">{{ error }}</span></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </span>
+{% endmacro %}
+
+{% block page_body %}
+<br/>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>{{ _('Editing Vocabulary') }}</h2>
+    </div>
+    <div class="col-md-offset-3 col-md-6 well">
+      <form action="{{ url_for('iroko_curator.edit_vocabulary', id=id) }}" method="POST">
+        <div class="form-group">
+          {{ form.id(class_="form-control")|safe }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.name.errors }}">
+          <label for="name">{{ form.name.label }}</label>
+          {{ form.name(class_="form-control")|safe }}
+          {{ errors(form.name) }}
+        </div>
+        <div class="form-group {{ 'has-error' if form.description.errors }}">
+          <label for="description">{{ form.description.label }}</label>
+          {{ form.description(class_="form-control")|safe }}
+          {{ errors(form.description) }}
+        </div>
+
+        {{ form.csrf_token }}
+        {{ errors(form.csrf_token) }}
+        <button class="btn btn-default" type="submit">{{ _('Save Changes') }}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock page_body %}

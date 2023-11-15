@@ -1,0 +1,55 @@
+{# -*- coding: utf-8 -*-
+
+This file is part of SCEIBA.
+Copyright (c) 2020. UPR
+SCEIBA is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
+#}
+
+
+{%- extends "iroko_theme/page.html" %}
+
+{%- block page_body %}
+
+
+<!--
+  ~ Copyright (c) 2022. Universidad de Pinar del Rio
+  ~ This file is part of SCEIBA (sceiba.cu).
+  ~ SCEIBA is free software; you can redistribute it and/or modify it
+  ~ under the terms of the MIT License; see LICENSE file for more details.
+  -->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <h1 class="text-center">{{source.name}}</h1>
+    </div>
+  </div>
+  <div class="row">
+    <p>
+    <h2>Info</h2></p><br/>
+    <p>{{source.id}}</p><br/>
+    <p>{{source.uuid}}</p><br/>
+    <p>{{source.source_type}}</p><br/>
+    <p>{{source.harvest_type}}</p><br/>
+    <p>{{source.harvest_endpoint}}</p><br/>
+    <p>{{source.data}}</p><br/>
+    <hr/>
+  </div>
+  <div class="row">
+    <p>
+    <h2>Actions</h2></p><br/>
+    <hr/>
+  </div>
+  <div class="row">
+    <p>
+    <h2>Harvest Basic Info</h2></p><br/>
+    <hr/>
+  </div>
+  <div class="row">
+    <p>
+    <h2>Harvest Error</h2></p><br/>
+    <hr/>
+  </div>
+</div>
+{%- endblock %}

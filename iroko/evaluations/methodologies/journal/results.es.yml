@@ -1,0 +1,45 @@
+
+generalEvaluationName: 'Evaluación general de la revista'
+generalEvaluationValue: "Nivel 'En desarrollo'"
+sections: 
+  # Visibility Section
+  - title: 'Evaluación de la visibilidad'
+    titleEvaluationValue: ''
+    categories: 
+
+      - title: 'Indización'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+                        
+      - title: 'Acceso'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+
+      - title: 'Interoperabilidad'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+
+      - title: 'Apertura'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+
+      - title: 'Internacionalización'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+
+      - title: 'Redes sociales'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+
+  # Impact Section 
+  - title: 'Evaluación del impacto'
+    titleEvaluationValue: ''
+    categories: 
+                
+      - title: 'Impacto académico'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
+
+      - title: 'Posición en rankings de revistas'
+        titleEvaluationValue: ''
+        questionsOrRecoms: ''
