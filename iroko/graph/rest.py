@@ -2,9 +2,9 @@
 
 
 from __future__ import absolute_import, print_function
+from iroko.graph.api import RDFProcessor
 
 
-from iroko.graph.api import is_valid_sparql_query, query, transform_by_configuration_json
 
 from iroko.graph.models import *
 
@@ -16,6 +16,7 @@ api_blueprint = Blueprint(
     __name__,
     url_prefix='/graph'
     )
+rdf_processor=RDFProcessor()   
 
 @api_blueprint.route('/config', methods=['POST'])
 def upload_configuration_file():
@@ -31,10 +32,11 @@ def upload_configuration_file():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
-        
     if file and file.filename.endswith('.json'):
+
         data = file.read()
-        if transform_by_configuration_json(data):
+
+        if rdf_processor.transform_by_configuration_json(data):
                     return jsonify({'success': 'File uploaded successfully'}), 200
 
        
@@ -53,11 +55,11 @@ def execute_sparql_query():
         if not sparql_query:
             return jsonify({'error': 'No SPARQL query provided'}), 400
         
-        if not is_valid_sparql_query(sparql_query):
+        if not rdf_processor.is_valid_sparql_query(sparql_query):
             return jsonify({'error': 'Invalid SPARQL query'}), 400
 
         # Call the query method from api.py passing the sparql_query parameter
-        results = query(sparql_query)
+        results = rdf_processor.query(sparql_query)
         print("results",results)
 
         if results:
