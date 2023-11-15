@@ -68,7 +68,7 @@ class MappingtoRDF:
         return entity_configuration
 
     # valida que la instancia tenga los atributos requeridos en la configuracion
-    def _validate_instance(self, instance):
+    def _validate_instance(self, instance:dict):
         """Validates that the instance has the 
         required attributes specified in the 
         configuration.
@@ -88,23 +88,39 @@ class MappingtoRDF:
 
         if self.validate_required(required_attribute, instance):
             # Save the instance ID in a variable
-            _id = instance.get("id")
+            return self.is_subject_in_graph(instance.get("id"))
+
+        return None
+    def is_subject_in_graph(self,id:str):
+        """Check if the subject (URI) already exists in the graph.
+
+        Args:
+        id (str): The ID of the subject.
+
+        Returns:
+        str: The subject (URI) if it already exists, otherwise the new subject (URI).
+        """
+        _id = id
         # Get the namespace from the namespaces dictionary using the provided namespace key
-            namespace = self.created_graph._get_namespaces()[self.namespace]
-            new_subject = f"{namespace}id/{_id}"
+        namespace = self.created_graph._get_namespaces()[self.namespace]
+        new_subject = f"{namespace}id/{_id}"
         # Iterate over the graph to check if the subject (URI) of the instance already exists
-            for subject in self.created_graph.graph:
+        for subject in self.created_graph.graph:
                 # If it finds a match, return that subject (URI)
                 if subject == new_subject:
 
                     return subject
         # If no match is found, return the new subject (URI)
-            return new_subject
+        return new_subject
             # Return None if the instance does not have all the required attributes
 
-        return None
 
     def validate_instances_array(self):
+        """Check if the instances array is valid
+
+        Returns:
+        bool: True if the instances array is not None, False otherwise.
+        """
         if self.instances is None:
             print("Error: El JSON es Nulo")
             return False
@@ -166,6 +182,19 @@ class MappingtoRDF:
             return True
 
         return False
+    def _is_a_relation(self, value_dict: dict):
+        """Checks if the given value_dict is an identifiers dictionary
+
+        Args:
+            value_dict (dict): _description_
+
+        Returns:
+        bool: True if the value_dict is an identifiers dictionary, False otherwise.
+        """
+        if "__relation" in value_dict.keys():
+            return True
+
+        return False
 
     # Procesa un diccionario con un identificador (campo identifier)
     def _process_identifiers_dict(self, subject, identifiers_dict: dict, identifiers_config: dict):
@@ -199,20 +228,70 @@ class MappingtoRDF:
     # Procesa un diccionario, recorre el dict y si el valor no es vacío, pregunta si es
 
     def _process_dict(self, subject, key, value_dict: dict, properties_config:dict):
-        print("es un dict")
-        try:
-            bnode = BNode()
+        """The  `_process_literal`  method receives the subject, key, a dictionary of values ( `value_dict` ), and a properties configuration ( `properties_config` ) as arguments.
+          Within the method, it checks if the value in the dictionary is another dictionary.
+            In that case, it loops through each key-value pair of the inner dictionary using 
+            recursion by calling the  `_process_literal`  method again.
 
+If the value in the dictionary is not a dictionary, it checks if it is a list. If it is, it loops
+ through each element of the list using recursion.
+
+Finally, if the value in the dictionary is neither a dictionary nor a list, it is directly added 
+to the corresponding list in the properties configuration ( `properties_config` ).
+
+In summary, the  `_process_literal`  method is responsible for processing a dictionary of values,
+ recursively iterating through all the keys and values and adding them to the properties configuration.
+
+I hope this clarifies the explanation for you. If you have any further questions, feel free to ask.
+
+        Args:
+            subject (_type_): The subject of the dictionary
+            key (_type_): The key of the current dictionary entry
+            value_dict (dict): The dictionary value to process
+            properties_config (dict): The configuration of properties
+        """
+        try:
+            # Create an empty list to store BNodes
+            bnode_list = []
             for object_key, value in value_dict.items():
-                self.created_graph._add_triplet(bnode, str(
-                    properties_config.get(key).get(object_key)), str(value))
-            if properties_config.get(key).get(key):
-                self.created_graph._add_triplet(str(subject), str(
-                properties_config.get(key).get(key)), bnode)
+                predicate= properties_config.get(key).get(object_key)
+                if isinstance(value,dict):
+                # If the value is another dictionary, recursively call _process_dict
+
+                    self._process_dict(subject,object_key,value,properties_config)
+                else:
+                    bnode = BNode() # Create a new BNode
+
+                    if isinstance( predicate,list):
+                        # If the predicate is a list, iterate over each item and add triplets to the graph
+
+                        for predicate_item in predicate:
+                            self.created_graph._add_triplet(str(bnode), str(
+                    predicate_item), str(value))
+                            bnode_list.append(bnode)
+                    else:
+                    # If the predicate is not a list, add a single triplet to the graph
+
+                        self.created_graph._add_triplet(str(bnode), str(
+                    predicate), str(value))
+                        bnode_list.append(bnode)# Add the BNode to the list
+
+
+            
+            if predicate:
+                    # If the key exists in properties_config, add triplets connecting the subject to the BNodes
+
+                for bnode in bnode_list:
+                    self.created_graph._add_triplet((subject), (
+                predicate), bnode)
 
             else:
-                self.created_graph._add_triplet(str(subject), RDF.object, bnode)
-                print(subject,RDF.object,bnode)
+                for bnode in bnode_list:
+
+                # If the key does not exist in properties_config, add triplets connecting the subject to the BNodes using RDF.object
+
+                    self.created_graph._add_triplet(str(subject), RDF.object, bnode)
+                    print(subject,RDF.object,bnode)
         except Exception as e:
             print(f"Error en _process_dict: {str(e)}")
 
@@ -230,9 +309,18 @@ class MappingtoRDF:
         for dict_item in list_of_dict:
             self._process_dict(key, dict_item, subject, properties_config)
 
-    ''' def _process_relation(self, subject, key, id):
+    def _process_relation(self, subject, key, value):
         try:
-            bnode = BNode()
+            
+            if isinstance(value,list):
+               for value_item in value:
+                   subject=self.is_subject_in_graph(value_item)
+                   
+
+            if isinstance(value,str):
+                bnode = BNode()
+
+
             self.created_graph._add_triplet(bnode, URIRef("https://w3id.org/cerif/model#Person.PersonIdentifier"), Literal(id))
             self.created_graph._add_triplet(str(subject), str(self.configurationManager._get_json_ontology_conf()[key]), str(bnode))
         except Exception as e:
@@ -243,7 +331,7 @@ class MappingtoRDF:
             for relation in list_of_relations:
                 self._process_relation(subject, key, relation)
         except Exception as e:
-            print(f"Error en _process_relation_list: {str(e)}") '''
+            print(f"Error en _process_relation_list: {str(e)}") 
 
 # este metodo procesa  la seccion de de properties de una instancia o sea los atributos que repreentan un literal o una lista de literales
     def process_properties_in_an_instance(self, properties_config: dict, instance: dict, uri_of_the_subject):
@@ -251,41 +339,42 @@ class MappingtoRDF:
             for key in properties_config.keys():
                 value = instance.get(key)
                 if value:
-
+                    
                     if isinstance(value, str):
                         self._process_literal(
                             uri_of_the_subject, key, value, properties_config)
                         continue
-
-                   # if not isinstance(value, (list, dict)):
-                        # Procesa un literal
-                        #  self._process_literal(key,value,uri_of_the_subject,properties_config)
-
                     if isinstance(value, list):
                         if isinstance(value[0], str):
-                            print("es una lista de string", value)
 
                             self._process_list(
                                 uri_of_the_subject, key, value, properties_config)
                             continue
                         if isinstance(value[0], dict):
+                           
+
                             if self._is_identifiers(value[0]):
-                                print(
-                                    "Es un identificador=====================", value)
                                 for identifier in value:
                                     self._process_identifiers_dict(
                                         uri_of_the_subject, identifier, properties_config.get("identifiers"))
                                 continue
-                            print("es una lista de objetos", value)
                             continue
 
                     if isinstance(value, dict):
-                        print("es una dict ", key)
+                        
+                        if self._is_a_relation(value):
+                                print("====================================================",value)
 
+
+                       
                         self._process_dict(
                             uri_of_the_subject, key, value, properties_config)
                         continue
                 else:
+                        
+                    print("====================================================",key)
+
+                       
                     continue
 
         except Exception as e:

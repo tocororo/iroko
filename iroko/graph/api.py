@@ -38,7 +38,7 @@ def transform_by_configuration_json(configuration_json):
                       print("no se encuentra")
                       continue
 
-            print("graph====",graph.serialize(format="ttl"))
+            #print("graph====",graph.serialize(format="ttl"))
 
         else:
             return False
