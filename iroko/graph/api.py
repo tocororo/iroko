@@ -32,7 +32,7 @@ def transform_by_configuration_json(configuration_json):
                                              entity.get("name"))
                       
 
-                      graph.graph.parse=graph.graph+ mapping._mapping_entity()
+                      graph.graph=graph.graph+ mapping._mapping_entity()
 
                    else:
                       print("no se encuentra")

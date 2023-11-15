@@ -141,13 +141,6 @@ class MappingtoRDF:
         """
         try:
             predicate = properties_config[key]
-            if isinstance(predicate, dict):
-                print("el predicado es un dict", predicate)
-            # If the value of the dictionary is itself a dictionary, recursively process its elements
-                for sub_key, sub_value in predicate.items():
-                    # self._process_literal(sub_key, sub_value, subject, properties_config)
-                    print("sub_key", sub_key, "===", "sub_value", sub_value)
-
             if isinstance(predicate, str):
                 self.created_graph._add_triplet(
                     str(subject), str(predicate), str(value))
@@ -213,11 +206,13 @@ class MappingtoRDF:
             for object_key, value in value_dict.items():
                 self.created_graph._add_triplet(bnode, str(
                     properties_config.get(key).get(object_key)), str(value))
-
-            self.created_graph._add_triplet(str(subject), str(
+            if properties_config.get(key).get(key):
+                self.created_graph._add_triplet(str(subject), str(
                 properties_config.get(key).get(key)), bnode)
-            print(subject, "====", properties_config.get(
-                key).get(key), "====", bnode)
+
+            else:
+                self.created_graph._add_triplet(str(subject), RDF.object, bnode)
+                print(subject,RDF.object,bnode)
         except Exception as e:
             print(f"Error en _process_dict: {str(e)}")
 
