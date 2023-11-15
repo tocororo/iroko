@@ -4,7 +4,7 @@
 from __future__ import absolute_import, print_function
 
 
-from iroko.graph.api import transform_by_configuration_json
+from iroko.graph.api import is_valid_sparql_query, query, transform_by_configuration_json
 
 from iroko.graph.models import *
 
@@ -41,3 +41,28 @@ def upload_configuration_file():
     else:
         return jsonify({'error': 'Invalid file type'}), 400
 
+@api_blueprint.route('/sparql', methods=['POST'])
+def execute_sparql_query():
+    """
+    Executes a SPARQL query.
+    Returns:
+        JSON response indicating success or error.
+    """
+    try:
+        sparql_query = request.form.get('query')
+        if not sparql_query:
+            return jsonify({'error': 'No SPARQL query provided'}), 400
+        
+        if not is_valid_sparql_query(sparql_query):
+            return jsonify({'error': 'Invalid SPARQL query'}), 400
+
+        # Call the query method from api.py passing the sparql_query parameter
+        results = query(sparql_query)
+        print("results",results)
+
+        if results:
+            return jsonify({'success': 'Query executed successfully', 'results': results}), 200
+        else:
+            return jsonify({'error': 'Error executing SPARQL query'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

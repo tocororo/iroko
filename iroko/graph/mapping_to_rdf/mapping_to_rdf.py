@@ -326,13 +326,6 @@ I hope this clarifies the explanation for you. If you have any further questions
         except Exception as e:
             print(f"Error en _process_relation: {str(e)}")
 
-    def _process_relation_list(self, subject, key, list_of_relations):
-        try:
-            for relation in list_of_relations:
-                self._process_relation(subject, key, relation)
-        except Exception as e:
-            print(f"Error en _process_relation_list: {str(e)}") 
-
 # este metodo procesa  la seccion de de properties de una instancia o sea los atributos que repreentan un literal o una lista de literales
     def process_properties_in_an_instance(self, properties_config: dict, instance: dict, uri_of_the_subject):
         try:

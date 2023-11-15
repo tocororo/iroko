@@ -3,6 +3,8 @@ import json
 from flask.json import jsonify
 from invenio_search import RecordsSearch
 from rdflib import RDF, RDFS, Graph
+import rdflib
+from rdflib.plugins.sparql.parser import parseQuery
 
 from iroko.graph.mapping_to_rdf.configuration_manager import ConfigurationManager
 from iroko.graph.mapping_to_rdf.create_graph import Create_Graph
@@ -14,10 +16,13 @@ namespaces = {
         
         "sceiba":"http//sceiba.org"
     }
+global general_grap
+
+general_grap=Graph()
 
 def transform_by_configuration_json(configuration_json):
-    graph=Create_Graph()
-    graph.add_namespaces(namespaces)
+    create_graph=Create_Graph()
+    create_graph.add_namespaces(namespaces)
 
 
     try:
@@ -27,25 +32,51 @@ def transform_by_configuration_json(configuration_json):
             for entity in configuration_manager.put_the_order():
                    entitysearch_by_name=get_entitysearch_by_name(entity.get("name"))
                    if entitysearch_by_name:
-                      mapping = MappingtoRDF(graph, configuration_manager,
+                      mapping = MappingtoRDF(create_graph, configuration_manager,
                                            get_and_save_by_search_class(entitysearch_by_name),
                                              entity.get("name"))
-                      
-
-                      graph.graph=graph.graph+ mapping._mapping_entity()
-
+                      create_graph.graph=create_graph.graph+ mapping._mapping_entity()
                    else:
                       print("no se encuentra")
                       continue
-
-            #print("graph====",graph.serialize(format="ttl"))
-
+            #print("graph====",graph.serialize(format="ntriples"))
+            general_grap=create_graph.graph
+  
         else:
             return False
     except:
         return False
     
     return True
+def query(sparql_query):
+    print(general_grap.serialize(format="ntriples"))
+    try:
+        # Set the graph to query
+        
+
+        knows_query =  """SELECT ?s ?p ?o
+WHERE {
+  ?s ?p ?o
+  FILTER (?o = "active")
+}"""
+        # Execute the SPARQL query
+
+        qres = general_grap.query(knows_query)
+        results = []
+        for row in qres:
+        # Process each row of the query results
+          print("row",row)
+        
+        return results
+    except Exception as e:
+        print(f"An error occurred during the query: {str(e)}")
+        return None
+def is_valid_sparql_query(query):
+    try:
+        parseQuery(query)
+        return True
+    except Exception:
+        return False
 
 def get_entitysearch_by_name(name: str):
     """   
