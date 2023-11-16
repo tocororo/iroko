@@ -28,7 +28,7 @@ class RDFProcessor:
         dict: The transformed data.
         """
         create_graph = Create_Graph()
-        create_graph.add_namespaces(self.namespaces)
+        create_graph.graph=create_graph.add_namespaces(self.namespaces)
         try:
             data_dict = json.loads(configuration_json)
             configuration_manager = ConfigurationManager(data_dict, "sceiba")
@@ -44,7 +44,7 @@ class RDFProcessor:
                         print("Entity not found")
                         continue
                 self.general_graph = create_graph.graph
-
+                print(self.general_graph.serialize(format="ttl"))
             else:
                 return False
         except:
@@ -121,7 +121,7 @@ class RDFProcessor:
         for item in total_item.scan():
             instances.append(item.to_dict())
             offset += 1
-            if offset == 5:
+            if offset == 10:
                 break
         with open('instances.json', 'w') as file:
             json.dump(instances, file)

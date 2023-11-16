@@ -59,7 +59,7 @@ def execute_sparql_query():
             return jsonify({'error': 'Invalid SPARQL query'}), 400
 
         # Call the query method from api.py passing the sparql_query parameter
-        results = rdf_processor.query(sparql_query)
+        results = rdf_processor.execute_sparql_query(sparql_query)
         print("results",results)
 
         if results:
