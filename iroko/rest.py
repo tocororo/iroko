@@ -39,16 +39,21 @@ def get_aggregation():
     """
 
     try:
+        print("******************************")
 
         if not request.is_json:
             raise Exception("No JSON data provided")
+        print("******************************")
 
         query = request.json
+        print(query, "/////////////////////")
         result = IrokoAggs.getAgg(query=query)
+        print("---------------------------------------------------",result)
         if not result:
             raise Exception('No such field aggregation')
 
         return iroko_json_response(IrokoResponseStatus.SUCCESS, 'ok', 'terms', result)
 
     except Exception as e:
+        print("exception: ", e)
         return iroko_json_response(IrokoResponseStatus.ERROR, str(e), None, None)

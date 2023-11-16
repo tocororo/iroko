@@ -470,11 +470,14 @@ def get_current_user_sources(status):
             # # print(source_data_schema_many.dump(search_result))
 
             for hit in search_result:
+                print(hit['id'], hit)
+                name = hit['name'] if 'name' in hit else ''
+                st = hit['source_status'] if 'source_status' in hit else ''
                 manager.append(
                     {
                         'id': hit['id'],
-                        'name': hit['name'],
-                        'source_status': hit['source_status'],
+                        'name': name,
+                        'source_status': st,
                         'version_to_review': True
                         }
                     )
@@ -524,6 +527,8 @@ def get_current_user_sources(status):
         return response
 
     except Exception as e:
+        print(traceback.format_exc())
+        traceback.format_exc()
         msg = str(e)
         return iroko_json_response(IrokoResponseStatus.ERROR, msg, None, None)
 

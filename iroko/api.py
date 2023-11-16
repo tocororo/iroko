@@ -329,7 +329,6 @@ class IrokoAggs:
                 }
             }
 
-        Record.get_records()
         assert query
         assert query["index"]
         assert query["agg"]
@@ -381,7 +380,7 @@ class IrokoAggs:
                         }
                     }
                 }
-        print(query_body)
+        print("query_body",query_body)
 
         s = Search(using=client, index=query_index).update_from_dict(query_body)
         # search[0:offset].execute()
@@ -398,5 +397,5 @@ class IrokoAggs:
                     'doc_count': item.doc_count
                     }
                 )
-
+        print(result)
         return result
