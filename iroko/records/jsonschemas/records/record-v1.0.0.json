@@ -41,7 +41,8 @@
               "orcid",
               "gnd",
               "ads",
-              "oai"
+              "oai",
+              "irouid"
             ]
           },
           "value": {

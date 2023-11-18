@@ -26,6 +26,7 @@ from iroko.pidstore.pids import (
 class IrokoBaseRecord(Record):
     """Class with common functions to Iroko Records"""
 
+    # Note: self['field'] == self.model.json['field'] is True
     @classmethod
     def create(cls, data=None, iroko_pid_type=None, iroko_pid_value=None, object_uuid=None,
                **kwargs):
@@ -63,6 +64,7 @@ class IrokoBaseRecord(Record):
             object_type=IROKO_OBJECT_TYPE,
             getter=cls.get_record,
             )
+
         if iroko_uuid:
             for pid_type in pids.IROKO_UUID_PID_TYPES:
                 resolver.pid_type = pid_type
@@ -70,13 +72,23 @@ class IrokoBaseRecord(Record):
                     persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
                     if rec:
                         print("{0}={1} found".format(pid_type, iroko_uuid))
-                        rec.update(data)
-                        # .update(data, dbcommit=dbcommit, reindex=reindex)
-                        return rec, 'updated'
+                        return rec.try_update(data)
+                except  Exception:
+                    pass
+
+        if "id" in data:
+            iroko_uuid = data['id']
+            for pid_type in pids.IROKO_UUID_PID_TYPES:
+                resolver.pid_type = pid_type
+                try:
+                    persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
+                    if rec:
+                        print("{0}={1} found in data[id]".format(pid_type, iroko_uuid))
+                        return rec.try_update(data)
                 except Exception:
                     pass
         if IDENTIFIERS_FIELD in data:  # Si no lo encontro por el uuid, igual se intenta buscar
-            # desde cualquier otri pid
+            # desde cualquier otro pid
             for schema in identifiers_schemas:
                 for identifier in data[IDENTIFIERS_FIELD]:
                     if schema == identifier[IDENTIFIERS_FIELD_TYPE]:
@@ -86,20 +98,17 @@ class IrokoBaseRecord(Record):
                             persistent_identifier, rec = resolver.resolve(
                                 str(identifier[IDENTIFIERS_FIELD_VALUE])
                                 )
-                            print('<<<<<<<<<<<<<<<<<<')
-                            print('rec= ', rec)
                             if rec:
                                 print(
-                                    "{0}={1} found".format(
+                                    "{0}={1} found in data[identifiers]".format(
                                         schema, str(
                                             identifier[IDENTIFIERS_FIELD_VALUE]
                                             )
                                         )
                                     )
-                                rec.update(data)
-                                print('>>>>>>>>>>>>>>>>>>>>')
-                                print('rec updated: ', rec)
-                                return rec, 'updated'
+                                return rec.try_update(data)
+
+
                         except PIDDoesNotExistError as pidno:
                             print(
                                 "PIDDoesNotExistError:  {0} == {1}".format(
@@ -111,7 +120,25 @@ class IrokoBaseRecord(Record):
                                     )
                                 )
                         except (PIDDeletedError, NoResultFound) as ex:
-                            cls.__delete_pids_without_object(data[IDENTIFIERS_FIELD])
+                            print(
+                                "PIDDeletedError:  {0} == {1}".format(
+                                    schema,
+                                    str(
+                                        identifier[
+                                            IDENTIFIERS_FIELD_VALUE]
+                                        )
+                                    )
+                                )
+
+                            # TODO:
+                            # esto esta mal: __delete_pids_without_object
+                            # No tiene sentido eliminar todos los pids si
+                            # uno esta eliminado, se puso para arreglar datos inestables.
+                            # hoy (17/nov/2023), lo quito porque si un pid esta marcado como
+                            # eliminado, no se debe eliminar de la base de datos, puesto que ese
+                            # pid ya esta reservado.
+                            # Esto es importante para cuando este en produccion el sistema.
+                            # cls.__delete_pids_without_object(data[IDENTIFIERS_FIELD])
                         except Exception as e:
                             print('-------------------------------')
                             # print(str(e))
@@ -119,6 +146,13 @@ class IrokoBaseRecord(Record):
                             print('-------------------------------')
                             pass
         return None, None
+    def try_update(self, data):
+        try:
+            self.update(data)
+            return self, 'updated'
+        except Exception as e:
+            error = traceback.format_exc()
+            return None, str(error)
 
     @classmethod
     def get_record_by_pid(cls, record_pid_type, pid_value, with_deleted=False):
@@ -195,6 +229,7 @@ class IrokoBaseRecord(Record):
             super(IrokoBaseRecord, self).update(data)
 
         print('update pids ')
+        # TODO: improve/clarify update pids
         self._update_pids(override_pids)
 
         print(self)
@@ -246,12 +281,11 @@ class IrokoBaseRecord(Record):
             self[list_key].append(item_to_add)
 
     def _update_pids(self, override_pids=True):
-        newPids = []
-        # TODO: que pasa si se eliminan PIDS? !!!!!
+
         if pids.IDENTIFIERS_FIELD in self:
             for ids in self[pids.IDENTIFIERS_FIELD]:
-                if ids['idtype'] in identifiers_schemas:
-                    if ids['value'] != '':
+                if ids['idtype'] in identifiers_schemas: # solo acepta tipos de identificadores declarados.
+                    if ids['value'] != '': # debe tener un valor distinto de vacio
                         try:
                             pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
                             obj_uuid = pid.get_assigned_object(pids.IROKO_OBJECT_TYPE)
@@ -274,6 +308,7 @@ class IrokoBaseRecord(Record):
                         #     print('!!!!!!! what?')
                         #     raise e
                         except PIDDoesNotExistError:
+
                             iroko_providers.IrokoRecordsIdentifiersProvider.create_pid(
                                 ids['idtype'], ids['value'],
                                 object_type=pids.IROKO_OBJECT_TYPE,
@@ -283,6 +318,44 @@ class IrokoBaseRecord(Record):
                         self[pids.IDENTIFIERS_FIELD].remove(ids)
                 else:
                     self[pids.IDENTIFIERS_FIELD].remove(ids)
+
+        # esto lo que hace es que adiciona al campo identifiers, el campo id, como un
+        # identificador de sceiba, el tipo de pid, en este caso es irouid, srcid, perid, orgid,
+        # etc... en dependencia del tipo de record.
+        # La idea es siempre tener los records con al menos un identifier, al menos el
+        # identificador de iroko.
+        # Tener en cuenta que esto es automatico, es decir , con independencia de los
+        # identificadores que pase el usuario IrokoRecord siempre va a poner un identificador que
+        # es igual al id del record.
+        self._update_irokoUUID_in_identifiers()
+
+        # TODO: que pasa si se eliminan PIDS:
+        # hay que hacer un metodo aqui que busque todos los pids del objeto actual, si existe
+        # algun pid que referencia al objeto actual, pero que no esta dentro de identifiers,
+        # entonces ese pid debe marcarse como Deleted.
+
+
+    def _update_irokoUUID_in_identifiers(self):
+        """
+        este metodo adiciona al campo identifiers, el campo id, como un
+        identificador de sceiba, el tipo de pid, en este caso es irouid, srcid, perid, orgid,
+        etc... en dependencia del tipo de record
+        """
+        resolver = Resolver(
+            pid_type=pids.RECORD_PID_TYPE,
+            object_type=IROKO_OBJECT_TYPE,
+            getter=self.get_record,
+            )
+
+        iroko_uuid = self.iroko_uuid
+        for pid_type in pids.IROKO_UUID_PID_TYPES:
+            resolver.pid_type = pid_type
+            try:
+                persistent_identifier, rec = resolver.resolve(iroko_uuid)
+                if persistent_identifier and rec:
+                    self.add_identifier(pid_type, iroko_uuid)
+            except  Exception:
+                pass
 
     @classmethod
     def __delete_pids_without_object(cls, pid_list):
@@ -336,7 +409,7 @@ class IrokoAggs:
         query_index = query["index"]
         query_filter = query["agg"]["filter"]
         print("-------------------------------------")
-        print(query_index,query_filter)
+        print(query_index, query_filter)
         print("-------------------------------------")
         filters = query["filters"]
         facets = current_app.config["RECORDS_REST_FACETS"]
@@ -353,21 +426,21 @@ class IrokoAggs:
         client = connections.create_connection(hosts=current_app.config["SEARCH_ELASTIC_HOSTS"])
         if len(query_filters) > 0:
             query_body = {
-            "size": 0,
-            "query": {
-                "bool": {
-                    "filter": query_filters
-                    }
-                },
-            "aggs": {
-                query_filter: {
-                    "terms": {
-                        "field": query_field,
-                        "size": query_size
+                "size": 0,
+                "query": {
+                    "bool": {
+                        "filter": query_filters
+                        }
+                    },
+                "aggs": {
+                    query_filter: {
+                        "terms": {
+                            "field": query_field,
+                            "size": query_size
+                            }
                         }
                     }
                 }
-            }
         else:
             query_body = {
                 "size": 0,
@@ -380,7 +453,7 @@ class IrokoAggs:
                         }
                     }
                 }
-        print("query_body",query_body)
+        print("query_body", query_body)
 
         s = Search(using=client, index=query_index).update_from_dict(query_body)
         # search[0:offset].execute()

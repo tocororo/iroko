@@ -173,7 +173,7 @@ def edit_organization(uuid):
         org, msg = OrganizationRecord.resolve_and_update(input_data["id"], input_data)
 
         if not org:
-            raise Exception("No se encontro record de organizacion")
+            raise Exception("ERROR: ", msg)
 
         # notification = NotificationSchema()
         # notification.classification = NotificationType.INFO

@@ -177,6 +177,13 @@ class OrganizationRecord(IrokoBaseRecord):
         - en la organización MATCOM se elimina la relación parent con UH
         - en la organización FCOM se adiciona la relación parent con UH
         """
+
+        assert data['id']
+        if 'identifiers' not in data:
+            data["identifiers"] = []
+        if 'name' not in data:
+            pid, _data = OrganizationRecord.get_org_by_pid(data['id'])
+            data['name'] = _data['name']
         org = self
 
         if 'relationships' not in org:
@@ -252,7 +259,8 @@ class OrganizationRecord(IrokoBaseRecord):
                         if relation["type"] == "parent":
                             self_rel["type"] = "child"
                     self_rel["type"] = "other"
-                    org.add_relation(self_rel)
+                    org.add_relation(relation=self_rel, update_record=True,
+                                     update_relationships=False)
 
     def delete_relationships_in_related(self, relationships):
         """Elimina la relacion de self en las organizaciones relacionadas."""
@@ -265,7 +273,8 @@ class OrganizationRecord(IrokoBaseRecord):
             if pid_value:
                 org = OrganizationRecord.get_record_by_pid_value(pid_value)
                 if org:
-                    org.remove_relation(self.iroko_uuid)
+                    org.remove_relation(pid=self.iroko_uuid, update_record=True,
+                                     update_relationships=False)
 
     def add_relation(self, relation, update_record=True, update_relationships=False):
         """add a relation, if relation['id'] already exists, then update
@@ -273,7 +282,7 @@ class OrganizationRecord(IrokoBaseRecord):
         """
         self.add_update_item_to_list_field('relationships', 'id', relation)
         if update_record:
-            self.update(update_relationships)
+            self.update(update_relationships=update_relationships)
 
     def remove_relation(self, pid, update_record=True, update_relationships=False):
         """Remove a relation. Search for pid in id field or identifiers field"""
@@ -290,7 +299,7 @@ class OrganizationRecord(IrokoBaseRecord):
                 new_relationships.append(rel)
         self.relationships = new_relationships
         if update_record:
-            self.update(update_relationships)
+            self.update(update_relationships=update_relationships)
 
     def is_from(self, country_name='Cuba', country_code='cu'):
         """

@@ -20,7 +20,7 @@ from invenio_records_rest.schemas.fields import (
     GenFunction,
     PersistentIdentifier, SanitizedUnicode,
     )
-from marshmallow import fields, missing, post_dump, validate
+from marshmallow import fields, missing, post_dump, validate, pre_dump, post_load, pre_load
 
 from iroko.organizations.api import OrganizationRecord
 
@@ -179,3 +179,19 @@ class OrganizationRecordSchemaV1(StrictKeysMixin):
     id = PersistentIdentifier()
     files = GenFunction(
         serialize=files_from_context, deserialize=files_from_context)
+    #
+    # @pre_load
+    # def dump_redirect1(self, item, **kwargs):
+    #     print("pre_load: ",self, item)
+    #
+    # @post_load
+    # def dump_redirect2(self, item, **kwargs):
+    #     print("post_load: ",self, item)
+    #
+    # @pre_dump
+    # def dump_redirect3(self, item, **kwargs):
+    #     print("pre_dump: ",self, item)
+    #
+    # @post_dump
+    # def dump_redirect4(self, item, **kwargs):
+    #     print("post_dump: ",self, item)

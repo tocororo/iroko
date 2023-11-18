@@ -57,7 +57,8 @@
               "oai",
               "prnps",
               "ernps",
-              "oaiurl"
+              "oaiurl",
+              "srcid"
             ]
           },
           "value": {

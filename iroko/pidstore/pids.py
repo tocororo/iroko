@@ -126,10 +126,16 @@ identifiers_schemas = [
     "isni",
     "fudref",
     "orgref",
+
     "reup",     #ONEI
     "orgaid",   #ONEI
     "uniid",    #ONEI
-    "sceibaid"
+
+    "sceibaid",  # Sceiba UUID PIDs
+    "irouid",
+    "srcid",
+    "orgid",
+    "perid"
     ]
 
 
