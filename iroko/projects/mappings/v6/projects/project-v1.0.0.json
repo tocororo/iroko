@@ -197,6 +197,236 @@
               "type": "keyword"
             }
           }
+        },
+        "dateRights": {
+          "type": "object",
+          "properties": {
+            "dateValue": {
+              "type": "keyword"
+            },
+            "dateType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "lenguaje": {
+          "type": "keyword"
+        },
+        "publisher": {
+          "type": "keyword"
+        },
+        "publishDate": {
+          "type": "object",
+          "properties": {
+            "dateValue": {
+              "type": "keyword"
+            },
+            "dateType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "resourceType": {
+          "type": "object",
+          "properties": {
+            "resourceTypeGeneral": {
+              "type": "keyword"
+            },
+            "uri": {
+              "type": "keyword"
+            }
+          }
+        },
+        "description": {
+          "type": "object",
+          "properties": {
+            "descValue": {
+              "type": "keyword"
+            },
+            "lang": {
+              "type": "keyword"
+            }
+          }
+        },
+        "format": {
+          "type": "keyword"
+        },
+        "identifier": {
+          "type": "object",
+          "properties": {
+            "identifierType": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
+        },
+        "rights": {
+          "type": "object",
+          "properties": {
+            "rightsValue": {
+              "type": "keyword"
+            },
+            "rightsURI": {
+              "type": "keyword"
+            }
+          }
+        },
+        "source": {
+          "type": "keyword"
+        },
+        "subject": {
+          "type": "object",
+          "properties": {
+            "subjectValue": {
+              "type": "keyword"
+            },
+            "subjectScheme": {
+              "type": "keyword"
+            },
+            "schemeURI": {
+              "type": "keyword"
+            },
+            "valueURI": {
+              "type": "keyword"
+            }
+          }
+        },
+        "licenseCondition": {
+          "type": "object",
+          "properties": {
+            "licenseValue": {
+              "type": "keyword"
+            },
+            "uri": {
+              "type": "keyword"
+            },
+            "startDate": {
+              "type": "keyword"
+            }
+          }
+        },
+        "coverage": {
+          "type": "keyword"
+        },
+        "size": {
+          "type": "keyword"
+        },
+        "geoLocation": {
+          "type": "object",
+          "properties": {
+            "geoLocationPoint": {
+              "type": "object",
+              "properties": {
+                "pointLongitude": {
+                  "type": "keyword"
+                },
+                "pointLatitude": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "geoLocationBox": {
+              "type": "object",
+              "properties": {
+                "westBoundLongitude": {
+                  "type": "keyword"
+                },
+                "eastBoundLongitude": {
+                  "type": "keyword"
+                },
+                "southBoundLatitude": {
+                  "type": "keyword"
+                },
+                "northBoundLatitude": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "geoLoationPlace": {
+              "type": "keyword"
+            },
+            "geoLocationPolygon": {
+              "type": "object",
+              "properties": {
+                "polygonPoint": {
+                  "type": "object",
+                  "properties": {
+                    "pointLongitude": {
+                      "type": "keyword"
+                    },
+                    "pointLatitude": {
+                      "type": "keyword"
+                    }
+                  },
+                  "inPolygonPoint": {
+                    "type": "object",
+                    "properties": {
+                      "pointLongitude": {
+                        "type": "keyword"
+                      },
+                      "pointLatitude": {
+                        "type": "keyword"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "version": {
+          "type": "object",
+          "properties": {
+            "versionValue": {
+              "type": "keyword"
+            },
+            "uri": {
+              "type": "keyword"
+            }
+          }
+        },
+        "file": {
+          "type": "object",
+          "properties": {
+            "fileValue": {
+              "type": "keyword"
+            },
+            "accessRightsURI": {
+              "type": "keyword"
+            },
+            "mimeType": {
+              "type": "keyword"
+            },
+            "objectType": {
+              "type": "keyword"
+            }
+          }
+        },
+        "citationVolume": {
+          "type": "keyword"
+        },
+        "citationIssue": {
+          "type": "keyword"
+        },
+        "citationStartPage": {
+          "type": "keyword"
+        },
+        "citationEndPage": {
+          "type": "keyword"
+        },
+        "citationEdition": {
+          "type": "keyword"
+        },
+        "citationConferencePlace": {
+          "type": "keyword"
+        },
+        "citationConferenceDate": {
+          "type": "keyword"
+        },
+        "audience": {
+          "type": "keyword"
         }
       }
     }

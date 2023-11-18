@@ -5,16 +5,14 @@ from __future__ import absolute_import, print_function
 import datetime
 from math import e
 import os
-from urllib import response
 from uuid import UUID, uuid4
 
-from flask import Blueprint, flash, jsonify, make_response, request
-
+from flask import Blueprint, flash, jsonify, make_response, request, Response
+from marshmallow import ValidationError
 from iroko.projects.api import ProjectRecord
 from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
 from iroko.persons.serializers import json_v1_response
-from iroko.pidstore import pids
-from iroko.projects.marshmallow.json import projectMetadataSchema
+from iroko.projects.marshmallow.json import ProjectMetadataSchemaV1
 
 api_blueprint = Blueprint(
     'iroko_api_projects',
@@ -24,38 +22,44 @@ api_blueprint = Blueprint(
 
 
 @api_blueprint.route('/pid', methods=['GET'])
-def get_person_by_pid_canonical():
-    """
-    Get a source by any PID received as a argument, including UUID
-    this method gives the directed organization with that pid, even if is obsolete or redirected status
-    """
+def get_project_by_pid_canonical():
     try:
         _id = request.args.get('value')
         print("**********************", _id)
-        pid, project = ProjectRecord.get_record_by_pid(
-            pids.PROJECT_PID_TYPE, _id)
+        pid, project = ProjectRecord.get_record(id_=_id)
+        print(project, "hola")
         if not pid or not project:
-            raise Exception('')
+            raise Exception('Not Found')
 
         return json_v1_response(pid, project)
-
     except Exception as e:
-        return jsonify({
-            'ERROR': 'no pid found'.format(_id)
-        })
+        print(e)
+        return make_response(jsonify({
+            "ERROR":"Pid Not Found"
+        }),404)
 
 
-@api_blueprint.route('/', methods=['GET'])
-def get_projects():
-    list = ProjectRecord.get_records(['*'])
-    return list
+
+
 
 
 @api_blueprint.route('/new', methods=['POST'])
-def get_hello_world():
-    data = request.get_json()
-    res = ProjectRecord.create_project(data=data, org_uuid=uuid4())
-    return res
+def create_project():
+    if not request.is_json:
+        raise Exception("No se especifican datos en formato json para la curacion")
+    try:
+        data=request.get_json()
+        projectData = ProjectMetadataSchemaV1().load(data['project'])
+        res = ProjectRecord.create_project(data=projectData, org_uuid=uuid4())
+        return res
+    except ValidationError as err:
+        return make_response(jsonify({
+            "Error":err.messages,
+        }),400)
+
+
+
+
 
 
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])

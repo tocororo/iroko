@@ -13,9 +13,8 @@ from iroko.organizations.api import OrganizationRecord
 from iroko.pidstore import pids
 from iroko.utils import remove_nulls
 
-
 class ProjectRecord (IrokoBaseRecord):
-    _schema = "projects/project-v3.0.0.json"
+    _schema = "projects/project-v2.0.0.json"
 
     @classmethod
     def load_from_json_file(cls, file_path, org_pid):
@@ -52,12 +51,13 @@ class ProjectRecord (IrokoBaseRecord):
 
     @classmethod
     def create_project(cls, org_uuid, data, **kwargs):
-        """Create or update OrganizationRecord."""
-        ent = ProjectRecord(data["project"])
-        print(ent)
+        """Create or update Project."""
+        ent = ProjectRecord(data)
         project = fixture_spi_fields(ent)
-        cls.create(project)
+        cls.create(project,iroko_pid_type=pids.PROJECT_PID_TYPE)
         return project
+
+
 
     def add_affiliation(self, org: OrganizationRecord,
                         start_date=None, end_date=None,
@@ -88,9 +88,11 @@ class ProjectRecord (IrokoBaseRecord):
         self['email_addresses'] = new_eas
 
 
-def fixture_spi_fields(person: ProjectRecord,):
+def fixture_spi_fields(project: ProjectRecord, ):
     new_identifiers = []
-    for identifier in person[pids.IDENTIFIERS_FIELD]:
+    if project['publishDate']:
+        project['publishDate']['dateValue']=project['publishDate']['dateValue'].strftime('%m/%d/%Y')
+    for identifier in project[pids.IDENTIFIERS_FIELD]:
         if identifier['idtype'] == 'noCi':
             new_identifiers.append({
                 'idtype': 'dni',
@@ -103,5 +105,5 @@ def fixture_spi_fields(person: ProjectRecord,):
             })
         else:
             new_identifiers.append(identifier)
-    person[pids.IDENTIFIERS_FIELD] = new_identifiers
-    return person
+    project[pids.IDENTIFIERS_FIELD] = new_identifiers
+    return project

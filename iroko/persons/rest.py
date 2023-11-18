@@ -42,10 +42,6 @@ def get_person_by_pid_canonical():
         })
 
 
-@api_blueprint.route('/', methods=['GET'])
-def get_hello_world():
-    return "Hello World"
-
 
 @api_blueprint.route('/import/<org_uuid>', methods=['POST'])
 # @require_api_auth()
