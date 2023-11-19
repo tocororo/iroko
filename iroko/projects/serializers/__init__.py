@@ -29,7 +29,7 @@ json_v1 = JSONSerializer(ProjectRecordSchemaV1, replace_refs=True)
 
 # Records-REST serializers
 # ========================
-#: JSON record serializer for individual organizations.
+#: JSON record serializer for individual records.
 json_v1_response = record_responsify(json_v1, 'application/json')
 #: JSON record serializer for search results.
 json_v1_search = search_responsify(json_v1, 'application/json')

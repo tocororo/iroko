@@ -13,8 +13,9 @@
 """JSON Schemas."""
 
 from __future__ import absolute_import, print_function
+from datetime import datetime
 from enum import Enum
-from re import L
+from marshmallow import ValidationError
 
 
 from invenio_jsonschemas import current_jsonschemas
@@ -23,6 +24,7 @@ from invenio_records_rest.schemas.fields import (
     DateString, GenFunction,
     PersistentIdentifier, SanitizedUnicode,
 )
+from isodate import datetime_isoformat
 from marshmallow import INCLUDE, fields, missing, validate, Schema
 
 from iroko.projects.api import ProjectRecord
@@ -30,13 +32,23 @@ from iroko.projects.api import ProjectRecord
 allow_empty = validate.Length(min=0)
 
 
+def validate_date(date_text):
+    try:
+        datetime.strptime(date_text,'%d/%m/%Y').date()
+    except ValueError:
+        raise ValidationError("Incorrect date format, should be YYYY-MM-DD")
+
+
 def bucket_from_context(_, context):
     """Get the record's bucket from context."""
     record = (context or {}).get('record', {})
     return record.get('_bucket', missing)
 
+# TODO Fix Date to string Inconventient
+
 
 def files_from_context(_, context):
+
     """Get the record's files from context."""
     record = (context or {}).get('record', {})
     return record.get('_files', missing)
@@ -55,7 +67,7 @@ def schema_from_context(_, context):
 """Enums Here"""
 
 
-TitleTypeEnum=["AlternativeTitle","Subtitle","TranslatedTitle","Other"]
+TitleTypeEnum = ["AlternativeTitle", "Subtitle", "TranslatedTitle", "Other"]
 
 
 class NameTypeEnum(Enum):
@@ -63,18 +75,8 @@ class NameTypeEnum(Enum):
     PER = "Personal"
 
 
-ContributorTypeEnum=["ContactPerson","DataCollector","DataCurator","DataManager","Distributor","Editor","HostingInstitution","Producer","ProjectLeader","ProjectManager"
-    ,"ProjectMember"
-    ,"RegistrationAgency"
-    ,"RegistrationAuthority"
-   ,"RelatedPerson"
-    ,"Researcher"
-    ,"ResearchGroup"
-    ,"RightsHolder"
-    ,"Sponsor"
-    ,"Supervisor"
-    ,"WorkPackageLeader"
-   ,"Other"]
+ContributorTypeEnum = ["ContactPerson", "DataCollector", "DataCurator", "DataManager", "Distributor", "Editor", "HostingInstitution", "Producer", "ProjectLeader", "ProjectManager",
+                       "ProjectMember", "RegistrationAgency", "RegistrationAuthority", "RelatedPerson", "Researcher", "ResearchGroup", "RightsHolder", "Sponsor", "Supervisor", "WorkPackageLeader", "Other"]
 
 
 class FundTypeEnum(Enum):
@@ -83,10 +85,12 @@ class FundTypeEnum(Enum):
     CF = "Crossref Funder"
 
 
-AlternateIdTypeEnum=["ARK","arXiv","bibcode","DOI","EAN13","EISSN","Handle","IGSN","ISBN","ISSN","ISTC","LISSN","LSID","PISSN","PMID","PURL","UPC","URL","URN","WOS"]
+AlternateIdTypeEnum = ["ARK", "arXiv", "bibcode", "DOI", "EAN13", "EISSN", "Handle", "IGSN",
+                       "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PISSN", "PMID", "PURL", "UPC", "URL", "URN", "WOS"]
 
 
-DateTypeEnum=["Accepted","Available", "Issued",]
+DateTypeEnum = ["Accepted", "Available", "Issued",]
+
 
 class ResourceTypeEnum(Enum):
     LITERATURE = "literature"
@@ -95,7 +99,7 @@ class ResourceTypeEnum(Enum):
     OTHER = "other research product"
 
 
-IdentifierTypeEnum=["ARK","DOI","Hanlde","PURL","URL","URN"]
+IdentifierTypeEnum = ["ARK", "DOI", "Hanlde", "PURL", "URL", "URN"]
 
 
 class ObjectTypeEnum(Enum):
@@ -135,13 +139,14 @@ class CreatorSchemaV1(StrictKeysMixin):
     nameType = fields.Enum(NameTypeEnum, by_value=True)
     givenName = SanitizedUnicode(required=True)
     familyName = SanitizedUnicode(required=True)
-    #id = SanitizedUnicode(required=True)
+    # id = SanitizedUnicode(required=True)
     identifiers = Nested(IdentifierSchemaV1, many=True)
     affiliations = Nested(AfiliationsSchemaV1, many=True)
 
 
 class ContributorSchemaV1(StrictKeysMixin):
-    contributorType = fields.Str( validate=validate.OneOf(ContributorTypeEnum), required=True)
+    contributorType = fields.Str(validate=validate.OneOf(
+        ContributorTypeEnum), required=True)
     contributorName = SanitizedUnicode(required=True)
     nameType = fields.Enum(NameTypeEnum, by_value=True)
     givenName = SanitizedUnicode()
@@ -167,7 +172,8 @@ class FundingReferenceSchemaV1(StrictKeysMixin):
 
 class AlternateIdentifierSchemaV1(StrictKeysMixin):
     idValue = SanitizedUnicode(required=True)
-    idType = fields.Str(validate=validate.OneOf(AlternateIdTypeEnum), required=True)
+    idType = fields.Str(validate=validate.OneOf(
+        AlternateIdTypeEnum), required=True)
 
 
 class RelatedIdentifierSchemaV1(StrictKeysMixin):
@@ -177,12 +183,14 @@ class RelatedIdentifierSchemaV1(StrictKeysMixin):
 
 class DateRightsSchemaV1(StrictKeysMixin):
     dateValue = fields.DateTime()
-    dateType = SanitizedUnicode(validate=validate.OneOf(DateTypeEnum), required=True)
+    dateType = SanitizedUnicode(
+        validate=validate.OneOf(DateTypeEnum), required=True)
 
 
 class PublishDateSchemaV1(StrictKeysMixin):
-    dateValue = fields.Date( required=True)
-    dateType = SanitizedUnicode(validate=validate.OneOf(DateTypeEnum), required=True)
+    dateValue = fields.Str(validate=validate_date,required=True)
+    dateType = SanitizedUnicode(
+        validate=validate.OneOf(DateTypeEnum), required=True)
 
 
 class ResourceTypeSchemaV1(StrictKeysMixin):
@@ -266,14 +274,15 @@ class ProjectMetadataSchemaV1(StrictKeysMixin):
     """Schema for the record metadata."""
 
     id = PersistentIdentifier()
-    title = Nested(TitleSchemaV1, many=True, required=True )
-    creator = Nested(CreatorSchemaV1, many=True, required=True )
-    contributor = Nested(ContributorSchemaV1, many=True, required=True )
-    fundingReference = Nested(FundingReferenceSchemaV1, many=True,min=1)
+    title = Nested(TitleSchemaV1, many=True, required=True)
+    creator = Nested(CreatorSchemaV1, many=True, required=True)
+    contributor = Nested(ContributorSchemaV1, many=True, required=True)
+    fundingReference = Nested(FundingReferenceSchemaV1, many=True, min=1)
     alternateIdentifier = Nested(AlternateIdentifierSchemaV1, many=True)
-    relatedIdentifier = Nested(RelatedIdentifierSchemaV1, many=True, required=True)
+    relatedIdentifier = Nested(
+        RelatedIdentifierSchemaV1, many=True, required=True)
     dateRights = Nested(DateRightsSchemaV1, many=True, max=2, min=2)
-    lenguaje = fields.List(SanitizedUnicode(),required=True, min=1)
+    lenguaje = fields.List(SanitizedUnicode(), required=True, min=1)
     publisher = fields.List(SanitizedUnicode(), required=True, min=1)
     publishDate = Nested(PublishDateSchemaV1, many=False, required=True)
     # resourceType = Nested(ResourceTypeSchemaV1, many=False)

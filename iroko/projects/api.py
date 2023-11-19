@@ -90,8 +90,6 @@ class ProjectRecord (IrokoBaseRecord):
 
 def fixture_spi_fields(project: ProjectRecord, ):
     new_identifiers = []
-    if project['publishDate']:
-        project['publishDate']['dateValue']=project['publishDate']['dateValue'].strftime('%m/%d/%Y')
     for identifier in project[pids.IDENTIFIERS_FIELD]:
         if identifier['idtype'] == 'noCi':
             new_identifiers.append({
