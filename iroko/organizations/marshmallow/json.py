@@ -136,7 +136,7 @@ class OrgMetadataSchemaBaseV1(StrictKeysMixin):
     labels = Nested(LabelSchemaV1, many=True)
     relationships = Nested(RelationSchemaWithIDsV1, many=True)
     addresses = Nested(AddressSchemaV1, many=True)
-    redirect = IdentifierSchemaV1()
+    redirect = Nested(IdentifierSchemaV1, many=False)
 
     _schema = GenFunction(
         attribute="$schema",
@@ -188,10 +188,12 @@ class OrganizationRecordSchemaV1(StrictKeysMixin):
     # def dump_redirect2(self, item, **kwargs):
     #     print("post_load: ",self, item)
     #
-    # @pre_dump
-    # def dump_redirect3(self, item, **kwargs):
-    #     print("pre_dump: ",self, item)
-    #
-    # @post_dump
-    # def dump_redirect4(self, item, **kwargs):
-    #     print("post_dump: ",self, item)
+    @pre_dump
+    def dump_redirect3(self, item, **kwargs):
+        print("pre_dump: ",self, item)
+        return item
+
+    @post_dump
+    def dump_redirect4(self, item, **kwargs):
+        print("post_dump: ",self, item)
+        return item
