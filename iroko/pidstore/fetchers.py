@@ -76,7 +76,7 @@ def person_uuid_fetcher(per_uuid, data):
     )
 
 
-def project_uuid_fetcher(per_uuid, data):
+def project_uuid_fetcher(pro_uuid, data):
     return FetchedPID(
         provider=providers.ProjectUUIDProvider,
         pid_type=providers.ProjectUUIDProvider.pid_type,

@@ -17,7 +17,7 @@ class ProjectRecord (IrokoBaseRecord):
     _schema = "projects/project-v2.0.0.json"
 
     @classmethod
-    def load_from_json_file(cls, file_path, org_pid):
+    def load_from_json_file(cls, file_path):
         """bulk import of person from a json file asociated from specific organization
         expect spi format
         tries to create new persons profiles."""
@@ -27,19 +27,14 @@ class ProjectRecord (IrokoBaseRecord):
             object_type=pids.IROKO_OBJECT_TYPE,
             getter=ProjectRecord.get_record,
         )
-        org = OrganizationRecord.get_record_by_pid_value(org_pid)
-        if org:
-            with open(file_path) as _file:
+        with open(file_path) as _file:
                 projects = json.load(_file, object_hook=remove_nulls)
                 a = 0
-                for data in projects:
+                for data in projects["projects"]:
                     a = a + 1
                     project = ProjectRecord(data)
-                    project = fixture_spi_fields(project, org)
-                    project.add_affiliation(org)
-                    del project['_id']
+                    project = fixture_spi_fields(project)
                     print(project)
-                    projectRecord = None
                     projectRecord, msg = cls.resolve_and_update(data=project)
                     print(projectRecord)
                     if not projectRecord:
@@ -56,7 +51,16 @@ class ProjectRecord (IrokoBaseRecord):
         project = fixture_spi_fields(ent)
         cls.create(project,iroko_pid_type=pids.PROJECT_PID_TYPE)
         return project
-
+    @classmethod
+    def delete_project(cls,project_id):
+        try:
+            project = cls.get_record_by_pid(record_pid_type=pids.PROJECT_PID_TYPE,pid_value=project_id)
+            record=IrokoBaseRecord.get_record(project[1].id)
+            deleted=record.delete()
+            print(record)
+            return record
+        except ValueError as err:
+            raise Exception("Not valid ID")
 
 
     def add_affiliation(self, org: OrganizationRecord,

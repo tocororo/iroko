@@ -3,12 +3,15 @@
 from __future__ import absolute_import, print_function
 
 import datetime
-from math import e
+
 import os
 from uuid import UUID, uuid4
 
 from flask import Blueprint, flash, jsonify, make_response, request, Response
+from invenio_indexer.api import RecordIndexer
 from marshmallow import ValidationError
+from invenio_db import db
+from iroko.pidstore import pids
 from iroko.projects.api import ProjectRecord
 from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
 from iroko.persons.serializers import json_v1_response
@@ -58,13 +61,33 @@ def create_project():
         }),400)
 
 
+@api_blueprint.route('/<uri>', methods=['DELETE'])
+def delete_project(uri):
+    try:
+        pid,project =ProjectRecord.get_record_by_pid(record_pid_type=pids.PROJECT_PID_TYPE,pid_value=uri)
+        if project is None:
+            return make_response(jsonify({
+                "Error":"Not found"
+            }),404)
+        project.delete()
+        RecordIndexer().delete(project)
+        db.session.commit()
+        return make_response(jsonify({
+            "Deleted":project,
+        }),200)
+    except Exception as err:
+        return make_response(jsonify({
+            "Error":str(err)
+        }),400)
 
 
 
 
-@api_blueprint.route('/import/<org_uuid>', methods=['POST'])
+
+@api_blueprint.route('/import/', methods=['POST'])
 # @require_api_auth()
-def upload_file(org_uuid):
+def upload_file():
+
     # /tmp/iroko/person/<datetime>.[csv|json]
     # try:
     if request.method == 'POST':
@@ -84,15 +107,14 @@ def upload_file(org_uuid):
         if file and allowed_file(file.filename):
             if 'csv' == get_ext(file.filename):
                 json_path = csv_to_json(file)
-                ProjectRecord.load_from_json_file(json_path, org_uuid)
+                ProjectRecord.load_from_json_file(json_path)
                 response = make_response(jsonify({'msg': 'success'}))
                 return response, 201
             else:
                 filename = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")+'.'+'json'
-
-                file.save(os.path.join('./data', filename))
+                file.save(os.path.join('./', filename))
                 ProjectRecord.load_from_json_file(
-                    os.path.join('./data', filename), org_uuid)
+                    os.path.join('./', filename))
                 response = make_response(jsonify({'msg': 'success'}))
                 return response, 201
         else:

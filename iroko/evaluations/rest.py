@@ -6,37 +6,6 @@
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
 
-# Pasos para completar una NUEVA evaluacion desde CERO
-
-# 0- Nueva evaluacion     (/new)
-#     - REQUEST: el frontend solicita un objeto de evaluacion dado un PID
-#       (ISSN principio, para las revistas) (stept 1)
-#     - RESPONSE: El backend crea un nuevo objeto evaluacion, con state: initial
-#           y lo devuelve al frontend,
-#          el objeto de evaluacion tiene un UUID
-#          el usuario que pidio la evaluacion
-# 1- Respuestas del usuario/ solicitud de recomendaciones (/process/:uuid)
-#     - REQUEST: el frontent envia el objeto de evaluacion con las respuestas del usuario
-#       (en el campo data)... dado que es un objeto de evaluacion concreto
-#        un argumento de este endpoint debe ser el uuid de la evaluacion (stept 2)
-#     - RESPONSE: el backend devuelve el objeto de evaluacion con las recomendaciones
-#       y state: processing
-#       el backend comprueba que el usuario qeu esta haciendo esta peticion
-#       es el duenno de la evaluacion
-#       el backend comprueba que el estado de la evaluacion es inicial
-# 2- Guardar evaluacion   (/save/:uuid)
-#     - REQUEST: el frontend envia la sennal de guardar la evaluacion
-#     - RESPONSE: el backend pone la evaluacion en finished y devuelve ok.
-#       el backend comprueba que el usuario qeu esta haciendo esta peticion
-#       es el duenno de la evaluacion
-#
-
-# Pasos para completar una NUEVA evaluacion desde otra ya realizada.
-
-# 0- Clonar evaluacion (/clone/:uuid)
-#     Igual que el /new pero adicionando el uuid de la evaluacion que se clonna
-#      lo otro pasos son iguales.
-#
 
 """Iroko evaluations api views."""
 

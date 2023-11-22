@@ -1,0 +1,74 @@
+{
+  "projects": [
+    {
+      "id": "d62f2840-f6f3-4284-a468-eb46ad1cd1f0",
+      "title": [
+        {
+          "title": "Ulalala",
+          "lang": "es",
+          "titleType": "AlternativeTitle"
+        },
+        {
+          "title": "No no no ulala",
+          "lang": "en",
+          "titleType": "AlternativeTitle"
+        }
+      ],
+      "creator": [
+        {
+          "creatorName": "Raymond",
+          "givenName": "El Tanke",
+          "familyName": "Francisco"
+        },
+        { "creatorName": "Ray", "givenName": "Nunez", "familyName": "Wong" }
+      ],
+      "contributor": [
+        {
+          "contributorName": "El Pepe Gernandez",
+          "contributorType": "DataCollector",
+          "familyName": "Yoel"
+        },
+        {
+          "contributorName": "Chocolate",
+          "contributorType": "DataCollector",
+          "familyName": "Rastamemba 7"
+        }
+      ],
+      "identifiers": [
+        {
+          "idtype": "ARK",
+          "value": "119200312"
+        }
+      ],
+      "lenguaje": ["es", "en"],
+      "publishDate": {
+        "dateValue": "02/12/2020",
+        "dateType": "Available"
+      },
+      "relatedIdentifier": [
+        {
+          "idValue": "JFKUUIDO",
+          "idType": "ARK"
+        }
+      ],
+      "fundingReference": [
+        {
+          "founderName": "La Tiza Record",
+          "awardURI": "http://12342.com",
+          "awardNumber": "rj35"
+        },
+        {
+          "founderName": "La Tiza Record",
+          "awardURI": "http://12342.com",
+          "awardNumber": "rj35"
+        },
+        {
+          "founderName": "La Tiza Record",
+          "awardURI": "http://12342.com",
+          "awardNumber": "rj35"
+        }
+      ],
+      "publisher": ["Azul Oscuro"]
+    }
+  ]
+}
