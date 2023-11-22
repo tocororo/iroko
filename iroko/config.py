@@ -427,12 +427,12 @@ RECORDS_REST_FACETS = {
     'projects': {
         'filters': {
             'creator': terms_filter('creator.creatorName'),
-            'publisher': terms_filter('publisher')
+            'founder': terms_filter('fundingReference.founderName')
         },
         'aggs': {
             'publisher':{
                 'terms':{
-                    'field':'publisher',
+                    'field':'fundingReference.founderName',
                     'size':5
                 }
             },
