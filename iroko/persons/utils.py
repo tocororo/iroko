@@ -23,7 +23,7 @@ def get_people_from_nlm(metadata: etree._Element):
         aff = contrib.find(xmlns + 'aff')
         email = contrib.find(xmlns + 'email')
         if given_names is None and surname is None:
-            # FIXME if a person dont have surname or given name, then is not a person....
+            # TODO:  if a person dont have surname or given name, then is not a person....
             #  even if there is an email?
             continue
         else:
@@ -33,7 +33,7 @@ def get_people_from_nlm(metadata: etree._Element):
             if surname is not None and surname.text is not None:
                 name += ' ' + surname.text
             person['name'] = name
-            if aff is not None:
+            if aff is not None and aff.text is not None:
                 person['affiliations'] = []
                 person['affiliations'].append(aff.text)
             if email is not None:

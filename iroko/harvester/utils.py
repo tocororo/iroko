@@ -134,6 +134,19 @@ def get_xml_from_file(base_directory, file_name, extra_path=""):
     return etree.parse(xmlpath, parser=XMLParser)
 
 
+def remove_none_from_dict(dictionary:dict):
+    for key, value in list(dictionary.items()):
+        if value is None:
+            del dictionary[key]
+        elif isinstance(value, dict):
+            remove_none_from_dict(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    remove_none_from_dict(item)
+
+    return dictionary
+
 class ZipHelper:
 
     @classmethod

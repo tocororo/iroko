@@ -22,7 +22,7 @@ from sickle import Sickle
 import iroko.harvester.utils as utils
 from iroko.harvester.api import Formatter, SourceHarvester
 from iroko.harvester.errors import IrokoHarvesterError
-from iroko.harvester.fulltext import OJS, get_files
+from iroko.harvester.fulltext import DSPACE, OJS, get_files
 from iroko.harvester.models import HarvestType, HarvestedItem, HarvestedItemStatus, Repository
 from iroko.harvester.oai import request_headers
 from iroko.harvester.oai.formaters import DubliCoreElements, JournalPublishing
@@ -40,6 +40,7 @@ XMLParser = etree.XMLParser(
 import logging
 
 logger = logging.getLogger("iroko-harvester")
+
 
 def get_current_data_dir():
     return current_app.config["HARVESTER_DATA_DIRECTORY"]
@@ -93,13 +94,13 @@ def get_source_from_zip(zip_file_path):
             if not pid or not source:
                 search = SourceSearch()
                 search = search.extra(track_total_hits=True)
-                search.query = QueryString(query= name, default_field="name")
-                name = name.translate(str.maketrans('','',string.punctuation))\
-                                .lower().strip()
+                search.query = QueryString(query=name, default_field="name")
+                name = name.translate(str.maketrans('', '', string.punctuation)) \
+                    .lower().strip()
                 for hit in search.scan():
                     hit_name = hit['name'].translate(
-                                str.maketrans('','',string.punctuation))\
-                                .lower().strip()
+                        str.maketrans('', '', string.punctuation)) \
+                        .lower().strip()
                     if name == hit_name:
                         _id = hit['id']
                         pid, source = SourceRecord.get_source_by_pid(_id)
@@ -132,7 +133,7 @@ class OaiHarvesterFileNames(Enum):
     ITEM_IDENTIFIER = "id.xml"
 
 
-class OaiHarvester (SourceHarvester):
+class OaiHarvester(SourceHarvester):
 
     def process_pipeline(self):
         """
@@ -221,7 +222,6 @@ class OaiArchivist:
             archivist.source.update()
             db.session.commit()
 
-
     def __init__(self, source_id, data_dir=None):
 
         if not data_dir:
@@ -309,7 +309,7 @@ class OaiArchivist:
         # name == self.source.name and
 
         return oai_url == self.repository.harvest_endpoint and identifier == \
-               self.repository.identifier
+            self.repository.identifier
 
     def _fix_repository_data_field(self):
         """
@@ -426,6 +426,7 @@ class OaiArchivist:
                                 data, dbcommit=True, reindex=True
                                 )
                             item.status = HarvestedItemStatus.RECORDED
+                            item.error_log = ""
                             item.record = record.id
                             # print(item.record)
                     else:
@@ -465,7 +466,7 @@ class OaiArchivist:
 
         print("xml---------> ", xml)
         result = formater.process_item(xml)
-        print ("result ----------->     ", result)
+        print("result ----------->     ", result)
         return result
         # except Exception as e:
         #     logger.exception(traceback.format_exc())
@@ -498,18 +499,18 @@ class OaiArchivist:
         self._update_item_data_classifications(data)
 
         data['status'] = self.source.model.json['source_status']
+        data = utils.remove_none_from_dict(data)
         return data
 
     def _update_item_organizations(self, data):
         orgs = []
         if 'organizations' in self.source.model.json:
             for org in self.source.model.json["organizations"]:
-                o:dict = org
+                o: dict = org
                 if "relationships" in o:
                     o.pop("relationships")
                 orgs.append(o)
             data['organizations'] = orgs
-
 
     def _update_item_data_classifications(self, data):
         """update a record data based on the source relations with specific vocabularies:
@@ -807,10 +808,17 @@ class OaiFetcher:
         max_retries = 3
         timeout = 30
 
+        pid, source_rec = SourceRecord.get_source_by_pid(url)
+        source_type = OJS
+        if pid and source_rec:
+            if "source_type" in source_rec.model.json and source_rec.model.json[
+                "source_type"] == "REPOSITORY":
+                source_type = DSPACE
+
         self.url = url
         self.request_wait_time = request_wait_time
         self.id = str(uuid.uuid4())
-        self.source_type = OJS
+        self.source_type = source_type
 
         if not data_dir:
             self.data_dir = get_current_data_dir()
@@ -1058,7 +1066,7 @@ class OaiHarvesterDeprecated:
 
                 return source
 
-        except (BadZipFile, Exception)  as err:
+        except (BadZipFile, Exception) as err:
             # print(err)
             # print(err.args)
 
