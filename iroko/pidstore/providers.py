@@ -9,8 +9,11 @@
 
 import uuid
 
-from invenio_pidstore.models import PIDStatus
+from invenio_pidstore.errors import PIDAlreadyExists
+from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.providers.base import BaseProvider
+from invenio_records import Record
+from sqlalchemy.exc import NoResultFound
 
 import iroko.pidstore.pids as pids
 from iroko.pidstore.pids import identifiers_schemas
@@ -277,15 +280,36 @@ class IdentifiersProvider(BaseProvider):
         pIDs = []
         for ids in data[pids.IDENTIFIERS_FIELD]:
             if ids['idtype'] in identifiers_schemas:
-                provider = super(IdentifiersProvider, cls).create(
-                    pid_type=ids['idtype'],
-                    pid_value=ids['value'],
-                    object_type=object_type,
-                    object_uuid=object_uuid,
-                    status=cls.default_status,
-                    **kwargs
-                )
-                pIDs.append(provider.pid)
+                try:
+
+                    provider = super(IdentifiersProvider, cls).create(
+                        pid_type=ids['idtype'],
+                        pid_value=ids['value'],
+                        object_type=object_type,
+                        object_uuid=object_uuid,
+                        status=cls.default_status,
+                        **kwargs
+                    )
+                    pIDs.append(provider.pid)
+                except PIDAlreadyExists as ex:
+                    pid: PersistentIdentifier = PersistentIdentifier.get(ids['idtype'],
+                                                                         ids['value'])
+                    obj_id = pid.get_assigned_object(object_type=object_type)
+                    try:
+                        obj = Record.get_record(obj_id)
+                        raise ex
+                    except NoResultFound:
+                        # esto significa que el pid existe, pero no está asociado a ningun
+                        # objeto, es decir, es un error, por tanto podemos actualizar el pid para
+                        # el nuevo objeto.
+                        if pid.assign(object_type=object_type, object_uuid=object_uuid,
+                                      overwrite=True):
+                            pIDs.append(pid)
+                        else:
+                            # TODO: delete pid?
+                            raise ex
+
+
         return pIDs
 
     @classmethod

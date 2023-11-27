@@ -218,6 +218,23 @@
       "type": "string",
       "format": "date-time"
     },
+    "dates": {
+      "description": "dates related to the record",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "info": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "contributors": {
       "description": "Contributors in order of importance.",
       "minItems": 0,

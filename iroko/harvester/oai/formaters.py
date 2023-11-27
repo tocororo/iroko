@@ -15,6 +15,7 @@ from iroko.persons.utils import get_people_from_nlm
 from iroko.pidstore.pids import get_identifier_schema
 from iroko.records import ContributorRole
 
+from dateutil.parser import parse
 
 class DubliCoreElements(Formatter):
 
@@ -26,7 +27,6 @@ class DubliCoreElements(Formatter):
     def process_item(self, xml: etree._Element):
         """given an xml item return a dict, ensure is http://purl.org/dc/elements/1.1/ valid and
         return the data"""
-
         data = {}
         header = xml.find('.//{' + nsmap['oai'] + '}header')
         metadata = xml.find('.//{' + nsmap['oai'] + '}metadata')
@@ -80,9 +80,20 @@ class DubliCoreElements(Formatter):
             metadata, 'publisher', xmlns=self.xmlns, language='es-ES'
             )
 
-        data['publication_date'] = get_sigle_element(
+        dates =get_multiple_elements(
             metadata, 'date', xmlns=self.xmlns, language='es-ES'
             )
+        ds = []
+        if len(dates) >= 1:
+            # TODO: otros esquemas distintos de Dublin core, pueden tener el dato que va en info.
+            early_date = parse(dates[0])
+            for d in dates:
+                ds.append({"info": "", "date": d})
+                dd = parse(d)
+                if dd.timestamp() < early_date.timestamp():
+                    early_date = dd
+            data['dates'] = ds
+            data['publication_date'] = str(early_date.date())
 
         types = get_multiple_elements(metadata, 'type', xmlns=self.xmlns)
         data['types'] = types
@@ -105,7 +116,7 @@ class DubliCoreElements(Formatter):
 
         rights = get_multiple_elements(metadata, 'rights', xmlns=self.xmlns)
         data['rights'] = rights
-
+        print("---------------->     ",data)
         return data
 
 

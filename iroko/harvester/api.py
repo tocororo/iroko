@@ -16,7 +16,7 @@ class Formatter(object):
         self.metadataPrefix = None
 
     def get_metadata_prefix(self):
-        """name of the formater oai_dc, nlm, jats"""
+        """name of the formatter oai_dc, nlm, jats"""
         return self.metadataPrefix
 
     def process_item(self, item):

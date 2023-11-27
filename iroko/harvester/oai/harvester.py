@@ -3,7 +3,7 @@
 #  SCEIBA is free software; you can redistribute it and/or modify it
 #  under the terms of the MIT License; see LICENSE file for more details.
 #
-
+import datetime
 import os
 import shutil
 import string
@@ -37,6 +37,9 @@ XMLParser = etree.XMLParser(
     remove_blank_text=True, recover=True, resolve_entities=False
     )
 
+import logging
+
+logger = logging.getLogger("iroko-harvester")
 
 def get_current_data_dir():
     return current_app.config["HARVESTER_DATA_DIRECTORY"]
@@ -176,6 +179,7 @@ class OaiHarvester (SourceHarvester):
             if os.path.isfile(item_path):
                 try:
                     source_id = OaiFetcherProcessor.process_file(item_path, dst_dir)
+                    print(source_id)
                     OaiArchivist.archive_source(source_id, dst_dir)
                 except Exception as e:
                     print(e)
@@ -204,8 +208,10 @@ class OaiArchivist:
         try:
             archivist.record_items()
             archivist.destroy_work_dir()
-            archivist.source.add_classification()
+            # ??
+            # archivist.source.add_classification()
             archivist.repository.status = HarvestedItemStatus.RECORDED
+            archivist.repository.last_harvest_run = datetime.datetime.now()
             archivist.source['repository_status'] = HarvestedItemStatus.RECORDED.value
         except Exception as ex:
             archivist.repository.status = HarvestedItemStatus.ERROR
@@ -400,34 +406,40 @@ class OaiArchivist:
 
         items = HarvestedItem.query.filter_by(source_uuid=self.source.id).all()
         for item in items:
+            data = {}
             try:
                 # currently supporting dc elements and nlm (to get more info about authors)
                 if item.status != HarvestedItemStatus.DELETED:
                     # and item.status != HarvestedItemStatus.ERROR:
 
-                    dc = self._process_format(item, self.oai_dc)
-                    if dc is not None:
-                        nlm = None
-                        if "nlm" in self.formats:
-                            nlm = self._process_format(item, self.nlm)
+                    if self._exist_format(item, self.oai_dc):
+                        dc = self._process_format(item, self.oai_dc)
+                        if dc is not None:
+                            nlm = None
+                            if "nlm" in self.formats and self._exist_format(item, self.nlm):
+                                nlm = self._process_format(item, self.nlm)
 
-                        data = self._crate_iroko_dict(item, dc, nlm)
-                        # # print(data)
+                            data = self._crate_iroko_dict(item, dc, nlm)
+                            # # print(data)
 
-                        record, status = IrokoRecord.create_or_update(
-                            data, dbcommit=True, reindex=True
-                            )
-                        item.status = HarvestedItemStatus.RECORDED
-                        item.record = record.id
-                        # print(item.record)
+                            record, status = IrokoRecord.create_or_update(
+                                data, dbcommit=True, reindex=True
+                                )
+                            item.status = HarvestedItemStatus.RECORDED
+                            item.record = record.id
+                            # print(item.record)
                     else:
-                        print(
-                            "dublin core is none, nothing to do: item: {0}".format(item.identifier)
-                            )
+                        logger.exception("dublin core is none, nothing to do: item: {0}".format(
+                            item.identifier))
+                        item.error_log = "dublin core is none, nothing to do: item: {0}".format(
+                            item.identifier)
+                        item.status = HarvestedItemStatus.IDENTIFIED
+
                         pass
             except Exception as e:
                 item.status = HarvestedItemStatus.ERROR
-                item.error_log = traceback.format_exc()
+                item.error_log = "DATA: {0} \n  ERROR: {1}".format(data, traceback.format_exc())
+                logger.exception("DATA: {0} \n  ERROR: {1}".format(data, traceback.format_exc()))
             finally:
                 db.session.commit()
 
@@ -437,19 +449,31 @@ class OaiArchivist:
 
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
+    def _exist_format(self, item: HarvestedItem, formatter: Formatter):
+        return utils.exist_xml_file(
+            self.working_dir, formatter.get_metadata_prefix() + ".xml",
+            extra_path=str(item.id)
+            )
+
     def _process_format(self, item: HarvestedItem, formater: Formatter):
 
-        try:
-            xml = utils.get_xml_from_file(
-                self.working_dir, formater.get_metadata_prefix() + ".xml",
-                extra_path=str(item.id)
-                )
-            return formater.process_item(xml)
-        except Exception as e:
-            # nothing to do...
-            # TODO: if this is none try to collect this format again
-            # (only one time, until the next global iteration over the source)
-            return None
+        # try:
+        xml = utils.get_xml_from_file(
+            self.working_dir, formater.get_metadata_prefix() + ".xml",
+            extra_path=str(item.id)
+            )
+
+        print("xml---------> ", xml)
+        result = formater.process_item(xml)
+        print ("result ----------->     ", result)
+        return result
+        # except Exception as e:
+        #     logger.exception(traceback.format_exc())
+        #
+        #     # nothing to do...
+        #     # TODO: if this is none try to collect this format again
+        #     # (only one time, until the next global iteration over the source)
+        #     return None
 
     def _crate_iroko_dict(self, item: HarvestedItem, dc, nlm=None):
 
@@ -470,12 +494,24 @@ class OaiArchivist:
         # aqui iria encontrar los tipos de colaboradores usando nlm...
         # tambien es posible hacer un request de los textos completos usando dc.relations
 
-        self._update_item_data_vocabularies(data)
+        self._update_item_organizations(data)
+        self._update_item_data_classifications(data)
 
         data['status'] = self.source.model.json['source_status']
         return data
 
-    def _update_item_data_vocabularies(self, data):
+    def _update_item_organizations(self, data):
+        orgs = []
+        if 'organizations' in self.source.model.json:
+            for org in self.source.model.json["organizations"]:
+                o:dict = org
+                if "relationships" in o:
+                    o.pop("relationships")
+                orgs.append(o)
+            data['organizations'] = orgs
+
+
+    def _update_item_data_classifications(self, data):
         """update a record data based on the source relations with specific vocabularies:
         institutions
         grupo_mes
@@ -486,8 +522,8 @@ class OaiArchivist:
 
         # ts = TermSources.query.filter_by(source_id=self.source.id).all()
 
-        data['organizations'] = self.source.model.json['organizations']
-        data['classifications'] = self.source.model.json['classifications']
+        if 'classifications' in self.source.model.json:
+            data['classifications'] = self.source.model.json['classifications']
 
         #
         # tuus = []
@@ -500,7 +536,7 @@ class OaiArchivist:
         #     tuus.append(str(rs_term.uuid))
         # data['terms'] = tuus
 
-    def _udate_record_type(self, data):
+    def _update_record_type(self, data):
         """ update or define a record_type, based on record_set
         record_set should have a record_type as a class
         if the record_set in the data has a record_type associated,
@@ -548,13 +584,17 @@ class OaiFetcherProcessor:
             db.session.commit()
 
         source_path = os.path.join(self.data_dir, str(self.source.id))
-        if os.path.exists(source_path):
-            shutil.rmtree(source_path)
-        shutil.move(
-            zip_file_path,
-            source_path
-            )
 
+        print("###########################", zip_file_path, source_path)
+        if os.path.exists(source_path):
+            print("delete")
+            shutil.rmtree(source_path)
+        print("++++++++++++++++++++++++++")
+        shutil.copy(
+            src=zip_file_path,
+            dst=source_path
+            )
+        print("??????????")
         self.harvest_dir = os.path.join(
             current_app.config["IROKO_TEMP_DIRECTORY"],
             "iroko-harvest-" + str(self.source.id)
@@ -643,7 +683,6 @@ class OaiFetcherProcessor:
                 identifier,
                 self.source.id,
                 )
-
         self.repository.identifier = identifier
 
     def get_formats(self):

@@ -8,7 +8,10 @@ from flask import current_app
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import current_jsonschemas
-from invenio_pidstore.errors import PIDDeletedError, PIDDoesNotExistError
+from invenio_pidstore.errors import (
+    PIDDeletedError, PIDDoesNotExistError, PIDMissingObjectError,
+    PIDRedirectedError,
+    )
 from invenio_pidstore.models import PIDStatus, PersistentIdentifier
 from invenio_pidstore.resolver import Resolver
 from invenio_records_files.api import Record
@@ -21,6 +24,13 @@ from iroko.pidstore.pids import (
     IDENTIFIERS_FIELD, IDENTIFIERS_FIELD_TYPE, IDENTIFIERS_FIELD_VALUE, IROKO_OBJECT_TYPE,
     IROKO_UUID_PID_TYPES, identifiers_schemas,
     )
+import logging
+
+logger = logging.getLogger("iroko")
+
+# TODO: use idtype = fields.Str(validate=validate.OneOf(choices=IdentifierTypeEnum))
+# en cada identifiers comprobar esto..
+
 
 
 class IrokoBaseRecord(Record):
@@ -40,25 +50,38 @@ class IrokoBaseRecord(Record):
         if not object_uuid:
             object_uuid = uuid4()
 
-        pid = iroko_uuid_minter(pid_type=iroko_pid_type, pid_value=iroko_pid_value,
-                                object_type=pids.IROKO_OBJECT_TYPE,
-                                object_uuid=object_uuid, data=data)
+        try:
 
-        identifiers_minter(object_uuid, data, IROKO_OBJECT_TYPE)
+            pid = iroko_uuid_minter(pid_type=iroko_pid_type, pid_value=iroko_pid_value,
+                                    object_type=pids.IROKO_OBJECT_TYPE,
+                                    object_uuid=object_uuid, data=data)
 
-        rec = super(IrokoBaseRecord, cls).create(data=data, id_=str(object_uuid),
-                                                 with_bucket=False, **kwargs)
+            identifiers_minter(object_uuid, data, IROKO_OBJECT_TYPE)
 
-        db.session.commit()
-        RecordIndexer().index(rec)
+            rec = super(IrokoBaseRecord, cls).create(data=data, id_=str(object_uuid),
+                                                     with_bucket=False, **kwargs)
+            db.session.commit()
+            RecordIndexer().index(rec)
 
-        return rec
+            return rec
+
+        except Exception as ex:
+            # TODO: try to rollback pids and record creation, if any...
+            logger.exception(traceback.format_exc())
+
+            raise  ex
+
+        return None
+
+
 
     @classmethod
     def resolve_and_update(cls, iroko_uuid=None, data={}, **kwargs):
-        print("first in resolve and update ==============================")
-        print(data)
-        print("===========================================================")
+        """
+        return tuple [updated object, info string]
+        """
+        logger.info("resolve and update =============================={0}".format(data))
+
         resolver = Resolver(
             pid_type=pids.RECORD_PID_TYPE,
             object_type=IROKO_OBJECT_TYPE,
@@ -71,7 +94,7 @@ class IrokoBaseRecord(Record):
                 try:
                     persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
                     if rec:
-                        print("{0}={1} found".format(pid_type, iroko_uuid))
+                        logger.info("{0}={1} found".format(pid_type, iroko_uuid))
                         return rec.try_update(data)
                 except  Exception:
                     pass
@@ -83,7 +106,7 @@ class IrokoBaseRecord(Record):
                 try:
                     persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
                     if rec:
-                        print("{0}={1} found in data[id]".format(pid_type, iroko_uuid))
+                        logger.info("{0}={1} found in data[id]".format(pid_type, iroko_uuid))
                         return rec.try_update(data)
                 except Exception:
                     pass
@@ -99,7 +122,7 @@ class IrokoBaseRecord(Record):
                                 str(identifier[IDENTIFIERS_FIELD_VALUE])
                                 )
                             if rec:
-                                print(
+                                logger.info(
                                     "{0}={1} found in data[identifiers]".format(
                                         schema, str(
                                             identifier[IDENTIFIERS_FIELD_VALUE]
@@ -110,7 +133,8 @@ class IrokoBaseRecord(Record):
 
 
                         except PIDDoesNotExistError as pidno:
-                            print(
+                            logger.exception(
+                                "------------------------------------------------------  "
                                 "PIDDoesNotExistError:  {0} == {1}".format(
                                     schema,
                                     str(
@@ -119,8 +143,10 @@ class IrokoBaseRecord(Record):
                                         )
                                     )
                                 )
-                        except (PIDDeletedError, NoResultFound) as ex:
-                            print(
+                            pass
+                        except (PIDDeletedError) as ex:
+                            logger.exception(
+                                "------------------------------------------------------ "
                                 "PIDDeletedError:  {0} == {1}".format(
                                     schema,
                                     str(
@@ -129,7 +155,43 @@ class IrokoBaseRecord(Record):
                                         )
                                     )
                                 )
-
+                            pass
+                        except (PIDRedirectedError) as ex:
+                            logger.exception(
+                                "------------------------------------------------------  "
+                                "PIDRedirectedError:  {0} == {1}".format(
+                                    schema,
+                                    str(
+                                        identifier[
+                                            IDENTIFIERS_FIELD_VALUE]
+                                        )
+                                    )
+                                )
+                            pass
+                        except (PIDMissingObjectError) as ex:
+                            logger.exception(
+                                "------------------------------------------------------  "
+                                "PIDMissingObjectError:  {0} == {1}".format(
+                                    schema,
+                                    str(
+                                        identifier[
+                                            IDENTIFIERS_FIELD_VALUE]
+                                        )
+                                    )
+                                )
+                            pass
+                        except (NoResultFound) as ex:
+                            logger.exception(
+                            "------------------------------------------------------  "
+                            "NoResultFound:  {0} == {1}".format(
+                                schema,
+                                str(
+                                    identifier[
+                                        IDENTIFIERS_FIELD_VALUE]
+                                    )
+                                )
+                            )
+                            pass
                             # TODO:
                             # esto esta mal: __delete_pids_without_object
                             # No tiene sentido eliminar todos los pids si
@@ -140,18 +202,21 @@ class IrokoBaseRecord(Record):
                             # Esto es importante para cuando este en produccion el sistema.
                             # cls.__delete_pids_without_object(data[IDENTIFIERS_FIELD])
                         except Exception as e:
-                            print('-------------------------------')
-                            # print(str(e))
-                            print(traceback.format_exc())
-                            print('-------------------------------')
+                            logger.exception(
+                                "------------------------------------------------------     {"
+                                "0}".format(traceback.format_exc()))
                             pass
         return None, None
     def try_update(self, data):
         try:
             self.update(data)
+            logger.debug("UPDATED: {0}".format(self))
             return self, 'updated'
         except Exception as e:
             error = traceback.format_exc()
+            logger.exception(
+                "------------------------------------------------------     {"
+                "0}".format(error))
             return None, str(error)
 
     @classmethod
@@ -218,7 +283,7 @@ class IrokoBaseRecord(Record):
         """ Update data for record.
         override_pids, if True
         """
-        print('begin update')
+        logger.info('begin update')
 
         self['_save_info_updated'] = str(date.today())
 
@@ -228,15 +293,14 @@ class IrokoBaseRecord(Record):
             data = dict(self)
             super(IrokoBaseRecord, self).update(data)
 
-        print('update pids ')
+        logger.info('update pids ')
         # TODO: improve/clarify update pids
         self._update_pids(override_pids)
 
-        print(self)
         super(IrokoBaseRecord, self).commit()
         if dbcommit:
             self.dbcommit(reindex)
-        print('UPDATED', self.model.json)
+        logger.info('UPDATED', self.model.json)
         return self
 
     def dbcommit(self, reindex=False, forceindex=False):
@@ -289,19 +353,19 @@ class IrokoBaseRecord(Record):
                         try:
                             pid = PersistentIdentifier.get(ids['idtype'], ids['value'])
                             obj_uuid = pid.get_assigned_object(pids.IROKO_OBJECT_TYPE)
-                            print('!!!!!!!')
-                            print('{0}-{1}'.format(ids['idtype'], ids['value']))
-                            print('!!!!!!!')
+                            logger.info('!!!!!!!')
+                            logger.info('{0}-{1}'.format(ids['idtype'], ids['value']))
+                            logger.info('!!!!!!!')
                             if obj_uuid != self.id:
-                                print('!!!!!!!******')
-                                print(
+                                logger.info('!!!!!!!******')
+                                logger.info(
                                     'PIDObjectAlreadyAssigned{0}-{1}'.format(
                                         ids['idtype'], ids['value']
                                         )
                                     )
                                 # override_pids
                                 if override_pids:
-                                    print("assign pid to self")
+                                    logger.info("assign pid to self")
                                     pid.assign(pids.IROKO_OBJECT_TYPE, self.id, override_pids)
 
                         # except PIDObjectAlreadyAssigned as e:
@@ -377,8 +441,8 @@ class IrokoBaseRecord(Record):
                         db.session.commit()
                         # print("***************** DELETED!!!!")
         except Exception as e:
-            print("-------- DELETING PID ERROR ------------")
-            print(traceback.format_exc())
+            logger.exception("-------- DELETING PID ERROR ------------")
+            logger.exception(traceback.format_exc())
 
 
 class IrokoAggs:
@@ -408,9 +472,9 @@ class IrokoAggs:
         query_size = query["agg"]["size"]
         query_index = query["index"]
         query_filter = query["agg"]["filter"]
-        print("-------------------------------------")
-        print(query_index, query_filter)
-        print("-------------------------------------")
+        logger.info("-------------------------------------")
+        logger.info("query_index: {0}    query_filter: {1}".format(query_index, query_filter))
+        logger.info("-------------------------------------")
         filters = query["filters"]
         facets = current_app.config["RECORDS_REST_FACETS"]
 
@@ -453,7 +517,7 @@ class IrokoAggs:
                         }
                     }
                 }
-        print("query_body", query_body)
+        logger.info("query_body: {0}".format(query_body))
 
         s = Search(using=client, index=query_index).update_from_dict(query_body)
         # search[0:offset].execute()
@@ -470,5 +534,5 @@ class IrokoAggs:
                     'doc_count': item.doc_count
                     }
                 )
-        print(result)
+        logger.info("return: {0}".format(result))
         return result

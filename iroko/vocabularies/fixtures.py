@@ -145,6 +145,7 @@ def init_unesco(path):
         ]
 
     graph = Graph()
+    
     graph.load(path)
 
     for t in groups:
