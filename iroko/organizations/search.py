@@ -17,6 +17,7 @@ class OrganizationSearch(RecordsSearch):
 
         index = "organizations"
         doc_types = None
+        fields = ['name','aliases','acronyms']
 
     def search_by_pid(self, *pids):
         """Retrieve sources with the given pid(s)."""

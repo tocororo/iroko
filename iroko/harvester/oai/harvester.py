@@ -890,6 +890,24 @@ class OaiFetcher:
     def _get_xml_from_file(self, name, extra_path=""):
         return utils.get_xml_from_file(self.harvest_dir, name, extra_path=extra_path)
 
+    # TODO:
+    # BUG: Traceback (most recent call last):
+    #   File "/opt/iroko/iroko/harvester/oai/harvester.py", line 856, in start_harvest_pipeline
+    #     self.identity_source()
+    #   File "/opt/iroko/iroko/harvester/oai/harvester.py", line 878, in identity_source
+    #     self.get_identify()
+    #   File "/opt/iroko/iroko/harvester/oai/harvester.py", line 895, in get_identify
+    #     identify = self.sickle.Identify()
+    #   File "/usr/local/lib/python3.9/dist-packages/sickle/app.py", line 179, in Identify
+    #     return Identify(self.harvest(**params))
+    #   File "/usr/local/lib/python3.9/dist-packages/sickle/models.py", line 74, in __init__
+    #     super(Identify, self).__init__(identify_response.xml, strip_ns=True)
+    #   File "/usr/local/lib/python3.9/dist-packages/sickle/models.py", line 45, in __init__
+    #     self._oai_namespace = get_namespace(self.xml)
+    #   File "/usr/local/lib/python3.9/dist-packages/sickle/utils.py", line 20, in get_namespace
+    #     return re.search('(\{.*\})', element.tag).group(1)
+    # AttributeError: 'NoneType' object has no attribute 'group'
+
     def get_identify(self):
         """get_identity, raise IrokoHarvesterError"""
         identify = self.sickle.Identify()
