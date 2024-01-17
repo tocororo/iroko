@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2022. Universidad de Pinar del Rio
+# This file is part of SCEIBA (sceiba.cu).
+# SCEIBA is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+#
+
+set -e
+
+script_path=$(dirname "$0")
+
+export FLASK_ENV=development
+# Start Worker and Server
+#poetry run celery worker -A invenio_app.celery -l INFO & pid_celery=$!
+
+iroko run \
+        --cert "$script_path"/docker/nginx/test.crt \
+        --key "$script_path"/docker/nginx/test.key \
+        & pid_server=$!
+
+
+trap 'kill $pid_server &>/dev/null' EXIT
+#trap 'kill $pid_celery $pid_server &>/dev/null' EXIT
+
+wait $pid_server
+#wait $pid_celery $pid_server

@@ -13,16 +13,18 @@ https://github.com/pyenv/pyenv#automatic-installer
 pyenv install 3.9.16
 pyenv global 3.9.16
 
-3- to install poetry follow:
+3- install node v14
+
+4- to install poetry follow:
 https://python-poetry.org/docs/#installing-with-pipx
 
-4- setup env
+5- setup env
 poetry shell
 poetry install
 poetry run iroko collect -v
 poetry run iroko webpack buildall
 
-5- run server
+6- run server
 ./server-local
 
 Deployment
