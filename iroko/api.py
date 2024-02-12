@@ -11,6 +11,7 @@ from invenio_pidstore.resolver import Resolver
 from invenio_records.api import Record
 from invenio_records_files.api import Record
 from sqlalchemy.exc import NoResultFound
+import json
 
 from iroko.pidstore import pids
 from iroko.pidstore.minters import identifiers_minter, iroko_uuid_minter
@@ -68,6 +69,7 @@ class IrokoBaseRecord(Record):
                     persistent_identifier, rec = resolver.resolve(str(iroko_uuid))
                     if rec:
                         print("{0}={1} found".format(pid_type, iroko_uuid))
+                        print('REC',rec)
                         rec.update(data)
                         # .update(data, dbcommit=dbcommit, reindex=reindex)
                         return rec, 'updated'
@@ -85,16 +87,20 @@ class IrokoBaseRecord(Record):
                                 str(identifier[IDENTIFIERS_FIELD_VALUE])
                                 )
                             print('<<<<<<<<<<<<<<<<<<')
-                            print('rec= ', rec)
+                            print('rec= ', json.dumps(rec, indent=3))
                             if rec:
-                                print(
-                                    "{0}={1} found".format(
-                                        schema, str(
-                                            identifier[IDENTIFIERS_FIELD_VALUE]
-                                            )
-                                        )
-                                    )
+                                # print(
+                                #     "{0}={1} found".format(
+                                #         schema, str(
+                                #             identifier[IDENTIFIERS_FIELD_VALUE]
+                                #             )
+                                #         )
+                                #     )
+                                # print("===================", data)
+                                print(json.dumps(data, indent=3))
                                 rec.update(data)
+                                print('========================================')
+
                                 print('>>>>>>>>>>>>>>>>>>>>')
                                 print('rec updated: ', rec)
                                 return rec, 'updated'
@@ -182,6 +188,8 @@ class IrokoBaseRecord(Record):
         """ Update data for record.
         override_pids, if True
         """
+        print(json.dumps(data, indent=3), type(data))
+
         print('begin update')
 
         self['_save_info_updated'] = str(date.today())

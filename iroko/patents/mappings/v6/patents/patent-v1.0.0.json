@@ -23,7 +23,8 @@
           }
         },
         "title": {
-          "type": "keyword"
+          "type": "text",
+          "analyzer": "spanish"
         },
         "authors": {
           "type": "object",
@@ -64,10 +65,12 @@
           }
         },
         "summary": {
-          "type": "keyword"
+          "type": "text",
+          "analyzer": "spanish"
         },
         "classification": {
-          "type": "keyword"
+          "type": "text",
+          "analyzer": "spanish"
         },
         "claims": {
           "type": "keyword"

@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, print_function
 
-from datetime import datetime
+from datetime import datetime, date
 import json
 import os
 
@@ -16,7 +16,10 @@ from flask_login import current_user
 from invenio_oauth2server import require_api_auth
 from invenio_db import db
 from iroko.utils import remove_nulls
+from flask_principal import RoleNeed
+from invenio_access import Permission
 
+from iroko.api import IrokoBaseRecord
 from iroko.patents.register.model import Register
 from iroko.patents.register.marshmallow import register_schema, register_schema_many
 from iroko.patents.api import PatentRecord
@@ -61,34 +64,29 @@ def upload_file():
     try:
         if not request.is_json:
             raise Exception("No JSON data provided")
-
-
         input_data = request.json
-        # patents = json.load(input_data, object_hook=remove_nulls)
-        # print('patents',patents)
-        a = 0
+        print('=======================', input_data)
         for data in input_data:
-            print(data)
-            a = a + 1
-            patent = PatentRecord(data)
-            print(patent)
-            patentRecord = None
-            patentRecord, msg = PatentRecord.resolve_and_update(data=patent)
-            print(patentRecord)
+            if 'assignee' in data:
+                patent = PatentRecord.fix_gp_imported(data)
+            else:
+                patent = PatentRecord.fix_patents_imported(data)
+            patentRecord, msg = PatentRecord.resolve_and_update(data = patent)
+            print('aaaaaaaaaaa',patentRecord)
             if not patentRecord:
                 print("no pids found, creating patent")
                 patentRecord = PatentRecord.create(patent, iroko_pid_type=pids.PATENT_PID_TYPE)
                 msg = 'created'
 
-            return jsonify({
-            'SUCCES':"Patentes creadas",
-            'message':msg,
-            })
-
     except Exception as e:
         return jsonify({
-            'ERROR': str(e),
+            'ERROR HOLA': str(e),
         })
+
+    return jsonify({
+        'SUCCES':"Patentes creadas",
+        'message':msg,
+    })
 
 
 @api_blueprint.route('/<uuid>/edit', methods=['POST'])
@@ -100,14 +98,8 @@ def edit_patent(uuid):
         if not request.is_json:
             raise Exception("No se especifican datos en formato json para la curacion")
         input_data = request.json
-        print("//////////////////////////////////////////////////////")
         print(input_data)
-        print("///////////////////////////////////////////////////////")
         # org = org_json_v1.transform_record(input_data["id"], input_data)
-        print("-------------------------------------------------------------")
-
-
-        print("------------------------------------------------------------")
 
         pat, msg = PatentRecord.resolve_and_update(uuid, input_data)
 
@@ -133,9 +125,18 @@ def create_patent():
             raise Exception("No JSON data provided")
 
         input_data = request.json
+        id = input_data['identifiers'][0]['value']
+        pid, patent = PatentRecord.get_pat_by_pid(id)
+        print('PID',pid)
+
+
+        if pid:
+            raise Exception("Patente existente")
+
         pat= PatentRecord.create(input_data, iroko_pid_type=pids.PATENT_PID_TYPE)
         msg = 'ok'
 
+        print('PAT',pat)
 
         return jsonify({
             'SUCCES':"Patente creada",
@@ -145,21 +146,23 @@ def create_patent():
 
     except Exception as e:
         return jsonify({
-            'ERROR HOLA': str(e),
+            'ERROR': str(e),
         })
 
 @api_blueprint.route('/delete/<uuid>', methods=['DELETE'])
 def delete_patent(uuid):
 
-    record = PatentRecord.get_record_by_pid_value(uuid)
+    record = IrokoBaseRecord.get_record_by_pid_value(uuid)
 
     if not record:
         raise Exception("No se encontro record de patente")
 
-    result = super(PatentRecord, record).delete(force=False)
+    result = super(IrokoBaseRecord, record).delete(force=False)
+    db.session.commit()
     # if delindex:
     try:
         RecordIndexer().delete(record)
+        db.session.commit()
     except NotFoundError:
         pass
 
@@ -200,7 +203,7 @@ def create_register():
         register = Register()
         register.data = input_data
         register.userEmail = input_data.get("userEmail")
-        register.date = datetime.now()
+        register.date = input_data.get("date")
         register.patents = input_data.get("patents")
 
         db.session.add(register)
@@ -215,7 +218,7 @@ def create_register():
     return iroko_json_response(
         IrokoResponseStatus.SUCCESS, \
         msg, 'register', \
-        register_schema.dump(register)
+        register_schema.dump(register),
     )
 
 @api_blueprint.route('/register/delete/<id>', methods=['DELETE'])

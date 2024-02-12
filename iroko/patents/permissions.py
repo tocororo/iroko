@@ -16,6 +16,7 @@ from flask_principal import RoleNeed
 from invenio_access import Permission
 
 curator_permission = Permission(RoleNeed('curator'))
+admin_permission = Permission(RoleNeed('admin'))
 
 def can_edit_patent_factory(record, *args, **kwargs):
     """Checks if logged user can update or delete patent items.
