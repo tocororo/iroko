@@ -46,7 +46,7 @@ class OaiPreprocessor:
             nlm = self.process_metadata(item, 'nlm', self.dc)
             data = self.create_record_data(dc, nlm)
             record, status = IrokoRecord.create_or_update(
-                data, vendor=source, dbcommit=True, reindex=True
+                data, dbcommit=True, reindex=True
                 )
 
     def process_metadata(self, item, metadata_format, formater):

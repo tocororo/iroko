@@ -18,46 +18,11 @@ from invenio_pidstore.resolver import Resolver
 import iroko.pidstore.minters as iroko_minters
 from iroko.api import IrokoBaseRecord
 from iroko.pidstore import pids
+from iroko.pidstore import providers
 
 
 # from invenio_records.api import Record
 
-
-class IrokoAggs:
-
-    @staticmethod
-    def getAggrs(field, size=100):
-        # Define a default Elasticsearch client
-        client = connections.create_connection(hosts=current_app.config["SEARCH_ELASTIC_HOSTS"])
-        query_body = {
-            "size": 0,
-            "aggs": {
-                "sources": {
-                    "terms": {
-                        "field": field,
-                        "size": size
-                        }
-                    }
-                }
-            }
-        s = Search(using=client, index="records").update_from_dict(query_body)
-        t = s.execute()
-        # # print(t.aggregations.sources.buckets)
-        # return t.aggregations.sources.buckets
-        result = []
-        for item in t.aggregations.sources.buckets:
-            # item.key will the house number
-            result.append(
-                {
-                    'key': item.key,
-                    'doc_count': item.doc_count
-                    }
-                )
-        # s = Search(using=client, index="records")
-
-        # s.aggs.bucket('sources', 'terms', field='source.name', size=0)
-        # s = s.execute()
-        return result
 
 
 class IrokoRecord(IrokoBaseRecord):
@@ -75,28 +40,34 @@ class IrokoRecord(IrokoBaseRecord):
         ):
         """Create or update IrokoRecord."""
 
-        if record_uuid:
-            record = cls.get_record_by_pid_value(record_uuid)
-            if record:
-                # merged_data = cls._merge_uri(data, record)
-                record.update(data, dbcommit=dbcommit, reindex=reindex)
-                return record, 'updated'
-        else:
-            record = cls.get_record_by_data(data)
-            if record:
-                record.update_record(data, dbcommit=dbcommit, reindex=reindex)
-                return record, 'updated'
+        record, info = cls.resolve_and_update(iroko_uuid=id_, data=data)
+        if not record:
             created_record = cls.create(data, id_=None, dbcommit=dbcommit, reindex=reindex)
             return created_record, 'created'
+        return record, info
+
+        # if record_uuid:
+        #     record = cls.get_record_by_pid_value(record_uuid)
+        #     if record:
+        #         # merged_data = cls._merge_uri(data, record)
+        #         record.update(data, dbcommit=dbcommit, reindex=reindex)
+        #         return record, 'updated'
+        # else:
+        #     record = cls.get_record_by_data(data)
+        #     if record:
+        #         record.update_record(data, dbcommit=dbcommit, reindex=reindex)
+        #         return record, 'updated'
+        #     created_record = cls.create(data, id_=None, dbcommit=dbcommit, reindex=reindex)
+        #     return created_record, 'created'
 
     @classmethod
-    def create(cls, data, iroko_pid_uuid=None, object_uuid=None, **kwargs):
+    def create(cls, data, id_=None, object_uuid=None, **kwargs):
         """Create a new IrokoRecord."""
 
         data['suggest_title'] = data.get('title')
         record = super(IrokoRecord, cls).create(data=data,
                                                 iroko_pid_type=pids.RECORD_PID_TYPE,
-                                                iroko_pid_value=iroko_pid_uuid,
+                                                iroko_pid_value=id_,
                                                 object_uuid=object_uuid,
                                                 **kwargs)
         iroko_minters.iroko_source_oai_minter(record.id, data)
@@ -123,14 +94,15 @@ class IrokoRecord(IrokoBaseRecord):
     def get_record_by_data(cls, data):
         # depending of the providers this method can be more complex, meaning using other
         # external PIDs like url or doi
-        assert cls.oai_provider
+
+        # assert cls.oai_provider
         resolver = Resolver(
-            pid_type=cls.oai_provider.pid_type,
-            object_type=cls.object_type,
+            pid_type= providers.IrokoSourceOAIProvider.pid_type,
+            object_type=pids.IROKO_OBJECT_TYPE,
             getter=cls.get_record,
             )
         try:
-            pid = cls.oai_provider.get_pid_from_data(data=data)
+            pid = providers.IrokoSourceOAIProvider.get_pid_from_data(data=data)
             try:
                 persistent_identifier, record = resolver.resolve(str(pid))
                 return record

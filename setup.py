@@ -4,8 +4,8 @@
 #
 # iroko is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
-# flask-swagger-ui              4.11.1
-# ully installed apispec-5.1.1
+#flask-swagger-ui              4.11.1
+#ully installed apispec-5.1.1
 
 """sceiba.cu backend source code"""
 
@@ -199,7 +199,7 @@ setup(
             'invenio_userprofiles_view = '
             'iroko.userprofiles.admin:user_profile_adminview',
             'evaluations_admin = iroko.evaluations.admin:evaluation_adminview',
-        ],
+            ],
         'invenio_db.models': [
             'iroko_taxonomy = iroko.vocabularies.models',
             'iroko_notification = iroko.notifications.models',
@@ -207,7 +207,7 @@ setup(
             'iroko_harvester = iroko.harvester.models',
             'invenio_userprofiles = iroko.userprofiles.models',
             'iroko_evaluations = iroko.evaluations.models',
-        ],
+            ],
         'invenio_base.api_blueprints': [
             'iroko_taxonomy = iroko.vocabularies.rest:api_blueprint',
             'iroko_notification = iroko.notifications.rest:api_blueprint',
@@ -219,11 +219,12 @@ setup(
             'iroko_organizations = iroko.organizations.rest:api_blueprint',
             'iroko_persons = iroko.persons.rest:api_blueprint',
             'iroko_evaluations = iroko.evaluations.rest:api_blueprint',
+            'iroko_utils = iroko.rest:api_blueprint',
             'iroko_projects = iroko.projects.rest:api_blueprint'
         ],
         'invenio_celery.tasks': [
             'iroko_harvester = iroko.harvester.tasks'
-        ],
+            ],
         'invenio_pidstore.fetchers': [
             'irouid = iroko.pidstore.fetchers:iroko_uuid_fetcher',
             'recids = iroko.pidstore.fetchers:iroko_record_identifiers_fetcher',
@@ -244,7 +245,7 @@ setup(
         ],
         'invenio_db.alembic': [
             'invenio_userprofiles = iroko.userprofiles:alembic',
-        ],
+            ],
         'invenio_access.actions': [
             'source_editor_actions = iroko.sources.permissions:source_editor_actions',
             'sourceactions = iroko.sources.permissions:source_manager_actions',
@@ -263,7 +264,7 @@ setup(
             'iroko.evaluations.permissions:evaluation_admin_actions',
             'evaluation_viewed_actions = '
             'iroko.evaluations.permissions:evaluation_viewed_actions',
-        ]
+            ]
     },
     classifiers=[
         'Environment :: Web Environment',

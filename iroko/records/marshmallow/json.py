@@ -71,6 +71,9 @@ class SpecSchemaV1(StrictKeysMixin):
     code = fields.Str()
     name = SanitizedUnicode(validate=validate.Length(min=3))
 
+class DatesSchemaV1(StrictKeysMixin):
+    date = DateString()
+    info = fields.Str()
 
 class MetadataSchemaBaseV1(StrictKeysMixin):
     """Base Schema for the record metadata."""
@@ -90,6 +93,7 @@ class MetadataSchemaBaseV1(StrictKeysMixin):
     formats = fields.List(SanitizedUnicode(), many=True)
     language = fields.Str()
     publication_date = DateString()
+    dates = Nested(DatesSchemaV1, many=True)
     references = Nested(ReferenceSchemaV1, many=True)
     terms = fields.List(SanitizedUnicode(), many=True)
     status = fields.Str()

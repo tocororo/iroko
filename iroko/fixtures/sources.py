@@ -103,7 +103,7 @@ def init_journals():
                     user = User.query.filter_by(email='rafael.martinez@upr.edu.cu').first()
                     data['_save_info'] = {'user_id': str(user.id), 'comment': 'initial version'}
 
-                    new_source = SourceRecord.new_source_revision(data, user)
+                    msg, new_source = SourceRecord.new_source_revision(data, user)
                     # new_source, msg = SourceRecord.create_or_update(data, None, True, True)
                     # # msg, new_source = Sources.insert_new_source(source,
                     # SourceStatus.UNOFFICIAL, user=user)

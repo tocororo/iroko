@@ -12,7 +12,7 @@ https://github.com/pyenv/pyenv#automatic-installer
 2- install and set python 3.9.16:
 pyenv install 3.9.16
 pyenv global 3.9.16
-
+9
 3- to install poetry follow:
 https://python-poetry.org/docs/#installing-with-pipx
 
@@ -25,5 +25,14 @@ poetry run iroko webpack buildall
 5- run server
 ./server-local
 
+Deployment
+============
+iroko 0.3.4
+
+python 3.9
+
+Debian 11 Bullseye
+
 
 .. include:: ../INSTALL.rst
+

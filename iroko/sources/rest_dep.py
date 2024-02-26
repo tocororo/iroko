@@ -688,7 +688,7 @@ def get_sources_by_term_statics(uuid):
         msg, mes = Terms.get_term(uuid)
         institutions = []
         Terms.get_term_tree_list_by_level(mes, institutions, 1, 1)
-        records = IrokoAggs.getAggrs("source.uuid", 50000)
+        records = IrokoAggs.getAggrs("records","source","source.uuid", 50000)
 
         return iroko_json_response(
             IrokoResponseStatus.SUCCESS, \

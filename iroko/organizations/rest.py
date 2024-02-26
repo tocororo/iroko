@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 
 from iroko.organizations.api import OrganizationRecord
 from iroko.organizations.marshmallow import OrgMetadataSchemaBaseV1, OrgMetadataSchemaRelIDsV1
-from iroko.organizations.serializers import json_v1, json_v1_response, org_json_v1
+from iroko.organizations.serializers import json_v1, json_v1_response
 
 api_blueprint = Blueprint(
     'iroko_api_organizations',
@@ -173,7 +173,7 @@ def edit_organization(uuid):
         org, msg = OrganizationRecord.resolve_and_update(input_data["id"], input_data)
 
         if not org:
-            raise Exception("No se encontro record de organizacion")
+            raise Exception("ERROR: ", msg)
 
         # notification = NotificationSchema()
         # notification.classification = NotificationType.INFO

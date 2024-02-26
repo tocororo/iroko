@@ -31,7 +31,36 @@ blueprint = Blueprint(
 @login_required
 @vocabulary_create_permission.require(http_exception=403)
 def add_vocabulary():
-    """The create view."""
+
+    """Add vocabulary view.
+    ---
+    get:
+      description: Get a vocabulary
+      responses:
+        200:
+          description: Get the vocabulary successfully
+          content:
+            application/json:
+              schema: VocabularySchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    post:
+      description: Create a new vocabulary
+      responses:
+        201:
+          description: A new vacabulary has been created succesfully
+          contenty:
+            aplication/json:
+              schema: VocabularySchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+
+    """
+
     form = VocabularyForm()
     # if the form is submitted and valid
     if form.validate_on_submit():
@@ -53,7 +82,35 @@ def add_vocabulary():
 @blueprint.route('/add/term', methods=['GET', 'POST'])
 @login_required
 def add_term():
-    """The create view."""
+
+    """Add term view.
+    ---
+    get:
+      description: Get a vocabulary term
+      responses:
+        200:
+          description: Get the vocabulary term successfully
+          content:
+            application/json:
+              schema: TermSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    post:
+      description: Create a new vocabulary term
+      responses:
+        201:
+          description: A new vacabulary term has been created succesfully
+          contenty:
+            aplication/json:
+              schema: TermSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    """
+
     form = TermForm()
 
     # if the form is submitted and valid
@@ -91,7 +148,35 @@ def add_term():
 @login_required
 @source_create_permission.require(http_exception=403)
 def add_source():
-    """The create view."""
+
+    """Add source view.
+    ---
+    get:
+      description: Get a source
+      responses:
+        200:
+          description: Get the source successfully
+          content:
+            application/json:
+              schema: SourceSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    post:
+      description: Create a source
+      responses:
+        201:
+          description: A source has been created succesfully
+          contenty:
+            aplication/json:
+              schema: SourceSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    """
+
     form = SourceForm()
 
     # if the form is submitted and valid
@@ -123,6 +208,39 @@ def add_source():
 @blueprint.route('/edit/vocabulary/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_vocabulary(id=None):
+
+    # TODO: change this documentation
+    # This documentation is the same of add_vocabulary
+
+    """Add vocabulary view.
+    ---
+    get:
+      description: Get a vocabulary
+      responses:
+        200:
+          description: Get the vocabulary successfully
+          content:
+            application/json:
+              schema: VocabularySchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    post:
+      description: Create a new vocabulary
+      responses:
+        201:
+          description: A new vacabulary has been created succesfully
+          contenty:
+            aplication/json:
+              schema: VocabularySchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+
+    """
+
     # security questiong here
     # print(current_user.has_role('curator'))
 
@@ -156,6 +274,38 @@ def edit_vocabulary(id=None):
 @blueprint.route('/edit/term/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_term(id=None):
+
+    # TODO: change this documentation
+    # This documentation is the same of add_term
+
+    """Add term view.
+    ---
+    get:
+      description: Get a vocabulary term
+      responses:
+        200:
+          description: Get the vocabulary term successfully
+          content:
+            application/json:
+              schema: TermSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    post:
+      description: Create a new vocabulary term
+      responses:
+        201:
+          description: A new vacabulary term has been created succesfully
+          contenty:
+            aplication/json:
+              schema: TermSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    """
+
     # security quiestiong here
 
     aux_term = Term.query.get_or_404(id)
@@ -209,6 +359,38 @@ def edit_term(id=None):
 @blueprint.route('/edit/source/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_source(id=None):
+
+    # TODO: change this documentation
+    # This documentation is the same of add_source
+
+    """Add source view.
+    ---
+    get:
+      description: Get a source
+      responses:
+        200:
+          description: Get the source successfully
+          content:
+            application/json:
+              schema: SourceSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    post:
+      description: Create a source
+      responses:
+        201:
+          description: A source has been created succesfully
+          contenty:
+            aplication/json:
+              schema: SourceSchema
+        403:
+          description: Permission denied
+          content:
+            application/json: {}
+    """
+
     # security quiestiong here
 
     aux_source = Source.query.get_or_404(id)

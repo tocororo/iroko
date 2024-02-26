@@ -17,3 +17,4 @@ class PersonsSearch(RecordsSearch):
 
         index = "persons"
         doc_types = None
+        fields = ['name', 'last_name', 'email_addresses', 'aliases']

@@ -25,6 +25,7 @@ from invenio_indexer.api import RecordIndexer
 from invenio_records_rest.facets import terms_filter
 from invenio_records_rest.utils import allow_all, check_elasticsearch, deny_all
 
+import iroko.harvester.tasks
 from iroko.deployment import *
 from iroko.organizations.api import OrganizationRecord
 from iroko.organizations.permissions import can_edit_organization_factory
@@ -61,10 +62,10 @@ CACHE_TYPE = 'redis'
 # SEARCH_ELASTIC_HOSTS='["http://"]'
 params = dict(
     #    http_auth=('user', 'uRTbYRZH268G'),
-)
+    )
 SEARCH_ELASTIC_HOSTS = [
     dict(host=IP_ELASTIC, **params)
-]
+    ]
 
 # Rate limiting
 # =============
@@ -80,7 +81,7 @@ BABEL_DEFAULT_LANGUAGE = 'en'
 # Other supported languages (do not include the default language in list).
 I18N_LANGUAGES = [
     # ('es', _('Spanish')),
-]
+    ]
 
 
 #: Global base template.
@@ -109,12 +110,14 @@ THEME_FRONTPAGE = True
 #: Froniroko_secret_keytpage title.
 THEME_FRONTPAGE_TITLE = _('Portal de Publicaciones Científicas Cubanas')
 #: Frontpage template.
-THEME_FRONTPAGE_TEMPLATE = 'invenio_theme/frontpage.html'
+THEME_FRONTPAGE_TEMPLATE = 'invenio_theme/frontpage2.html'
 
 
 #: Theme logo.
 THEME_LOGO = 'images/sceiba-logo.png'
 THEME_LOGO_ADMIN = 'images/sceiba-logo-white.png'
+
+ADMIN_BASE_TEMPLATE = "invenio_theme/page_admin1.html"
 
 
 _RECORD_CONVERTER = (
@@ -166,10 +169,10 @@ RECORDS_REST_ENDPOINTS = {
             'title': {
                 'completion': {
                     'field': 'suggest_title'
+                    }
                 }
-            }
-        }, 'search_index': 'records'
-    },
+            }, 'search_index': 'records'
+        },
     'srcid': {
         'pid_type': pids.SOURCE_UUID_PID_TYPE,
         'pid_minter': pids.SOURCE_UUID_PID_MINTER,
@@ -199,7 +202,7 @@ RECORDS_REST_ENDPOINTS = {
         'update_permission_factory_imp': deny_all,
         'delete_permission_factory_imp': deny_all,
         'list_permission_factory_imp': allow_all
-    },
+        },
     'orgid': {
         'pid_type': ORGANIZATION_PID_TYPE,
         'pid_minter': ORGANIZATION_PID_MINTER,
@@ -230,7 +233,7 @@ RECORDS_REST_ENDPOINTS = {
         'update_permission_factory_imp': can_edit_organization_factory,
         'delete_permission_factory_imp': can_edit_organization_factory,
         'list_permission_factory_imp': allow_all
-    },
+        },
     'perid': {
         'pid_type': PERSON_PID_TYPE,
         'pid_minter': PERSON_PID_MINTER,
@@ -310,112 +313,112 @@ RECORDS_REST_FACETS = {
             'sources': terms_filter('source_repo.name'),
             'status': terms_filter('status'),
             'terms': terms_filter('terms')
-        },
+            },
         'aggs': {
             'keywords': {
                 'terms': {
                     'field': 'keywords',
                     'size': 5
-                },
+                    },
                 'meta': {
                     'title': _("Keywords"),
                     'order': 3
-                }
-            },
+                    }
+                },
             'creators': {
                 'terms': {
                     'field': 'creators.name',
                     'size': 5
-                },
+                    },
                 'meta': {
                     'title': _("Creators"),
                     'order': 2
-                }
-            },
+                    }
+                },
             'terms': {
                 'terms':
                     {
                         'field': 'terms'
-                    }
-            },
+                        }
+                },
             'sources': {
                 'terms': {
                     'field': 'source_repo.name',
                     'size': 5
-                },
+                    },
                 'meta': {
                     'title': _("Sources"),
                     'order': 1
+                    }
                 }
             }
-        }
-    },
+        },
     'sources': {
         'filters': {
             'source_type': terms_filter('source_type')
-        },
+            },
         'aggs': {
             'source_type': {
                 'terms': {
                     'field': 'source_type',
                     'size': 5
+                    }
                 }
             }
-        }
-    },
+        },
     'organizations': {
         'filters': {
             'status': terms_filter('status'),
             'types': terms_filter('types'),
             'country': terms_filter('addresses.country'),
             'state': terms_filter('addresses.state')
-        },
+            },
         'aggs': {
             'status': {
                 'terms': {
                     'field': 'status',
                     'size': 5
-                }
-            },
+                    }
+                },
             'types': {
                 'terms': {
                     'field': 'types',
                     'size': 5
-                }
-            },
+                    }
+                },
             'country': {
                 'terms': {
                     'field': 'addresses.country',
                     'size': 5
-                }
-            },
+                    }
+                },
             'state': {
                 'terms': {
                     'field': 'addresses.state',
                     'size': 5
+                    }
                 }
             }
-        }
-    },
+        },
     'persons': {
         'filters': {
             'gender': terms_filter('gender'),
             'academic_titles': terms_filter('academic_titles'),
             'affiliations': terms_filter('affiliations.id')
-        },
+            },
         'aggs': {
             'gender': {
                 'terms': {
                     'field': 'gender',
                     'size': 5
-                }
-            },
+                    }
+                },
             'academic_titles': {
                 'terms': {
                     'field': 'academic_titles',
                     'size': 5
-                }
-            },
+                    }
+                },
             'affiliations': {
                 'terms': {
                     'field': 'affiliations.id',
@@ -454,86 +457,72 @@ RECORDS_REST_SORT_OPTIONS = {
             'fields': ['-publication_date'],
             'default_order': 'asc',
             'order': 1
-        },
+            },
         'bestmatch': {
             'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
             'order': 2
-        }
-    },
+            }
+        },
     'sources': {
         'mostrecent': {
             'title': 'Most recent',
             'fields': ['-_save_info_updated'],
             'default_order': 'asc',
             'order': 1
-        },
+            },
         'bestmatch': {
             'title': 'Best match',
             'fields': ['-_score'],
             'default_order': 'asc',
             'order': 2
-        }
-    },
+            }
+        },
     'organizations': {
         'bestmatch': {
             'title': _('Best match'),
             'fields': ['_score'],
             'default_order': 'desc',
             'order': 1
-        },
+            },
         'mostrecent': {
             'title': _('Most recent'),
             'fields': ['-_created'],
             'default_order': 'asc',
             'order': 2
-        }
-    },
+            }
+        },
     'persons': {
         'bestmatch': {
             'title': _('Best match'),
             'fields': ['_score'],
             'default_order': 'desc',
             'order': 1
-        },
+            },
         'mostrecent': {
             'title': _('Most recent'),
             'fields': ['-_created'],
             'default_order': 'asc',
             'order': 2
-        }
-    },
-    'projects': {
-        'bestmatch': {
-            'title': _('Best match'),
-            'fields': ['_score'],
-            'default_order': 'desc',
-            'order': 1
-        },
-        'mostrecent': {
-            'title': _('Most recent'),
-            'fields': ['-_created'],
-            'default_order': 'asc',
-            'order': 2
+            }
         }
     }
-}
 """Setup sorting options."""
 
 RECORDS_REST_DEFAULT_SORT: {
     'records': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-    },
+        },
     'sources': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-    },
+        },
     'organizations': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
-    },
+        },
     'persons': {
         'query': 'bestmatch',
         'noquery': 'bestmatch',
@@ -548,8 +537,8 @@ RECORDS_REST_DEFAULT_SORT: {
 RECORDS_FILES_REST_ENDPOINTS = {
     'RECORDS_REST_ENDPOINTS': {
         'irouid': '/files'
-    },
-}
+        },
+    }
 """Records files integration."""
 
 FILES_REST_PERMISSION_FACTORY = \
@@ -570,7 +559,7 @@ SECURITY_EMAIL_SENDER = SUPPORT_EMAIL
 #: Email subject for account registration emails.
 SECURITY_EMAIL_SUBJECT_REGISTER = _(
     "Welcome to iroko!"
-)
+    )
 #: Redis session storage URL.
 ACCOUNTS_SESSION_REDIS_URL = 'redis://' + IP_REDIS + ':6379/1'
 #: Enable session/user id request tracing. This feature will add X-Session-ID
@@ -592,12 +581,16 @@ CELERY_BEAT_SCHEDULE = {
     'indexer': {
         'task': 'invenio_indexer.tasks.process_bulk_queue',
         'schedule': timedelta(minutes=5),
-    },
+        },
     'accounts': {
         'task': 'invenio_accounts.tasks.clean_session_table',
         'schedule': timedelta(minutes=60),
-    },
-}
+        },
+    'harvester': {
+        'task': 'iroko.harvester.tasks.iroko_test_task',
+        'schedule': timedelta(seconds=10),
+        }
+    }
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 # Database
@@ -638,11 +631,11 @@ OAISERVER_ID_PREFIX = 'oai:sceiba.cu:'
 # https://flask-debugtoolbar.readthedocs.io/en/latest/#configuration
 
 #: Switches off incept of redirects by Flask-DebugToolbar.
-DEBUG_TB_INTERCEPT_REDIRECTS = False
+DEBUG_TB_INTERCEPT_REDIRECTS = True
 
-# FLASK_ADMIN_SWATCH = 'default'
+FLASK_ADMIN_SWATCH = 'slate'
 #
-# ADMIN_TEMPLATE_MODE = 'bootstrap3'
+ADMIN_TEMPLATE_MODE = 'bootstrap3'
 ###############################################################################
 # JSON Schemas
 ###############################################################################
@@ -677,12 +670,12 @@ APP_DEFAULT_SECURE_HEADERS = {
         'style-src': ["'self'", "'unsafe-inline'"],
         'font-src': ["'self'", "data:"],
         'img-src': ["'self'", "data:"]
-    },
+        },
     'content_security_policy_report_uri': None,
     'content_security_policy_report_only': False,
     'session_cookie_secure': True,
     'session_cookie_http_only': True
-}
+    }
 
 #
 # Variables para OAIServer
@@ -691,7 +684,7 @@ APP_DEFAULT_SECURE_HEADERS = {
 OAISERVER_ADMIN_EMAILS = [
     'rafael.martinez@upr.edu.cu',
     'eduardo.arencibia@upr.edu.cu'
-]
+    ]
 
 OAISERVER_RECORD_INDEX = '_all'
 OAISERVER_ID_PREFIX = 'oai:sceiba.cu:records/'

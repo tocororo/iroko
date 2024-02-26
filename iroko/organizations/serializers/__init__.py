@@ -27,7 +27,7 @@ from ..marshmallow import OrganizationRecordSchemaV1
 # ===========
 #: JSON serializer definition.
 json_v1 = JSONSerializer(OrganizationRecordSchemaV1, replace_refs=True)
-org_json_v1 = JSONSerializer(OrgMetadataSchemaBaseV1, replace_refs=True)
+# org_json_v1 = JSONSerializer(OrgMetadataSchemaBaseV1, replace_refs=True)
 json_v1_for_search = JSONSerializer(OrgRecordSearchSchemaV1, replace_refs=True)
 
 # Records-REST serializers

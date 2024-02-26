@@ -42,16 +42,21 @@ class xmlns():
 
 def get_sigle_element(metadata, name, xmlns='dc', language=None):
     # # print('get_sigle_element: '+name)
+    result = None
     elements = metadata.findall('.//{' + xmlns + '}' + name)
     if len(elements) > 1:
         for e in elements:
             lang = '{' + nsmap['xml'] + '}lang'
             if language and lang in e.attrib:
                 if e.attrib[lang] == language:
-                    return e.text
+                    result = e.text
         # print('self.logger no '+language+' error')
     if len(elements) == 1:
-        return elements[0].text
+        result = elements[0].text
+
+    if result is None:
+        result = ""
+    return result
     # # print('self.logger no name error...')
 
 
@@ -108,6 +113,10 @@ def get_iroko_harvester_agent():
         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'
         }
 
+def exist_xml_file(base_directory, file_name, extra_path=""):
+    xmlpath = os.path.join(base_directory, extra_path, file_name)
+    return os.path.exists(xmlpath)
+
 
 def get_xml_from_file(base_directory, file_name, extra_path=""):
     """get an lxml tree from a file with the path:
@@ -124,6 +133,19 @@ def get_xml_from_file(base_directory, file_name, extra_path=""):
             )
     return etree.parse(xmlpath, parser=XMLParser)
 
+
+def remove_none_from_dict(dictionary:dict):
+    for key, value in list(dictionary.items()):
+        if value is None:
+            del dictionary[key]
+        elif isinstance(value, dict):
+            remove_none_from_dict(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    remove_none_from_dict(item)
+
+    return dictionary
 
 class ZipHelper:
 

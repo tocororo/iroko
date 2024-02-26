@@ -79,6 +79,17 @@
               "type": "keyword"
             }
           }
+        },
+        "redirect": {
+          "type": "object",
+          "properties": {
+            "idtype": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "keyword"
+            }
+          }
         }
       }
     }

@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.9.16"
+python = ">=3.9,<3.10"
 lxml = ">=4.9.1"
 marshmallow = ">=3.0.0,<4.0.0"
 uwsgi = ">=2.0"
@@ -178,6 +178,7 @@ iroko_records = "iroko.records.rest:api_blueprint"
 iroko_organizations = "iroko.organizations.rest:api_blueprint"
 iroko_persons = "iroko.persons.rest:api_blueprint"
 iroko_evaluations = "iroko.evaluations.rest:api_blueprint"
+iroko_utils = "iroko.rest:api_blueprint"
 iroko_projects = "iroko.projects.rest:api_blueprint"
 
 [tool.poetry.plugins."invenio_celery.tasks"]
@@ -216,6 +217,10 @@ notification_admin_actions = "iroko.notifications.permissions:notification_admin
 notification_viewed_actions = "iroko.notifications.permissions:notification_viewed_actions"
 evaluation_admin_actions = "iroko.evaluations.permissions:evaluation_admin_actions"
 evaluation_viewed_actions = "iroko.evaluations.permissions:evaluation_viewed_actions"
+
+
+[tool.poetry.group.dev.dependencies]
+flask-debugtoolbar = "^0.13.1"
 
 [build-system]
 requires = ["poetry-core"]

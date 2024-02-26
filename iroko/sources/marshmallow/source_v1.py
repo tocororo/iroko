@@ -25,11 +25,9 @@ class SourceDataSchemaV1(Schema):
     def load(self, data, *, many=None, partial=None, unknown=None, **kwargs):
         if data['source_type'] == SourceType.JOURNAL.value:
             journal = JournalDataSchema()
-            print('RRRRRRRRRRRRR load JOURNAL RRRRRRRRRRRRRRRRRRRRrr')
             return journal.load(data, many, partial, unknown, **kwargs)
         else:
             source = SourceDataSchema()
-            print('QAAAAAAAAAAAA load SOURCE AAAAAAAAAAAAAAAAAAAAAAAAa')
             return source.load(data, many, partial, unknown, **kwargs)
         return self.load(data, many, partial, unknown, **kwargs)
 
@@ -40,10 +38,8 @@ class SourceDataSchemaV1(Schema):
         else:
             if obj['source_type'] == SourceType.JOURNAL.value:
                 journal = JournalDataSchema(many=False)
-                print('RRRRRRRRRRR dump JOURNAL RRRRRRRRRRRRRRRRRRRRRRrr')
                 return journal.dump(obj)
             else:
-                print('QAAAAAAAAAAAA dump SOURCE AAAAAAAAAAAAAAAAAAAAAAAAa')
                 source = SourceDataSchema(many=False)
                 return source.dump(obj)
 

@@ -1,13 +1,15 @@
+
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from flask import Blueprint, current_app, jsonify
 from flask_swagger_ui import get_swaggerui_blueprint
-from sqlalchemy import true
-
-from iroko.organizations.marshmallow import OrgRecordSearchSchemaV1
-from iroko.sources.marshmallow.source_v1 import SourceSchemaV1
-from iroko.sources.rest import get_source_by_issn, get_source_by_pid
+from iroko.vocabularies.marshmallow import VocabularySchema, TermSchema
+from iroko.sources.marshmallow.source import SourceSchema
+from iroko.curator.views import blueprint as curator_bp
+from iroko.sources.rest import  api_blueprint as sources_bp
+import os
+from invenio_app.wsgi_rest import application as invenio_rest_app
 
 apispec_blueprint = Blueprint(
     'iroko_apispec',
@@ -15,52 +17,36 @@ apispec_blueprint = Blueprint(
     url_prefix='/apispec'
 )
 
+def add_paths_for_blueprint(spec, blueprint, exclude=()):
+    bp_name = blueprint.name
+    for url_str, view in current_app.view_functions.items():
+        url_paths = url_str.split('.')
+        with open('file.txt', 'a') as f:
+            if len(url_paths) == 2:
+                prefix, endpoint = url_paths
+                f.write(endpoint + "   " + prefix + "\n")
+                if prefix == bp_name and endpoint not in exclude:
+                    spec.path(view=view)
+
 @apispec_blueprint.route('/', methods=['GET'])
 def get_apispec():
+
     spec = APISpec(
         title="Iroko",
-        version="0.3.4",
+        version="-0.3.4",
         openapi_version="3.0.2",
-        info=dict(description="Iroko API Docs"),
-        plugins=[FlaskPlugin(), MarshmallowPlugin()],
-        servers=[dict(url="/api")]
+        info=dict(description="Documentation Sceiba API (Iroko)"),
+        plugins=[ MarshmallowPlugin(), FlaskPlugin() ]
     )
-    uuid = {
-          "name": "uuid",
-          "in": "path",
-          "required": true,
-          "description": "UUID of the source that we want to match",
-          "type": "string"
-        }
-    ops = {
-        "get": {
-        "tags": [
-          "Sources"
-        ],
-        "summary": "Return a Source",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/components/schemas/sources"
-            }
-          },
-          "400": {
-            "description": "Failed. Misunderstood Request."
-          },
-          "404": {
-            "description": "Failed. Source request not found."
-          }
-        }
-      }
-    }
-    # spec.path(path='/pid/source/{uuid}', parameters=[uuid], operations=ops)
-    spec.path(view=get_source_by_issn, app=current_app).path(view=get_source_by_pid, app=current_app)
-    spec.components.schema("sources", schema=SourceSchemaV1).\
-        schema("organizations", schema=OrgRecordSearchSchemaV1)
+
+    exclude = ['invenio_app_ping.ping', 'security.login']
+
+    for url_str, view in invenio_rest_app.view_functions.items():
+        if url_str not in exclude:
+            spec.path(view=view, app=invenio_rest_app)
+
 
     return jsonify(spec.to_dict())
-
 
 
 ### docs specific ###
@@ -73,6 +59,4 @@ swagger_blueprint = get_swaggerui_blueprint(
         'app_name': "Iroko API Docs"
     }
 )
-
-
 

@@ -6,10 +6,13 @@
 
 
 """Celery tasks used by Iroko-Harvester."""
+from datetime import time
 
 # from iroko.harvester.signals import harvest_finished
 #
 from celery import shared_task
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
 
 from iroko.harvester.api import BaseHarvester
 
@@ -39,10 +42,14 @@ def task_process_pipeline(harvester: BaseHarvester):
 
 #
 @shared_task(ignore_result=True)
-def iroko_test_task(upto):
-    for i in [0, upto]:
+def iroko_test_task():
+    # time.sleep(50)
+    for i in range(0, 10):
         pass
-        print(str(i))
+        logger.info('counting... {0} '.format(i))
+        # print(str(i))
+
+    return 10
 #     # harvest_finished.send(source)
 #     # source = Source.query.filter_by(id=source_id).first()
 #     #     if source is not None:

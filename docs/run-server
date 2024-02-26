@@ -16,7 +16,7 @@ export FLASK_ENV=development
 
 iroko run \
         --cert "$script_path"/../docker/nginx/test.crt \
-        --key "$script_path"/../docker/nginx/test.key
+        --key "$script_path"/../docker/nginx/test.key \
         & pid_server=$!
 
 

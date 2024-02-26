@@ -67,12 +67,12 @@ def scan_dir(d):
 
 
 @harvester.command()
-@click.argument('upto')
+# @click.argument('upto')
 @with_appcontext
-def test(upto):
-    celery_kwargs = {
-        'kwargs': {
-            'upto': upto,
-            }
-        }
-    iroko_test_task.apply_async(**celery_kwargs)
+def test():
+    # celery_kwargs = {
+    #     'kwargs': {
+    #         'upto': upto,
+    #         }
+    #     }
+    iroko_test_task.apply_async()

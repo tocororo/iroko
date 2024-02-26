@@ -76,17 +76,18 @@ class JournalDataSchema(SourceDataSchema):
 
     socialNetworks = fields.Nested(SocialNetworksSchema, many=False)
 
+
     @post_dump
     def fill_issn_org(self, journal, **kwargs):
-        if 'identifiers' not in journal:
-            return journal
+
         issn = ''
-        for ids in journal['identifiers']:
-            if ids['idtype'] == 'issn_p' or ids['idtype'] == 'issn_e' or ids['idtype'] == 'issn_l':
-                issn = ids['value']
-                issn_org = IssnDataParser.parse(issn)
-                journal['issn_org'] = issn_org
-                return journal
+        if 'identifiers' in journal:
+            for ids in journal['identifiers']:
+                if ids['idtype'] == 'issn_p' or ids['idtype'] == 'issn_e' or ids['idtype'] == 'issn_l':
+                    issn = ids['value']
+                    issn_org = IssnDataParser.parse(issn)
+                    journal['issn_org'] = issn_org
+        return journal
 
 
 # class JournalSchema(BaseSourceSchema):

@@ -101,6 +101,9 @@ class HarvestedItem(db.Model):
     data = db.Column(JSONType)
     """Any other relevant data to be used in the future could be here."""
 
+    # TODO: add this field
+    # last_modified = db.Column(db.DateTime, nullable=False)
+
     def __str__(self):
         """Representation."""
         return self.identifier
