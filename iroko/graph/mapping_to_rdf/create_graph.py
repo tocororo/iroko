@@ -44,7 +44,7 @@ class Create_Graph:
                 sujeto = URIRef(sujeto)
 
         # Check if predicate is not an instance of URIRef
-            if not isinstance(predicado, (URIRef, Literal)):
+            if not isinstance(predicado, (URIRef)):
             # Try to convert predicate to URIRef
                 predicado = URIRef(predicado)
 
@@ -61,7 +61,7 @@ class Create_Graph:
 
         except Exception as e:
             print(f"Error while adding the triplet: {str(e)}")
-        def serialize(self, format='ttl'):
+    def serialize(self, format='ttl'):
             """    Serialize the RDF graph in the specified format.
     Args:
         format (str): Serialization format (e.g., 'xml', 'turtle', 'n3', 'json-ld', etc.).
@@ -69,8 +69,9 @@ class Create_Graph:
             Returns:
         str: The RDF data serialized in the specified format.
             """
+            print("=====================================================)")
             return self.graph.serialize(format=format, indent=True)
-        def add_namespaces(self, namespaces_dict):
+    def add_namespaces(self, namespaces_dict):
             """    Add namespaces to the RDF graph.
         Args:
         namespaces_dict (dict): A dictionary where keys are namespace prefixes and values are namespaces.
@@ -80,12 +81,22 @@ class Create_Graph:
             try:
                 for prefix, namespace in namespaces_dict.items():
                     self.graph.namespace_manager.bind(prefix, namespace)
-                    return self.graph  # Returns the updated graph
+                return self.graph  # Returns the updated graph
             except Exception as e:
                     print(f"Error while adding namespaces: {str(e)}")
                     return None  # Returns None in case of an error
         #Verifica si existe una uri dada en el grafo
-        def _uri_exists(self, uri):
+    def _get_namespaces(self):
+        """Returns a dictionary of namespaces in the graph.
+
+        Returns:
+        dict: A dictionary mapping prefixes to URIs.
+        """
+        namespaces_dict = {}
+        for prefix, uri in self.graph.namespaces():
+           namespaces_dict[str(prefix)] = str(uri)
+        return namespaces_dict
+    def _uri_exists(self, uri):
 
             sujeto_uri = URIRef(uri)
             return (sujeto_uri, None, None) in self.graph

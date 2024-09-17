@@ -3,10 +3,6 @@ class ConfigurationManager:
     def __init__(self, json_ontology_conf, namespace):
         self.json_ontology_conf = json_ontology_conf
         self.namespace = namespace
-   
-    def _get_json_ontology_conf():
-      json_ontology_conf=json_ontology_conf
-      return json_ontology_conf
     def _set_json_ontology_conf(new_json_ontology_conf):
       json_ontology_conf=new_json_ontology_conf
       return json_ontology_conf
@@ -16,7 +12,7 @@ class ConfigurationManager:
             print("La sección 'mapping' debe ser un objeto JSON.")
             return False
 
-        required_keys = ["_class", "required", "properties", "relationship", "valuesOf"]
+        required_keys = ["_class", "required", "properties", "valuesOf"]
         for key in required_keys:
             if key not in mapping_section:
                 print(f"La clave '{key}' es requerida en la sección 'mapping'.")
@@ -28,10 +24,6 @@ class ConfigurationManager:
 
         if not isinstance(mapping_section["properties"], dict):
             print("'properties' debe ser un objeto JSON que mapea propiedades a URIs.")
-            return False
-
-        if not isinstance(mapping_section["relationship"], dict):
-            print("'relationship' debe ser un objeto JSON que mapea relaciones a sus detalles.")
             return False
 
         if not isinstance(mapping_section["valuesOf"], dict):
@@ -64,10 +56,22 @@ class ConfigurationManager:
         return True
 
     def put_the_order(self):
-        if self.validate_config_json():
-            order = self.json_ontology_conf.get("order_for_mapping", [])
-            entities_map = {entity["name"]: entity for entity in self.json_ontology_conf.get("entities", [])}
-            ordered_entities = [entities_map[name] for name in order if name in entities_map]
-            return ordered_entities
+        """    Replace the order of entities in the JSON configuration.
 
+
+        Returns:
+        ordered_entities (list): The ordered list of entities.
+        """
+        try:
+           if self.validate_config_json():
+              order = self.json_ontology_conf.get("order_for_mapping", [])
+              entities_map = {entity["name"]: entity for entity in self.json_ontology_conf.get("entities", [])}
+              ordered_entities = [entities_map[name] for name in order if name in entities_map]
+            
+            # Replace the entities array in the JSON configuration
+              self.json_ontology_conf["entities"] = ordered_entities
+            
+              return ordered_entities
+        except Exception as e:
+              print(f"Error al reemplazar el arreglo de entidades: {str(e)}")
         return None
