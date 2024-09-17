@@ -14,7 +14,7 @@ from invenio_db import db
 from iroko.pidstore import pids
 from iroko.projects.api import ProjectRecord
 from iroko.persons.fixtures import allowed_file, csv_to_json, get_ext
-from iroko.persons.serializers import json_v1_response
+from iroko.projects.serializers import json_v1_response
 from iroko.projects.marshmallow.json import ProjectMetadataSchemaV1
 
 api_blueprint = Blueprint(
@@ -29,7 +29,7 @@ def get_project_by_pid_canonical():
     try:
         _id = request.args.get('value')
         print("**********************", _id)
-        pid, project = ProjectRecord.get_record(id_=_id)
+        pid, project = ProjectRecord.get_record_by_pid_value(_id)
         print(project, "hola")
         if not pid or not project:
             raise Exception('Not Found')
