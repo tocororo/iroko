@@ -5,9 +5,9 @@ from rdflib import Graph
 from rdflib.plugins.sparql.parser import parseQuery
 
 from iroko.api import IrokoRecordIterator
-from iroko.graph.mapping_to_rdf.configuration_manager import ConfigurationManager
-from iroko.graph.mapping_to_rdf.creategraph import CreateGraph
-from iroko.graph.mapping_to_rdf.mapping_to_rdf import RDFMapper
+from iroko.graph.rdf.configuration_manager import ConfigurationManager
+from iroko.graph.rdf.creategraph import CreateGraph
+from iroko.graph.rdf.mapping_to_rdf import RDFMapper
 from iroko.organizations.search import OrganizationSearch
 from iroko.sources.search import SourceSearch
 

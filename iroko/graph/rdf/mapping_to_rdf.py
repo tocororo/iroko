@@ -12,9 +12,9 @@ from rdflib.namespace import FOAF, XSD, OWL
 from os import name
 
 from iroko.api import IrokoRecordIterator
-from iroko.graph.mapping_to_rdf.configuration_manager import ConfigurationManager
+from iroko.graph.rdf.configuration_manager import ConfigurationManager
 
-from iroko.graph.mapping_to_rdf.creategraph import CreateGraph
+from iroko.graph.rdf.creategraph import CreateGraph
 
 
 class RDFMapper:
