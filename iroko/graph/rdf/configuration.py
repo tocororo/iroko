@@ -1,16 +1,37 @@
 import json
 
 class EntityMapping:
-    def __init__(self, entity: dict):
+    def __init__(self, config: dict):
+        self.config = config
         self.pid = self.config['pid']
         self.name = self.config['name']
         self.description = self.config['description']
-        self._class = self.config['_class']
+        self.destination_class = self.config['_class']
         self.required = self.config['required']
         self.properties = self.config['properties']
         self.valuesof = self.config['valuesOf']
 
-class Mapping:
+    def validate_required(self, instance):
+        """Validates that all required attributes are present in the instance
+
+        Args:
+            required_attributes (list): A list of attribute names that are required.
+            instance (dict): A dictionary representing the instance to validate.
+
+    Returns:
+        bool: True if all required attributes are present, False otherwise.
+
+        """
+        # Iterate over the list of required attributes
+        for required_attribute in self.required:
+            # If any required attribute is missing from the instance JSON, return False
+            if required_attribute not in instance:
+                return False
+        # All required attributes are present in the instance JSON, so return True
+        return True
+
+
+class MappingConfig:
 
     def __init__(self, config: dict):
         self.config = config
@@ -19,10 +40,12 @@ class Mapping:
         self.created = self.config['created']
         self.last_updated = self.config['last_updated']
         self._order = self.config['_order']
+        self.namespaces = self.config['namespaces']
+        self.default_namespace = self.config['default_namespace']
 
         entities = [EntityMapping(entity) for entity in self.config['entities']]
         entities_map = {entity.pid: entity for entity in entities}
-        ordered_entities = [entities_map[pid] for pid in self.mapping_order if pid in entities_map]
+        ordered_entities = [entities_map[pid] for pid in self._order if pid in entities_map]
         self.mappings = ordered_entities
 
 

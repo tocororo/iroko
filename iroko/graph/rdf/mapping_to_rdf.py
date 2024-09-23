@@ -12,66 +12,102 @@ from rdflib.namespace import FOAF, XSD, OWL
 from os import name
 
 from iroko.api import IrokoRecordIterator
-from iroko.graph.rdf.configuration_manager import ConfigurationManager
+from iroko.graph.rdf.configuration import EntityMapping, MappingConfig
 
 from iroko.graph.rdf.creategraph import CreateGraph
 
 
+
 class RDFMapper:
     def __init__(self, created_graph: CreateGraph,
-                 configurationManager: ConfigurationManager,
-                 instances_iter: IrokoRecordIterator, entity_pid: str):
+                 mapping_config: MappingConfig):
         self.created_graph = created_graph
-        self.configurationManager = configurationManager
-        self.instances_iter = instances_iter
-        self.namespace = configurationManager.namespace
+        self.mapping_config = mapping_config
+        self.namespaces = mapping_config.namespaces
+
+        self.instances_iter = None
+        self.entity_pid = None
+
+    def map_instances(self, entity_config, instance_iterator, entity_pid):
+        self.instances_iter = instance_iterator
         self.entity_pid = entity_pid
+
+        if self.instances_iter is not None:
+            # try:
+            for instance in self.instances_iter:
+                uri_of_the_subject = self._validate_instance(entity_config, instance)
+                self.created_graph.add_triplet(
+                        str(uri_of_the_subject),
+                        RDF.type,
+                        str(entity_config.destination_class))
+                self.process_properties_in_an_instance(
+                    entity_config.properties, instance, uri_of_the_subject,
+                    entity_config.valuesof)
+            # except Exception as e:
+            #     raise e
+            #     return str(e)
+
+    def process_properties_in_an_instance(self, properties_config: dict, instance: dict,
+                                          uri_of_the_subject, valuesof_config):
+        """
+        este metodo procesa  la seccion de de properties de una instancia o sea
+        los atributos que reprentan un literal o una lista de literales
+        """
+        # try:
+        for key in properties_config.keys():
+            value = instance.get(key)
+            if value:
+
+                if isinstance(value, str):
+                    self._process_literal(
+                        uri_of_the_subject, key, value, properties_config)
+                    continue
+                if isinstance(value, list):
+                    if isinstance(value[0], str):
+                        self._process_list(
+                            uri_of_the_subject, key, value, properties_config)
+                        continue
+                    if isinstance(value[0], dict):
+                        if self._is_identifiers(value[0]):
+                            for identifier in value:
+                                self._process_identifiers_dict(
+                                    uri_of_the_subject, identifier,
+                                    properties_config.get("identifiers"), valuesof_config)
+                            continue
+                        # if self._is_a_relation(value[0]):
+                        #     print("=====================================relatoon")
+                        #     for relation in value:
+                        #         if isinstance(relation, dict):
+                        #
+                        #             self._process_relation(uri_of_the_subject, key, relation,
+                        #                                    properties_config)
+                        #
+                        # continue
+
+                # if isinstance(value, dict):
+                #
+                #     if self._is_a_relation(value):
+                #         self._process_relation(uri_of_the_subject, key, value,
+                #                                properties_config)
+                #     self._process_dict(
+                #         uri_of_the_subject, key, value, properties_config)
+                #     continue
+            else:
+
+                continue
+
+        # except Exception as e:
+        #     print(f"Error al procesar propiedades en una instancia: {str(e)}")
+        #     raise e
+
 
     # Comprueba que la instancia sea un diccionario válido,
     # que tenga una propiedad id y que la propiedad no esté vacía
     # y devuelve la URI del objeto
     # valida que todos los requeridos esten en el json de una instancia
-    def validate_required(self, required_attributes, instance):
-        """Validates that all required attributes are present in the instance
-
-        Args:
-            required_attributes (list): A list of attribute names that are required.
-        instance (dict): A dictionary representing the instance to validate.
-
-    Returns:
-        bool: True if all required attributes are present, False otherwise.
-
-        """
-        # Iterate over the list of required attributes
-        for required_attribute in required_attributes:
-            # If any required attribute is missing from the instance JSON, return False
-            if required_attribute not in instance:
-                return False
-        # All required attributes are present in the instance JSON, so return True
-        return True
-
-    # Dado un string nombre de entidad busca en las configuraciones su especifica configuracion
-    def search_entity_by_string_pid(self, entity_pid: str):
-        """Searches for the specific configuration
-        of an entity based on its pid.
-
-        Args:
-        entity_pid (str): The pid of the entity.
-
-        Returns:
-        dict: The configuration of the entity if found,
-          otherwise an empty dictionary.
-        """
-        entity_configuration = []
-        for entity in self.configurationManager.json_ontology_conf.get("entities"):
-            if entity["pid"] == self.entity_pid:
-                entity_configuration = entity
-                break
-
-        return entity_configuration
 
     # valida que la instancia tenga los atributos requeridos en la configuracion
-    def _validate_instance(self, instance: dict):
+    def _validate_instance(self, entity_config: EntityMapping, instance: dict):
         """Validates that the instance has the
         required attributes specified in the
         configuration.
@@ -86,28 +122,25 @@ class RDFMapper:
                       not have all the required attributes.
 
         """
-        required_attribute = self.search_entity_by_string_pid(
-            self.entity_pid).get("mapping").get("required")
+        required_attribute = entity_config.required
 
-        if self.validate_required(required_attribute, instance):
+        if entity_config.validate_required(instance):
             # Save the instance ID in a variable
             return self.is_subject_in_graph(instance.get("id"))
 
         return None
 
-    def is_subject_in_graph(self, id: str):
+    def is_subject_in_graph(self, _id: str):
         """Check if the subject (URI) already exists in the graph.
 
         Args:
-        id (str): The ID of the subject.
+            _id (str): The ID of the subject.
 
         Returns:
         str: The subject (URI) if it already exists, otherwise the new subject (URI).
         """
-        _id = id
-        # Get the namespace from the namespaces dictionary using the provided namespace key
-        namespace = self.created_graph._get_namespaces()[self.namespace]
-        new_subject = f"{namespace}id/{_id}"
+        # Get the namespaces from the namespaces dictionary using the provided namespaces key
+        new_subject = f"{self.mapping_config.default_namespace}id/{_id}"
         # Iterate over the graph to check if the subject (URI) of the instance already exists
         for subject in self.created_graph.graph:
             # If it finds a match, return that subject (URI)
@@ -118,38 +151,6 @@ class RDFMapper:
         return new_subject
         # Return None if the instance does not have all the required attributes
 
-    def validate_instances_array(self):
-        """Check if the instances_iter array is valid
-
-        Returns:
-        bool: True if the instances_iter array is not None, False otherwise.
-        """
-        if self.instances_iter is None:
-            print("Error: No iterator")
-            return False
-        return True
-
-    # se encarga de validar el arreglo de instancias ,inicializa la uri con la que se va a mapear las entidades
-    # Si todo esta correcto procede a procesar las instancias
-    def _mapping_entity(self):
-        try:
-            if self.validate_instances_array():
-                uri_sceiba = None
-                uri_sceiba = self.created_graph._get_namespaces().get(self.namespace)
-                if uri_sceiba is None:
-                    raise Exception(
-                        "Error: No se encontró la URI correspondiente")
-                else:
-                    if self._process_instances(
-                        self.search_entity_by_string_pid(self.entity_pid).get(
-                            "mapping")) == "Success":
-                        rdf_data = self.created_graph
-                        return rdf_data.graph
-            else:
-                raise Exception("Error: Invalid instances_iter array")
-        except Exception as e:
-            raise e
-            return str(e)
 
     # Falta ultimar detalles
     def _process_literal(self, subject, key, value, properties_config):
@@ -162,19 +163,19 @@ class RDFMapper:
             value (_type_): _description_
             properties_config (_type_): _description_
         """
-        try:
-            predicate = properties_config[key]
-            if isinstance(predicate, str):
-                self.created_graph._add_triplet(
-                    str(subject), str(predicate), str(value))
-            if isinstance(predicate, list):
-                for item in predicate:
-                    self.created_graph._add_triplet(
-                        str(subject), str(item), str(value))
+        # try:
+        predicate = properties_config[key]
+        if isinstance(predicate, str):
+            self.created_graph.add_triplet(
+                str(subject), str(predicate), str(value))
+        if isinstance(predicate, list):
+            for item in predicate:
+                self.created_graph.add_triplet(
+                    str(subject), str(item), str(value))
 
-        except Exception as e:
-            raise e
-            print(f"Error en process_literal: {str(e)}")
+        # except Exception as e:
+        #     raise e
+        #     print(f"Error en process_literal: {str(e)}")
 
     # Devuelve verdadero si el diccionario es de identifiers
     def _is_identifiers(self, value_dict: dict):
@@ -220,31 +221,31 @@ class RDFMapper:
         identifiers_config (dict): A dictionary representing the configuration for the identifiers.
 
         """
-        try:
+        # try:
             # Get the predicate value from the identifiers_config dictionary based on the "__predicate" key
             # If the key is not found, use an empty string as the default value
-            __predicate = identifiers_config.get("__predicate")
+        __predicate = identifiers_config.get("__predicate")
 
-            valuesOf = str(identifiers_config.get(__predicate)).split(':')[1]
+        valuesOf = str(identifiers_config.get(__predicate)).split(':')[1]
 
-            __predicate_source = identifiers_dict.get(__predicate)
+        __predicate_source = identifiers_dict.get(__predicate)
 
-            predicate = valuesof_config.get(valuesOf).get(__predicate_source)
+        predicate = valuesof_config.get(valuesOf).get(__predicate_source)
 
 
-            # Get the object value from the identifiers_dict dictionary based on the "__object" key
-            # If the key is not found, use an empty string as the default value
-            object_value = identifiers_dict.get(
-                identifiers_config.get("__object"), "")
-            # Add a triple to the created graph using the subject, predicate, and object value
+        # Get the object value from the identifiers_dict dictionary based on the "__object" key
+        # If the key is not found, use an empty string as the default value
+        object_value = identifiers_dict.get(
+            identifiers_config.get("__object"), "")
+        # Add a triple to the created graph using the subject, predicate, and object value
 
-            self.created_graph._add_triplet(
-                str(subject), str(predicate), str(object_value))
-        except Exception as e:
-            # Print an error message if an exception occurs during the processing
-
-            print(f"Error en _process_identifiers_dict: {str(e)}")
-            raise e
+        self.created_graph.add_triplet(
+            str(subject), str(predicate), str(object_value))
+        # except Exception as e:
+        #     # Print an error message if an exception occurs during the processing
+        #
+        #     print(f"Error en _process_identifiers_dict: {str(e)}")
+        #     raise e
 
     # Procesa un diccionario, recorre el dict y si el valor no es vacío, pregunta si es
 
@@ -271,62 +272,62 @@ I hope this clarifies the explanation for you. If you have any further questions
             value_dict (dict): The dictionary value to process
             properties_config (dict): The configuration of properties
         """
-        try:
-            # Create an empty list to store BNodes
-            bnode_list = []
-            for object_key, value in value_dict.items():
-                predicate = properties_config.get(key).get(object_key)
-                if isinstance(value, dict):
-                    # If the value is another dictionary, recursively call _process_dict
+        # try:
+        # Create an empty list to store BNodes
+        bnode_list = []
+        for object_key, value in value_dict.items():
+            predicate = properties_config.get(key).get(object_key)
+            if isinstance(value, dict):
+                # If the value is another dictionary, recursively call _process_dict
 
-                    self._process_dict(subject, object_key,
-                                       value, properties_config)
-                else:
-                    bnode = BNode()  # Create a new BNode
-
-                    if isinstance(predicate, list):
-                        # If the predicate is a list, iterate over each item and add triplets to the graph
-
-                        for predicate_item in predicate:
-                            self.created_graph._add_triplet(str(bnode), str(
-                                predicate_item), str(value))
-                            bnode_list.append(bnode)
-                    else:
-                        # If the predicate is not a list, add a single triplet to the graph
-
-                        self.created_graph._add_triplet(str(bnode), str(
-                            predicate), str(value))
-                        bnode_list.append(bnode)  # Add the BNode to the list
-
-            if predicate:
-                # If the key exists in properties_config, add triplets connecting the subject to the BNodes
-
-                for bnode in bnode_list:
-                    self.created_graph._add_triplet((subject), (
-                        predicate), bnode)
-
+                self._process_dict(subject, object_key,
+                                   value, properties_config)
             else:
-                for bnode in bnode_list:
+                bnode = BNode()  # Create a new BNode
 
-                    # If the key does not exist in properties_config, add triplets connecting the subject to the BNodes using RDF.object
+                if isinstance(predicate, list):
+                    # If the predicate is a list, iterate over each item and add triplets to the graph
 
-                    self.created_graph._add_triplet(
-                        str(subject), RDF.object, bnode)
-                    print(subject, RDF.object, bnode)
-        except Exception as e:
-            print(f"Error en _process_dict: {str(e)}")
-            raise e
+                    for predicate_item in predicate:
+                        self.created_graph.add_triplet(str(bnode), str(
+                            predicate_item), str(value))
+                        bnode_list.append(bnode)
+                else:
+                    # If the predicate is not a list, add a single triplet to the graph
+
+                    self.created_graph.add_triplet(str(bnode), str(
+                        predicate), str(value))
+                    bnode_list.append(bnode)  # Add the BNode to the list
+
+        if predicate:
+            # If the key exists in properties_config, add triplets connecting the subject to the BNodes
+
+            for bnode in bnode_list:
+                self.created_graph.add_triplet((subject), (
+                    predicate), bnode)
+
+        else:
+            for bnode in bnode_list:
+
+                # If the key does not exist in properties_config, add triplets connecting the subject to the BNodes using RDF.object
+
+                self.created_graph.add_triplet(
+                    str(subject), RDF.object, bnode)
+                print(subject, RDF.object, bnode)
+        # except Exception as e:
+        #     print(f"Error en _process_dict: {str(e)}")
+        #     raise e
 
     # Procesa una lista
     def _process_list(self, subject, key, value_list, properties_config):
-        try:
-            if ((value_list != [])):
-                for value in value_list:
-                    self._process_literal(
-                        subject, key, value, properties_config)
-        except Exception as e:
-            raise e
-            print(f"Error en _process_list: {str(e)}")
+        # try:
+        if ((value_list != [])):
+            for value in value_list:
+                self._process_literal(
+                    subject, key, value, properties_config)
+        # except Exception as e:
+        #     raise e
+        #     print(f"Error en _process_list: {str(e)}")
 
     def _process_list_of_dict(self, subject, key, list_of_dict, properties_config):
         for dict_item in list_of_dict:
@@ -342,118 +343,119 @@ I hope this clarifies the explanation for you. If you have any further questions
         value: The value of the relation as a dictionary.
         properties_config: Configuration for the properties.
         """
-        try:
-            print(key, "=================key")
-            # Get the configuration for the relation
-            relation_config: dict = properties_config.get(key)
-            print("relation_config", relation_config)
-            # Create a blank node for the relation
-            bnode = BNode()
-            # Add the type of the relation to the blank node
-            if relation_config.get("id"):
-                self.created_graph._add_triplet(
-                    str(bnode), RDF.type, str(relation_config.get("id")))
-            # Get the namespace for the graph
-            uri_sceiba = Namespace(
-                self.created_graph._get_namespaces().get(self.namespace))
-            print("uri_sceiba", uri_sceiba)
-            # Process each key-value pair in the relation value
-            for key_invalue, value_invalue in value.items():
-                # Check if the key matches the relation identifier
-                if key_invalue == relation_config.get("__relation"):
-                    print("key_invalue", key_invalue)
-                    # Add the subject of the relation as an object to the blank node
-                    print("=====================", str(bnode))
-                    print("=====================", (uri_sceiba.key))
+        # try:
+        print(key, "=================key")
+        # Get the configuration for the relation
+        relation_config: dict = properties_config.get(key)
+        print("relation_config", relation_config)
+        # Create a blank node for the relation
+        bnode = BNode()
+        # Add the type of the relation to the blank node
+        if relation_config.get("id"):
+            self.created_graph.add_triplet(
+                str(bnode), RDF.type, str(relation_config.get("id")))
+        # Get the namespaces for the graph
+        uri_sceiba = Namespace( self.mapping_config.default_namespace)
 
-                    print("=====================", str(self.is_subject_in_graph(value_invalue)))
-                    # aqui tengo duda en esa uri sceiba.key y es a la hora de crear ese predicado semantico
-                    self.created_graph._add_triplet(
-                        str(bnode), (uri_sceiba.key), str(self.is_subject_in_graph(value_invalue)))
-                    # Add the key-value pair as a triplet to the blank node
-                self.created_graph._add_triplet(str(bnode), str(
-                    relation_config.get(key_invalue)), str(value_invalue))
+        print("uri_sceiba", uri_sceiba)
+        # Process each key-value pair in the relation value
+        for key_invalue, value_invalue in value.items():
+            # Check if the key matches the relation identifier
+            if key_invalue == relation_config.get("__relation"):
+                print("key_invalue", key_invalue)
+                # Add the subject of the relation as an object to the blank node
+                print("=====================", str(bnode))
+                print("=====================", (uri_sceiba.key))
 
-            # Add the blank node as an object to the subject
+                print("=====================", str(self.is_subject_in_graph(value_invalue)))
+                # aqui tengo duda en esa uri sceiba.key y es a la hora de crear ese predicado semantico
+                self.created_graph.add_triplet(
+                    str(bnode), (uri_sceiba.key), str(self.is_subject_in_graph(value_invalue)))
+                # Add the key-value pair as a triplet to the blank node
+            self.created_graph.add_triplet(str(bnode), str(
+                relation_config.get(key_invalue)), str(value_invalue))
 
-            self.created_graph._add_triplet(subject, uri_sceiba.key, str(bnode))
+        # Add the blank node as an object to the subject
 
-        except Exception as e:
-            print(f"Error en _process_relation: {str(e)}")
-            raise e
+        self.created_graph.add_triplet(subject, uri_sceiba.key, str(bnode))
+
+        # except Exception as e:
+        #     print(f"Error en _process_relation: {str(e)}")
+        #     raise e
+
+        # # Dado un string nombre de entidad busca en las configuraciones su especifica configuracion
+        # def search_entity_by_string_pid(self, entity_pid: str):
+        #     """Searches for the specific configuration
+        #     of an entity based on its pid.
+        #
+        #     Args:
+        #     entity_pid (str): The pid of the entity.
+        #
+        #     Returns:
+        #     dict: The configuration of the entity if found,
+        #       otherwise an empty dictionary.
+        #     """
+        #     entity_configuration = []
+        #     for entity in self.mapping_config.json_ontology_conf.get("entities"):
+        #         if entity["pid"] == self.entity_pid:
+        #             entity_configuration = entity
+        #             break
+        #
+        #     return entity_configuration
+
+        #
+    # def validate_instances_array(self):
+    #     """Check if the instances_iter array is valid
+    #
+    #     Returns:
+    #     bool: True if the instances_iter array is not None, False otherwise.
+    #     """
+    #     if self.instances_iter is None:
+    #         print("Error: No iterator")
+    #         return False
+        return True
 
 
-    def process_properties_in_an_instance(self, properties_config: dict, instance: dict,
-                                          uri_of_the_subject, valuesof_config):
-        """
-        este metodo procesa  la seccion de de properties de una instancia o sea
-        los atributos que reprentan un literal o una lista de literales
-        """
-        try:
-            for key in properties_config.keys():
-                value = instance.get(key)
-                if value:
 
-                    if isinstance(value, str):
-                        self._process_literal(
-                            uri_of_the_subject, key, value, properties_config)
-                        continue
-                    if isinstance(value, list):
-                        if isinstance(value[0], str):
+    # se encarga de validar el arreglo de instancias ,inicializa la uri con la que se va a mapear las entidades
+    # Si todo esta correcto procede a procesar las instancias
+    # def _mapping_entity(self):
+    #     try:
+    #         if self.validate_instances_array():
+    #             uri_sceiba = None
+    #             uri_sceiba = self.created_graph.get_namespaces().get(self.namespaces)
+    #             if uri_sceiba is None:
+    #                 raise Exception(
+    #                     "Error: No se encontró la URI correspondiente")
+    #             else:
+    #                 if self._process_instances(
+    #                     self.search_entity_by_string_pid(self.entity_pid).get(
+    #                         "mapping")) == "Success":
+    #                     rdf_data = self.created_graph
+    #                     return rdf_data.graph
+    #         else:
+    #             raise Exception("Error: Invalid instances_iter array")
+    #     except Exception as e:
+    #         raise e
+    #         return str(e)
 
-                            self._process_list(
-                                uri_of_the_subject, key, value, properties_config)
-                            continue
-                        if isinstance(value[0], dict):
-
-                            if self._is_identifiers(value[0]):
-                                for identifier in value:
-                                    self._process_identifiers_dict(
-                                        uri_of_the_subject, identifier,
-                                        properties_config.get("identifiers"), valuesof_config)
-                                continue
-                            if self._is_a_relation(value[0]):
-                                print("=====================================relatoon")
-                                for relation in value:
-                                    if isinstance(relation, dict):
-
-                                        self._process_relation(uri_of_the_subject, key, relation,
-                                                               properties_config)
-
-                            continue
-
-                    if isinstance(value, dict):
-
-                        if self._is_a_relation(value):
-                            self._process_relation(uri_of_the_subject, key, value,
-                                                   properties_config)
-                        self._process_dict(
-                            uri_of_the_subject, key, value, properties_config)
-                        continue
-                else:
-
-                    continue
-
-        except Exception as e:
-            print(f"Error al procesar propiedades en una instancia: {str(e)}")
-            raise e
-
-    def process_properties_section(self, properties_section_config, entity_class: str,
-                                   values_of_config):
-        for instance in self.instances_iter:
-            uri_of_the_subject = self._validate_instance(instance)
-            self.created_graph._add_triplet(
-                str(uri_of_the_subject), RDF.type, str(entity_class))
-            self.process_properties_in_an_instance(
-                properties_section_config, instance, uri_of_the_subject, values_of_config)
-
-    def _process_instances(self, instance_configuration: dict):
-        try:
-            entity_class = instance_configuration.get("_class")
-            values_of_config = instance_configuration.get("valuesOf")
-            self.process_properties_section(
-                instance_configuration['properties'], entity_class, values_of_config)
-            return "Success"
-        except Exception as e:
-            error_message = f"Error processing instances_iter: {str(e)}"
-            return error_message
+    #
+    # def process_properties_section(self, entity_configuration: EntityMapping):
+    #     for instance in self.instances_iter:
+    #         uri_of_the_subject = self._validate_instance(instance)
+    #         self.created_graph.add_triplet(
+    #             str(uri_of_the_subject), RDF.type, str(entity_configuration.destination_class))
+    #         self.process_properties_in_an_instance(
+    #             entity_configuration.properties, instance, uri_of_the_subject,
+    #             entity_configuration.valuesof)
+    #
+    # def _process_instances(self, entity_configuration: EntityMapping):
+    #     try:
+    #         entity_class = entity_configuration.destination_class
+    #         values_of_config = entity_configuration.valuesof
+    #         self.process_properties_section(
+    #             entity_configuration.properties, entity_class, values_of_config)
+    #         return "Success"
+    #     except Exception as e:
+    #         error_message = f"Error processing instances_iter: {str(e)}"
+    #         return error_message

@@ -23,7 +23,7 @@
 <!--                                                               -->
 <!-- (The value of 'noNamespaceSchemaLocation' is a relative or    -->
 <!-- absolute URI pointing to the Schema. Other attributes and     -->
-<!-- namespace declarations are removed here for clarity.)         -->
+<!-- namespaces declarations are removed here for clarity.)         -->
 <!-- ============================================================= -->
 <!-- ============================================================= -->
 <!-- SYSTEM:     NCBI Journal Publishing XML Schema                -->
@@ -48,8 +48,8 @@
 <!--                                                               -->
 <!-- CONTAINS:   1) import MathML 2.0 XML Schema                   -->
 <!--                (see http://www.w3.org/Math/XMLSchema/)        -->
-<!--             2) import XLink namespace module                  -->
-<!--             3) import XML namespace module                    -->
+<!--             2) import XLink namespaces module                  -->
+<!--             3) import XML namespaces module                    -->
 <!--             4) element and attribute type declarations        -->
 <!--                                                               -->
 <!-- CREATED FOR:                                                  -->
@@ -76,7 +76,7 @@
            xmlns:mml="http://www.w3.org/1998/Math/MathML" elementFormDefault="qualified">
     <xs:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="mathml2.xsd"/>
     <xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlink.xsd"/>
-    <!-- XSD import of namespace  suppressed, whee -->
+    <!-- XSD import of namespaces  suppressed, whee -->
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
     <xs:element name="sig-block">
         <xs:complexType mixed="true">

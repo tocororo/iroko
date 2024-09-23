@@ -25,10 +25,10 @@ class CreateGraph:
         else:
             print(f"Error al agregar la tripleta: {str(e)}")
             self.graph = graph
-        # Define an empty dictionary as the 'namespace' attribute
+        # Define an empty dictionary as the 'namespaces' attribute
         self.namespace = {}
 
-    def _add_triplet(self, sujeto, predicado, objeto):
+    def add_triplet(self, sujeto, predicado, objeto):
         """    Add a triplet to the graph.
 
 
@@ -37,30 +37,32 @@ class CreateGraph:
             predicate (any): The predicate of the triplet.
             object (any): The object of the triplet.
         """
-        try:
-        # Check if subject is not an instance of URIRef or Literal
-            if not isinstance(sujeto, (URIRef, Literal)):
-            # Try to convert subject to URIRef
-                sujeto = URIRef(sujeto)
+        # try:
+    # Check if subject is not an instance of URIRef or Literal
+        if not isinstance(sujeto, (URIRef, Literal)):
+        # Try to convert subject to URIRef
+            sujeto = URIRef(sujeto)
 
-        # Check if predicate is not an instance of URIRef
-            if not isinstance(predicado, (URIRef)):
-            # Try to convert predicate to URIRef
-                predicado = URIRef(predicado)
+    # Check if predicate is not an instance of URIRef
+        if not isinstance(predicado, (URIRef)):
+        # Try to convert predicate to URIRef
+            predicado = URIRef(predicado)
 
-        # Check if object is not an instance of URIRef or Literal
-            if not isinstance(objeto, (URIRef, Literal)):
-            # Try to convert object to URIRef if it's a URI, or to Literal if it's a literal
-                if objeto.startswith('http://') or objeto.startswith('https://'):
-                    objeto = URIRef(objeto)
-                else:
-                    objeto = Literal(objeto)
+    # Check if object is not an instance of URIRef or Literal
+        if not isinstance(objeto, (URIRef, Literal)):
+        # Try to convert object to URIRef if it's a URI, or to Literal if it's a literal
+            if objeto.startswith('http://') or objeto.startswith('https://'):
+                objeto = URIRef(objeto)
+            else:
+                objeto = Literal(objeto)
 
-        # Add the triplet to the graph
-            self.graph.add((sujeto, predicado, objeto))
+    # Add the triplet to the graph
+        print('================')
+        print("{0}  -- {1} -- {2}".format(sujeto, predicado, objeto))
+        self.graph.add((sujeto, predicado, objeto))
 
-        except Exception as e:
-            print(f"Error while adding the triplet: {str(e)}")
+        # except Exception as e:
+        #     print(f"Error while adding the triplet: {str(e)}")
     def serialize(self, format='ttl'):
             """    Serialize the RDF graph in the specified format.
     Args:
@@ -71,22 +73,22 @@ class CreateGraph:
             """
             print("=====================================================)")
             return self.graph.serialize(format=format, indent=True)
-    def add_namespaces(self, namespaces_dict):
+    def add_namespaces(self, namespaces_dict: dict):
             """    Add namespaces to the RDF graph.
         Args:
-        namespaces_dict (dict): A dictionary where keys are namespace prefixes and values are namespaces.
+        namespaces_dict (dict): A dictionary where keys are namespaces prefixes and values are namespaces.
         Returns:
         Graph: The updated graph after adding the namespaces.
             """
-            try:
-                for prefix, namespace in namespaces_dict.items():
-                    self.graph.namespace_manager.bind(prefix, namespace)
-                return self.graph  # Returns the updated graph
-            except Exception as e:
-                    print(f"Error while adding namespaces: {str(e)}")
-                    return None  # Returns None in case of an error
+            # try:
+            for prefix, namespace in namespaces_dict.items():
+                self.graph.namespace_manager.bind(prefix, namespace)
+            return self.graph  # Returns the updated graph
+            # except Exception as e:
+            #         print(f"Error while adding namespaces: {str(e)}")
+            #         return None  # Returns None in case of an error
         #Verifica si existe una uri dada en el grafo
-    def _get_namespaces(self):
+    def get_namespaces(self):
         """Returns a dictionary of namespaces in the graph.
 
         Returns:

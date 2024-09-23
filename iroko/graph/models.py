@@ -10,7 +10,7 @@ class Configuration:
         self.entities = entities
 
 class Entity:
-    def __init__(self, name: str, description: str, mapping: 'Mapping'):
+    def __init__(self, name: str, description: str, mapping: 'MappingConfig'):
         self.name = name
         self.description = description
         self.mapping = mapping

@@ -5,6 +5,7 @@ from rdflib import Graph
 from rdflib.plugins.sparql.parser import parseQuery
 
 from iroko.api import IrokoRecordIterator
+from iroko.graph.rdf.configuration import MappingConfig
 from iroko.graph.rdf.configuration_manager import ConfigurationManager
 from iroko.graph.rdf.creategraph import CreateGraph
 from iroko.graph.rdf.mapping_to_rdf import RDFMapper
@@ -14,40 +15,48 @@ from iroko.sources.search import SourceSearch
 
 class RDFProcessor:
     def __init__(self):
-        self.namespaces = {
-            "sceiba": "http//sceiba.cu/"
-            }
         self.general_graph = Graph()
 
-    def transform_by_configuration_json(self, configuration_json):
+    def transform_by_configuration_json(self, configuration_json_file):
         """    Transform data based on the provided configuration JSON.
 
 
         Args:
-        configuration_json (dict): The configuration JSON specifying the transformation rules.
+        configuration_json_file (dict): The configuration JSON specifying the transformation rules.
 
         Returns:
         dict: The transformed data.
         """
+        data_dict = json.loads(configuration_json_file)
+        mapping_config = MappingConfig(data_dict)
+
         create_graph = CreateGraph()
-        create_graph.graph = create_graph.add_namespaces(self.namespaces)
-        # try:
-        data_dict = json.loads(configuration_json)
-        configuration_manager = ConfigurationManager(data_dict, "sceiba")
-        if configuration_manager.validate_config_json():
-            for entity in configuration_manager.put_the_order():
-                entity_search_by_pid = IrokoRecordIterator(entity.get("pid"), stop_at=100)
-                if entity_search_by_pid:
-                    mapping = RDFMapper(create_graph, configuration_manager,
-                                        entity_search_by_pid,
-                                        entity.get("pid"))
-                    graph = mapping._mapping_entity()
-                    create_graph.graph = create_graph.graph + graph
-                else:
-                    print("Entity not found")
-                    continue
-            self.general_graph = create_graph.graph
-            print(self.general_graph.serialize(format="ttl"))
+        create_graph.graph = create_graph.add_namespaces(mapping_config.namespaces)
+
+        mapper = RDFMapper(create_graph, mapping_config)
+        for entity in mapping_config.mappings:
+            entity_search_by_pid = IrokoRecordIterator(entity.pid, stop_at=100)
+            mapper.map_instances(entity, entity_search_by_pid, entity.pid)
+            # create_graph.graph = create_graph.graph + graph
+
+        self.general_graph = self.general_graph + create_graph.graph
+
+        # print(self.general_graph.serialize(format="ttl"))
+        # configuration_manager = ConfigurationManager(data_dict, "sceiba")
+        # if configuration_manager.validate_config_json():
+        #     for entity in configuration_manager.put_the_order():
+        #         entity_search_by_pid = IrokoRecordIterator(entity.get("pid"), stop_at=100)
+        #         if entity_search_by_pid:
+        #             mapping = RDFMapper(create_graph, configuration_manager,
+        #                                 entity_search_by_pid,
+        #                                 entity.get("pid"))
+        #             graph = mapping._mapping_entity()
+        #             create_graph.graph = create_graph.graph + graph
+        #         else:
+        #             print("Entity not found")
+        #             continue
+        #     self.general_graph = create_graph.graph
+        #     print(self.general_graph.serialize(format="ttl"))
         #     else:
         #         return False
         # except:
