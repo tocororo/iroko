@@ -251,7 +251,7 @@ class Evaluations:
                 temp['journalData']['issn'] = data['issn']
                 temp['journalData']['name'] = data['name']
                 temp['journalData']['url'] = data['url']
-                evaluation.entity_name = data['name']
+                evaluation.entity_pid = data['name']
                 # TODO en un futuro esta info se obtendria de otra forma
                 evaluation.entity_id_value = data['issn']
                 evaluation.entity_type = "Journal"

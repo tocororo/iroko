@@ -11,10 +11,10 @@ from rdflib.namespace import FOAF, XSD, OWL
 
 
 
-class Create_Graph:
+class CreateGraph:
     def __init__(self, graph: Graph = None):
         """
-        Initialize a Create_Graph.
+        Initialize a CreateGraph.
 
         Args:
             graph (Graph, optional): The graph to work with. Defaults to None.

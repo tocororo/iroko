@@ -1,12 +1,12 @@
 from typing import List, Dict, Union
 
 class Configuration:
-    def __init__(self, name: str, description: str, created: str, last_updated: str, order_for_mapping: List[str], entities: List['Entity']):
+    def __init__(self, name: str, description: str, created: str, last_updated: str, mapping_order: List[str], entities: List['Entity']):
         self.name = name
         self.description = description
         self.created = created
         self.last_updated = last_updated
-        self.order_for_mapping = order_for_mapping
+        self.mapping_order = mapping_order
         self.entities = entities
 
 class Entity:
@@ -17,7 +17,7 @@ class Entity:
 
 class Mapping:
     def __init__(self, _class: str, required: List[str],
-     properties: Dict[str, Union[str, List[str], 'NestedMappings']], 
+     properties: Dict[str, Union[str, List[str], 'NestedMappings']],
      valuesOf: Dict[str, Dict[str, str]]):
         self._class = _class
         self.required = required

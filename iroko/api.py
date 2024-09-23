@@ -536,3 +536,47 @@ class IrokoAggs:
                 )
         logger.info("return: {0}".format(result))
         return result
+
+
+class IrokoRecordIterator:
+    """
+    it = IrokoRecordIterator("srcid")
+    for src in it:
+        print(src['identifiers'])
+        c=c+1
+        print(c)
+
+    """
+    def __init__(self, pid_type, status=PIDStatus.REGISTERED, batch_size=10, stop_at = -1):
+        self.pid_type = pid_type
+        self.status = status
+        self.stop_at = stop_at
+        self.offset = 0
+        self.batch_size = batch_size
+        self.page = []
+        self.page_index = -1
+        self.query = PersistentIdentifier.query.filter_by(pid_type=pid_type, status=status)
+
+    def __iter__(self):
+        # Devuelve el propio objeto iterador
+        return self
+
+    def __next__(self):
+        self.page_index = self.page_index + 1
+        if self.page_index == len(self.page):
+            pids = self.query.limit(self.batch_size).offset(self.offset).all()
+            if not pids:
+                raise StopIteration
+            self.offset += self.batch_size
+            if -1 < self.stop_at < self.offset:
+                raise StopIteration
+
+            self.page = []
+            for pid in pids:
+                rec = Record.get_record(pid.object_uuid)
+                self.page.append(rec)
+            self.page_index = 0
+
+        return self.page[self.page_index]
+
+

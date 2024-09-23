@@ -45,7 +45,7 @@ class EvaluationSchema(Schema):
         item['notes'] = item['notes'] if 'notes' in item else ''
         item['user_id'] = item['user_id'] if 'user_id' in item else ''
         item['data'] = item['data'] if 'data' in item else {}
-        item['entity_name'] = item['entity_name'] if 'entity_name' in item else ''
+        item['entity_pid'] = item['entity_pid'] if 'entity_pid' in item else ''
         item['entity_type'] = item['entity_type'] if 'entity_type' in item else ''
         item['entity_id_type'] = item['entity_id_type'] if 'entity_id_type' in item else ''
         item['entity_id_value'] = item['entity_id_value'] if 'entity_id_value' in item else ''
@@ -56,6 +56,8 @@ class EvaluationSchema(Schema):
 
 evaluation_schema_many = EvaluationSchema(
     many=True, only=(
-        'id', 'uuid', 'state', 'datetime', 'notes', 'user_id', 'entity_name', 'entity_type', 'methodology_name')
+        'id', 'uuid', 'state', 'datetime', 'notes', 'user_id', 'entity_id_type', 'entity_id_value',
+        'entity_type',
+    'methodology_name')
     )
 evaluation_schema = EvaluationSchema(many=False)

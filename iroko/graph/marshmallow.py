@@ -29,7 +29,6 @@ class ConfigurationSchema(Schema):
     description = fields.Str(required=True)
     created = fields.Str(required=True)
     last_updated = fields.Str(required=True)
-    order_for_mapping = fields.List(fields.Str(), required=True)
+    mapping_order = fields.List(fields.Str(), required=True)
     entities = fields.List(fields.Nested(EntitySchema), required=True)
 
- 
