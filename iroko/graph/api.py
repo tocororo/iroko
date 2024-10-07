@@ -34,9 +34,9 @@ class RDFProcessor:
         create_graph.graph = create_graph.add_namespaces(mapping_config.namespaces)
 
         mapper = RDFMapper(create_graph, mapping_config)
-        for entity in mapping_config.mappings:
-            entity_search_by_pid = IrokoRecordIterator(entity.pid, stop_at=100)
-            mapper.map_instances(entity, entity_search_by_pid, entity.pid)
+        for entity in mapping_config.entities:
+            entity_iterator_by_pid = IrokoRecordIterator(entity.pid, stop_at=100)
+            mapper.map_instances(entity, entity_iterator_by_pid, entity.pid)
             # create_graph.graph = create_graph.graph + graph
 
         self.general_graph = self.general_graph + create_graph.graph

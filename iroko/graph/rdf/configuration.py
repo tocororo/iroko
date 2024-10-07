@@ -43,9 +43,17 @@ class MappingConfig:
         self.namespaces = self.config['namespaces']
         self.default_namespace = self.config['default_namespace']
 
+        # Possible values n-ary, direct, reification
+        self.relation_strategy = self.config["relation_strategy"] if ("relation_strategy" in
+                                                                          self.config) else "n-ary"
+
+        # Possible values Bag, Seq, Alt, List
+        self.list_strategy = self.config["list_strategy"] if ("list_strategy" in
+                                                                      self.config) else "Bag"
+
         entities = [EntityMapping(entity) for entity in self.config['entities']]
         entities_map = {entity.pid: entity for entity in entities}
         ordered_entities = [entities_map[pid] for pid in self._order if pid in entities_map]
-        self.mappings = ordered_entities
+        self.entities = ordered_entities
 
 

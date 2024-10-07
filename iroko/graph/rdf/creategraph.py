@@ -33,18 +33,18 @@ class CreateGraph:
 
 
         Args:
-            subject (any): The subject of the triplet.
+            subject_uri (any): The subject_uri of the triplet.
             predicate (any): The predicate of the triplet.
             object (any): The object of the triplet.
         """
         # try:
-    # Check if subject is not an instance of URIRef or Literal
+    # Check if subject_uri is not an instance of URIRef or Literal
         if not isinstance(sujeto, (URIRef, Literal)):
-        # Try to convert subject to URIRef
+        # Try to convert subject_uri to URIRef
             sujeto = URIRef(sujeto)
 
     # Check if predicate is not an instance of URIRef
-        if not isinstance(predicado, (URIRef)):
+        if not isinstance(predicado, URIRef):
         # Try to convert predicate to URIRef
             predicado = URIRef(predicado)
 
@@ -57,7 +57,7 @@ class CreateGraph:
                 objeto = Literal(objeto)
 
     # Add the triplet to the graph
-        print('================')
+        print('......')
         print("{0}  -- {1} -- {2}".format(sujeto, predicado, objeto))
         self.graph.add((sujeto, predicado, objeto))
 
